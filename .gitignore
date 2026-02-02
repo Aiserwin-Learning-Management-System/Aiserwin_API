@@ -1,0 +1,53 @@
+# Visual Studio / .NET
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build outputs
+bin/
+obj/
+out/
+
+# NuGet
+*.nupkg
+packages/
+.nuget/
+
+# Rider
+.idea/
+
+# Rider/Resharper
+_ReSharper*/
+*.DotSettings.user
+
+# Visual Studio Code
+.vscode/
+
+# Secrets and config
+appsettings.*.json
+secrets.json
+**/secrets.json
+
+# Logs, databases, OS files
+*.log
+*.sqlite
+*.db
+*.sql
+*.bak
+.DS_Store
+Thumbs.db
+
+# Test results
+TestResults/
+*.trx
+coverage/
+
+# Optional: user and local config
+local.settings.json
+launchSettings.json
+
+# node modules (if present)
+node_modules/

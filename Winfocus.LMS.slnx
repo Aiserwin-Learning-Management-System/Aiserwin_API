@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".gitignore" />
+  </Folder>
+  <Project Path="Winfocus.LMS.API/Winfocus.LMS.API.csproj" />
+  <Project Path="Winfocus.LMS.Application/Winfocus.LMS.Application.csproj" />
+  <Project Path="Winfocus.LMS.Domain/Winfocus.LMS.Domain.csproj" />
+  <Project Path="Winfocus.LMS.Infrastructure/Winfocus.LMS.Infrastructure.csproj" />
+  <Project Path="Winfocus.LMS.Tests/Winfocus.LMS.Tests.csproj" />
+</Solution>

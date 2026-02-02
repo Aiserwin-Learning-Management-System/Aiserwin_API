@@ -1,0 +1,6 @@
+@Winfocus.LMS.API_HostAddress = http://localhost:5270
+
+GET {{Winfocus.LMS.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
