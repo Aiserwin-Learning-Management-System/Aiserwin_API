@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Winfocus.LMS.Application.DTOs
+﻿namespace Winfocus.LMS.Application.DTOs
 {
-    public record CountryDto(Guid Id, string Name, string Code);
-}
+    using System;
 
+    public record CountryDto(Guid id, string name, string code);
+}
