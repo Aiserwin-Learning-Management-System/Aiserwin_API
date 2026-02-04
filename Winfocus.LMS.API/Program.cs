@@ -1,9 +1,9 @@
-using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
+using System.Text;
 using Winfocus.LMS.Application.Interfaces;
 using Winfocus.LMS.Application.Services;
 using Winfocus.LMS.Domain.Entities;
