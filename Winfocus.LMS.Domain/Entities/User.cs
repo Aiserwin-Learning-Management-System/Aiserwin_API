@@ -1,15 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Winfocus.LMS.Domain.Common;
-
-namespace Winfocus.LMS.Domain.Entities
+﻿namespace Winfocus.LMS.Domain.Entities
 {
+    using Winfocus.LMS.Domain.Common;
+
+    /// <summary>
+    /// Represents a user entity within the LMS system.
+    /// </summary>
     public class User : BaseEntity
     {
+        /// <summary>
+        /// Gets or sets the username of the user.
+        /// </summary>
         public string Username { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the email address of the user.
+        /// </summary>
         public string Email { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the hashed password of the user.
+        /// </summary>
         public string PasswordHash { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the role of the user.
+        /// </summary>
         public string Role { get; set; } = "User";
     }
 }
