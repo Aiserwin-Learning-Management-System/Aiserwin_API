@@ -1,16 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Winfocus.LMS.Domain.Common;
-
-namespace Winfocus.LMS.Domain.Entities
+﻿namespace Winfocus.LMS.Domain.Entities
 {
+    using Winfocus.LMS.Domain.Common;
+
+    /// <summary>
+    /// Represents a training or learning centre.
+    /// </summary>
     public class Centre : BaseEntity
     {
-        public string Name { get; set; } = null!; 
+        /// <summary>
+        /// Gets or sets the name of the centre.
+        /// </summary>
+        public string Name { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the type of the centre (Offline, Online, or Hybrid).
+        /// </summary>
         public string Type { get; set; } = "Offline"; // Offline/Online/Hybrid
-        public Guid CountryId { get; set; } 
-        public Country Country { get; set; } = null!; }
+
+        /// <summary>
+        /// Gets or sets the identifier of the country where the centre is located.
+        /// </summary>
+        public Guid CountryId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the country entity associated with the centre.
+        /// </summary>
+        public Country Country { get; set; } = null!;
     }
+}

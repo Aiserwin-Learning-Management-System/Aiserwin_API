@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Winfocus.LMS.Domain.Enums
+﻿namespace Winfocus.LMS.Domain.Enums
 {
+    /// <summary>
+    /// Represents the type of a centre in the LMS domain.
+    /// </summary>
     internal class CentreType
     {
     }

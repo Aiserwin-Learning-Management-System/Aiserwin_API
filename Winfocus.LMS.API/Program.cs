@@ -1,9 +1,9 @@
+using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
-using System.Text;
 using Winfocus.LMS.Application.Interfaces;
 using Winfocus.LMS.Application.Services;
 using Winfocus.LMS.Domain.Entities;
@@ -22,11 +22,10 @@ Log.Logger = new LoggerConfiguration()
         rollingInterval: RollingInterval.Day,
         retainedFileCountLimit: 60,         // keep last 60 days
         fileSizeLimitBytes: 10_000_000,     // 10 MB per file
-        rollOnFileSizeLimit: true
-    )
+        rollOnFileSizeLimit: true)
     .CreateLogger();
 
-builder.Host.UseSerilog(); 
+builder.Host.UseSerilog();
 
 // EF Core with SQL Server
 builder.Services.AddDbContext<AppDbContext>(opts =>
@@ -40,7 +39,14 @@ builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
 // Configure JWT authentication
-var key = Encoding.UTF8.GetBytes(config["Jwt:Key"]);
+// Ensure the JWT key is not null or empty
+var jwtKey = config["Jwt:Key"];
+if (string.IsNullOrEmpty(jwtKey))
+{
+    throw new InvalidOperationException("JWT key is not configured. Please set 'Jwt:Key' in your configuration.");
+}
+
+var key = Encoding.UTF8.GetBytes(jwtKey);
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -58,7 +64,7 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = config["Jwt:Issuer"],
         ValidAudience = config["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(key)
+        IssuerSigningKey = new SymmetricSecurityKey(key),
     };
 });
 
@@ -79,8 +85,7 @@ using (var scope = app.Services.CreateScope())
     {
         db.Countries.AddRange(
             new Country { Name = "India", Code = "IN" },
-            new Country { Name = "UAE", Code = "AE" }
-        );
+            new Country { Name = "UAE", Code = "AE" });
         db.SaveChanges();
     }
 }

@@ -51,3 +51,7 @@ launchSettings.json
 
 # node modules (if present)
 node_modules/
+
+# Ignore logs folder and all log files
+logs/
+*.log
