@@ -33,6 +33,17 @@
         public DbSet<User> Users { get; set; } = null!;
 
         /// <summary>
+        /// Gets or sets the roles in the database.
+        /// </summary>
+        public DbSet<Role> Roles { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the UserRoles in the database.
+        /// </summary>
+        public DbSet<UserRole> UserRoles { get; set; } = null!;
+
+
+        /// <summary>
         /// Configures the model for the context.
         /// </summary>
         /// <param name="modelBuilder">The builder being used to construct the model for this context.</param>
@@ -68,6 +79,26 @@
                 .Property(u => u.Email)
                 .IsRequired()
                 .HasMaxLength(200);
+
+            // Role configuration
+            modelBuilder.Entity<Role>()
+                .Property(r => r.Name)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            // UserRole configuration (many-to-many)
+            modelBuilder.Entity<UserRole>()
+                .HasKey(ur => new { ur.UserId, ur.RoleId });
+
+            modelBuilder.Entity<UserRole>()
+                .HasOne(ur => ur.User)
+                .WithMany(u => u.UserRoles)
+                .HasForeignKey(ur => ur.UserId);
+
+            modelBuilder.Entity<UserRole>()
+                .HasOne(ur => ur.Role)
+                .WithMany(r => r.UserRoles)
+                .HasForeignKey(ur => ur.RoleId);
 
             base.OnModelCreating(modelBuilder);
         }
