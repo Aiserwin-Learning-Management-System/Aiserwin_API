@@ -44,6 +44,81 @@
 
 
         /// <summary>
+        /// Gets or sets the batches in the database.
+        /// </summary>
+        public DbSet<Batch> Batches { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the batches timing monday to friday in the database.
+        /// </summary>
+        public DbSet<BatchTimingMTF> BatchTimingMTFs { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the batches timing saturday in the database.
+        /// </summary>
+        public DbSet<BatchTimingSaturday> BatchTimingSaturdays { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the batches timing sunday in the database.
+        /// </summary>
+        public DbSet<BatchTimingSunday> BatchTimingSundays { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the course in the database.
+        /// </summary>
+        public DbSet<Course> Courses { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the grades  in the database.
+        /// </summary>
+        public DbSet<Grade> Grades { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the Mode of study in the database.
+        /// </summary>
+        public DbSet<ModeOfStudy> ModeOfStudies { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the Preferred batches  in the database.
+        /// </summary>
+        public DbSet<PreferredBatch> PreferredBatches { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the states  in the database.
+        /// </summary>
+        public DbSet<State> States { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the student  in the database.
+        /// </summary>
+        public DbSet<Student> Students { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the student academic details  in the database.
+        /// </summary>
+        public DbSet<StudentAcademicDetails> StudentAcademicDetails { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the student documents  in the database.
+        /// </summary>
+        public DbSet<StudentDocuments> StudentDocuments { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the student personal details  in the database.
+        /// </summary>
+        public DbSet<StudentPersonalDetails> StudentPersonalDetails { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the sunject  in the database.
+        /// </summary>
+        public DbSet<Subject> Subjects { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the syllabus  in the database.
+        /// </summary>
+        public DbSet<Syllabus> Syllabuses { get; set; } = null!;
+
+        /// <summary>
         /// Configures the model for the context.
         /// </summary>
         /// <param name="modelBuilder">The builder being used to construct the model for this context.</param>
