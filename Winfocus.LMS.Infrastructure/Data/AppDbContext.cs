@@ -1,19 +1,41 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Winfocus.LMS.Domain.Entities;
-
-namespace Winfocus.LMS.Infrastructure.Data
+﻿namespace Winfocus.LMS.Infrastructure.Data
 {
+    using Microsoft.EntityFrameworkCore;
+    using Winfocus.LMS.Domain.Entities;
+
+    /// <summary>
+    /// Represents the application's database context for Entity Framework Core.
+    /// </summary>
     public class AppDbContext : DbContext
     {
-        public AppDbContext(DbContextOptions<AppDbContext> opts) : base(opts) { }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AppDbContext"/> class.
+        /// </summary>
+        /// <param name="opts">The options to be used by a <see cref="DbContext"/>.</param>
+        public AppDbContext(DbContextOptions<AppDbContext> opts)
+            : base(opts)
+        {
+        }
 
+        /// <summary>
+        /// Gets or sets the countries in the database.
+        /// </summary>
         public DbSet<Country> Countries { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the centres in the database.
+        /// </summary>
         public DbSet<Centre> Centres { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the users in the database.
+        /// </summary>
         public DbSet<User> Users { get; set; } = null!;
 
+        /// <summary>
+        /// Configures the model for the context.
+        /// </summary>
+        /// <param name="modelBuilder">The builder being used to construct the model for this context.</param>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Country configuration
