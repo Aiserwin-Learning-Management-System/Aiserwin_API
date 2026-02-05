@@ -4,48 +4,66 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using System.Text;
-using Winfocus.LMS.API.Middlewares;
+using Winfocus.LMS.API.Middleware;
 using Winfocus.LMS.Application.Interfaces;
 using Winfocus.LMS.Application.Services;
 using Winfocus.LMS.Domain.Entities;
 using Winfocus.LMS.Infrastructure.Data;
 using Winfocus.LMS.Infrastructure.DataSeeders;
 using Winfocus.LMS.Infrastructure.Repositories;
+using Winfocus.LMS.Infrastructure.Security;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
 
-// Configure Serilog to write logs into a folder inside the project
+// =====================
+// Serilog Configuration
+// =====================
 Log.Logger = new LoggerConfiguration()
     .Enrich.FromLogContext()
     .WriteTo.Console()
     .WriteTo.File(
-        path: "Logs/lms-log-.txt",          // relative path inside project
+        path: "Logs/lms-log-.txt",
         rollingInterval: RollingInterval.Day,
-        retainedFileCountLimit: 60,         // keep last 60 days
-        fileSizeLimitBytes: 10_000_000,     // 10 MB per file
+        retainedFileCountLimit: 60,
+        fileSizeLimitBytes: 10_000_000,
         rollOnFileSizeLimit: true)
     .CreateLogger();
 
 builder.Host.UseSerilog();
 
-// EF Core with SQL Server
-builder.Services.AddDbContext<AppDbContext>(opts =>
-    opts.UseSqlServer(config.GetConnectionString("DefaultConnection")));
+// =====================
+// Database
+// =====================
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(config.GetConnectionString("DefaultConnection")));
 
-// Register repositories and services
+// =====================
+// Dependency Injection
+// =====================
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ITokenService, JwtTokenService>();
+
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<ICountryRepository, CountryRepository>();
-builder.Services.AddScoped<JwtService>();
 
-// Register password hasher for User entity
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
-// Configure JWT authentication
-var jwtKey = config["Jwt:Key"] ?? throw new InvalidOperationException("JWT key is not configured. Please set 'Jwt:Key' in your configuration.");
-var issuer = config["Jwt:Issuer"] ?? throw new InvalidOperationException("Jwt:Issuer is not configured.");
-var audience = config["Jwt:Audience"] ?? throw new InvalidOperationException("Jwt:Audience is not configured.");
+// =====================
+// JWT Authentication
+// =====================
+var jwtKey = config["Jwt:Key"]
+    ?? throw new InvalidOperationException("Jwt:Key is not configured.");
 
-var key = Encoding.UTF8.GetBytes(jwtKey);
+var issuer = config["Jwt:Issuer"]
+    ?? throw new InvalidOperationException("Jwt:Issuer is not configured.");
+
+var audience = config["Jwt:Audience"]
+    ?? throw new InvalidOperationException("Jwt:Audience is not configured.");
+
+var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -63,7 +81,8 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = issuer,
         ValidAudience = audience,
-        IssuerSigningKey = new SymmetricSecurityKey(key),
+        IssuerSigningKey = signingKey,
+        ClockSkew = TimeSpan.Zero,
     };
 });
 
@@ -74,7 +93,14 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Apply migrations and seed initial data
+// =====================
+// Global Exception Middleware (FIRST)
+// =====================
+app.UseMiddleware<GlobalExceptionMiddleware>();
+
+// =====================
+// Database Migration + Seeding
+// =====================
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -88,14 +114,14 @@ using (var scope = app.Services.CreateScope())
     }
     catch (Exception ex)
     {
-        logger.LogCritical(ex, "Database migration or seeding failed. Application will stop.");
-        throw; // rethrow to stop the app cleanly
+        logger.LogCritical(ex, "Database migration or seeding failed.");
+        throw;
     }
 }
 
-// Use global exception handling middleware
-app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
-
+// =====================
+// HTTP Pipeline
+// =====================
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -104,5 +130,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapControllers();
 app.Run();
