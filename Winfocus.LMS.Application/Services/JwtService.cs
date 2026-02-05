@@ -29,27 +29,34 @@
         /// <exception cref="InvalidOperationException">Thrown when the JWT key configuration is missing or empty.</exception>
         public string GenerateToken(User user)
         {
-            var jwtKey = _config["Jwt:Key"];
-            if (string.IsNullOrEmpty(jwtKey))
-            {
-                throw new InvalidOperationException("JWT key configuration is missing or empty.");
-            }
+            var issuer = _config["Jwt:Issuer"] ?? throw new InvalidOperationException("Jwt:Issuer is not configured.");
+            var audience = _config["Jwt:Audience"] ?? throw new InvalidOperationException("Jwt:Audience is not configured.");
 
+            var jwtKey = _config["Jwt:Key"] ?? throw new InvalidOperationException("JWT key is missing.");
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var claims = new[]
+
+            var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.Role, user.Role),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             };
+
+            // Add multiple roles if applicable
+            foreach (var role in user.UserRoles.Select(ur => ur.Role.Name))
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
+
             var token = new JwtSecurityToken(
-                issuer: _config["Jwt:Issuer"],
-                audience: _config["Jwt:Audience"],
+                issuer: issuer,
+                audience: audience,
                 claims: claims,
-                expires: DateTime.UtcNow.AddHours(8),
+                expires: DateTime.UtcNow.AddHours(2), // shorter expiry
                 signingCredentials: creds);
+
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }

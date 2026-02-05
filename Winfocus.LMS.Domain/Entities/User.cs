@@ -23,8 +23,8 @@
         public string PasswordHash { get; set; } = null!;
 
         /// <summary>
-        /// Gets or sets the role of the user.
+        /// Gets or sets the collection of UserRole associated with the user.
         /// </summary>
-        public string Role { get; set; } = "User";
+        public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
     }
 }
