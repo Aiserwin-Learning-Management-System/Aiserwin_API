@@ -1,12 +1,9 @@
-﻿namespace Winfocus.LMS.Domain.Entities
+﻿namespace Winfocus.LMS.Application.DTOs.Masters
 {
-    using System;
-    using Winfocus.LMS.Domain.Common;
-
     /// <summary>
     /// Represents an academic stream within a grade (for example, Science or Arts).
     /// </summary>
-    public class Stream : BaseEntity
+    public class StreamDto : BaseClassDTO
     {
         /// <summary>
         /// Gets or sets the display name of the stream.
@@ -26,6 +23,6 @@
         /// <summary>
         /// Gets or sets the identifier of the associated grade.
         /// </summary>
-        public Grade Grade { get; set; } = null!;
+        public GradeDto Grade { get; set; } = null!;
     }
 }

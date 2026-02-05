@@ -1,11 +1,9 @@
-﻿namespace Winfocus.LMS.Domain.Entities
+﻿namespace Winfocus.LMS.Application.DTOs.Masters
 {
-    using Winfocus.LMS.Domain.Common;
-
     /// <summary>
     /// Represents a batch timing entry for Monday, Tuesday, Friday (or other schedule mapping).
     /// </summary>
-    public class BatchTimingMTF : BaseEntity
+    public class BatchTimingMTFDto : BaseClassDTO
     {
         /// <summary>
         /// Gets or sets the textual representation of the batch time (for example, "09:00-10:00").

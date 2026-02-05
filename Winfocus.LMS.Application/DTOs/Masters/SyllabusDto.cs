@@ -1,13 +1,9 @@
-﻿namespace Winfocus.LMS.Domain.Entities
+﻿namespace Winfocus.LMS.Application.DTOs.Masters
 {
-    using System;
-    using System.ComponentModel.DataAnnotations;
-    using Winfocus.LMS.Domain.Common;
-
     /// <summary>
     /// Represents a syllabus offered by a centre.
     /// </summary>
-    public class Syllabus : BaseEntity
+    public class SyllabusDto : BaseClassDTO
     {
         /// <summary>
         /// Gets or sets the display name of the syllabus.
@@ -27,6 +23,6 @@
         /// <summary>
         /// Gets or sets the identifier of the associated centre.
         /// </summary>
-        public virtual Centre Center { get; set; } = null!;
+        public virtual CenterDto Center { get; set; } = null!;
     }
 }

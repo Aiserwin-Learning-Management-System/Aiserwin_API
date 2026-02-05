@@ -1,13 +1,9 @@
-﻿namespace Winfocus.LMS.Domain.Entities
+﻿namespace Winfocus.LMS.Application.DTOs.Masters
 {
-    using System;
-    using System.ComponentModel.DataAnnotations;
-    using Winfocus.LMS.Domain.Common;
-
     /// <summary>
     /// Represents an academic subject taught within a course.
     /// </summary>
-    public class Subject : BaseEntity
+    public class SubjectDto : BaseClassDTO
     {
         /// <summary>
         /// Gets or sets the display name of the subject.
@@ -27,6 +23,6 @@
         /// <summary>
         /// Gets or sets the identifier of the associated course.
         /// </summary>
-        public Course Course { get; set; } = null!;
+        public CourseDto Course { get; set; } = null!;
     }
 }

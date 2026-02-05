@@ -1,12 +1,11 @@
-﻿namespace Winfocus.LMS.Domain.Entities
+﻿namespace Winfocus.LMS.Application.DTOs.Students
 {
-    using System;
-    using Winfocus.LMS.Domain.Common;
+    using Winfocus.LMS.Application.DTOs.Masters;
 
     /// <summary>
     /// Represents a student's document records such as photo and signature.
     /// </summary>
-    public class StudentDocuments : BaseEntity
+    public class StudentDocumentsDto : BaseClassDTO
     {
         /// <summary>
         /// Gets or sets the path or binary reference to the student's photo.

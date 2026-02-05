@@ -1,12 +1,11 @@
-﻿namespace Winfocus.LMS.Domain.Entities
+﻿namespace Winfocus.LMS.Application.DTOs.Students
 {
-    using System;
-    using Winfocus.LMS.Domain.Common;
+    using Winfocus.LMS.Application.DTOs.Masters;
 
     /// <summary>
     /// Represents the academic details associated with a student, including course, grade, timings, and related navigation properties.
     /// </summary>
-    public class StudentAcademicDetails : BaseEntity
+    public class StudentAcademicdetailsDto : BaseClassDTO
     {
         /// <summary>
         /// Gets or sets the identifier of the associated country.
@@ -16,7 +15,7 @@
         /// <summary>
         /// Gets or sets the identifier of the associated country.
         /// </summary>
-        public Country Country { get; set; } = null!;
+        public CountryDto Country { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the identifier of the associated mode of study.
@@ -26,7 +25,7 @@
         /// <summary>
         /// Gets or sets the identifier of the associated mode of study.
         /// </summary>
-        public ModeOfStudy ModeOfStudy { get; set; } = null!;
+        public ModeOfStudyDto ModeOfStudy { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the identifier of the associated state.
@@ -36,7 +35,7 @@
         /// <summary>
         /// Gets or sets the identifier of the associated state.
         /// </summary>
-        public State State { get; set; } = null!;
+        public StateDto State { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the identifier of the associated center.
@@ -46,7 +45,7 @@
         /// <summary>
         /// Gets or sets the identifier of the associated center.
         /// </summary>
-        public Centre Center { get; set; } = null!;
+        public CenterDto Center { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the identifier of the associated syllabus.
@@ -56,7 +55,7 @@
         /// <summary>
         /// Gets or sets the identifier of the associated syllabus.
         /// </summary>
-        public Syllabus Syllabus { get; set; } = null!;
+        public SyllabusDto Syllabus { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the identifier of the associated grade.
@@ -66,7 +65,7 @@
         /// <summary>
         /// Gets or sets the identifier of the associated grade.
         /// </summary>
-        public Grade Grade { get; set; } = null!;
+        public GradeDto Grade { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the identifier of the associated stream.
@@ -76,7 +75,7 @@
         /// <summary>
         /// Gets or sets the identifier of the associated stream.
         /// </summary>
-        public Stream Stream { get; set; } = null!;
+        public StreamDto Stream { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the identifier of the associated course.
@@ -86,7 +85,7 @@
         /// <summary>
         /// Gets or sets the identifier of the associated course.
         /// </summary>
-        public Course Course { get; set; } = null!;
+        public CourseDto Course { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the identifier of the associated subject.
@@ -96,7 +95,7 @@
         /// <summary>
         /// Gets or sets the identifier of the associated subject.
         /// </summary>
-        public Subject Subject { get; set; } = null!;
+        public SubjectDto Subject { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the identifier of the associated batch timing for MTF.
@@ -106,7 +105,7 @@
         /// <summary>
         /// Gets or sets the identifier of the associated batch timing for MTF.
         /// </summary>
-        public BatchTimingMTF BatchTimingMTF { get; set; } = null!;
+        public BatchTimingMTFDto BatchTimingMTF { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the identifier of the associated batch timing for Saturday.
@@ -116,7 +115,7 @@
         /// <summary>
         /// Gets or sets the identifier of the associated batch timing for Saturday.
         /// </summary>
-        public BatchTimingSaturday BatchTimingSaturday { get; set; } = null!;
+        public BatchTimingSaturdayDto BatchTimingSaturday { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the identifier of the associated batch timing for Sunday.
@@ -126,7 +125,7 @@
         /// <summary>
         /// Gets or sets the identifier of the associated batch timing for Sunday.
         /// </summary>
-        public BatchTimingSunday BatchTimingSunday { get; set; } = null!;
+        public BatchTimingSundayDto BatchTimingSunday { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the identifier of the preferred batch time selection.
@@ -136,7 +135,7 @@
         /// <summary>
         /// Gets or sets the identifier of the preferred batch time selection.
         /// </summary>
-        public PreferredBatch PreferredBatch { get; set; } = null!;
+        public PreferredBatchDto PreferredBatch { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the past year performance details (textual).

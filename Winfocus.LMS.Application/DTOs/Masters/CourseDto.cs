@@ -1,12 +1,9 @@
-﻿namespace Winfocus.LMS.Domain.Entities
+﻿namespace Winfocus.LMS.Application.DTOs.Masters
 {
-    using System;
-    using Winfocus.LMS.Domain.Common;
-
     /// <summary>
     /// Represents an educational course.
     /// </summary>
-    public class Course : BaseEntity
+    public class CourseDto : BaseClassDTO
     {
         /// <summary>
         /// Gets or sets the display name of the course.
@@ -26,6 +23,7 @@
         /// <summary>
         /// Gets or sets the identifier of the associated stream.
         /// </summary>
-        public Stream Stream { get; set; } = null!;
+        public StreamDto Stream { get; set; } = null!;
+
     }
 }

@@ -1,12 +1,11 @@
-﻿namespace Winfocus.LMS.Domain.Entities
+﻿namespace Winfocus.LMS.Application.DTOs.Students
 {
-    using System;
-    using Winfocus.LMS.Domain.Common;
+    using Winfocus.LMS.Application.DTOs.Masters;
 
     /// <summary>
     /// Represents the personal details associated with a student.
     /// </summary>
-    public class StudentPersonalDetails : BaseEntity
+    public class StudentPersonaldetailsdto : BaseClassDTO
     {
         /// <summary>
         /// Gets or sets the full name of the student.

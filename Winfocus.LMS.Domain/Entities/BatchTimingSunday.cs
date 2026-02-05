@@ -1,14 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Winfocus.LMS.Domain.Common;
-
-namespace Winfocus.LMS.Domain.Entities
+﻿namespace Winfocus.LMS.Domain.Entities
 {
+    using Winfocus.LMS.Domain.Common;
+
+    /// <summary>
+    /// Represents a batch timing entry for Sunday schedule.
+    /// </summary>
     public class BatchTimingSunday : BaseEntity
     {
-        public string BatchTime { get; set; }
+        /// <summary>
+        /// Gets or sets the textual representation of the batch time (for example, "09:00-10:00").
+        /// </summary>
+        public string BatchTime { get; set; } = null!;
     }
 }

@@ -1,12 +1,9 @@
-﻿namespace Winfocus.LMS.Domain.Entities
+﻿namespace Winfocus.LMS.Application.DTOs.Masters
 {
-    using System;
-    using Winfocus.LMS.Domain.Common;
-
     /// <summary>
     /// Represents an academic grade (class/level) within a syllabus.
     /// </summary>
-    public class Grade : BaseEntity
+    public class GradeDto : BaseClassDTO
     {
         /// <summary>
         /// Gets or sets the display name of the grade.
@@ -26,6 +23,6 @@
         /// <summary>
         /// Gets or sets the identifier of the associated syllabus.
         /// </summary>
-        public Syllabus Syllabus { get; set; } = null!;
+        public SyllabusDto Syllabus { get; set; } = null!;
     }
 }

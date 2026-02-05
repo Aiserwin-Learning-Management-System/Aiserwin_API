@@ -1,13 +1,12 @@
-﻿namespace Winfocus.LMS.Domain.Entities
+﻿namespace Winfocus.LMS.Application.DTOs.Students
 {
-    using System;
-    using System.ComponentModel.DataAnnotations.Schema;
-    using Winfocus.LMS.Domain.Common;
+
+    using Winfocus.LMS.Application.DTOs.Masters;
 
     /// <summary>
     /// Represents a student and references to their related details entities.
     /// </summary>
-    public class Student : BaseEntity
+    public class StudentDto : BaseClassDTO
     {
         /// <summary>
         /// Gets or sets the identifier of the student's academic details.
@@ -17,7 +16,7 @@
         /// <summary>
         /// Gets or sets the navigation property to the student's academic details.
         /// </summary>
-        public StudentAcademicDetails AcademicDetails { get; set; } = null!;
+        public StudentAcademicdetailsDto AcademicDetails { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the identifier of the student's personal details.
@@ -27,7 +26,7 @@
         /// <summary>
         /// Gets or sets the navigation property to the student's personal details.
         /// </summary>
-        public StudentPersonalDetails PersonalDetails { get; set; } = null!;
+        public StudentPersonaldetailsdto PersonalDetails { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the identifier of the student's documents record.
@@ -37,6 +36,6 @@
         /// <summary>
         /// Gets or sets the navigation property to the student's documents.
         /// </summary>
-        public StudentDocuments StudentDocuments { get; set; } = null!;
+        public StudentDocumentsDto StudentDocuments { get; set; } = null!;
     }
 }

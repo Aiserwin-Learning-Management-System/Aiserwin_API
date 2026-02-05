@@ -1,12 +1,9 @@
-﻿namespace Winfocus.LMS.Domain.Entities
+﻿namespace Winfocus.LMS.Application.DTOs.Masters
 {
-    using System.ComponentModel.DataAnnotations;
-    using Winfocus.LMS.Domain.Common;
-
     /// <summary>
     /// Represents a preferred batch selection for an entity (for example, a student's preferred batch).
     /// </summary>
-    public class PreferredBatch : BaseEntity
+    public class PreferredBatchDto : BaseClassDTO
     {
         /// <summary>
         /// Gets or sets the display name of the preferred batch.
@@ -21,6 +18,6 @@
         /// <summary>
         /// Gets or sets the identifier of the associated batch.
         /// </summary>
-        public Batch Batch { get; set; } = null!;
+        public BatchDto Batch { get; set; } = null!;
     }
 }
