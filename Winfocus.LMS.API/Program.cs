@@ -4,10 +4,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using System.Text;
+using Winfocus.LMS.API.Middlewares;
 using Winfocus.LMS.Application.Interfaces;
 using Winfocus.LMS.Application.Services;
 using Winfocus.LMS.Domain.Entities;
 using Winfocus.LMS.Infrastructure.Data;
+using Winfocus.LMS.Infrastructure.DataSeeders;
 using Winfocus.LMS.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -39,12 +41,9 @@ builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
 // Configure JWT authentication
-// Ensure the JWT key is not null or empty
-var jwtKey = config["Jwt:Key"];
-if (string.IsNullOrEmpty(jwtKey))
-{
-    throw new InvalidOperationException("JWT key is not configured. Please set 'Jwt:Key' in your configuration.");
-}
+var jwtKey = config["Jwt:Key"] ?? throw new InvalidOperationException("JWT key is not configured. Please set 'Jwt:Key' in your configuration.");
+var issuer = config["Jwt:Issuer"] ?? throw new InvalidOperationException("Jwt:Issuer is not configured.");
+var audience = config["Jwt:Audience"] ?? throw new InvalidOperationException("Jwt:Audience is not configured.");
 
 var key = Encoding.UTF8.GetBytes(jwtKey);
 builder.Services.AddAuthentication(options =>
@@ -62,8 +61,8 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = config["Jwt:Issuer"],
-        ValidAudience = config["Jwt:Audience"],
+        ValidIssuer = issuer,
+        ValidAudience = audience,
         IssuerSigningKey = new SymmetricSecurityKey(key),
     };
 });
@@ -79,16 +78,23 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.Migrate();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
 
-    if (!db.Countries.Any())
+    try
     {
-        db.Countries.AddRange(
-            new Country { Name = "India", Code = "IN" },
-            new Country { Name = "UAE", Code = "AE" });
-        db.SaveChanges();
+        db.Database.Migrate();
+        CountryDataSeeder.Seed(db);
+        RoleDataSeeder.Seed(db);
+    }
+    catch (Exception ex)
+    {
+        logger.LogCritical(ex, "Database migration or seeding failed. Application will stop.");
+        throw; // rethrow to stop the app cleanly
     }
 }
+
+// Use global exception handling middleware
+app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {

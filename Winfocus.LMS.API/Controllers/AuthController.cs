@@ -39,16 +39,47 @@
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest req)
         {
+            // Check if username already exists
             if (await _db.Users.AnyAsync(u => u.Username == req.username))
             {
                 return BadRequest("Username already exists");
             }
 
-            var user = new User { Username = req.username, Email = req.email, Role = req.role ?? "User" };
-            user.PasswordHash = _hasher.HashPassword(user, req.password);
+            // Create new user
+            var user = new User
+            {
+                Username = req.username,
+                Email = req.email,
+                PasswordHash = _hasher.HashPassword(null!, req.password), // hash password
+                CreatedAt = DateTime.UtcNow,
+                IsActive = true,
+            };
+
             _db.Users.Add(user);
             await _db.SaveChangesAsync();
-            return Ok(new { user.Id, user.Username });
+
+            // Determine role (default to "Student" if none provided)
+            var roleName = string.IsNullOrEmpty(req.role) ? "Student" : req.role;
+            var role = await _db.Roles.FirstOrDefaultAsync(r => r.Name == roleName);
+
+            if (role == null)
+            {
+                return BadRequest($"Role '{roleName}' does not exist");
+            }
+
+            // Assign role to user
+            var userRole = new UserRole
+            {
+                UserId = user.Id,
+                RoleId = role.Id,
+                CreatedAt = DateTime.UtcNow,
+                IsActive = true,
+            };
+
+            _db.UserRoles.Add(userRole);
+            await _db.SaveChangesAsync();
+
+            return Ok(new { user.Id, user.Username, AssignedRole = role.Name });
         }
 
         /// <summary>
@@ -59,7 +90,7 @@
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest req)
         {
-            var user = await _db.Users.FirstOrDefaultAsync(u => u.Username == req.username);
+            var user = await _db.Users.Include(u => u.UserRoles).ThenInclude(ur => ur.Role).FirstOrDefaultAsync(u => u.Username == req.username);
             if (user == null)
             {
                 return Unauthorized();
