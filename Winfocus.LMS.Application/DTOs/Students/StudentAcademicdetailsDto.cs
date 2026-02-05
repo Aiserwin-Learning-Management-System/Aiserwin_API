@@ -15,7 +15,7 @@
         /// <summary>
         /// Gets or sets the identifier of the associated country.
         /// </summary>
-        public CountryDto Country { get; set; } = null!;
+        public CountryDto1 Country { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the identifier of the associated mode of study.
@@ -45,7 +45,7 @@
         /// <summary>
         /// Gets or sets the identifier of the associated center.
         /// </summary>
-        public CenterDto Center { get; set; } = null!;
+        public CenterDto1 Center { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the identifier of the associated syllabus.

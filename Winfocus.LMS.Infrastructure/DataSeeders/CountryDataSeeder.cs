@@ -1,12 +1,13 @@
 ﻿namespace Winfocus.LMS.Infrastructure.DataSeeders
 {
+    using System.Text.Json;
     using Winfocus.LMS.Domain.Entities;
     using Winfocus.LMS.Infrastructure.Data;
 
     /// <summary>
     /// Provides methods to seed country data into the database.
     /// </summary>
-    public class CountryDataSeeder
+    public static class CountryDataSeeder
     {
         /// <summary>
         /// Seeds the <see cref="Country"/> entities into the database if none exist.
@@ -16,10 +17,29 @@
         {
             if (!db.Countries.Any())
             {
-                db.Countries.AddRange(
-                    new Country { Name = "India", Code = "IN" },
-                    new Country { Name = "UAE", Code = "AE" });
-                db.SaveChanges();
+                // Build path to JSON file (make sure it's set to "Copy if newer" in file properties)
+                var jsonPath = Path.Combine(AppContext.BaseDirectory, "SeederFile", "countries.json");
+
+                if (File.Exists(jsonPath))
+                {
+                    var json = File.ReadAllText(jsonPath);
+
+                    var countriesFromJson = JsonSerializer.Deserialize<List<Country>>(json);
+
+                    if (countriesFromJson != null)
+                    {
+                        foreach (var country in countriesFromJson)
+                        {
+                            country.Id = Guid.NewGuid();
+                            country.CreatedAt = DateTime.UtcNow;
+                            country.CreatedBy = Guid.Empty;
+                            country.IsActive = true;
+                        }
+
+                        db.Countries.AddRange(countriesFromJson);
+                        db.SaveChanges();
+                    }
+                }
             }
         }
     }

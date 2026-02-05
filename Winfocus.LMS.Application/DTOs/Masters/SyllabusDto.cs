@@ -23,6 +23,6 @@
         /// <summary>
         /// Gets or sets the identifier of the associated centre.
         /// </summary>
-        public virtual CenterDto Center { get; set; } = null!;
+        public virtual CenterDto1 Center { get; set; } = null!;
     }
 }

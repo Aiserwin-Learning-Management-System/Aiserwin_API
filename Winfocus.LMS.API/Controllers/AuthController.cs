@@ -13,11 +13,20 @@ namespace Winfocus.LMS.Api.Controllers
     {
         private readonly IAuthService _authService;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AuthController"/> class.
+        /// </summary>
+        /// <param name="authService">The authentication service.</param>
         public AuthController(IAuthService authService)
         {
             _authService = authService;
         }
 
+        /// <summary>
+        /// Registers the specified request.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <returns>registered data.</returns>
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequestDto request)
         {
@@ -25,6 +34,11 @@ namespace Winfocus.LMS.Api.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// Logins the specified request.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <returns>token.</returns>
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
         {
