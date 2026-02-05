@@ -3,7 +3,7 @@
     /// <summary>
     /// Country master data transfer object containing master-level fields.
     /// </summary>
-    public class CountryDto : BaseClassDTO
+    public class CountryDto1 : BaseClassDTO
     {
         /// <summary>
         /// Gets or sets the display name of the country.

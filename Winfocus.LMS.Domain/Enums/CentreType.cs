@@ -1,9 +1,23 @@
 ﻿namespace Winfocus.LMS.Domain.Enums
 {
     /// <summary>
-    /// Represents the type of a centre in the LMS domain.
+    /// Defines supported centre types.
     /// </summary>
-    internal class CentreType
+    public enum CentreType
     {
+        /// <summary>
+        /// The offline
+        /// </summary>
+        Offline = 1,
+
+        /// <summary>
+        /// The online
+        /// </summary>
+        Online = 2,
+
+        /// <summary>
+        /// The hybrid
+        /// </summary>
+        Hybrid = 3,
     }
 }

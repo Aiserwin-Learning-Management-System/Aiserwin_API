@@ -124,27 +124,6 @@
         /// <param name="modelBuilder">The builder being used to construct the model for this context.</param>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Country configuration
-            modelBuilder.Entity<Country>()
-                .HasIndex(c => c.Code)
-                .IsUnique();
-
-            modelBuilder.Entity<Country>()
-                .Property(c => c.Name)
-                .IsRequired()
-                .HasMaxLength(100);
-
-            // Centre configuration
-            modelBuilder.Entity<Centre>()
-                .Property(c => c.Name)
-                .IsRequired()
-                .HasMaxLength(100);
-
-            modelBuilder.Entity<Centre>()
-                .HasOne(c => c.Country)
-                .WithMany(c => c.Centres)
-                .HasForeignKey(c => c.CountryId);
-
             // User configuration
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Username)
@@ -174,6 +153,41 @@
                 .HasOne(ur => ur.Role)
                 .WithMany(r => r.UserRoles)
                 .HasForeignKey(ur => ur.RoleId);
+
+            modelBuilder.Entity<Country>(e =>
+            {
+                e.HasIndex(x => x.Code).IsUnique();
+                e.Property(x => x.Name).IsRequired().HasMaxLength(100);
+                e.Property(x => x.Code).IsRequired().HasMaxLength(10);
+            });
+
+            modelBuilder.Entity<Country>(e =>
+            {
+                e.Property(x => x.Name)
+                    .IsRequired()
+                    .HasMaxLength(100);
+                e.Property(x => x.Code)
+                    .IsRequired()
+                    .HasMaxLength(2);
+                e.Property(x => x.IsoAlpha3)
+                    .HasMaxLength(3);
+                e.Property(x => x.IsoNumeric);
+
+                e.HasIndex(x => x.Code).IsUnique();
+                e.HasIndex(x => x.IsoAlpha3).IsUnique();
+                e.HasIndex(x => x.IsoNumeric).IsUnique();
+            });
+
+            modelBuilder.Entity<Centre>(e =>
+            {
+                e.Property(x => x.Name).IsRequired().HasMaxLength(100);
+                e.Property(x => x.Type).HasConversion<int>();
+
+                e.HasOne(x => x.Country)
+                 .WithMany(x => x.Centres)
+                 .HasForeignKey(x => x.CountryId);
+            });
+
 
             base.OnModelCreating(modelBuilder);
         }

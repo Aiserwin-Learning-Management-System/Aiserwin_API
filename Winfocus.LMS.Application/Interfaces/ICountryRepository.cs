@@ -1,46 +1,51 @@
 ﻿namespace Winfocus.LMS.Application.Interfaces
 {
-    using System;
-    using System.Collections.Generic;
     using Winfocus.LMS.Domain.Entities;
 
     /// <summary>
-    /// Provides methods for managing <see cref="Country"/> entities in the repository.
+    /// ICountryRepository.
     /// </summary>
     public interface ICountryRepository
     {
         /// <summary>
-        /// Gets all countries asynchronously.
+        /// Gets all asynchronous.
         /// </summary>
-        /// <returns>An enumerable collection of <see cref="Country"/>.</returns>
-        Task<IEnumerable<Country>> GetAllAsync();
+        /// <returns>Country.</returns>
+        Task<IReadOnlyList<Country>> GetAllAsync();
 
         /// <summary>
-        /// Gets a country by its unique identifier asynchronously.
+        /// Gets the by identifier asynchronous.
         /// </summary>
-        /// <param name="id">The unique identifier of the country.</param>
-        /// <returns>The <see cref="Country"/> if found; otherwise, null.</returns>
+        /// <param name="id">The identifier.</param>
+        /// <returns>Country.</returns>
         Task<Country?> GetByIdAsync(Guid id);
 
         /// <summary>
-        /// Adds a new country asynchronously.
+        /// Adds the asynchronous.
         /// </summary>
-        /// <param name="country">The country to add.</param>
-        /// <returns>The added <see cref="Country"/>.</returns>
+        /// <param name="country">The country.</param>
+        /// <returns>Country.</returns>
         Task<Country> AddAsync(Country country);
 
         /// <summary>
-        /// Updates an existing country asynchronously.
+        /// Updates the asynchronous.
         /// </summary>
-        /// <param name="country">The country to update.</param>
-        /// <returns>A <see cref="Task"/> that represents the asynchronous update operation.</returns>
+        /// <param name="country">The country.</param>
+        /// <returns>Country.</returns>
         Task UpdateAsync(Country country);
 
         /// <summary>
-        /// Deletes a country by its unique identifier asynchronously.
+        /// Deletes the asynchronous.
         /// </summary>
-        /// <param name="id">The unique identifier of the country to delete.</param>
-        /// <returns>A <see cref="Task"/> that represents the asynchronous delete operation.</returns>
+        /// <param name="id">The identifier.</param>
+        /// <returns>task.</returns>
         Task DeleteAsync(Guid id);
+
+        /// <summary>
+        /// Existses the by code asynchronous.
+        /// </summary>
+        /// <param name="code">The code.</param>
+        /// <returns>bool.</returns>
+        Task<bool> ExistsByCodeAsync(string code);
     }
 }

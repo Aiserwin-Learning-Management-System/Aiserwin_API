@@ -1,11 +1,9 @@
-﻿using Winfocus.LMS.Domain.Entities;
-
-namespace Winfocus.LMS.Application.DTOs.Masters
+﻿namespace Winfocus.LMS.Application.DTOs.Masters
 {
     /// <summary>
     /// Represents a training or learning centre.
     /// </summary>
-    public class CenterDto : BaseClassDTO
+    public class CenterDto1 : BaseClassDTO
     {
         /// <summary>
         /// Gets or sets the name of the centre.
