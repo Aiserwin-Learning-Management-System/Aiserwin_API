@@ -5,7 +5,7 @@
     /// <summary>
     /// Represents the association between a user and a role.
     /// </summary>
-    public class UserRole : BaseEntity
+    public class UserRole
     {
         /// <summary>
         /// Gets or sets the user ID.
