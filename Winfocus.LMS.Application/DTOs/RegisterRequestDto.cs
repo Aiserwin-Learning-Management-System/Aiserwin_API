@@ -7,6 +7,5 @@
         string username,
         string email,
         string password,
-        IReadOnlyList<string> roleName
-    );
+        IReadOnlyList<string>? roleNames); // nullable
 }

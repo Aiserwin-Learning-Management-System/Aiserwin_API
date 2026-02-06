@@ -77,10 +77,15 @@
 
             user.PasswordHash = _passwordHasher.HashPassword(user, request.password);
 
+            // If no roles provided, default to "Student"
+            var roleNames = (request.roleNames == null || !request.roleNames.Any())
+                            ? new List<string> { "Student" }
+                            : request.roleNames;
+
             var roles = new List<string>();
 
             // Loop through all requested roles
-            foreach (var roleName in request.roleName)
+            foreach (var roleName in roleNames)
             {
                 var role = await _roleRepository.GetByNameAsync(roleName)
                            ?? throw new InvalidOperationException($"Invalid role: {roleName}");
