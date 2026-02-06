@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Winfocus.LMS.Application.Interfaces
+﻿namespace Winfocus.LMS.Application.Interfaces
 {
+    using Winfocus.LMS.Application.DTOs;
+    using Winfocus.LMS.Application.DTOs.Masters;
     using Winfocus.LMS.Domain.Entities;
 
     /// <summary>
@@ -12,39 +10,38 @@ namespace Winfocus.LMS.Application.Interfaces
     public interface IModeOfStudyService
     {
         /// <summary>
-        /// Retrieves an active <see cref="ModeOfStudy"/> by its identifier.
+        /// Gets all asynchronous.
         /// </summary>
-        /// <param name="id">The unique identifier of the ModeOfStudy.</param>
-        /// <returns>
-        /// A <see cref="Task{TResult}"/> that resolves to the matching <see cref="ModeOfStudy"/> if found and active; otherwise <c>null</c>.
-        /// </returns>
-        Task<ModeOfStudy?> GetByIdAsync(Guid id);
+        /// <returns>ModeOfStudyDto.</returns>
+        Task<IReadOnlyList<ModeOfStudyDto>> GetAllAsync();
 
         /// <summary>
-        /// Retrieves all active <see cref="ModeOfStudy"/> entities.
+        /// Gets the by identifier asynchronous.
         /// </summary>
-        /// <returns>A task resolving to a list of active ModeOfStudy.</returns>
-        Task<List<ModeOfStudy>> GetAllAsync();
+        /// <param name="id">The identifier.</param>
+        /// <returns>ModeOfStudyDto.</returns>
+        Task<ModeOfStudyDto?> GetByIdAsync(Guid id);
 
         /// <summary>
-        /// Creates a new <see cref="ModeOfStudy"/>.
+        /// Creates the asynchronous.
         /// </summary>
-        /// <param name="mode">The ModeOfStudy to create.</param>
-        /// <returns>The created <see cref="ModeOfStudy"/>.</returns>
-        Task<ModeOfStudy> CreateAsync(ModeOfStudy mode);
+        /// <param name="request">The request.</param>
+        /// <returns>ModeOfStudyDto.</returns>
+        Task<ModeOfStudyDto> CreateAsync(ModeOfStudyRequest request);
 
         /// <summary>
-        /// Updates an existing active <see cref="ModeOfStudy"/>.
+        /// Updates the asynchronous.
         /// </summary>
-        /// <param name="mode">The ModeOfStudy containing updated values.</param>
-        /// <returns>The updated <see cref="ModeOfStudy"/> if the operation succeeded; otherwise <c>null</c>.</returns>
-        Task<ModeOfStudy?> UpdateAsync(ModeOfStudy mode);
+        /// <param name="id">The identifier.</param>
+        /// <param name="request">The request.</param>
+        /// <returns>id.</returns>
+        Task UpdateAsync(Guid id, ModeOfStudyRequest request);
 
         /// <summary>
-        /// Soft-deletes a <see cref="ModeOfStudy"/> by marking it inactive.
+        /// Deletes the asynchronous.
         /// </summary>
-        /// <param name="id">The identifier of the mode of study to delete.</param>
-        /// <returns><c>true</c> if the ModeOfStudy was found and marked inactive; otherwise <c>false</c>.</returns>
-        Task<bool> DeleteAsync(Guid id);
+        /// <param name="id">The identifier.</param>
+        /// <returns>id.</returns>
+        Task DeleteAsync(Guid id);
     }
 }

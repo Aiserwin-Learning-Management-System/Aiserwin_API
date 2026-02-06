@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
+using Winfocus.LMS.Application.DTOs;
+using Winfocus.LMS.Application.DTOs.Masters;
 using Winfocus.LMS.Application.Interfaces;
 using Winfocus.LMS.Domain.Entities;
 
@@ -26,89 +28,108 @@ namespace Winfocus.LMS.Application.Services
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        /// <inheritdoc />
-        public Task<ModeOfStudy?> GetByIdAsync(Guid id)
+        /// <summary>
+        /// Gets all asynchronous.
+        /// </summary>
+        /// <returns>ModeOfStudyDto.</returns>
+        public async Task<IReadOnlyList<ModeOfStudyDto>> GetAllAsync()
         {
-            if (id == Guid.Empty)
-            {
-                _logger.LogWarning("GetByIdAsync called with empty Guid.");
-                return Task.FromResult<ModeOfStudy?>(null);
-            }
-
-            return _repository.GetByIdAsync(id);
+            _logger.LogInformation("Fetching all mode of studies");
+            var modeOfStudies = await _repository.GetAllAsync();
+            _logger.LogInformation("Fetched {Count} mode of studies", modeOfStudies.Count());
+            return modeOfStudies.Select(Map).ToList();
         }
 
-        /// <inheritdoc />
-        public Task<List<ModeOfStudy>> GetAllAsync()
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>ModeOfStudyDto.</returns>
+        public async Task<ModeOfStudyDto?> GetByIdAsync(Guid id)
         {
-            return _repository.GetAllAsync();
+            _logger.LogInformation("Fetching mode of study by Id: {ModeOfStudyId}", id);
+            var modeOfStudies = await _repository.GetByIdAsync(id);
+            _logger.LogInformation("Mode of study fetched successfully for Id: {ModeOfStudyId}", id);
+            return modeOfStudies == null ? null : Map(modeOfStudies);
         }
 
-        /// <inheritdoc />
-        public async Task<ModeOfStudy> CreateAsync(ModeOfStudy mode)
+        /// <summary>
+        /// Creates the asynchronous.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <returns>ModeOfStudyDto.</returns>
+        /// <exception cref="InvalidOperationException">mode of study already exists.</exception>
+        public async Task<ModeOfStudyDto> CreateAsync(ModeOfStudyRequest request)
         {
-            if (mode is null)
+            _logger.LogInformation("Creating mode of study with Code: {ModeCode}", request.code);
+            if (await _repository.ExistsByCodeAsync(request.code))
             {
-                throw new ArgumentNullException(nameof(mode));
+                _logger.LogWarning(
+                "Mode of study creation failed. Code already exists: {ModeCode}",
+                request.code);
+                throw new InvalidOperationException("Mode of study code already exists");
             }
 
-            if (string.IsNullOrWhiteSpace(mode.ModeName))
+            var modeOfStudy = new ModeOfStudy
             {
-                throw new ArgumentException("ModeOfStudy name is required.", nameof(mode));
-            }
+                ModeName = request.name,
+                ModeCode = request.code,
+                CreatedAt = DateTime.UtcNow,
+            };
 
-            mode.CreatedAt = DateTime.UtcNow;
-            mode.Id = mode.Id == Guid.Empty ? Guid.NewGuid() : mode.Id;
+            var created = await _repository.AddAsync(modeOfStudy);
+            _logger.LogInformation(
+           "Mode of study created successfully. ModeOfStudyId: {ModeOfStudyId}, Code: {ModeCode}",
+           created.Id,
+           created.ModeCode);
 
-            var created = await _repository.CreateAsync(mode).ConfigureAwait(false);
-            _logger.LogInformation("Created mode of study {ModeId}", created.Id);
-            return created;
+            return Map(created);
         }
 
-        /// <inheritdoc />
-        public async Task<ModeOfStudy?> UpdateAsync(ModeOfStudy mode)
+        /// <summary>
+        /// Updates the asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <param name="request">The request.</param>
+        /// <exception cref="KeyNotFoundException">mode of study not found.</exception>
+        /// <returns>task.</returns>
+        public async Task UpdateAsync(Guid id, ModeOfStudyRequest request)
         {
-            if (mode is null)
-            {
-                throw new ArgumentNullException(nameof(mode));
-            }
+            _logger.LogInformation("Updating mode of study Id: {ModeOfStudyId}", id);
+            var modeOfStudy = await _repository.GetByIdAsync(id)
+                ?? throw new KeyNotFoundException("Mode of study not found");
 
-            if (mode.Id == Guid.Empty)
-            {
-                throw new ArgumentException("ModeOfStudy Id is required for update.", nameof(mode));
-            }
+            modeOfStudy.ModeName = request.name;
+            modeOfStudy.ModeCode = request.code;
+            modeOfStudy.UpdatedAt = DateTime.UtcNow;
 
-            var updated = await _repository.UpdateAsync(mode).ConfigureAwait(false);
-            if (updated is null)
-            {
-                _logger.LogWarning("Update failed; mode not found: {ModeId}", mode.Id);
-                return null;
-            }
-
-            _logger.LogInformation("Updated mode of study {ModeId}", updated.Id);
-            return updated;
+            await _repository.UpdateAsync(modeOfStudy);
+            _logger.LogInformation(
+           "Mode of study updated successfully. ModeOfStudyId: {ModeOfStudyId}",
+           id);
         }
 
-        /// <inheritdoc />
-        public async Task<bool> DeleteAsync(Guid id)
+        /// <summary>
+        /// Deletes the asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>task.</returns>
+        public async Task DeleteAsync(Guid id)
         {
-            if (id == Guid.Empty)
-            {
-                _logger.LogWarning("DeleteAsync called with empty Guid.");
-                return false;
-            }
-
-            var result = await _repository.DeleteAsync(id).ConfigureAwait(false);
-            if (result)
-            {
-                _logger.LogInformation("Soft-deleted mode of study {ModeId}", id);
-            }
-            else
-            {
-                _logger.LogWarning("Soft-delete failed; mode not found: {ModeId}", id);
-            }
-
-            return result;
+            _logger.LogInformation("Deleting mode of study Id: {ModeOfStudyId}", id);
+            await _repository.DeleteAsync(id);
+            _logger.LogInformation(
+           "Mode of study deleted successfully. ModeOfStudyId: {ModeOfStudyId}",
+           id);
         }
+
+        private static ModeOfStudyDto Map(ModeOfStudy c) =>
+            new ModeOfStudyDto
+            {
+                Id = c.Id,
+                ModeName = c.ModeName,
+                ModeCode = c.ModeCode,
+                StateId = c.StateId,
+            };
     }
 }

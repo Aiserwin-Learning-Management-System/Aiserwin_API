@@ -29,100 +29,79 @@
         }
 
         /// <summary>
-        /// Retrieves an active <see cref="Centre"/> by its identifier.
+        /// Gets all asynchronous.
         /// </summary>
-        /// <param name="id">The unique identifier of the centre.</param>
-        /// <returns>
-        /// A <see cref="Task{TResult}"/> that resolves to the matching <see cref="Centre"/> if found and active; otherwise <c>null</c>.
-        /// </returns>
-        public Task<Centre?> GetByIdAsync(Guid id)
+        /// <returns>Center list.</returns>
+        public async Task<IReadOnlyList<Centre>> GetAllAsync()
         {
-            return _dbContext.Centres
-                .FirstOrDefaultAsync(c => c.Id == id && c.IsActive);
-        }
-
-        /// <summary>
-        /// Retrieves all active <see cref="Centre"/> entities.
-        /// </summary>
-        /// <returns>A task resolving to a list of active centres.</returns>
-        public Task<List<Centre>> GetAllAsync()
-        {
-            return _dbContext.Centres
-                .Where(c => c.IsActive)
+            return await _dbContext.Centres
+                .Include(x => x.modeOfStudy)
+                .AsNoTracking()
                 .ToListAsync();
         }
 
         /// <summary>
-        /// Creates a new <see cref="Centre"/> in the database.
+        /// Gets the by identifier asynchronous.
         /// </summary>
-        /// <param name="centre">The centre entity to create.</param>
-        /// <returns>The created <see cref="Centre"/> with its assigned identifier.</returns>
-        public async Task<Centre> CreateAsync(Centre centre)
+        /// <param name="id">The identifier.</param>
+        /// <returns>Center.</returns>
+        public async Task<Centre?> GetByIdAsync(Guid id)
         {
-            centre.Id = centre.Id == Guid.Empty ? Guid.NewGuid() : centre.Id;
-            centre.CreatedAt = DateTime.UtcNow;
-
-            await _dbContext.Centres.AddAsync(centre);
-            await _dbContext.SaveChangesAsync();
-
-            return centre;
+            return await _dbContext.Centres
+                .Include(x => x.modeOfStudy)
+                .FirstOrDefaultAsync(x => x.Id == id);
         }
 
         /// <summary>
-        /// Updates an existing active <see cref="Centre"/>.
+        /// Adds the asynchronous.
         /// </summary>
-        /// <param name="centre">The entity containing updated values. The <see cref="Centre.Id"/> must identify an existing active record.</param>
-        /// <returns>The updated <see cref="Centre"/> if the entity existed and was updated; otherwise <c>null</c>.</returns>
-        public async Task<Centre?> UpdateAsync(Centre centre)
+        /// <param name="center">The center.</param>
+        /// <returns>center.</returns>
+        public async Task<Centre> AddAsync(Centre center)
         {
-            var existing = await _dbContext.Centres
-                .FirstOrDefaultAsync(c => c.Id == centre.Id && c.IsActive);
-
-            if (existing is null)
-            {
-                return null;
-            }
-
-            // Preserve immutable/audit fields
-            var createdAt = existing.CreatedAt;
-            var createdBy = existing.CreatedBy;
-            var isActive = existing.IsActive;
-
-            // Apply incoming values
-            _dbContext.Entry(existing).CurrentValues.SetValues(centre);
-
-            // Restore preserved fields and set updated timestamp
-            existing.CreatedAt = createdAt;
-            existing.CreatedBy = createdBy;
-            existing.IsActive = isActive;
-            existing.UpdatedAt = DateTime.UtcNow;
-
+            _dbContext.Centres.Add(center);
             await _dbContext.SaveChangesAsync();
-
-            return existing;
+            return center;
         }
 
         /// <summary>
-        /// Soft-deletes an existing <see cref="Centre"/> by marking it inactive.
+        /// Updates the asynchronous.
         /// </summary>
-        /// <param name="id">The identifier of the centre to delete.</param>
-        /// <returns><c>true</c> if the centre was found and marked inactive; otherwise <c>false</c>.</returns>
-        public async Task<bool> DeleteAsync(Guid id)
+        /// <param name="center">The center.</param>
+        /// <returns>task.</returns>
+        public async Task UpdateAsync(Centre center)
         {
-            var existing = await _dbContext.Centres
-                .FirstOrDefaultAsync(c => c.Id == id && c.IsActive);
+            _dbContext.Centres.Update(center);
+            await _dbContext.SaveChangesAsync();
+        }
 
-            if (existing is null)
+        /// <summary>
+        /// Deletes the asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>task.</returns>
+        public async Task DeleteAsync(Guid id)
+        {
+            var entity = await _dbContext.Centres.FindAsync(id);
+            if (entity == null)
             {
-                return false;
+                return;
             }
 
-            existing.IsActive = false;
-            existing.UpdatedAt = DateTime.UtcNow;
+            entity.IsActive = false;
 
+            _dbContext.Centres.Update(entity);
             await _dbContext.SaveChangesAsync();
+        }
 
-            return true;
+        /// <summary>
+        /// Existses the by code asynchronous.
+        /// </summary>
+        /// <param name="code">The code.</param>
+        /// <returns>bool.</returns>
+        public async Task<bool> ExistsByCodeAsync(string code)
+        {
+            return await _dbContext.Centres.AnyAsync(x => x.Code == code);
         }
     }
 }

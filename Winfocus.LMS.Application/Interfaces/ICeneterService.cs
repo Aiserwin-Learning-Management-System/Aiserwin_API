@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Winfocus.LMS.Application.DTOs;
 using Winfocus.LMS.Domain.Entities;
 
 namespace Winfocus.LMS.Application.Interfaces
@@ -11,39 +12,38 @@ namespace Winfocus.LMS.Application.Interfaces
     public interface ICentreService
     {
         /// <summary>
-        /// Retrieves an active <see cref="Centre"/> by its identifier.
+        /// Gets all asynchronous.
         /// </summary>
-        /// <param name="id">The unique identifier of the centre.</param>
-        /// <returns>
-        /// A <see cref="Task{TResult}"/> that resolves to the matching <see cref="Centre"/> if found and active; otherwise <c>null</c>.
-        /// </returns>
-        Task<Centre?> GetByIdAsync(Guid id);
+        /// <returns>CentreDto.</returns>
+        Task<IReadOnlyList<CentreDto>> GetAllAsync();
 
         /// <summary>
-        /// Retrieves all active <see cref="Centre"/> entities.
+        /// Gets the by identifier asynchronous.
         /// </summary>
-        /// <returns>A task resolving to a list of active centres.</returns>
-        Task<List<Centre>> GetAllAsync();
+        /// <param name="id">The identifier.</param>
+        /// <returns>CentreDto.</returns>
+        Task<CentreDto?> GetByIdAsync(Guid id);
 
         /// <summary>
-        /// Creates a new <see cref="Centre"/>.
+        /// Creates the asynchronous.
         /// </summary>
-        /// <param name="centre">The centre to create.</param>
-        /// <returns>The created <see cref="Centre"/>.</returns>
-        Task<Centre> CreateAsync(Centre centre);
+        /// <param name="request">The request.</param>
+        /// <returns>CentreDto.</returns>
+        Task<CentreDto> CreateAsync(CenterRequestDto request);
 
         /// <summary>
-        /// Updates an existing active <see cref="Centre"/>.
+        /// Updates the asynchronous.
         /// </summary>
-        /// <param name="centre">The centre containing updated values.</param>
-        /// <returns>The updated <see cref="Centre"/> if the operation succeeded; otherwise <c>null</c>.</returns>
-        Task<Centre?> UpdateAsync(Centre centre);
+        /// <param name="id">The identifier.</param>
+        /// <param name="request">The request.</param>
+        /// <returns>id.</returns>
+        Task UpdateAsync(Guid id, CenterRequestDto request);
 
         /// <summary>
-        /// Soft-deletes a <see cref="Centre"/> by marking it inactive.
+        /// Deletes the asynchronous.
         /// </summary>
-        /// <param name="id">The identifier of the centre to delete.</param>
-        /// <returns><c>true</c> if the centre was found and marked inactive; otherwise <c>false</c>.</returns>
-        Task<bool> DeleteAsync(Guid id);
+        /// <param name="id">The identifier.</param>
+        /// <returns>id.</returns>
+        Task DeleteAsync(Guid id);
     }
 }

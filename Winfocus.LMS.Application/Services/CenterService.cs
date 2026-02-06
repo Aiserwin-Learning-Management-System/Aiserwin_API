@@ -1,9 +1,12 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
+using Winfocus.LMS.Application.DTOs;
+using Winfocus.LMS.Application.DTOs.Masters;
 using Winfocus.LMS.Application.Interfaces;
 using Winfocus.LMS.Domain.Entities;
+using Winfocus.LMS.Domain.Enums;
 
 namespace Winfocus.LMS.Application.Services
 {
@@ -26,93 +29,107 @@ namespace Winfocus.LMS.Application.Services
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        /// <inheritdoc />
-        public Task<Centre?> GetByIdAsync(Guid id)
+        /// <summary>
+        /// Gets all asynchronous.
+        /// </summary>
+        /// <returns>CeneterDto.</returns>
+        public async Task<IReadOnlyList<CentreDto>> GetAllAsync()
         {
-            if (id == Guid.Empty)
-            {
-                _logger.LogWarning("GetByIdAsync called with empty Guid.");
-                return Task.FromResult<Centre?>(null);
-            }
-
-            return _repository.GetByIdAsync(id);
+            _logger.LogInformation("Fetching all Ceneters");
+            var centres = await _repository.GetAllAsync();
+            _logger.LogInformation("Fetched {Count} centres", centres.Count());
+            return centres.Select(Map).ToList();
         }
 
-        /// <inheritdoc />
-        public Task<List<Centre>> GetAllAsync()
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>CenterDto.</returns>
+        public async Task<CentreDto?> GetByIdAsync(Guid id)
         {
-            return _repository.GetAllAsync();
-        }
-
-        /// <inheritdoc />
-        public async Task<Centre> CreateAsync(Centre centre)
-        {
-            if (centre is null)
+            _logger.LogInformation("Fetching centre by Id: {CentreId}", id);
+            var centre = await _repository.GetByIdAsync(id);
+            if (centre != null)
             {
-                throw new ArgumentNullException(nameof(centre));
-            }
-
-            // Basic business validation: require a name
-            if (string.IsNullOrWhiteSpace(centre.Name))
-            {
-                throw new ArgumentException("Centre name is required.", nameof(centre));
-            }
-
-            centre.CreatedAt = DateTime.UtcNow;
-            if (centre.Id == Guid.Empty)
-            {
-                centre.Id = Guid.NewGuid();
-            }
-
-            var created = await _repository.CreateAsync(centre).ConfigureAwait(false);
-            _logger.LogInformation("Created centre {CentreId}", created.Id);
-            return created;
-        }
-
-        /// <inheritdoc />
-        public async Task<Centre?> UpdateAsync(Centre centre)
-        {
-            if (centre is null)
-            {
-                throw new ArgumentNullException(nameof(centre));
-            }
-
-            if (centre.Id == Guid.Empty)
-            {
-                throw new ArgumentException("Centre Id is required for update.", nameof(centre));
-            }
-
-            var updated = await _repository.UpdateAsync(centre).ConfigureAwait(false);
-            if (updated is null)
-            {
-                _logger.LogWarning("Update failed; centre not found: {CentreId}", centre.Id);
-                return null;
-            }
-
-            _logger.LogInformation("Updated centre {CentreId}", updated.Id);
-            return updated;
-        }
-
-        /// <inheritdoc />
-        public async Task<bool> DeleteAsync(Guid id)
-        {
-            if (id == Guid.Empty)
-            {
-                _logger.LogWarning("DeleteAsync called with empty Guid.");
-                return false;
-            }
-
-            var result = await _repository.DeleteAsync(id).ConfigureAwait(false);
-            if (result)
-            {
-                _logger.LogInformation("Soft-deleted centre {CentreId}", id);
+                _logger.LogWarning("Centre not found for Id: {CentreId}", id);
             }
             else
             {
-                _logger.LogWarning("Soft-delete failed; centre not found: {CentreId}", id);
+                _logger.LogInformation("Centre fetched successfully for Id: {CentreId}", id);
+            }
+            return centre == null ? null : Map(centre);
+        }
+
+        /// <summary>
+        /// Creates the asynchronous.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <returns>CenterDto.</returns>
+        /// <exception cref="InvalidOperationException">Center code already exists.</exception>
+        public async Task<CentreDto> CreateAsync(CenterRequestDto request)
+        {
+            _logger.LogInformation("Creating centre with Code: {CentreCode}", request.code);
+            if (await _repository.ExistsByCodeAsync(request.code))
+            {
+                _logger.LogWarning("Centre creation failed. Code already exists: {CentreCode}", request.code);
+                throw new InvalidOperationException("Center code already exists");
             }
 
-            return result;
+            var centre = new Centre
+            {
+                Name = request.name,
+                Code = request.code,
+                CreatedAt = DateTime.UtcNow,
+            };
+
+            var created = await _repository.AddAsync(centre);
+            _logger.LogInformation("Centre created successfully. CentreId: {CentreId}, Code: {CentreCode}", created.Id, created.Code);
+            return Map(created);
         }
+
+        /// <summary>
+        /// Updates the asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <param name="request">The request.</param>
+        /// <exception cref="KeyNotFoundException">Center not found.</exception>
+        /// <returns>task.</returns>
+        public async Task UpdateAsync(Guid id, CenterRequestDto request)
+        {
+            _logger.LogInformation("Updating centre Id: {CentreId}", id);
+            var center = await _repository.GetByIdAsync(id)
+                ?? throw new KeyNotFoundException("Center not found");
+
+            center.Name = request.name;
+            center.Code = request.code;
+            center.UpdatedAt = DateTime.UtcNow;
+
+            await _repository.UpdateAsync(center);
+            _logger.LogInformation("Centre updated successfully. CentreId: {CentreId}", id);
+        }
+
+        /// <summary>
+        /// Deletes the asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>task.</returns>
+        public async Task DeleteAsync(Guid id)
+        {
+            _logger.LogInformation("Deleting centre Id: {CentreId}", id);
+            await _repository.DeleteAsync(id);
+            _logger.LogInformation("Centre deleted successfully. CentreId: {CentreId}", id);
+        }
+
+        private static CentreDto Map(Centre c)
+        {
+            return new CentreDto(
+                c.Id,
+                c.Name,
+                c.Code
+            );
+        }
+
+
     }
 }

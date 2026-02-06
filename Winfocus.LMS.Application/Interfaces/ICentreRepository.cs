@@ -11,39 +11,44 @@ namespace Winfocus.LMS.Application.Interfaces
     public interface ICentreRepository
     {
         /// <summary>
-        /// Retrieves an active <see cref="Centre"/> by its identifier.
+        /// Gets all asynchronous.
         /// </summary>
-        /// <param name="id">The unique identifier of the centre.</param>
-        /// <returns>
-        /// A <see cref="Task{TResult}"/> that resolves to the matching <see cref="Centre"/> if found and active; otherwise <c>null</c>.
-        /// </returns>
+        /// <returns>Center.</returns>
+        Task<IReadOnlyList<Centre>> GetAllAsync();
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>Center.</returns>
         Task<Centre?> GetByIdAsync(Guid id);
 
         /// <summary>
-        /// Retrieves all active <see cref="Centre"/> entities.
+        /// Adds the asynchronous.
         /// </summary>
-        /// <returns>A task resolving to a list of active centres.</returns>
-        Task<List<Centre>> GetAllAsync();
+        /// <param name="center">The center.</param>
+        /// <returns>Center.</returns>
+        Task<Centre> AddAsync(Centre center);
 
         /// <summary>
-        /// Creates a new <see cref="Centre"/> in the database.
+        /// Updates the asynchronous.
         /// </summary>
-        /// <param name="centre">The centre entity to create.</param>
-        /// <returns>The created <see cref="Centre"/> with its assigned identifier.</returns>
-        Task<Centre> CreateAsync(Centre centre);
+        /// <param name="center">The center.</param>
+        /// <returns>Center.</returns>
+        Task UpdateAsync(Centre center);
 
         /// <summary>
-        /// Updates an existing active <see cref="Centre"/>.
+        /// Deletes the asynchronous.
         /// </summary>
-        /// <param name="centre">The entity containing updated values.</param>
-        /// <returns>The updated <see cref="Centre"/> if the entity existed and was updated; otherwise <c>null</c>.</returns>
-        Task<Centre?> UpdateAsync(Centre centre);
+        /// <param name="id">The identifier.</param>
+        /// <returns>task.</returns>
+        Task DeleteAsync(Guid id);
 
         /// <summary>
-        /// Soft-deletes an existing <see cref="Centre"/> by marking it inactive.
+        /// Existses the by code asynchronous.
         /// </summary>
-        /// <param name="id">The identifier of the centre to delete.</param>
-        /// <returns><c>true</c> if the centre was found and marked inactive; otherwise <c>false</c>.</returns>
-        Task<bool> DeleteAsync(Guid id);
+        /// <param name="code">The code.</param>
+        /// <returns>bool.</returns>
+        Task<bool> ExistsByCodeAsync(string code);
     }
 }

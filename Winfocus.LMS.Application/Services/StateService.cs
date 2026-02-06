@@ -36,8 +36,9 @@ namespace Winfocus.LMS.Application.Services
         public async Task<IReadOnlyList<StateDto>> GetAllAsync()
         {
             _logger.LogInformation("Fetching all states");
-            var countries = await _repository.GetAllAsync();
-            return countries.Select(Map).ToList();
+            var states = await _repository.GetAllAsync();
+            _logger.LogInformation("Fetched {Count} states", states.Count());
+            return states.Select(Map).ToList();
         }
 
         /// <summary>
@@ -47,7 +48,9 @@ namespace Winfocus.LMS.Application.Services
         /// <returns>StateDto.</returns>
         public async Task<StateDto?> GetByIdAsync(Guid id)
         {
+            _logger.LogInformation("Fetching state by Id: {StateId}", id);
             var state = await _repository.GetByIdAsync(id);
+            _logger.LogInformation("State fetched successfully for Id: {StateId}", id);
             return state == null ? null : Map(state);
         }
 
@@ -55,10 +58,11 @@ namespace Winfocus.LMS.Application.Services
         /// Creates the asynchronous.
         /// </summary>
         /// <param name="request">The request.</param>
-        /// <returns>CountryDto.</returns>
-        /// <exception cref="InvalidOperationException">Country code already exists. </exception>
+        /// <returns>StateDto.</returns>
+        /// <exception cref="InvalidOperationException">State code already exists. </exception>
         public async Task<StateDto> CreateAsync(CreateMasterStateRequest request)
         {
+            _logger.LogInformation("Creating state with Code: {StateCode}", request.code);
             if (await _repository.ExistsByCodeAsync(request.code))
             {
                 throw new InvalidOperationException("state code already exists");
@@ -71,6 +75,10 @@ namespace Winfocus.LMS.Application.Services
             };
 
             var created = await _repository.AddAsync(state);
+            _logger.LogInformation(
+           "State created successfully. StateId: {StateId}, Code: {StateCode}",
+           created.Id,
+           created.StateCode);
             return Map(created);
         }
 
@@ -79,10 +87,11 @@ namespace Winfocus.LMS.Application.Services
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <param name="request">The request.</param>
-        /// <exception cref="KeyNotFoundException">Country not found.</exception>
+        /// <exception cref="KeyNotFoundException">State not found.</exception>
         /// <returns>task.</returns>
         public async Task UpdateAsync(Guid id, CreateMasterStateRequest request)
         {
+            _logger.LogInformation("Updating state Id: {StateId}", id);
             var state = await _repository.GetByIdAsync(id)
                 ?? throw new KeyNotFoundException("State not found");
 
@@ -90,6 +99,9 @@ namespace Winfocus.LMS.Application.Services
             state.StateCode = request.code;
 
             await _repository.UpdateAsync(state);
+            _logger.LogInformation(
+           "State updated successfully. StateId: {StateId}",
+           id);
         }
 
         /// <summary>
@@ -99,7 +111,11 @@ namespace Winfocus.LMS.Application.Services
         /// <returns>task.</returns>
         public async Task DeleteAsync(Guid id)
         {
+            _logger.LogInformation("Deleting state Id: {StateId}", id);
             await _repository.DeleteAsync(id);
+            _logger.LogInformation(
+           "State deleted successfully. StateId: {StateId}",
+           id);
         }
 
         private static StateDto Map(State c) =>

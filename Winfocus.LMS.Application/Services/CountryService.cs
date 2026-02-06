@@ -110,7 +110,7 @@
                 c.IsoAlpha3,
                 c.IsoNumeric,
                 c.Centres.Select(x =>
-                    new CentreDto(x.Id, x.Name, x.Type.ToString()))
+                    new CentreDto(x.Id, x.Name, x.CenterType.ToString()))
                 .ToList()
             );
     }

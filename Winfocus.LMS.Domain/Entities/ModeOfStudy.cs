@@ -15,6 +15,11 @@
         public string ModeName { get; set; } = null!;
 
         /// <summary>
+        /// Gets or sets the display code of the mode of study.
+        /// </summary>
+        public string ModeCode { get; set; } = null!;
+
+        /// <summary>
         /// Gets or sets the identifier of the associated state.
         /// </summary>
         public Guid StateId { get; set; }
