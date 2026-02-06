@@ -45,7 +45,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             return _dbContext.Users
                 .Include(u => u.UserRoles)
                 .ThenInclude(ur => ur.Role)
-                .FirstOrDefaultAsync(u => u.Username == username);
+                .FirstOrDefaultAsync(u => u.Username == username || u.Email == username);
         }
 
         /// <summary>
