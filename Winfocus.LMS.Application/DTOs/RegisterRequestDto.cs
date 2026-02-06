@@ -7,6 +7,6 @@
         string username,
         string email,
         string password,
-        string roleName
+        IReadOnlyList<string> roleName
     );
 }

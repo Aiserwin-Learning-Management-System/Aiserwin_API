@@ -1,6 +1,8 @@
 ﻿namespace Winfocus.LMS.Application.Services
 {
     using Microsoft.AspNetCore.Identity;
+    using Microsoft.Extensions.Logging;
+    using System.Data;
     using Winfocus.LMS.Application.DTOs;
     using Winfocus.LMS.Application.Interfaces;
     using Winfocus.LMS.Domain.Entities;
@@ -14,6 +16,7 @@
         private readonly IRoleRepository _roleRepository;
         private readonly ITokenService _tokenService;
         private readonly IPasswordHasher<User> _passwordHasher;
+        private readonly ILogger<AuthService> _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthService"/> class.
@@ -22,16 +25,19 @@
         /// <param name="roleRepository">The role repository.</param>
         /// <param name="tokenService">The token service.</param>
         /// <param name="passwordHasher">The password hasher.</param>
+        /// <param name="logger">The logger.</param>
         public AuthService(
             IUserRepository userRepository,
             IRoleRepository roleRepository,
             ITokenService tokenService,
-            IPasswordHasher<User> passwordHasher)
+            IPasswordHasher<User> passwordHasher,
+            ILogger<AuthService> logger)
         {
             _userRepository = userRepository;
             _roleRepository = roleRepository;
             _tokenService = tokenService;
             _passwordHasher = passwordHasher;
+            _logger = logger;
         }
 
         /// <summary>
@@ -46,13 +52,20 @@
         /// </exception>
         public async Task<AuthResponseDto> RegisterAsync(RegisterRequestDto request)
         {
-            if (await _userRepository.UsernameExistsAsync(request.username))
-            {
-                throw new InvalidOperationException("Username already exists.");
-            }
+            _logger.LogInformation(
+                "Registration attempt for Username: {Username}",
+                request.username);
 
-            var role = await _roleRepository.GetByNameAsync(request.roleName)
-                       ?? throw new InvalidOperationException("Invalid role.");
+            var existingUser = await _userRepository.GetByUsernameAsync(request.username);
+
+            if (existingUser != null && existingUser.IsActive)
+            {
+                _logger.LogWarning(
+                    "Registration failed. Invalid username or inactive user: {Username}",
+                    request.username);
+
+                throw new InvalidOperationException("Invalid username or password.");
+            }
 
             var user = new User
             {
@@ -64,17 +77,40 @@
 
             user.PasswordHash = _passwordHasher.HashPassword(user, request.password);
 
-            user.UserRoles.Add(new UserRole
+            var roles = new List<string>();
+
+            // Loop through all requested roles
+            foreach (var roleName in request.roleName)
             {
-                RoleId = role.Id,
-                UserId = user.Id,
-            });
+                var role = await _roleRepository.GetByNameAsync(roleName)
+                           ?? throw new InvalidOperationException($"Invalid role: {roleName}");
+
+                user.UserRoles.Add(new UserRole
+                {
+                    RoleId = role.Id,
+                    UserId = user.Id,
+                });
+
+                roles.Add(roleName);
+            }
 
             await _userRepository.AddAsync(user);
 
-            var token = _tokenService.GenerateToken(user, new[] { role.Name });
+            // Generate token with all roles
+            var token = _tokenService.GenerateToken(user, roles);
 
-            return new AuthResponseDto(token);
+            _logger.LogInformation(
+                   "User registered successfully. Username: {Username}, UserId: {UserId}, Roles: {Roles}",
+                   user.Username,
+                   user.Id,
+                   string.Join(",", roles));
+
+            return new AuthResponseDto(
+                token,
+                user.Id,
+                user.Username,
+                user.Email,
+                roles);
         }
 
         /// <summary>
@@ -85,8 +121,21 @@
         /// <exception cref="UnauthorizedAccessException">Invalid credentials.</exception>
         public async Task<AuthResponseDto> LoginAsync(LoginRequestDto request)
         {
+            _logger.LogInformation(
+                "Login attempt for username: {Username}",
+                request.username);
+
             var user = await _userRepository.GetByUsernameAsync(request.username)
                        ?? throw new UnauthorizedAccessException("Invalid credentials.");
+
+            if (user == null || !user.IsActive)
+            {
+                _logger.LogWarning(
+                    "Login failed for username {Username}: user not found or inactive",
+                    request.username);
+
+                throw new UnauthorizedAccessException("Invalid username or password");
+            }
 
             var verificationResult = _passwordHasher.VerifyHashedPassword(
                 user,
@@ -95,6 +144,9 @@
 
             if (verificationResult == PasswordVerificationResult.Failed)
             {
+                _logger.LogWarning(
+                    "Login failed for username {Username}: invalid password",
+                    request.username);
                 throw new UnauthorizedAccessException("Invalid credentials.");
             }
 
@@ -102,7 +154,17 @@
 
             var token = _tokenService.GenerateToken(user, roles);
 
-            return new AuthResponseDto(token);
+            _logger.LogInformation(
+                "Login successful for username {Username} (UserId: {UserId})",
+                user.Username,
+                user.Id);
+
+            return new AuthResponseDto(
+                token,
+                user.Id,
+                user.Username,
+                user.Email,
+                roles);
         }
     }
 }
