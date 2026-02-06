@@ -54,7 +54,7 @@
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>CountryDto.</returns>
-        /// <exception cref="InvalidOperationException">Country code already exists</exception>
+        /// <exception cref="InvalidOperationException">Country code already exists. </exception>
         public async Task<CountryDto> CreateAsync(CreateCountryRequest request)
         {
             if (await _repository.ExistsByCodeAsync(request.code))

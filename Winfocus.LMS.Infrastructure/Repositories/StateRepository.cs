@@ -1,6 +1,7 @@
 ﻿namespace Winfocus.LMS.Infrastructure.Repositories
 {
     using Microsoft.EntityFrameworkCore;
+    using Winfocus.LMS.Application.DTOs;
     using Winfocus.LMS.Application.DTOs.Masters;
     using Winfocus.LMS.Application.Interfaces;
     using Winfocus.LMS.Domain.Entities;
@@ -26,126 +27,79 @@
         }
 
         /// <summary>
-        /// Retrieves an active <see cref="State"/> by its identifier.
+        /// Gets all asynchronous.
         /// </summary>
-        /// <param name="id">The unique identifier of the state.</param>
-        /// <returns>
-        /// A <see cref="Task{TResult}"/> that resolves to the matching <see cref="State"/> if found and active; otherwise <c>null</c>.
-        /// </returns>
-        public Task<State?> GetByIdAsync(Guid id)
+        /// <returns>State list.</returns>
+        public async Task<IReadOnlyList<State>> GetAllAsync()
         {
-            return _dbContext.States
-                .FirstOrDefaultAsync(r => r.Id == id && r.IsActive);
-        }
-
-        /// <summary>
-        /// Retrieves an active <see cref="State"/> by its identifier.
-        /// </summary>
-        /// <param name="name">The unique identifier of the state.</param>
-        /// <returns>
-        /// A <see cref="Task{TResult}"/> that resolves to the matching <see cref="State"/> if found and active; otherwise <c>null</c>.
-        /// </returns>
-        public Task<State?> GetByNameAsync(string name)
-        {
-            return _dbContext.States
-                .FirstOrDefaultAsync(r => r.StateName == name && r.IsActive);
-        }
-
-        /// <summary>
-        /// Retrieves an active <see cref="State"/> by its identifier.
-        /// </summary>
-        /// <param name="countryid">The unique identifier of the state.</param>
-        /// <returns>
-        /// A <see cref="Task{TResult}"/> that resolves to the matching <see cref="State"/> if found and active; otherwise <c>null</c>.
-        /// </returns>
-        public Task<State?> GetByCountryAsync(Guid countryid)
-        {
-            return _dbContext.States
-                .FirstOrDefaultAsync(r => r.CountryId == countryid && r.IsActive);
-        }
-
-        /// <summary>
-        /// Retrieves all active <see cref="State"/> entities.
-        /// </summary>
-        /// <returns>A task resolving to a read-only list of active states.</returns>
-        public Task<List<State>> GetAllAsync()
-        {
-            return _dbContext.States
-                .Where(s => s.IsActive)
+            return await _dbContext.States
+                .Include(x => x.Country)
+                .AsNoTracking()
                 .ToListAsync();
         }
 
         /// <summary>
-        /// Creates a new <see cref="State"/> in the database.
+        /// Gets the by identifier asynchronous.
         /// </summary>
-        /// <param name="state">The state entity to create.</param>
-        /// <returns>The created <see cref="State"/> with its assigned identifier.</returns>
-        public async Task<State> CreateAsync(State state)
+        /// <param name="id">The identifier.</param>
+        /// <returns>State.</returns>
+        public async Task<State?> GetByIdAsync(Guid id)
         {
-            state.Id = state.Id == Guid.Empty ? Guid.NewGuid() : state.Id;
-            state.CreatedAt = DateTime.UtcNow;
+            return await _dbContext.States
+                .Include(x => x.Country)
+                .FirstOrDefaultAsync(x => x.Id == id);
+        }
 
-            await _dbContext.States.AddAsync(state);
+        /// <summary>
+        /// Adds the asynchronous.
+        /// </summary>
+        /// <param name="state">The country.</param>
+        /// <returns>country.</returns>
+        public async Task<State> AddAsync(State state)
+        {
+            _dbContext.States.Add(state);
             await _dbContext.SaveChangesAsync();
-
             return state;
         }
 
         /// <summary>
-        /// Updates an existing active <see cref="State"/>.
+        /// Updates the asynchronous.
         /// </summary>
-        /// <param name="state">The state entity containing updated values. The <see cref="State.Id"/> must identify an existing active state.</param>
-        /// <returns>The updated <see cref="State"/> if the entity existed and was updated; otherwise <c>null</c>.</returns>
-        public async Task<State?> UpdateAsync(State state)
+        /// <param name="state">The state.</param>
+        /// <returns>task.</returns>
+        public async Task UpdateAsync(State state)
         {
-            var existing = await _dbContext.States
-                .FirstOrDefaultAsync(s => s.Id == state.Id && s.IsActive);
-
-            if (existing is null)
-            {
-                return null;
-            }
-
-            // Preserve immutable/audit fields
-            var createdAt = existing.CreatedAt;
-            var createdBy = existing.CreatedBy;
-            var isActive = existing.IsActive;
-
-            // Apply incoming values
-            _dbContext.Entry(existing).CurrentValues.SetValues(state);
-
-            // Restore preserved fields and set updated timestamp
-            existing.CreatedAt = createdAt;
-            existing.CreatedBy = createdBy;
-            existing.IsActive = isActive;
-            existing.UpdatedAt = DateTime.UtcNow;
-
+            _dbContext.States.Update(state);
             await _dbContext.SaveChangesAsync();
-
-            return existing;
         }
 
         /// <summary>
-        /// Soft-deletes an existing <see cref="State"/> by marking it inactive.
+        /// Deletes the asynchronous.
         /// </summary>
-        /// <param name="id">The identifier of the state to delete.</param>
-        /// <returns><c>true</c> if the state was found and marked inactive; otherwise <c>false</c>.</returns>
-        public async Task<bool> DeleteAsync(Guid id)
+        /// <param name="id">The identifier.</param>
+        /// <returns>task.</returns>
+        public async Task DeleteAsync(Guid id)
         {
-            var existing = await _dbContext.States
-                .FirstOrDefaultAsync(s => s.Id == id && s.IsActive);
-
-            if (existing is null)
+            var entity = await _dbContext.States.FindAsync(id);
+            if (entity == null)
             {
-                return false;
+                return;
             }
 
-            existing.IsActive = false;
-            existing.UpdatedAt = DateTime.UtcNow;
+            entity.IsActive = false;
 
+            _dbContext.States.Update(entity);
             await _dbContext.SaveChangesAsync();
+        }
 
-            return true;
+        /// <summary>
+        /// Existses the by code asynchronous.
+        /// </summary>
+        /// <param name="code">The code.</param>
+        /// <returns>bool.</returns>
+        public async Task<bool> ExistsByCodeAsync(string code)
+        {
+            return await _dbContext.States.AnyAsync(x => x.StateCode == code);
         }
     }
 }

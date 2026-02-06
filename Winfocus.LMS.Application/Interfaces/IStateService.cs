@@ -3,6 +3,8 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using Winfocus.LMS.Application.DTOs;
+    using Winfocus.LMS.Application.DTOs.Masters;
     using Winfocus.LMS.Domain.Entities;
 
     /// <summary>
@@ -11,48 +13,38 @@
     public interface IStateService
     {
         /// <summary>
-        /// Retrieves an active <see cref="State"/> by its identifier.
+        /// Gets all asynchronous.
         /// </summary>
-        /// <param name="id">The unique identifier of the state.</param>
-        /// <returns>
-        /// A <see cref="Task{TResult}"/> that resolves to the matching <see cref="State"/> if found and active; otherwise <c>null</c>.
-        /// </returns>
-        Task<State?> GetByIdAsync(Guid id);
+        /// <returns>StateDto.</returns>
+        Task<IReadOnlyList<StateDto>> GetAllAsync();
 
         /// <summary>
-        /// Retrieves an active <see cref="State"/> by its identifier.
+        /// Gets the by identifier asynchronous.
         /// </summary>
-        /// <param name="countryid">The unique identifier of the state.</param>
-        /// <returns>
-        /// A <see cref="Task{TResult}"/> that resolves to the matching <see cref="State"/> if found and active; otherwise <c>null</c>.
-        /// </returns>
-        Task<State?> GetByCountryIdAsync(Guid countryid);
+        /// <param name="id">The identifier.</param>
+        /// <returns>StateDto.</returns>
+        Task<StateDto?> GetByIdAsync(Guid id);
 
         /// <summary>
-        /// Retrieves all active <see cref="State"/> entities.
+        /// Creates the asynchronous.
         /// </summary>
-        /// <returns>A task resolving to a list of active states.</returns>
-        Task<List<State>> GetAllAsync();
+        /// <param name="request">The request.</param>
+        /// <returns>StateDto.</returns>
+        Task<StateDto> CreateAsync(CreateMasterStateRequest request);
 
         /// <summary>
-        /// Creates a new <see cref="State"/>.
+        /// Updates the asynchronous.
         /// </summary>
-        /// <param name="state">The state to create.</param>
-        /// <returns>The created <see cref="State"/>.</returns>
-        Task<State> CreateAsync(State state);
+        /// <param name="id">The identifier.</param>
+        /// <param name="request">The request.</param>
+        /// <returns>id.</returns>
+        Task UpdateAsync(Guid id, CreateMasterStateRequest request);
 
         /// <summary>
-        /// Updates an existing active <see cref="State"/>.
+        /// Deletes the asynchronous.
         /// </summary>
-        /// <param name="state">The state containing updated values.</param>
-        /// <returns>The updated <see cref="State"/> if the operation succeeded; otherwise <c>null</c>.</returns>
-        Task<State?> UpdateAsync(State state);
-
-        /// <summary>
-        /// Soft-deletes a <see cref="State"/> by marking it inactive.
-        /// </summary>
-        /// <param name="id">The identifier of the state to delete.</param>
-        /// <returns><c>true</c> if the state was found and marked inactive; otherwise <c>false</c>.</returns>
-        Task<bool> DeleteAsync(Guid id);
+        /// <param name="id">The identifier.</param>
+        /// <returns>id.</returns>
+        Task DeleteAsync(Guid id);
     }
 }

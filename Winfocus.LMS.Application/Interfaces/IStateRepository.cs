@@ -3,6 +3,8 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using Winfocus.LMS.Application.DTOs;
+    using Winfocus.LMS.Application.DTOs.Masters;
     using Winfocus.LMS.Domain.Entities;
 
     /// <summary>
@@ -10,57 +12,45 @@
     /// </summary>
     public interface IStateRepository
     {
+     /// <summary>
+     /// Gets all asynchronous.
+     /// </summary>
+     /// <returns>State.</returns>
+        Task<IReadOnlyList<State>> GetAllAsync();
+
         /// <summary>
-        /// Retrieves an active <see cref="State"/> by its identifier.
+        /// Gets the by identifier asynchronous.
         /// </summary>
-        /// <param name="id">The unique identifier of the state.</param>
-        /// <returns>
-        /// A <see cref="Task{TResult}"/> that resolves to the matching <see cref="State"/> if found and active; otherwise <c>null</c>.
-        /// </returns>
+        /// <param name="id">The identifier.</param>
+        /// <returns>State.</returns>
         Task<State?> GetByIdAsync(Guid id);
 
         /// <summary>
-        /// Retrieves all active <see cref="State"/> entities.
+        /// Adds the asynchronous.
         /// </summary>
-        /// <returns>A task resolving to a read-only list of active states.</returns>
-        Task<List<State>> GetAllAsync();
+        /// <param name="state">The state.</param>
+        /// <returns>State.</returns>
+        Task<State> AddAsync(State state);
 
         /// <summary>
-        /// Creates a new <see cref="State"/> in the database.
+        /// Updates the asynchronous.
         /// </summary>
-        /// <param name="state">The state entity to create.</param>
-        /// <returns>The created <see cref="State"/> with its assigned identifier.</returns>
-        Task<State> CreateAsync(State state);
+        /// <param name="state">The state.</param>
+        /// <returns>State.</returns>
+        Task UpdateAsync(State state);
 
         /// <summary>
-        /// Updates an existing active <see cref="State"/>.
+        /// Deletes the asynchronous.
         /// </summary>
-        /// <param name="state">The state entity containing updated values.</param>
-        /// <returns>The updated <see cref="State"/> if the entity existed and was updated; otherwise <c>null</c>.</returns>
-        Task<State?> UpdateAsync(State state);
+        /// <param name="id">The identifier.</param>
+        /// <returns>task.</returns>
+        Task DeleteAsync(Guid id);
 
         /// <summary>
-        /// Soft-deletes an existing <see cref="State"/> by marking it inactive.
+        /// Existses the by code asynchronous.
         /// </summary>
-        /// <param name="id">The identifier of the state to delete.</param>
-        /// <returns><c>true</c> if the state was found and marked inactive; otherwise <c>false</c>.</returns>
-        Task<bool> DeleteAsync(Guid id);
-        /// <summary>
-        /// Retrieves an active <see cref="State"/> by its identifier.
-        /// </summary>
-        /// <param name="name">The unique identifier of the state.</param>
-        /// <returns>
-        /// A <see cref="Task{TResult}"/> that resolves to the matching <see cref="State"/> if found and active; otherwise <c>null</c>.
-        /// </returns>
-        public Task<State?> GetByNameAsync(string name);
-
-        /// <summary>
-        /// Retrieves an active <see cref="State"/> by its identifier.
-        /// </summary>
-        /// <param name="countryid">The unique identifier of the state.</param>
-        /// <returns>
-        /// A <see cref="Task{TResult}"/> that resolves to the matching <see cref="State"/> if found and active; otherwise <c>null</c>.
-        /// </returns>
-        public Task<State?> GetByCountryAsync(Guid countryid);
+        /// <param name="code">The code.</param>
+        /// <returns>bool.</returns>
+        Task<bool> ExistsByCodeAsync(string code);
     }
 }

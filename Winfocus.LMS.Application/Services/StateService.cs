@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
+using Winfocus.LMS.Application.DTOs;
+using Winfocus.LMS.Application.DTOs.Masters;
 using Winfocus.LMS.Application.Interfaces;
 using Winfocus.LMS.Domain.Entities;
 
@@ -26,106 +28,87 @@ namespace Winfocus.LMS.Application.Services
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        /// <inheritdoc />
-        public Task<State?> GetByIdAsync(Guid id)
-        {
-            if (id == Guid.Empty)
-            {
-                _logger.LogWarning("GetByIdAsync called with empty Guid.");
-                return Task.FromResult<State?>(null);
-            }
 
-            return _repository.GetByIdAsync(id);
+        /// <summary>
+        /// Gets all asynchronous.
+        /// </summary>
+        /// <returns>StateDto.</returns>
+        public async Task<IReadOnlyList<StateDto>> GetAllAsync()
+        {
+            _logger.LogInformation("Fetching all states");
+            var countries = await _repository.GetAllAsync();
+            return countries.Select(Map).ToList();
         }
 
-        /// <inheritdoc />
-        public Task<State?> GetByCountryIdAsync(Guid countryid)
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>StateDto.</returns>
+        public async Task<StateDto?> GetByIdAsync(Guid id)
         {
-            if (countryid == Guid.Empty)
-            {
-                _logger.LogWarning("GetByIdAsync called with empty Guid.");
-                return Task.FromResult<State?>(null);
-            }
-
-            return _repository.GetByCountryAsync(countryid);
+            var state = await _repository.GetByIdAsync(id);
+            return state == null ? null : Map(state);
         }
 
-        /// <inheritdoc />
-        public Task<List<State>> GetAllAsync()
+        /// <summary>
+        /// Creates the asynchronous.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <returns>CountryDto.</returns>
+        /// <exception cref="InvalidOperationException">Country code already exists. </exception>
+        public async Task<StateDto> CreateAsync(CreateMasterStateRequest request)
         {
-            return _repository.GetAllAsync();
+            if (await _repository.ExistsByCodeAsync(request.code))
+            {
+                throw new InvalidOperationException("state code already exists");
+            }
+
+            var state = new State
+            {
+                StateName = request.name,
+                StateCode = request.code,
+            };
+
+            var created = await _repository.AddAsync(state);
+            return Map(created);
         }
 
-        /// <inheritdoc />
-        public async Task<State> CreateAsync(State state)
+        /// <summary>
+        /// Updates the asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <param name="request">The request.</param>
+        /// <exception cref="KeyNotFoundException">Country not found.</exception>
+        /// <returns>task.</returns>
+        public async Task UpdateAsync(Guid id, CreateMasterStateRequest request)
         {
-            if (state is null)
-            {
-                throw new ArgumentNullException(nameof(state));
-            }
+            var state = await _repository.GetByIdAsync(id)
+                ?? throw new KeyNotFoundException("State not found");
 
-            // Business rules (example): ensure required name present
-            if (string.IsNullOrWhiteSpace(state.StateName))
-            {
-                throw new ArgumentException("State name is required.", nameof(state));
-            }
+            state.StateName = request.name;
+            state.StateCode = request.code;
 
-            // Ensure audit defaults
-            state.CreatedAt = DateTime.UtcNow;
-            if (state.Id == Guid.Empty)
-            {
-                state.Id = Guid.NewGuid();
-            }
-
-            var created = await _repository.CreateAsync(state).ConfigureAwait(false);
-            _logger.LogInformation("Created state {StateId}", created.Id);
-            return created;
+            await _repository.UpdateAsync(state);
         }
 
-        /// <inheritdoc />
-        public async Task<State?> UpdateAsync(State state)
+        /// <summary>
+        /// Deletes the asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>task.</returns>
+        public async Task DeleteAsync(Guid id)
         {
-            if (state is null)
-            {
-                throw new ArgumentNullException(nameof(state));
-            }
-
-            if (state.Id == Guid.Empty)
-            {
-                throw new ArgumentException("State Id is required for update.", nameof(state));
-            }
-
-            var updated = await _repository.UpdateAsync(state).ConfigureAwait(false);
-            if (updated is null)
-            {
-                _logger.LogWarning("Update failed; state not found: {StateId}", state.Id);
-                return null;
-            }
-
-            _logger.LogInformation("Updated state {StateId}", updated.Id);
-            return updated;
+            await _repository.DeleteAsync(id);
         }
 
-        /// <inheritdoc />
-        public async Task<bool> DeleteAsync(Guid id)
-        {
-            if (id == Guid.Empty)
+        private static StateDto Map(State c) =>
+            new StateDto
             {
-                _logger.LogWarning("DeleteAsync called with empty Guid.");
-                return false;
-            }
-
-            var result = await _repository.DeleteAsync(id).ConfigureAwait(false);
-            if (result)
-            {
-                _logger.LogInformation("Soft-deleted state {StateId}", id);
-            }
-            else
-            {
-                _logger.LogWarning("Soft-delete failed; state not found: {StateId}", id);
-            }
-
-            return result;
-        }
+                Id = c.Id,
+                StateName = c.StateName,
+                StateCode = c.StateCode,
+                CountryId = c.CountryId,
+            };
     }
 }
