@@ -119,6 +119,11 @@
         public DbSet<Syllabus> Syllabuses { get; set; } = null!;
 
         /// <summary>
+        /// Gets or sets the streams  in the database.
+        /// </summary>
+        public DbSet<Streams> Streams { get; set; } = null!;
+
+        /// <summary>
         /// Configures the model for the context.
         /// </summary>
         /// <param name="modelBuilder">The builder being used to construct the model for this context.</param>

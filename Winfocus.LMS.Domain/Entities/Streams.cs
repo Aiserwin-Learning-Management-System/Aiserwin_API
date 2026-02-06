@@ -6,7 +6,7 @@
     /// <summary>
     /// Represents an academic stream within a grade (for example, Science or Arts).
     /// </summary>
-    public class Stream : BaseEntity
+    public class Streams : BaseEntity
     {
         /// <summary>
         /// Gets or sets the display name of the stream.
