@@ -29,100 +29,79 @@
         }
 
         /// <summary>
-        /// Retrieves an active <see cref="ModeOfStudy"/> by its identifier.
+        /// Gets all asynchronous.
         /// </summary>
-        /// <param name="id">The unique identifier of the mode of study.</param>
-        /// <returns>
-        /// A <see cref="Task{TResult}"/> that resolves to the matching <see cref="ModeOfStudy"/> if found and active; otherwise <c>null</c>.
-        /// </returns>
-        public Task<ModeOfStudy?> GetByIdAsync(Guid id)
+        /// <returns>Mode of study list.</returns>
+        public async Task<IReadOnlyList<ModeOfStudy>> GetAllAsync()
         {
-            return _dbContext.ModeOfStudies
-                .FirstOrDefaultAsync(r => r.Id == id && r.IsActive);
-        }
-
-        /// <summary>
-        /// Retrieves all active <see cref="ModeOfStudy"/> entities.
-        /// </summary>
-        /// <returns>A task resolving to a list of active modes of study.</returns>
-        public Task<List<ModeOfStudy>> GetAllAsync()
-        {
-            return _dbContext.ModeOfStudies
-                .Where(m => m.IsActive)
+            return await _dbContext.ModeOfStudies
+                .Include(x => x.State)
+                .AsNoTracking()
                 .ToListAsync();
         }
 
         /// <summary>
-        /// Creates a new <see cref="ModeOfStudy"/> in the database.
+        /// Gets the by identifier asynchronous.
         /// </summary>
-        /// <param name="mode">The mode of study entity to create.</param>
-        /// <returns>The created <see cref="ModeOfStudy"/> with its assigned identifier.</returns>
-        public async Task<ModeOfStudy> CreateAsync(ModeOfStudy mode)
+        /// <param name="id">The identifier.</param>
+        /// <returns>Country.</returns>
+        public async Task<ModeOfStudy?> GetByIdAsync(Guid id)
         {
-            mode.Id = mode.Id == Guid.Empty ? Guid.NewGuid() : mode.Id;
-            mode.CreatedAt = DateTime.UtcNow;
-
-            await _dbContext.ModeOfStudies.AddAsync(mode);
-            await _dbContext.SaveChangesAsync();
-
-            return mode;
+            return await _dbContext.ModeOfStudies
+                .Include(x => x.State)
+                .FirstOrDefaultAsync(x => x.Id == id);
         }
 
         /// <summary>
-        /// Updates an existing active <see cref="ModeOfStudy"/>.
+        /// Adds the asynchronous.
         /// </summary>
-        /// <param name="mode">The entity containing updated values. The <see cref="ModeOfStudy.Id"/> must identify an existing active record.</param>
-        /// <returns>The updated <see cref="ModeOfStudy"/> if the entity existed and was updated; otherwise <c>null</c>.</returns>
-        public async Task<ModeOfStudy?> UpdateAsync(ModeOfStudy mode)
+        /// <param name="modeofstudy">The modeofstudy.</param>
+        /// <returns>modeofstudy.</returns>
+        public async Task<ModeOfStudy> AddAsync(ModeOfStudy modeofstudy)
         {
-            var existing = await _dbContext.ModeOfStudies
-                .FirstOrDefaultAsync(m => m.Id == mode.Id && m.IsActive);
-
-            if (existing is null)
-            {
-                return null;
-            }
-
-            // Preserve immutable/audit fields
-            var createdAt = existing.CreatedAt;
-            var createdBy = existing.CreatedBy;
-            var isActive = existing.IsActive;
-
-            // Apply incoming values
-            _dbContext.Entry(existing).CurrentValues.SetValues(mode);
-
-            // Restore preserved fields and set updated timestamp
-            existing.CreatedAt = createdAt;
-            existing.CreatedBy = createdBy;
-            existing.IsActive = isActive;
-            existing.UpdatedAt = DateTime.UtcNow;
-
+            _dbContext.ModeOfStudies.Add(modeofstudy);
             await _dbContext.SaveChangesAsync();
-
-            return existing;
+            return modeofstudy;
         }
 
         /// <summary>
-        /// Soft-deletes an existing <see cref="ModeOfStudy"/> by marking it inactive.
+        /// Updates the asynchronous.
         /// </summary>
-        /// <param name="id">The identifier of the mode of study to delete.</param>
-        /// <returns><c>true</c> if the item was found and marked inactive; otherwise <c>false</c>.</returns>
-        public async Task<bool> DeleteAsync(Guid id)
+        /// <param name="modeofstudy">The modeofstudy.</param>
+        /// <returns>task.</returns>
+        public async Task UpdateAsync(ModeOfStudy modeofstudy)
         {
-            var existing = await _dbContext.ModeOfStudies
-                .FirstOrDefaultAsync(m => m.Id == id && m.IsActive);
+            _dbContext.ModeOfStudies.Update(modeofstudy);
+            await _dbContext.SaveChangesAsync();
+        }
 
-            if (existing is null)
+        /// <summary>
+        /// Deletes the asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>task.</returns>
+        public async Task DeleteAsync(Guid id)
+        {
+            var entity = await _dbContext.ModeOfStudies.FindAsync(id);
+            if (entity == null)
             {
-                return false;
+                return;
             }
 
-            existing.IsActive = false;
-            existing.UpdatedAt = DateTime.UtcNow;
+            entity.IsActive = false;
 
+            _dbContext.ModeOfStudies.Update(entity);
             await _dbContext.SaveChangesAsync();
+        }
 
-            return true;
+        /// <summary>
+        /// Existses the by code asynchronous.
+        /// </summary>
+        /// <param name="code">The code.</param>
+        /// <returns>bool.</returns>
+        public async Task<bool> ExistsByCodeAsync(string code)
+        {
+            return await _dbContext.ModeOfStudies.AnyAsync(x => x.ModeCode == code);
         }
     }
 }
