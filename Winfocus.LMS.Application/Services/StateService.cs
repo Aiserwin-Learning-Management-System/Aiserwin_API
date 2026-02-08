@@ -16,18 +16,20 @@ namespace Winfocus.LMS.Application.Services
     {
         private readonly IStateRepository _repository;
         private readonly ILogger<StateService> _logger;
+        private readonly ICountryRepository _countryRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StateService"/> class.
         /// </summary>
         /// <param name="repository">Repository used for data access.</param>
+        /// <param name="countryRepository">countryRepository used for data access.</param>
         /// <param name="logger">Logger.</param>
-        public StateService(IStateRepository repository, ILogger<StateService> logger)
+        public StateService(IStateRepository repository, ILogger<StateService> logger, ICountryRepository countryRepository)
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _countryRepository = countryRepository;
         }
-
 
         /// <summary>
         /// Gets all asynchronous.
@@ -68,10 +70,23 @@ namespace Winfocus.LMS.Application.Services
                 throw new InvalidOperationException("state code already exists");
             }
 
+            var country = await _countryRepository.GetByIdAsync(request.countryid);
+
+            if (country == null)
+            {
+                throw new InvalidOperationException("Country not found");
+            }
+
+            if (!country.IsActive)
+            {
+                throw new InvalidOperationException("Cannot create state for inactive country");
+            }
+
             var state = new State
             {
                 StateName = request.name,
                 StateCode = request.code,
+                CountryId = request.countryid,
             };
 
             var created = await _repository.AddAsync(state);
@@ -119,12 +134,26 @@ namespace Winfocus.LMS.Application.Services
         }
 
         private static StateDto Map(State c) =>
-            new StateDto
-            {
-                Id = c.Id,
-                StateName = c.StateName,
-                StateCode = c.StateCode,
-                CountryId = c.CountryId,
-            };
+      new StateDto
+      {
+          Id = c.Id,
+          StateName = c.StateName,
+          StateCode = c.StateCode,
+          CountryId = c.CountryId,
+          Country = c.Country == null ? null : new CountryDto(
+              c.Country.Id,
+              c.Country.Name,
+              c.Country.Code,
+              c.Country.IsoAlpha3,
+              c.Country.IsoNumeric,
+              c.Country.Centres?
+                  .Select(x => new CentreDto(
+                      x.Id,
+                      x.Name,
+                      x.CenterType.ToString()
+                  ))
+                  .ToList() ?? new List<CentreDto>()
+          )
+      };
     }
 }
