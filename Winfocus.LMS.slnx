@@ -3,9 +3,13 @@
     <File Path=".editorconfig" />
     <File Path=".gitignore" />
   </Folder>
+  <Folder Name="/Test Projects/">
+    <Project Path="Winfocus.LMS.Api.Tests/Winfocus.LMS.Api.Tests.csproj" Id="c31cb659-c54a-457b-9be9-4ca9adfc9a04" />
+    <Project Path="Winfocus.LMS.Infrastructure.Tests/Winfocus.LMS.Infrastructure.Tests.csproj" Id="f85426a5-ff02-4f60-ab80-b62ed489db01" />
+    <Project Path="Winfocus.LMS.Tests/Winfocus.LMS.Application.Tests.csproj" />
+  </Folder>
   <Project Path="Winfocus.LMS.API/Winfocus.LMS.API.csproj" />
   <Project Path="Winfocus.LMS.Application/Winfocus.LMS.Application.csproj" />
   <Project Path="Winfocus.LMS.Domain/Winfocus.LMS.Domain.csproj" />
   <Project Path="Winfocus.LMS.Infrastructure/Winfocus.LMS.Infrastructure.csproj" />
-  <Project Path="Winfocus.LMS.Tests/Winfocus.LMS.Tests.csproj" />
 </Solution>

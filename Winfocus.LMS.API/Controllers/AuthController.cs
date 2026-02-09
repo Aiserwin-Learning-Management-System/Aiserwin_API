@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Winfocus.LMS.Application.DTOs;
-using Winfocus.LMS.Application.Interfaces;
-
-namespace Winfocus.LMS.Api.Controllers
+﻿namespace Winfocus.LMS.Api.Controllers
 {
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+    using Winfocus.LMS.Application.DTOs.Auth;
+    using Winfocus.LMS.Application.Interfaces;
+
     /// <summary>
     /// Handles authentication endpoints.
     /// </summary>
@@ -27,6 +28,7 @@ namespace Winfocus.LMS.Api.Controllers
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>registered data.</returns>
+        [AllowAnonymous]
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequestDto request)
         {
@@ -39,6 +41,7 @@ namespace Winfocus.LMS.Api.Controllers
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>token.</returns>
+        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
         {
