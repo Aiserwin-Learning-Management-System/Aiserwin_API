@@ -100,5 +100,17 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         {
             return await _db.Syllabuses.AnyAsync(x => x.SyllabusCode == code);
         }
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="centerid">The identifier.</param>
+        /// <returns>Syllabus.</returns>
+        public async Task<Syllabus?> GetByCenterIdAsync(Guid centerid)
+        {
+            return await _db.Syllabuses
+                .Include(x => x.Center)
+                .FirstOrDefaultAsync(x => x.CenterId == centerid);
+        }
     }
 }

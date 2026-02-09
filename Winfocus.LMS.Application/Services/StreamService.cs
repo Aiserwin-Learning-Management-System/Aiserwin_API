@@ -104,6 +104,17 @@
             await _repository.DeleteAsync(id);
         }
 
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="gradeid">The identifier.</param>
+        /// <returns>StreamDto.</returns>
+        public async Task<StreamDto?> GetByGradeIdAsync(Guid gradeid)
+        {
+            var streams = await _repository.GetByGradeIdAsync(id);
+            return streams == null ? null : Map(streams);
+        }
+
         private static StreamDto Map(Streams c) =>
            new StreamDto
            {

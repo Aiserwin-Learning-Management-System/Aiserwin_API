@@ -97,5 +97,16 @@
         {
             return await _db.Streams.AnyAsync(x => x.StreamCode == code);
         }
-    }
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="gradeid">The identifier.</param>
+        /// <returns>Streams.</returns>
+        public async Task<Streams?> GetByGradeIdAsync(Guid gradeid)
+        {
+            return await _db.Streams
+                .Include(x => x.Grade)
+                .FirstOrDefaultAsync(x => x.GradeId == gradeid);
+        }
 }

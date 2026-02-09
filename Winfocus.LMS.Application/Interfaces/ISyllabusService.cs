@@ -42,5 +42,12 @@ namespace Winfocus.LMS.Application.Interfaces
         /// <param name="id">The identifier.</param>
         /// <returns>id.</returns>
         Task DeleteAsync(Guid id);
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>SyllabusDto.</returns>
+        Task<SyllabusDto?> GetByCenterIdAsync(Guid centerid);
     }
 }

@@ -97,5 +97,17 @@
         {
             return await _db.Grades.AnyAsync(x => x.GradeCode == code);
         }
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="syllabusid">The identifier.</param>
+        /// <returns>Grade.</returns>
+        public async Task<Grade?> GetBySyllabusIdAsync(Guid syllabusid)
+        {
+            return await _db.Grades
+                .Include(x => x.Syllabus)
+                .FirstOrDefaultAsync(x => x.SyllabusId == syllabusid);
+        }
     }
 }

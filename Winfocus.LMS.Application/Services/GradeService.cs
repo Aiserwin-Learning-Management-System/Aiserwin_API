@@ -105,6 +105,17 @@ namespace Winfocus.LMS.Application.Services
             await _repository.DeleteAsync(id);
         }
 
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="syllabusid">The identifier.</param>
+        /// <returns>GradeDto.</returns>
+        public async Task<GradeDto?> GetBySyllabusIdAsync(Guid syllabusid)
+        {
+            var grades = await _repository.GetBySyllabusIdAsync(syllabusid);
+            return grades == null ? null : Map(grades);
+        }
+
         private static GradeDto Map(Grade c) =>
            new GradeDto
            {

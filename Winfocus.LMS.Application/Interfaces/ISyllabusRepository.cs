@@ -47,5 +47,12 @@ namespace Winfocus.LMS.Application.Interfaces
         /// <param name="code">The code.</param>
         /// <returns>bool.</returns>
         Task<bool> ExistsByCodeAsync(string code);
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="centerid">The identifier.</param>
+        /// <returns>Syllabus.</returns>
+        Task<Syllabus?> GetByCenterIdAsync(Guid centerid);
     }
 }
