@@ -10,7 +10,6 @@ namespace Winfocus.LMS.API.Controllers
     /// <summary>
     /// Handles authentication endpoints.
     /// </summary>
-    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public sealed class StateController : ControllerBase
@@ -29,16 +28,17 @@ namespace Winfocus.LMS.API.Controllers
         /// <summary>
         /// Gets all.
         /// </summary>
-        /// <returns>CountryDto list.</returns>
+        /// <returns>StateDto list.</returns>
         [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<CountryDto>>> GetAll()
+        public async Task<ActionResult<IReadOnlyList<StateDto>>> GetAll()
             => Ok(await _stateService.GetAllAsync());
 
         /// <summary>
         /// Creates the specified request.
         /// </summary>
         /// <param name="request">The request.</param>
-        /// <returns>CountryDto.</returns>
+        /// <returns>StateDto.</returns>
+        [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPost]
         public async Task<ActionResult<StateDto>> Create(
             CreateMasterStateRequest request)
@@ -51,7 +51,7 @@ namespace Winfocus.LMS.API.Controllers
         /// Gets the specified identifier.
         /// </summary>
         /// <param name="id">The identifier.</param>
-        /// <returns>CountryDto by id.</returns>
+        /// <returns>StateDto by id.</returns>
         [HttpGet("{id:guid}")]
         public async Task<ActionResult<StateDto>> Get(Guid id)
         {
@@ -65,6 +65,7 @@ namespace Winfocus.LMS.API.Controllers
         /// <param name="id">The identifier.</param>
         /// <param name="request">The request.</param>
         /// <returns>result.</returns>
+        [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPut("{id:guid}")]
         public async Task<IActionResult> Update(
             Guid id,
@@ -78,12 +79,25 @@ namespace Winfocus.LMS.API.Controllers
         /// Gets the specified identifier.
         /// </summary>
         /// <param name="countryid">The identifier.</param>
-        /// <returns>CountryDto by id.</returns>
+        /// <returns>StateDto by id.</returns>
         [HttpGet("by-country/{countryid:guid}")]
         public async Task<ActionResult<StateDto>> GetByCountryId(Guid countryid)
         {
             var result = await _stateService.GetByCountryIdAsync(countryid);
             return result == null ? NotFound() : Ok(result);
+        }
+
+        /// <summary>
+        /// Deletes the specified identifier.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>result.</returns>
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            await _stateService.DeleteAsync(id);
+            return NoContent();
         }
     }
 }

@@ -8,7 +8,6 @@
     /// <summary>
     /// Handles authentication endpoints.
     /// </summary>
-    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class CenterController : Controller

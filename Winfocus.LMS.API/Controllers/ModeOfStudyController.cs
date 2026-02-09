@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Winfocus.LMS.Application.DTOs;
 using Winfocus.LMS.Application.DTOs.Masters;
 using Winfocus.LMS.Application.Interfaces;
@@ -24,7 +25,6 @@ namespace Winfocus.LMS.API.Controllers
             _modeofstudyService = modeofstudyService;
         }
 
-
         /// <summary>
         /// Gets all.
         /// </summary>
@@ -38,6 +38,7 @@ namespace Winfocus.LMS.API.Controllers
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>ModeOfStudyDto.</returns>
+        [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPost]
         public async Task<ActionResult<ModeOfStudyDto>> Create(
             ModeOfStudyRequest request)
@@ -64,6 +65,7 @@ namespace Winfocus.LMS.API.Controllers
         /// <param name="id">The identifier.</param>
         /// <param name="request">The request.</param>
         /// <returns>result.</returns>
+        [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPut("{id:guid}")]
         public async Task<IActionResult> Update(
             Guid id,
@@ -84,5 +86,17 @@ namespace Winfocus.LMS.API.Controllers
             var result = await _modeofstudyService.GetByStateIdAsync(stateid);
             return result == null ? NotFound() : Ok(result);
         }
-    }
+
+        /// <summary>
+        /// Deletes the specified identifier.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>result.</returns>
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            await _modeofstudyService.DeleteAsync(id);
+            return NoContent();
+        }
 }
