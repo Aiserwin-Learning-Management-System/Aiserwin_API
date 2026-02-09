@@ -2,6 +2,7 @@
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
     <File Path=".gitignore" />
+    <File Path="README.md" />
   </Folder>
   <Folder Name="/Test Projects/">
     <Project Path="Winfocus.LMS.Api.Tests/Winfocus.LMS.Api.Tests.csproj" Id="c31cb659-c54a-457b-9be9-4ca9adfc9a04" />
