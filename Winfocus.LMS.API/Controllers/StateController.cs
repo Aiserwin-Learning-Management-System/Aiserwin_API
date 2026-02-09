@@ -10,6 +10,7 @@ namespace Winfocus.LMS.API.Controllers
     /// <summary>
     /// Handles authentication endpoints.
     /// </summary>
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public sealed class StateController : ControllerBase
@@ -38,7 +39,6 @@ namespace Winfocus.LMS.API.Controllers
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>CountryDto.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPost]
         public async Task<ActionResult<StateDto>> Create(
             CreateMasterStateRequest request)
@@ -65,7 +65,6 @@ namespace Winfocus.LMS.API.Controllers
         /// <param name="id">The identifier.</param>
         /// <param name="request">The request.</param>
         /// <returns>result.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPut("{id:guid}")]
         public async Task<IActionResult> Update(
             Guid id,
