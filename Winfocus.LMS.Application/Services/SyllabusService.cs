@@ -12,7 +12,7 @@ namespace Winfocus.LMS.Application.Services
     /// <summary>
     /// CountryService.
     /// </summary>
-    public sealed class SyllabusService
+    public sealed class SyllabusService : ISyllabusService
     {
         private readonly ISyllabusRepository _repository;
         private readonly ILogger<SyllabusService> _logger;

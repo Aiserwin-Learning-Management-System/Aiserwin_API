@@ -11,7 +11,7 @@
     /// <summary>
     /// StreamService.
     /// </summary>
-    public sealed class StreamService
+    public sealed class StreamService : IStreamService
     {
         private readonly IStreamRepository _repository;
         private readonly ILogger<StreamService> _logger;
@@ -111,7 +111,7 @@
         /// <returns>StreamDto.</returns>
         public async Task<StreamDto?> GetByGradeIdAsync(Guid gradeid)
         {
-            var streams = await _repository.GetByGradeIdAsync(id);
+            var streams = await _repository.GetByGradeIdAsync(gradeid);
             return streams == null ? null : Map(streams);
         }
 

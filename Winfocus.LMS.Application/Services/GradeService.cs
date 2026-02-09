@@ -12,7 +12,7 @@ namespace Winfocus.LMS.Application.Services
     /// <summary>
     /// GradeService.
     /// </summary>
-    public sealed class GradeService
+    public sealed class GradeService : IGradeService
     {
         private readonly IGradeRepository _repository;
         private readonly ILogger<GradeService> _logger;
