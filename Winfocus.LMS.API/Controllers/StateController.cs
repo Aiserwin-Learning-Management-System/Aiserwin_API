@@ -79,7 +79,7 @@ namespace Winfocus.LMS.API.Controllers
         /// </summary>
         /// <param name="countryid">The identifier.</param>
         /// <returns>CountryDto by id.</returns>
-        [HttpGet("{countryid:guid}")]
+        [HttpGet("by-country/{countryid:guid}")]
         public async Task<ActionResult<StateDto>> GetByCountryId(Guid countryid)
         {
             var result = await _stateService.GetByCountryIdAsync(countryid);

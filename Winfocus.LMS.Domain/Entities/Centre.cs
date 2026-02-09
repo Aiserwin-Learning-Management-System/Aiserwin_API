@@ -42,5 +42,15 @@
         /// Gets or sets the modeOfStudy entity associated with the centre.
         /// </summary>
         public Country Country { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the identifier of the state where the centre is located.
+        /// </summary>
+        public Guid StateId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the state entity associated with the centre.
+        /// </summary>
+        public State State { get; set; } = null!;
     }
 }

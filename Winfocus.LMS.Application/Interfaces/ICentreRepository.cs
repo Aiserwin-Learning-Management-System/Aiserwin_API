@@ -50,5 +50,13 @@ namespace Winfocus.LMS.Application.Interfaces
         /// <param name="code">The code.</param>
         /// <returns>bool.</returns>
         Task<bool> ExistsByCodeAsync(string code);
+
+        /// <summary>
+        /// Gets centre by mode of study and state.
+        /// </summary>
+        /// <param name="modeofid">Mode of study identifier.</param>
+        /// <param name="stateid">State identifier.</param>
+        /// <returns>Centre entity if found; otherwise null.</returns>
+        Task<Centre?> GetByFilterAsync(Guid modeofid, Guid stateid);
     }
 }

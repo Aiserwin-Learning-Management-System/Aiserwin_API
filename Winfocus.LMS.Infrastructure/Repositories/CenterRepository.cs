@@ -103,5 +103,23 @@
         {
             return await _dbContext.Centres.AnyAsync(x => x.Code == code);
         }
+
+        /// <summary>
+        /// Gets centre by mode of study and state.
+        /// </summary>
+        /// <param name="modeofid">Mode of study identifier.</param>
+        /// <param name="stateid">State identifier.</param>
+        /// <returns>Centre entity if found; otherwise null.</returns>
+        public async Task<Centre?> GetByFilterAsync(Guid modeofid, Guid stateid)
+        {
+            return await _dbContext.Centres
+                .AsNoTracking()
+                .Include(x => x.modeOfStudy)
+                .Include(x => x.State)
+                .FirstOrDefaultAsync(x =>
+                    x.ModeOfStudyId == modeofid &&
+                    x.StateId == stateid);
+        }
+
     }
 }

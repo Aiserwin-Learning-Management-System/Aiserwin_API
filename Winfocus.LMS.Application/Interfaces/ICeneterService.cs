@@ -45,5 +45,14 @@ namespace Winfocus.LMS.Application.Interfaces
         /// <param name="id">The identifier.</param>
         /// <returns>id.</returns>
         Task DeleteAsync(Guid id);
+
+        /// <summary>
+        /// Gets centre by mode of study and state.
+        /// </summary>
+        /// <param name="modeofid">Mode of study identifier.</param>
+        /// <param name="stateid">State identifier.</param>
+        /// <returns>CentreDto if found; otherwise null.</returns>
+        Task<CentreDto?> GetByFilterAsync(Guid modeofid, Guid stateid);
+
     }
 }

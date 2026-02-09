@@ -121,6 +121,38 @@ namespace Winfocus.LMS.Application.Services
             _logger.LogInformation("Centre deleted successfully. CentreId: {CentreId}", id);
         }
 
+
+        /// <summary>
+        /// Gets centre by mode of study and state.
+        /// </summary>
+        /// <param name="modeofid">Mode of study identifier.</param>
+        /// <param name="stateid">State identifier.</param>
+        /// <returns>CentreDto if found; otherwise null.</returns>
+        public async Task<CentreDto?> GetByFilterAsync(Guid modeofid, Guid stateid)
+        {
+            _logger.LogInformation(
+                "Fetching centre for ModeOfStudyId: {ModeOfStudyId}, StateId: {StateId}",
+                modeofid, stateid);
+
+            var centre = await _repository.GetByFilterAsync(modeofid, stateid);
+
+            if (centre == null)
+            {
+                _logger.LogWarning(
+                    "Centre not found for ModeOfStudyId: {ModeOfStudyId}, StateId: {StateId}",
+                    modeofid, stateid);
+
+                return null;
+            }
+
+            _logger.LogInformation(
+                "Centre fetched successfully for ModeOfStudyId: {ModeOfStudyId}, StateId: {StateId}",
+                modeofid, stateid);
+
+            return Map(centre);
+        }
+
+
         private static CentreDto Map(Centre c)
         {
             return new CentreDto(
@@ -129,7 +161,5 @@ namespace Winfocus.LMS.Application.Services
                 c.Code
             );
         }
-
-
     }
 }

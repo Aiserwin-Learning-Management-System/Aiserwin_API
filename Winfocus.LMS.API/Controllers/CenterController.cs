@@ -1,13 +1,14 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Winfocus.LMS.Application.DTOs;
-using Winfocus.LMS.Application.Interfaces;
-
-namespace Winfocus.LMS.API.Controllers
+﻿namespace Winfocus.LMS.API.Controllers
 {
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+    using Winfocus.LMS.Application.DTOs;
+    using Winfocus.LMS.Application.Interfaces;
+
     /// <summary>
     /// Handles authentication endpoints.
     /// </summary>
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class CenterController : Controller
@@ -84,6 +85,23 @@ namespace Winfocus.LMS.API.Controllers
         {
             await _centerService.DeleteAsync(id);
             return NoContent();
+        }
+
+        /// <summary>
+        /// Gets centre by mode of study and state.
+        /// </summary>
+        /// <param name="modeofid">Mode of study identifier.</param>
+        /// <param name="stateid">State identifier.</param>
+        /// <returns>CentreDto.</returns>
+        [HttpGet("{modeofid:guid}/{stateid:guid}")]
+        public async Task<ActionResult<CentreDto>> Get(Guid modeofid, Guid stateid)
+        {
+            var result = await _centerService.GetByFilterAsync(modeofid, stateid);
+
+            if (result == null)
+                return NotFound();
+
+            return Ok(result);
         }
     }
 }
