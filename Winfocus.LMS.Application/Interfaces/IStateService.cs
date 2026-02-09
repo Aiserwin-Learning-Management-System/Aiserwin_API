@@ -52,6 +52,6 @@
         /// </summary>
         /// <param name="countryid">The identifier.</param>
         /// <returns>StateDto.</returns>
-        Task<StateDto?> GetByCountryIdAsync(Guid countryid);
+        Task<IReadOnlyList<StateDto>> GetByCountryIdAsync(Guid countryid);
     }
 }

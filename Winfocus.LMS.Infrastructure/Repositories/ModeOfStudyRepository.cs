@@ -109,11 +109,12 @@
         /// </summary>
         /// <param name="stateid">The identifier.</param>
         /// <returns>Modeofstudy.</returns>
-        public async Task<ModeOfStudy?> GetByStateIdAsync(Guid stateid)
+        public async Task<List<ModeOfStudy>> GetByStateIdAsync(Guid stateid)
         {
             return await _dbContext.ModeOfStudies
                 .Include(x => x.State)
-                .FirstOrDefaultAsync(x => x.StateId == stateid);
+                .Where(x => x.StateId == stateid && x.IsActive == true)
+                .ToListAsync();
         }
     }
 }

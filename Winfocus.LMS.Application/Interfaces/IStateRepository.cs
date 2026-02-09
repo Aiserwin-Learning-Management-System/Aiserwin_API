@@ -58,6 +58,6 @@
         /// </summary>
         /// <param name="countryid">The identifier.</param>
         /// <returns>State.</returns>
-        Task<State?> GetByCountryIdAsync(Guid countryid);
+        Task<List<State>> GetByCountryIdAsync(Guid countryid);
     }
 }

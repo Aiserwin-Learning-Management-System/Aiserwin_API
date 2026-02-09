@@ -81,6 +81,7 @@ namespace Winfocus.LMS.Application.Services
                 Name = request.name,
                 Code = request.code,
                 CreatedAt = DateTime.UtcNow,
+                ModeOfStudyId = request.modeofstudy,
             };
 
             var created = await _repository.AddAsync(centre);

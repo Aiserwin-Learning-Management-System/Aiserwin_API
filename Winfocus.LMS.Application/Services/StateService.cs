@@ -138,13 +138,23 @@ namespace Winfocus.LMS.Application.Services
         /// </summary>
         /// <param name="countryid">The identifier.</param>
         /// <returns>StateDto.</returns>
-        public async Task<StateDto?> GetByCountryIdAsync(Guid countryid)
+        public async Task<IReadOnlyList<StateDto>> GetByCountryIdAsync(Guid countryid)
         {
-            _logger.LogInformation("Fetching state by Id: {CountryId}", countryid);
-            var state = await _repository.GetByCountryIdAsync(countryid);
-            _logger.LogInformation("State fetched successfully for Id: {CountryId}", countryid);
-            return state == null ? null : Map(state);
+            _logger.LogInformation("Fetching states for CountryId: {CountryId}", countryid);
+
+            var states = await _repository.GetByCountryIdAsync(countryid);
+
+            if (!states.Any())
+                _logger.LogWarning("No states found for CountryId: {CountryId}", countryid);
+
+            return Map(states);
         }
+
+        private static List<StateDto> Map(IEnumerable<State> states)
+        {
+            return states.Select(Map).ToList();
+        }
+
 
         private static StateDto Map(State c) =>
       new StateDto
