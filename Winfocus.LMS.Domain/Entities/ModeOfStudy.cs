@@ -15,13 +15,18 @@
         public string ModeName { get; set; } = null!;
 
         /// <summary>
-        /// Gets or sets the identifier of the associated country.
+        /// Gets or sets the display code of the mode of study.
         /// </summary>
-        public Guid CountryId { get; set; }
+        public string ModeCode { get; set; } = null!;
 
         /// <summary>
-        /// Gets or sets the identifier of the associated country.
+        /// Gets or sets the identifier of the associated state.
         /// </summary>
-        public Country Country { get; set; } = null!;
+        public Guid StateId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the identifier of the associated state.
+        /// </summary>
+        public State State { get; set; } = null!;
     }
 }

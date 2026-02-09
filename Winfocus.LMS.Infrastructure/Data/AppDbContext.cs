@@ -181,7 +181,7 @@
             modelBuilder.Entity<Centre>(e =>
             {
                 e.Property(x => x.Name).IsRequired().HasMaxLength(100);
-                e.Property(x => x.Type).HasConversion<int>();
+                e.Property(x => x.CenterType).HasConversion<int>();
 
                 e.HasOne(x => x.Country)
                  .WithMany(x => x.Centres)
