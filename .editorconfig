@@ -1,0 +1,77 @@
+# Root EditorConfig
+root = true
+
+# Apply to all C# files
+[*.cs]
+
+#### Core Formatting ####
+indent_style = space
+indent_size = 4
+tab_width = 4
+end_of_line = crlf
+insert_final_newline = true
+
+#### C# Coding Conventions ####
+
+# var usage
+csharp_style_var_for_built_in_types = false
+csharp_style_var_when_type_is_apparent = false
+csharp_style_var_elsewhere = false
+
+# Braces
+csharp_prefer_braces = true
+
+# Expression-bodied members
+csharp_style_expression_bodied_methods = false
+csharp_style_expression_bodied_properties = true
+
+# Using directive placement
+csharp_using_directive_placement = outside_namespace
+
+# Accessibility modifiers
+dotnet_style_require_accessibility_modifiers = for_non_interface_members
+
+# Auto-properties
+dotnet_style_prefer_auto_properties = true
+
+# Null checks
+dotnet_style_null_propagation = true
+csharp_style_conditional_delegate_call = true
+
+#### Naming Rules ####
+
+# Allow underscore prefix for private fields
+dotnet_naming_rule.private_fields_should_be_camel_case_with_underscore.severity = warning
+dotnet_naming_rule.private_fields_should_be_camel_case_with_underscore.symbols = private_fields
+dotnet_naming_rule.private_fields_should_be_camel_case_with_underscore.style = camel_case_with_underscore
+
+dotnet_naming_symbols.private_fields.applicable_kinds = field
+dotnet_naming_symbols.private_fields.applicable_accessibilities = private
+
+dotnet_naming_style.camel_case_with_underscore.capitalization = camel_case
+dotnet_naming_style.camel_case_with_underscore.required_prefix = _
+
+#### Analyzer Rules ####
+
+# Disable file header rules
+dotnet_diagnostic.SA1633.severity = none
+dotnet_diagnostic.SA1634.severity = none
+dotnet_diagnostic.SA1635.severity = none
+dotnet_diagnostic.SA1636.severity = none
+dotnet_diagnostic.SA1637.severity = none
+dotnet_diagnostic.SA1638.severity = none
+dotnet_diagnostic.SA1309.severity = none
+
+
+# Disable SA1101 (Prefix local calls with 'this')
+dotnet_diagnostic.SA1101.severity = none
+
+#### Documentation Rules (Build must fail if missing) ####
+
+dotnet_diagnostic.SA1600.severity = error   # Elements must be documented
+dotnet_diagnostic.SA1604.severity = error   # Documentation must have summary
+dotnet_diagnostic.SA1611.severity = error   # Parameters must be documented
+dotnet_diagnostic.SA1615.severity = error   # Return values must be documented
+dotnet_diagnostic.SA1618.severity = error   # Generic type parameters must be documented
+dotnet_diagnostic.SA1623.severity = error   # Property documentation must have summary
+dotnet_diagnostic.SA1629.severity = error   # Documentation text must end with a period

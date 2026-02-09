@@ -1,12 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Winfocus.LMS.Domain.Enums
+﻿namespace Winfocus.LMS.Domain.Enums
 {
-    internal class CentreType
+    /// <summary>
+    /// Defines supported centre types.
+    /// </summary>
+    public enum CentreType
     {
+        /// <summary>
+        /// The offline
+        /// </summary>
+        Offline = 1,
+
+        /// <summary>
+        /// The online
+        /// </summary>
+        Online = 2,
+
+        /// <summary>
+        /// The hybrid
+        /// </summary>
+        Hybrid = 3,
     }
 }

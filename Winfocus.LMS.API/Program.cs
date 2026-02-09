@@ -4,43 +4,70 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using System.Text;
+using Winfocus.LMS.API.Middleware;
 using Winfocus.LMS.Application.Interfaces;
 using Winfocus.LMS.Application.Services;
 using Winfocus.LMS.Domain.Entities;
 using Winfocus.LMS.Infrastructure.Data;
+using Winfocus.LMS.Infrastructure.DataSeeders;
 using Winfocus.LMS.Infrastructure.Repositories;
+using Winfocus.LMS.Infrastructure.Security;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
 
-// Configure Serilog to write logs into a folder inside the project
+// =====================
+// Serilog Configuration
+// =====================
 Log.Logger = new LoggerConfiguration()
     .Enrich.FromLogContext()
     .WriteTo.Console()
     .WriteTo.File(
-        path: "Logs/lms-log-.txt",          // relative path inside project
+        path: "Logs/lms-log-.txt",
         rollingInterval: RollingInterval.Day,
-        retainedFileCountLimit: 60,         // keep last 60 days
-        fileSizeLimitBytes: 10_000_000,     // 10 MB per file
-        rollOnFileSizeLimit: true
-    )
+        retainedFileCountLimit: 60,
+        fileSizeLimitBytes: 10_000_000,
+        rollOnFileSizeLimit: true)
     .CreateLogger();
 
-builder.Host.UseSerilog(); 
+builder.Host.UseSerilog();
 
-// EF Core with SQL Server
-builder.Services.AddDbContext<AppDbContext>(opts =>
-    opts.UseSqlServer(config.GetConnectionString("DefaultConnection")));
+// =====================
+// Database
+// =====================
+if (!builder.Environment.IsEnvironment("Testing"))
+{
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseSqlServer(config.GetConnectionString("DefaultConnection")));
+}
 
-// Register repositories and services
+// =====================
+// Dependency Injection
+// =====================
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ITokenService, JwtTokenService>();
+
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<ICountryRepository, CountryRepository>();
-builder.Services.AddScoped<JwtService>();
+builder.Services.AddScoped<ICountryService, CountryService>();
 
-// Register password hasher for User entity
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
-// Configure JWT authentication
-var key = Encoding.UTF8.GetBytes(config["Jwt:Key"]);
+// =====================
+// JWT Authentication
+// =====================
+var jwtKey = config["Jwt:Key"]
+    ?? throw new InvalidOperationException("Jwt:Key is not configured.");
+
+var issuer = config["Jwt:Issuer"]
+    ?? throw new InvalidOperationException("Jwt:Issuer is not configured.");
+
+var audience = config["Jwt:Audience"]
+    ?? throw new InvalidOperationException("Jwt:Audience is not configured.");
+
+var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -56,9 +83,10 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = config["Jwt:Issuer"],
-        ValidAudience = config["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(key)
+        ValidIssuer = issuer,
+        ValidAudience = audience,
+        IssuerSigningKey = signingKey,
+        ClockSkew = TimeSpan.Zero,
     };
 });
 
@@ -69,22 +97,36 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Apply migrations and seed initial data
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.Migrate();
+// =====================
+// Global Exception Middleware (FIRST)
+// =====================
+app.UseMiddleware<GlobalExceptionMiddleware>();
 
-    if (!db.Countries.Any())
+// =====================
+// Database Migration + Seeding
+// =====================
+if (!app.Environment.IsEnvironment("Testing"))
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+
+    try
     {
-        db.Countries.AddRange(
-            new Country { Name = "India", Code = "IN" },
-            new Country { Name = "UAE", Code = "AE" }
-        );
-        db.SaveChanges();
+        db.Database.Migrate();
+        CountryDataSeeder.Seed(db);
+        RoleDataSeeder.Seed(db);
+    }
+    catch (Exception ex)
+    {
+        logger.LogCritical(ex, "Database migration or seeding failed.");
+        throw;
     }
 }
 
+// =====================
+// HTTP Pipeline
+// =====================
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -93,5 +135,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapControllers();
 app.Run();

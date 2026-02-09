@@ -1,70 +1,90 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Winfocus.LMS.Application.Interfaces;
-using Winfocus.LMS.Domain.Entities;
-using Winfocus.LMS.Infrastructure.Repositories;
-
-namespace Winfocus.LMS.Api.Controllers
+﻿namespace Winfocus.LMS.API.Controllers
 {
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+    using Winfocus.LMS.Application.DTOs;
+    using Winfocus.LMS.Application.Interfaces;
+
+    /// <summary>
+    /// CountriesController.
+    /// </summary>
+    /// <seealso cref="Microsoft.AspNetCore.Mvc.ControllerBase" />
     [ApiController]
-    [Route("api/[controller]")]
-    public class CountriesController : ControllerBase
+    [Route("api/countries")]
+    public sealed class CountriesController : ControllerBase
     {
-        private readonly ICountryRepository _countryRepository;
-        private readonly ILogger<CountriesController> _logger;
-        public CountriesController(ICountryRepository countryRepository, ILogger<CountriesController> logger)
+        private readonly ICountryService _service;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CountriesController"/> class.
+        /// </summary>
+        /// <param name="service">The service.</param>
+        public CountriesController(ICountryService service)
         {
-            _countryRepository = countryRepository;
-            _logger = logger;
+            _service = service;
         }
 
+        /// <summary>
+        /// Gets all.
+        /// </summary>
+        /// <returns>CountryDto list.</returns>
         [HttpGet]
-        public async Task<IActionResult> GetAll()
-        {
-            _logger.LogInformation("Fetching all countries at {Time}", DateTime.UtcNow);
-            var list = await _countryRepository.GetAllAsync();
-            _logger.LogInformation("Fetched {Count} countries", list.Count());
-            var dto = list.Select(c => new { c.Id, c.Name, c.Code });
-            return Ok(dto);
-        }
+        public async Task<ActionResult<IReadOnlyList<CountryDto>>> GetAll()
+            => Ok(await _service.GetAllAsync());
 
+        /// <summary>
+        /// Gets the specified identifier.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>CountryDto by id.</returns>
         [HttpGet("{id:guid}")]
-        public async Task<IActionResult> Get(Guid id)
+        public async Task<ActionResult<CountryDto>> Get(Guid id)
         {
-            var c = await _countryRepository.GetByIdAsync(id);
-            if (c == null) return NotFound();
-            return Ok(new { c.Id, c.Name, c.Code, Centres = c.Centres.Select(x => new { x.Id, x.Name, x.Type }) });
+            var result = await _service.GetByIdAsync(id);
+            return result == null ? NotFound() : Ok(result);
         }
 
+        /// <summary>
+        /// Creates the specified request.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <returns>CountryDto.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateCountryRequest req)
+        public async Task<ActionResult<CountryDto>> Create(
+            CreateCountryRequest request)
         {
-            var country = new Country { Name = req.Name, Code = req.Code };
-            var created = await _countryRepository.AddAsync(country);
-            return CreatedAtAction(nameof(Get), new { id = created.Id }, new { created.Id, created.Name, created.Code });
+            var created = await _service.CreateAsync(request);
+            return CreatedAtAction(nameof(Get), new { id = created.id }, created);
         }
 
+        /// <summary>
+        /// Updates the specified identifier.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <param name="request">The request.</param>
+        /// <returns>result.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPut("{id:guid}")]
-        public async Task<IActionResult> Update(Guid id, [FromBody] CreateCountryRequest req)
+        public async Task<IActionResult> Update(
+            Guid id,
+            CreateCountryRequest request)
         {
-            var existing = await _countryRepository.GetByIdAsync(id);
-            if (existing == null) return NotFound();
-            existing.Name = req.Name;
-            existing.Code = req.Code;
-            await _countryRepository.UpdateAsync(existing);
+            await _service.UpdateAsync(id, request);
             return NoContent();
         }
 
+        /// <summary>
+        /// Deletes the specified identifier.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>result.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            await _countryRepository.DeleteAsync(id);
+            await _service.DeleteAsync(id);
             return NoContent();
         }
     }
-
-    public record CreateCountryRequest(string Name, string Code);
 }

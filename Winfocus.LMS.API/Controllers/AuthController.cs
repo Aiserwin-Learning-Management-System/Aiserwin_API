@@ -1,54 +1,52 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Winfocus.LMS.Application.Services;
-using Winfocus.LMS.Domain.Entities;
-using Winfocus.LMS.Infrastructure.Data;
-
-namespace Winfocus.LMS.Api.Controllers
+﻿namespace Winfocus.LMS.Api.Controllers
 {
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+    using Winfocus.LMS.Application.DTOs.Auth;
+    using Winfocus.LMS.Application.Interfaces;
+
+    /// <summary>
+    /// Handles authentication endpoints.
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
-    public class AuthController : ControllerBase
+    public sealed class AuthController : ControllerBase
     {
-        private readonly AppDbContext _db;
-        private readonly JwtService _jwt;
-        private readonly IPasswordHasher<User> _hasher;
+        private readonly IAuthService _authService;
 
-        public AuthController(AppDbContext db, JwtService jwt, IPasswordHasher<User> hasher)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AuthController"/> class.
+        /// </summary>
+        /// <param name="authService">The authentication service.</param>
+        public AuthController(IAuthService authService)
         {
-            _db = db;
-            _jwt = jwt;
-            _hasher = hasher;
+            _authService = authService;
         }
 
+        /// <summary>
+        /// Registers the specified request.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <returns>registered data.</returns>
+        [AllowAnonymous]
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterRequest req)
+        public async Task<IActionResult> Register([FromBody] RegisterRequestDto request)
         {
-            if (await _db.Users.AnyAsync(u => u.Username == req.Username))
-                return BadRequest("Username already exists");
-
-            var user = new User { Username = req.Username, Email = req.Email, Role = req.Role ?? "User" };
-            user.PasswordHash = _hasher.HashPassword(user, req.Password);
-            _db.Users.Add(user);
-            await _db.SaveChangesAsync();
-            return Ok(new { user.Id, user.Username });
+            var result = await _authService.RegisterAsync(request);
+            return Ok(result);
         }
 
+        /// <summary>
+        /// Logins the specified request.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <returns>token.</returns>
+        [AllowAnonymous]
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginRequest req)
+        public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
         {
-            var user = await _db.Users.FirstOrDefaultAsync(u => u.Username == req.Username);
-            if (user == null) return Unauthorized();
-
-            var result = _hasher.VerifyHashedPassword(user, user.PasswordHash, req.Password);
-            if (result == PasswordVerificationResult.Failed) return Unauthorized();
-
-            var token = _jwt.GenerateToken(user);
-            return Ok(new { token });
+            var result = await _authService.LoginAsync(request);
+            return Ok(result);
         }
     }
-
-    public record RegisterRequest(string Username, string Email, string Password, string? Role);
-    public record LoginRequest(string Username, string Password);
 }

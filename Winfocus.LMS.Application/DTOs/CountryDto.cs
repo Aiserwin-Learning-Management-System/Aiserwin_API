@@ -1,9 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Winfocus.LMS.Application.DTOs
+﻿namespace Winfocus.LMS.Application.DTOs
 {
-    public record CountryDto(Guid Id, string Name, string Code);
+    /// <summary>
+    /// Country response DTO.
+    /// </summary>
+    public sealed record CountryDto(
+        Guid id,
+        string name,
+        string code,
+        string isoAlpha3,
+        int isoNumeric,
+        IReadOnlyList<CentreDto> centres
+    );
 }
-
