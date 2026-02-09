@@ -10,7 +10,6 @@ namespace Winfocus.LMS.API.Controllers
     /// <summary>
     /// Handles authentication endpoints.
     /// </summary>
-    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class GradeController : ControllerBase
@@ -39,6 +38,7 @@ namespace Winfocus.LMS.API.Controllers
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>GradeDto.</returns>
+        [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPost]
         public async Task<ActionResult<GradeDto>> Create(
             GradeRequest request)
@@ -65,6 +65,7 @@ namespace Winfocus.LMS.API.Controllers
         /// <param name="id">The identifier.</param>
         /// <param name="request">The request.</param>
         /// <returns>result.</returns>
+        [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPut("{id:guid}")]
         public async Task<IActionResult> Update(
             Guid id,
@@ -84,6 +85,19 @@ namespace Winfocus.LMS.API.Controllers
         {
             var result = await _gradeService.GetBySyllabusIdAsync(syllabusid);
             return result == null ? NotFound() : Ok(result);
+        }
+
+        /// <summary>
+        /// Deletes the specified identifier.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>result.</returns>
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            await _gradeService.DeleteAsync(id);
+            return NoContent();
         }
     }
 }

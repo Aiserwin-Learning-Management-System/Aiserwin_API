@@ -9,7 +9,6 @@ namespace Winfocus.LMS.API.Controllers
     /// <summary>
     /// Handles authentication endpoints.
     /// </summary>
-    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class SyllabusController : ControllerBase
@@ -38,6 +37,7 @@ namespace Winfocus.LMS.API.Controllers
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>SyllabusDto.</returns>
+        [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPost]
         public async Task<ActionResult<SyllabusDto>> Create(
             SyllabusRequest request)
@@ -64,6 +64,7 @@ namespace Winfocus.LMS.API.Controllers
         /// <param name="id">The identifier.</param>
         /// <param name="request">The request.</param>
         /// <returns>result.</returns>
+        [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPut("{id:guid}")]
         public async Task<IActionResult> Update(
             Guid id,
@@ -83,6 +84,19 @@ namespace Winfocus.LMS.API.Controllers
         {
             var result = await _syllabusService.GetByCenterIdAsync(centerid);
             return result == null ? NotFound() : Ok(result);
+        }
+
+        /// <summary>
+        /// Deletes the specified identifier.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>result.</returns>
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            await _syllabusService.DeleteAsync(id);
+            return NoContent();
         }
 
     }
