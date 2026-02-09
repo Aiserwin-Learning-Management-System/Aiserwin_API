@@ -1,0 +1,119 @@
+﻿namespace Winfocus.LMS.Infrastructure.Repositories
+{
+    using Microsoft.EntityFrameworkCore;
+    using System;
+    using System.Collections.Generic;
+    using System.Text;
+    using Winfocus.LMS.Application.DTOs.Masters;
+    using Winfocus.LMS.Application.Interfaces;
+    using Winfocus.LMS.Domain.Entities;
+    using Winfocus.LMS.Infrastructure.Data;
+
+    /// <summary>
+    /// Provides data access operations for <see cref="ModeOfStudy"/> entities.
+    /// </summary>
+    public sealed class ModeOfStudyRepository : IModeOfStudyRepository
+    {
+        /// <summary>
+        /// The application database context used to access persistence.
+        /// </summary>
+        private readonly AppDbContext _dbContext;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ModeOfStudyRepository"/> class.
+        /// </summary>
+        /// <param name="dbContext">The database context.</param>
+        public ModeOfStudyRepository(AppDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
+        /// <summary>
+        /// Gets all asynchronous.
+        /// </summary>
+        /// <returns>Mode of study list.</returns>
+        public async Task<IReadOnlyList<ModeOfStudy>> GetAllAsync()
+        {
+            return await _dbContext.ModeOfStudies
+                .Include(x => x.State)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>Country.</returns>
+        public async Task<ModeOfStudy?> GetByIdAsync(Guid id)
+        {
+            return await _dbContext.ModeOfStudies
+                .Include(x => x.State)
+                .FirstOrDefaultAsync(x => x.Id == id);
+        }
+
+        /// <summary>
+        /// Adds the asynchronous.
+        /// </summary>
+        /// <param name="modeofstudy">The modeofstudy.</param>
+        /// <returns>modeofstudy.</returns>
+        public async Task<ModeOfStudy> AddAsync(ModeOfStudy modeofstudy)
+        {
+            _dbContext.ModeOfStudies.Add(modeofstudy);
+            await _dbContext.SaveChangesAsync();
+            return modeofstudy;
+        }
+
+        /// <summary>
+        /// Updates the asynchronous.
+        /// </summary>
+        /// <param name="modeofstudy">The modeofstudy.</param>
+        /// <returns>task.</returns>
+        public async Task UpdateAsync(ModeOfStudy modeofstudy)
+        {
+            _dbContext.ModeOfStudies.Update(modeofstudy);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Deletes the asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>task.</returns>
+        public async Task DeleteAsync(Guid id)
+        {
+            var entity = await _dbContext.ModeOfStudies.FindAsync(id);
+            if (entity == null)
+            {
+                return;
+            }
+
+            entity.IsActive = false;
+
+            _dbContext.ModeOfStudies.Update(entity);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Existses the by code asynchronous.
+        /// </summary>
+        /// <param name="code">The code.</param>
+        /// <returns>bool.</returns>
+        public async Task<bool> ExistsByCodeAsync(string code)
+        {
+            return await _dbContext.ModeOfStudies.AnyAsync(x => x.ModeCode == code);
+        }
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="stateid">The identifier.</param>
+        /// <returns>Modeofstudy.</returns>
+        public async Task<ModeOfStudy?> GetByStateIdAsync(Guid stateid)
+        {
+            return await _dbContext.ModeOfStudies
+                .Include(x => x.State)
+                .FirstOrDefaultAsync(x => x.StateId == stateid);
+        }
+    }
+}

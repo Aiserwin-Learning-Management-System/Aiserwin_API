@@ -23,6 +23,6 @@
         /// <summary>
         /// Gets or sets the identifier of the associated country.
         /// </summary>
-        public CountryDto1 Country { get; set; } = null!;
+        public CountryDto Country { get; set; } = null!;
     }
 }

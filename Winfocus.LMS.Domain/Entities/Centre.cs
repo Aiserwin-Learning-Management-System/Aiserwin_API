@@ -14,9 +14,24 @@
         public string Name { get; set; } = null!;
 
         /// <summary>
+        /// Gets or sets the code of the centre.
+        /// </summary>
+        public string Code { get; set; } = null!;
+
+        /// <summary>
         /// Gets or sets the type of the centre (Offline, Online, or Hybrid).
         /// </summary>
-        public CentreType Type { get; set; }
+        public CentreType CenterType { get; set; }
+
+        /// <summary>
+        /// Gets or sets the identifier of the modeOfStudy where the centre is located.
+        /// </summary>
+        public Guid ModeOfStudyId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the modeOfStudy entity associated with the centre.
+        /// </summary>
+        public ModeOfStudy modeOfStudy { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the identifier of the country where the centre is located.
@@ -24,8 +39,18 @@
         public Guid CountryId { get; set; }
 
         /// <summary>
-        /// Gets or sets the country entity associated with the centre.
+        /// Gets or sets the modeOfStudy entity associated with the centre.
         /// </summary>
         public Country Country { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the identifier of the state where the centre is located.
+        /// </summary>
+        public Guid StateId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the state entity associated with the centre.
+        /// </summary>
+        public State State { get; set; } = null!;
     }
 }
