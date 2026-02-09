@@ -105,7 +105,7 @@ Update `appsettings.Development.json`:
 3. Apply database migrations
 
 ```bash
-dotnet ef database update --project src/Winfocus.LMS.Infrastructure --startup-project src/Winfocus.LMS.Api
+dotnet ef database update --startup-project ../Winfocus.LMS.Api --project .
 ```
 
 4. Run the API
