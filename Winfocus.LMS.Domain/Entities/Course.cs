@@ -26,6 +26,6 @@
         /// <summary>
         /// Gets or sets the identifier of the associated stream.
         /// </summary>
-        public Stream Stream { get; set; } = null!;
+        public Streams Stream { get; set; } = null!;
     }
 }

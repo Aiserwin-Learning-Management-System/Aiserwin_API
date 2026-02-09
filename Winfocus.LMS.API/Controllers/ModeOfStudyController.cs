@@ -99,4 +99,5 @@ namespace Winfocus.LMS.API.Controllers
             await _modeofstudyService.DeleteAsync(id);
             return NoContent();
         }
+    }
 }
