@@ -43,5 +43,12 @@
         /// <param name="id">The identifier.</param>
         /// <returns>id.</returns>
         Task DeleteAsync(Guid id);
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="stateid">The identifier.</param>
+        /// <returns>ModeOfStudyDto.</returns>
+        Task<ModeOfStudyDto?> GetByStateIdAsync(Guid stateid);
     }
 }

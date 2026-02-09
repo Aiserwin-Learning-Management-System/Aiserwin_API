@@ -141,7 +141,7 @@ namespace Winfocus.LMS.Application.Services
         public async Task<StateDto?> GetByCountryIdAsync(Guid countryid)
         {
             _logger.LogInformation("Fetching state by Id: {CountryId}", countryid);
-            var state = await _repository.GetByIdAsync(countryid);
+            var state = await _repository.GetByCountryIdAsync(countryid);
             _logger.LogInformation("State fetched successfully for Id: {CountryId}", countryid);
             return state == null ? null : Map(state);
         }

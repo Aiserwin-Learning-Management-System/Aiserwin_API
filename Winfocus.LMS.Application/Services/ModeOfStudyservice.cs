@@ -123,6 +123,19 @@ namespace Winfocus.LMS.Application.Services
            id);
         }
 
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="stateid">The identifier.</param>
+        /// <returns>ModeOfStudyDto.</returns>
+        public async Task<ModeOfStudyDto?> GetByStateIdAsync(Guid stateid)
+        {
+            _logger.LogInformation("Fetching Mode of study by Id: {StateId}", stateid);
+            var state = await _repository.GetByStateIdAsync(stateid);
+            _logger.LogInformation("State fetched successfully for Id: {StateId}", stateid);
+            return state == null ? null : Map(state);
+        }
+
         private static ModeOfStudyDto Map(ModeOfStudy c) =>
             new ModeOfStudyDto
             {

@@ -103,5 +103,17 @@
         {
             return await _dbContext.ModeOfStudies.AnyAsync(x => x.ModeCode == code);
         }
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="stateid">The identifier.</param>
+        /// <returns>Modeofstudy.</returns>
+        public async Task<ModeOfStudy?> GetByStateIdAsync(Guid stateid)
+        {
+            return await _dbContext.ModeOfStudies
+                .Include(x => x.State)
+                .FirstOrDefaultAsync(x => x.StateId == stateid);
+        }
     }
 }
