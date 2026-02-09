@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Text;
     using Winfocus.LMS.Application.DTOs;
+    using Winfocus.LMS.Application.DTOs.Auth;
 
     /// <summary>
     /// Defines authentication operations.

@@ -4,6 +4,7 @@
     using Microsoft.Extensions.Logging;
     using System.Data;
     using Winfocus.LMS.Application.DTOs;
+    using Winfocus.LMS.Application.DTOs.Auth;
     using Winfocus.LMS.Application.Interfaces;
     using Winfocus.LMS.Domain.Entities;
 
@@ -94,6 +95,7 @@
                 {
                     RoleId = role.Id,
                     UserId = user.Id,
+                    Role = role,
                 });
 
                 roles.Add(roleName);
@@ -155,7 +157,10 @@
                 throw new UnauthorizedAccessException("Invalid credentials.");
             }
 
-            var roles = user.UserRoles.Select(r => r.Role.Name).ToList();
+            var roles = user.UserRoles
+                            .Where(ur => ur.Role != null)
+                            .Select(ur => ur.Role!.Name)
+                            .ToList();
 
             var token = _tokenService.GenerateToken(user, roles);
 

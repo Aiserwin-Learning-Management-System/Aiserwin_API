@@ -19,8 +19,7 @@
                 db.Roles.AddRange(
                     new Role { Name = "Admin", CreatedAt = DateTime.UtcNow, IsActive = true },
                     new Role { Name = "Student", CreatedAt = DateTime.UtcNow, IsActive = true },
-                    new Role { Name = "Staff", CreatedAt = DateTime.UtcNow, IsActive = true }
-                );
+                    new Role { Name = "Staff", CreatedAt = DateTime.UtcNow, IsActive = true });
 
                 db.SaveChanges();
             }

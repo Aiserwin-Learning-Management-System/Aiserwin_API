@@ -35,8 +35,11 @@ builder.Host.UseSerilog();
 // =====================
 // Database
 // =====================
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(config.GetConnectionString("DefaultConnection")));
+if (!builder.Environment.IsEnvironment("Testing"))
+{
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseSqlServer(config.GetConnectionString("DefaultConnection")));
+}
 
 // =====================
 // Dependency Injection
@@ -102,8 +105,9 @@ app.UseMiddleware<GlobalExceptionMiddleware>();
 // =====================
 // Database Migration + Seeding
 // =====================
-using (var scope = app.Services.CreateScope())
+if (!app.Environment.IsEnvironment("Testing"))
 {
+    using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
 
