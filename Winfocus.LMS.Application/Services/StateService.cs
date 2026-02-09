@@ -133,6 +133,19 @@ namespace Winfocus.LMS.Application.Services
            id);
         }
 
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="countryid">The identifier.</param>
+        /// <returns>StateDto.</returns>
+        public async Task<StateDto?> GetByCountryIdAsync(Guid countryid)
+        {
+            _logger.LogInformation("Fetching state by Id: {CountryId}", countryid);
+            var state = await _repository.GetByIdAsync(countryid);
+            _logger.LogInformation("State fetched successfully for Id: {CountryId}", countryid);
+            return state == null ? null : Map(state);
+        }
+
         private static StateDto Map(State c) =>
       new StateDto
       {

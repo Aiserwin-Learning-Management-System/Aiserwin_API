@@ -101,5 +101,17 @@
         {
             return await _dbContext.States.AnyAsync(x => x.StateCode == code);
         }
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="countryid">The identifier.</param>
+        /// <returns>State.</returns>
+        public async Task<State?> GetByCountryIdAsync(Guid countryid)
+        {
+            return await _dbContext.States
+                .Include(x => x.Country)
+                .FirstOrDefaultAsync(x => x.CountryId == countryid);
+        }
     }
 }

@@ -46,5 +46,12 @@
         /// <param name="id">The identifier.</param>
         /// <returns>id.</returns>
         Task DeleteAsync(Guid id);
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="countryid">The identifier.</param>
+        /// <returns>StateDto.</returns>
+        Task<StateDto?> GetByCountryIdAsync(Guid countryid);
     }
 }
