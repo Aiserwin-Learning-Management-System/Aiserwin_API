@@ -111,7 +111,6 @@
                 c.IsoNumeric,
                 c.Centres.Select(x =>
                     new CentreDto(x.Id, x.Name, x.Type.ToString()))
-                .ToList()
-            );
+                .ToList());
     }
 }
