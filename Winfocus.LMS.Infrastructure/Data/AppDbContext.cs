@@ -124,6 +124,21 @@
         public DbSet<Streams> Streams { get; set; } = null!;
 
         /// <summary>
+        /// Gets or sets the SubjectBatchTimingMTFs  in the database.
+        /// </summary>
+        public DbSet<SubjectBatchTimingMTF> SubjectBatchTimingMTFs { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the SubjectBatchTimingSaturdays  in the database.
+        /// </summary>
+        public DbSet<SubjectBatchTimingSaturday> SubjectBatchTimingSaturdays { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the SubjectBatchTimingSundays  in the database.
+        /// </summary>
+        public DbSet<SubjectBatchTimingSunday> SubjectBatchTimingSundays { get; set; } = null!;
+
+        /// <summary>
         /// Configures the model for the context.
         /// </summary>
         /// <param name="modelBuilder">The builder being used to construct the model for this context.</param>
@@ -199,6 +214,13 @@
             /// </summary>
             modelBuilder.Entity<StreamCourse>()
                 .HasKey(x => new { x.StreamId, x.CourseId });
+
+            modelBuilder.Entity<SubjectBatchTimingMTF>()
+                .HasKey(x => new { x.SubjectId, x.BatchTimingId });
+            modelBuilder.Entity<SubjectBatchTimingSaturday>()
+               .HasKey(x => new { x.SubjectId, x.BatchTimingId });
+            modelBuilder.Entity<SubjectBatchTimingSunday>()
+               .HasKey(x => new { x.SubjectId, x.BatchTimingId });
 
             base.OnModelCreating(modelBuilder);
         }

@@ -63,6 +63,12 @@ builder.Services.AddScoped<IGradeService, GradeService>();
 builder.Services.AddScoped<IGradeRepository, GradeRepository>();
 builder.Services.AddScoped<IStreamService, StreamService>();
 builder.Services.AddScoped<IStreamRepository, StreamRepository>();
+builder.Services.AddScoped<IBatchTimingSundayService, BatchTimingSundayService>();
+builder.Services.AddScoped<IBatchTimingSundayRepository, BatchTimingSundayRepository>();
+builder.Services.AddScoped<IBatchTimingSaturdayService, BatchTimingSaturdayService>();
+builder.Services.AddScoped<IBatchTimingSaturdayRepository, BatchTimingSaturdayRepository>();
+builder.Services.AddScoped<IBatchTimingMTFService, BatchTimingMTFService>();
+builder.Services.AddScoped<IBatchTimingMTFRepository, BatchTiminingMTFRepository>();
 
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 

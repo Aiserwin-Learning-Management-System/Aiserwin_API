@@ -1,0 +1,49 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using Winfocus.LMS.Application.DTOs;
+using Winfocus.LMS.Application.DTOs.Masters;
+
+namespace Winfocus.LMS.Application.Interfaces
+{
+    /// <summary>
+    /// Defines business operations for <see cref="BatchTimingMTF"/> entities.
+    /// </summary>
+    public interface IBatchTimingMTFService
+    {
+        /// <summary>
+        /// Gets all asynchronous.
+        /// </summary>
+        /// <returns>BatchTimingMTFDto.</returns>
+        Task<IReadOnlyList<BatchTimingMTFDto>> GetAllAsync();
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>BatchTimingMTFDto.</returns>
+        Task<BatchTimingMTFDto?> GetByIdAsync(Guid id);
+
+        /// <summary>
+        /// Creates the asynchronous.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <returns>BatchTimingMTFDto.</returns>
+        Task<BatchTimingMTFDto> CreateAsync(BatchTimingRequest request);
+
+        /// <summary>
+        /// Updates the asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <param name="request">The request.</param>
+        /// <returns>id.</returns>
+        Task UpdateAsync(Guid id, BatchTimingRequest request);
+
+        /// <summary>
+        /// Deletes the asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>id.</returns>
+        Task DeleteAsync(Guid id);
+    }
+}
