@@ -59,9 +59,26 @@
         /// <returns>center.</returns>
         public async Task<Centre> AddAsync(Centre center)
         {
-            _dbContext.Centres.Add(center);
-            await _dbContext.SaveChangesAsync();
-            return center;
+         var modeOfStudy = await _dbContext.ModeOfStudies
+         .FirstOrDefaultAsync(x => x.Id == center.ModeOfStudyId);
+         if (modeOfStudy == null)
+            {
+                throw new Exception("Invalid ModeOfStudyId");
+            }
+
+         center.StateId = modeOfStudy.StateId;
+         var state = await _dbContext.States
+         .FirstOrDefaultAsync(x => x.Id == center.StateId);
+         if (state == null)
+            {
+                throw new Exception("Invalid StateId");
+            }
+
+         center.CreatedAt = DateTime.UtcNow;
+         center.CountryId = state.CountryId;
+         _dbContext.Centres.Add(center);
+         await _dbContext.SaveChangesAsync();
+         return center;
         }
 
         /// <summary>

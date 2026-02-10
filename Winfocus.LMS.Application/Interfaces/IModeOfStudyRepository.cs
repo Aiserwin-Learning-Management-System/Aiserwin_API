@@ -55,6 +55,6 @@
         /// </summary>
         /// <param name="stateid">The identifier.</param>
         /// <returns>State.</returns>
-        Task<ModeOfStudy?> GetByStateIdAsync(Guid stateid);
+        Task<List<ModeOfStudy>> GetByStateIdAsync(Guid stateid);
     }
 }
