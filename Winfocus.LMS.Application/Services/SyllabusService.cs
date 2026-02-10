@@ -70,6 +70,7 @@ namespace Winfocus.LMS.Application.Services
                 SyllabusName = request.name,
                 SyllabusCode = request.code,
                 CreatedAt = DateTime.UtcNow,
+                CenterId = request.centerid,
             };
 
             var created = await _repository.AddAsync(syllabus);
@@ -110,19 +111,34 @@ namespace Winfocus.LMS.Application.Services
         /// </summary>
         /// <param name="centerid">The identifier.</param>
         /// <returns>SyllabusDto.</returns>
-        public async Task<SyllabusDto?> GetByCenterIdAsync(Guid centerid)
+        public async Task<List<SyllabusDto>> GetByCenterIdAsync(Guid centerid)
         {
-            var syllabus = await _repository.GetByCenterIdAsync(centerid);
-            return syllabus == null ? null : Map(syllabus);
+            var syllabuses = await _repository.GetByCenterIdAsync(centerid);
+            return Map(syllabuses);
         }
 
+        private static List<SyllabusDto> Map(IEnumerable<Syllabus> syllabuses)
+        {
+            return syllabuses.Select(Map).ToList();
+        }
+
+
         private static SyllabusDto Map(Syllabus c) =>
-           new SyllabusDto
-           {
-               Id = c.Id,
-               SyllabusName = c.SyllabusName,
-               SyllabusCode = c.SyllabusCode,
-               CenterId = c.CenterId,
-           };
+     new SyllabusDto
+     {
+         Id = c.Id,
+         SyllabusName = c.SyllabusName,
+         SyllabusCode = c.SyllabusCode,
+         CenterId = c.CenterId,
+         Center = c.Center == null ? null : new CenterDto1
+         {
+             Id = c.Center.Id,
+             Name = c.Center.Name,
+             Type = c.Center.CenterType,
+             CountryId = c.Center.CountryId,
+             Country =  null
+         }
+     };
+
     }
 }

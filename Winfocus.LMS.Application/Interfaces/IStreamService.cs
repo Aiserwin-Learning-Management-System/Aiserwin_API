@@ -51,6 +51,6 @@ namespace Winfocus.LMS.Application.Interfaces
         /// </summary>
         /// <param name="gradeid">The identifier.</param>
         /// <returns>StreamDto.</returns>
-        Task<StreamDto?> GetByGradeIdAsync(Guid gradeid);
+        Task<List<StreamDto>> GetByGradeIdAsync(Guid gradeid);
     }
 }

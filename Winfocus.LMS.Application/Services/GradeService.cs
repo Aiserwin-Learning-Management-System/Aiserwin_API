@@ -70,6 +70,7 @@ namespace Winfocus.LMS.Application.Services
                 GradeName = request.name,
                 GradeCode = request.code,
                 CreatedAt = DateTime.UtcNow,
+                SyllabusId = request.syllabusid,
             };
 
             var created = await _repository.AddAsync(grades);
@@ -110,20 +111,33 @@ namespace Winfocus.LMS.Application.Services
         /// </summary>
         /// <param name="syllabusid">The identifier.</param>
         /// <returns>GradeDto.</returns>
-        public async Task<GradeDto?> GetBySyllabusIdAsync(Guid syllabusid)
+        public async Task<List<GradeDto>> GetBySyllabusIdAsync(Guid syllabusid)
         {
             var grades = await _repository.GetBySyllabusIdAsync(syllabusid);
-            return grades == null ? null : Map(grades);
+            return Map(grades);
         }
 
+        private static List<GradeDto> Map(IEnumerable<Grade> grades)
+        {
+            return grades.Select(Map).ToList();
+        }
+
+
         private static GradeDto Map(Grade c) =>
-           new GradeDto
-           {
-               Id = c.Id,
-               GradeName = c.GradeName,
-               GradeCode = c.GradeCode,
-               SyllabusId = c.SyllabusId,
-           };
+     new GradeDto
+     {
+         Id = c.Id,
+         GradeName = c.GradeName,
+         GradeCode = c.GradeCode,
+         SyllabusId = c.SyllabusId,
+         Syllabus = c.Syllabus == null ? null : new SyllabusDto
+         {
+             Id = c.Syllabus.Id,
+             SyllabusName = c.Syllabus.SyllabusName,
+             SyllabusCode = c.Syllabus.SyllabusCode,
+             CenterId = c.Syllabus.CenterId,
+         },
+     };
 
     }
 }

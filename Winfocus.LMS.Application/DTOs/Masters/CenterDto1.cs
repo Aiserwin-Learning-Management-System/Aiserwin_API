@@ -1,4 +1,6 @@
-﻿namespace Winfocus.LMS.Application.DTOs.Masters
+﻿using Winfocus.LMS.Domain.Enums;
+
+namespace Winfocus.LMS.Application.DTOs.Masters
 {
     /// <summary>
     /// Represents a training or learning centre.
@@ -13,7 +15,7 @@
         /// <summary>
         /// Gets or sets the type of the centre (Offline, Online, or Hybrid).
         /// </summary>
-        public string Type { get; set; } = "Offline";
+        public CentreType Type { get; set; }
 
         /// <summary>
         /// Gets or sets the identifier of the country where the centre is located.

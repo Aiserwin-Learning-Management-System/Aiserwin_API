@@ -81,7 +81,7 @@ namespace Winfocus.LMS.API.Controllers
         /// <param name="syllabusid">The identifier.</param>
         /// <returns>GradeDto by id.</returns>
         [HttpGet("by-syllabus/{syllabusid:guid}")]
-        public async Task<ActionResult<GradeDto>> GetByCountryId(Guid syllabusid)
+        public async Task<ActionResult<GradeDto>> GetBySyllabusId(Guid syllabusid)
         {
             var result = await _gradeService.GetBySyllabusIdAsync(syllabusid);
             return result == null ? NotFound() : Ok(result);

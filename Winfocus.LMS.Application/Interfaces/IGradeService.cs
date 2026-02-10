@@ -48,6 +48,6 @@ namespace Winfocus.LMS.Application.Interfaces
         /// </summary>
         /// <param name="syllabusid">The identifier.</param>
         /// <returns>GradeDto.</returns>
-        Task<GradeDto?> GetBySyllabusIdAsync(Guid syllabusid);
+        Task<List<GradeDto>> GetBySyllabusIdAsync(Guid syllabusid);
     }
 }

@@ -193,6 +193,12 @@
                  .HasForeignKey(x => x.CountryId);
             });
 
+            /// <summary>
+            /// Configures composite key for StreamCourse junction table.
+            /// Ensures each Stream-Course combination is unique.
+            /// </summary>
+            modelBuilder.Entity<StreamCourse>()
+                .HasKey(x => new { x.StreamId, x.CourseId });
 
             base.OnModelCreating(modelBuilder);
         }

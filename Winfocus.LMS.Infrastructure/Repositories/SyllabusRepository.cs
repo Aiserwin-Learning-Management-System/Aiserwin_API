@@ -106,11 +106,13 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// </summary>
         /// <param name="centerid">The identifier.</param>
         /// <returns>Syllabus.</returns>
-        public async Task<Syllabus?> GetByCenterIdAsync(Guid centerid)
+        public async Task<List<Syllabus>> GetByCenterIdAsync(Guid centerid)
         {
             return await _db.Syllabuses
                 .Include(x => x.Center)
-                .FirstOrDefaultAsync(x => x.CenterId == centerid);
+                .Where(x => x.CenterId == centerid)
+                .ToListAsync();
         }
+
     }
 }

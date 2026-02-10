@@ -53,6 +53,6 @@ namespace Winfocus.LMS.Application.Interfaces
         /// </summary>
         /// <param name="centerid">The identifier.</param>
         /// <returns>Syllabus.</returns>
-        Task<Syllabus?> GetByCenterIdAsync(Guid centerid);
+        Task<List<Syllabus>> GetByCenterIdAsync(Guid centerid);
     }
 }

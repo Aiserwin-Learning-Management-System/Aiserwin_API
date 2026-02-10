@@ -57,23 +57,40 @@
         /// <param name="request">The request.</param>
         /// <returns>StreamDto.</returns>
         /// <exception cref="InvalidOperationException">stream code already exists.</exception>
+        /// <summary>
+        /// Creates a new Stream along with its Course mappings.
+        /// </summary>
         public async Task<StreamDto> CreateAsync(StreamRequest request)
         {
+            // Validate duplicate Stream Code
             if (await _repository.ExistsByCodeAsync(request.code))
             {
                 throw new InvalidOperationException("Stream code already exists");
             }
 
+            // Create Stream entity
             var stream = new Streams
             {
                 StreamName = request.name,
                 StreamCode = request.code,
                 CreatedAt = DateTime.UtcNow,
+                GradeId = request.gradeid,
+
+                StreamCourses = request.courseids?
+                    .Select(courseId => new StreamCourse
+                    {
+                        CourseId = courseId
+                    })
+                    .ToList() ?? new List<StreamCourse>()
             };
 
+            // Save to database
             var created = await _repository.AddAsync(stream);
+
+            // Convert entity to DTO
             return Map(created);
         }
+
 
         /// <summary>
         /// Updates the asynchronous.
@@ -84,14 +101,45 @@
         /// <returns>task.</returns>
         public async Task UpdateAsync(Guid id, StreamRequest request)
         {
-            var grade = await _repository.GetByIdAsync(id)
+            var stream = await _repository.GetByIdWithCoursesAsync(id)
                 ?? throw new KeyNotFoundException("Stream not found");
 
-            grade.StreamName = request.name;
-            grade.StreamCode = request.code;
-            grade.UpdatedAt = DateTime.UtcNow;
+            stream.StreamName = request.name;
+            stream.StreamCode = request.code;
+            stream.GradeId = request.gradeid;
+            stream.UpdatedAt = DateTime.UtcNow;
 
-            await _repository.UpdateAsync(grade);
+            var requestedCourseIds = request.courseids?
+                .Distinct()
+                .ToList() ?? new List<Guid>();
+
+            var coursesToRemove = stream.StreamCourses
+                .Where(sc => !requestedCourseIds.Contains(sc.CourseId))
+                .ToList();
+
+            foreach (var course in coursesToRemove)
+            {
+                stream.StreamCourses.Remove(course);
+            }
+
+            var existingCourseIds = stream.StreamCourses
+                .Select(sc => sc.CourseId)
+                .ToList();
+
+            var coursesToAdd = requestedCourseIds
+                .Where(cid => !existingCourseIds.Contains(cid))
+                .Select(cid => new StreamCourse
+                {
+                    StreamId = stream.Id,
+                    CourseId = cid
+                });
+
+            foreach (var course in coursesToAdd)
+            {
+                stream.StreamCourses.Add(course);
+            }
+
+            await _repository.UpdateAsync(stream);
         }
 
         /// <summary>
@@ -109,19 +157,33 @@
         /// </summary>
         /// <param name="gradeid">The identifier.</param>
         /// <returns>StreamDto.</returns>
-        public async Task<StreamDto?> GetByGradeIdAsync(Guid gradeid)
+        public async Task<List<StreamDto>> GetByGradeIdAsync(Guid gradeid)
         {
             var streams = await _repository.GetByGradeIdAsync(gradeid);
-            return streams == null ? null : Map(streams);
+            return Map(streams);
         }
 
+        private static List<StreamDto> Map(IEnumerable<Streams> streams)
+        {
+            return streams.Select(Map).ToList();
+        }
+
+
         private static StreamDto Map(Streams c) =>
-           new StreamDto
-           {
-               Id = c.Id,
-               StreamName = c.StreamName,
-               StreamCode = c.StreamCode,
-               GradeId = c.GradeId,
-           };
+     new StreamDto
+     {
+         Id = c.Id,
+         StreamName = c.StreamName,
+         StreamCode = c.StreamCode,
+         GradeId = c.GradeId,
+         Grade = c.Grade == null ? null : new GradeDto
+         {
+             Id = c.Grade.Id,
+             GradeName = c.Grade.GradeName,
+             GradeCode = c.Grade.GradeCode,
+             SyllabusId = c.Grade.SyllabusId
+         }
+     };
+
     }
 }

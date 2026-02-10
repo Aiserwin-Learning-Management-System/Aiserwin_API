@@ -103,11 +103,26 @@
         /// </summary>
         /// <param name="gradeid">The identifier.</param>
         /// <returns>Streams.</returns>
-        public async Task<Streams?> GetByGradeIdAsync(Guid gradeid)
+        public async Task<List<Streams>> GetByGradeIdAsync(Guid gradeid)
         {
             return await _db.Streams
                 .Include(x => x.Grade)
-                .FirstOrDefaultAsync(x => x.GradeId == gradeid);
+                .Where(x => x.GradeId == gradeid)
+                .ToListAsync();
         }
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>Streams.</returns>
+        public async Task<Streams?> GetByIdWithCoursesAsync(Guid id)
+        {
+            return await _db.Streams
+                .Include(x => x.StreamCourses)
+                .FirstOrDefaultAsync(x => x.Id == id);
+        }
+
+
     }
 }
