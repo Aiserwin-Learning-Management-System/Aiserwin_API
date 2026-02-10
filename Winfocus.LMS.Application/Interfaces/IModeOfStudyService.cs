@@ -49,6 +49,6 @@
         /// </summary>
         /// <param name="stateid">The identifier.</param>
         /// <returns>ModeOfStudyDto.</returns>
-        Task<ModeOfStudyDto?> GetByStateIdAsync(Guid stateid);
+        Task<IReadOnlyList<ModeOfStudyDto>> GetByStateIdAsync(Guid stateid);
     }
 }

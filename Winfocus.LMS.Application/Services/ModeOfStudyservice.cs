@@ -72,6 +72,7 @@ namespace Winfocus.LMS.Application.Services
 
             var modeOfStudy = new ModeOfStudy
             {
+                StateId = request.stateid,
                 ModeName = request.name,
                 ModeCode = request.code,
                 CreatedAt = DateTime.UtcNow,
@@ -128,12 +129,21 @@ namespace Winfocus.LMS.Application.Services
         /// </summary>
         /// <param name="stateid">The identifier.</param>
         /// <returns>ModeOfStudyDto.</returns>
-        public async Task<ModeOfStudyDto?> GetByStateIdAsync(Guid stateid)
+        public async Task<IReadOnlyList<ModeOfStudyDto>> GetByStateIdAsync(Guid stateid)
         {
-            _logger.LogInformation("Fetching Mode of study by Id: {StateId}", stateid);
-            var state = await _repository.GetByStateIdAsync(stateid);
-            _logger.LogInformation("State fetched successfully for Id: {StateId}", stateid);
-            return state == null ? null : Map(state);
+            _logger.LogInformation("Fetching Modeof study for StateId: {StateId}", stateid);
+
+            var modeofstudy = await _repository.GetByStateIdAsync(stateid);
+
+            if (!modeofstudy.Any())
+                _logger.LogWarning("No modeofstudy found for StateId: {StateId}", stateid);
+
+            return Map(modeofstudy);
+        }
+
+        private static List<ModeOfStudyDto> Map(IEnumerable<ModeOfStudy> modeofstudy)
+        {
+            return modeofstudy.Select(Map).ToList();
         }
 
         private static ModeOfStudyDto Map(ModeOfStudy c) =>

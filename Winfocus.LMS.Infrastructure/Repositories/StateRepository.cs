@@ -57,6 +57,7 @@
         /// <returns>country.</returns>
         public async Task<State> AddAsync(State state)
         {
+            state.CreatedAt = DateTime.UtcNow;
             _dbContext.States.Add(state);
             await _dbContext.SaveChangesAsync();
             return state;
@@ -69,6 +70,7 @@
         /// <returns>task.</returns>
         public async Task UpdateAsync(State state)
         {
+            state.UpdatedAt = DateTime.UtcNow;
             _dbContext.States.Update(state);
             await _dbContext.SaveChangesAsync();
         }
@@ -107,11 +109,13 @@
         /// </summary>
         /// <param name="countryid">The identifier.</param>
         /// <returns>State.</returns>
-        public async Task<State?> GetByCountryIdAsync(Guid countryid)
+        public async Task<List<State>> GetByCountryIdAsync(Guid countryid)
         {
             return await _dbContext.States
                 .Include(x => x.Country)
-                .FirstOrDefaultAsync(x => x.CountryId == countryid);
+                .Where(x => x.CountryId == countryid && x.IsActive == true)
+                .ToListAsync();
         }
+
     }
 }

@@ -81,7 +81,7 @@ namespace Winfocus.LMS.API.Controllers
         /// <param name="stateid">The identifier.</param>
         /// <returns>ModeOfStudyDto by id.</returns>
         [HttpGet("by-state/{stateid:guid}")]
-        public async Task<ActionResult<ModeOfStudyDto>> GetByCountryId(Guid stateid)
+        public async Task<ActionResult<ModeOfStudyDto>> GetByStateId(Guid stateid)
         {
             var result = await _modeofstudyService.GetByStateIdAsync(stateid);
             return result == null ? NotFound() : Ok(result);
@@ -99,4 +99,5 @@ namespace Winfocus.LMS.API.Controllers
             await _modeofstudyService.DeleteAsync(id);
             return NoContent();
         }
+    }
 }
