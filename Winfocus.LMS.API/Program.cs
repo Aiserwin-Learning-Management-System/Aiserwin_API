@@ -57,6 +57,12 @@ builder.Services.AddScoped<IModeOfStudyService, ModeOfStudyService>();
 builder.Services.AddScoped<IModeOfStudyRepository, ModeOfStudyRepository>();
 builder.Services.AddScoped<ICentreService, CentreService>();
 builder.Services.AddScoped<ICentreRepository, CentreRepository>();
+builder.Services.AddScoped<ISyllabusService, SyllabusService>();
+builder.Services.AddScoped<ISyllabusRepository, SyllabusRepository>();
+builder.Services.AddScoped<IGradeService, GradeService>();
+builder.Services.AddScoped<IGradeRepository, GradeRepository>();
+builder.Services.AddScoped<IStreamService, StreamService>();
+builder.Services.AddScoped<IStreamRepository, StreamRepository>();
 
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 

@@ -6,7 +6,7 @@
     /// <summary>
     /// Represents an academic stream within a grade (for example, Science or Arts).
     /// </summary>
-    public class Stream : BaseEntity
+    public class Streams : BaseEntity
     {
         /// <summary>
         /// Gets or sets the display name of the stream.
@@ -27,5 +27,10 @@
         /// Gets or sets the identifier of the associated grade.
         /// </summary>
         public Grade Grade { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the collection of courses mapped to this Stream.
+        /// </summary>
+        public ICollection<StreamCourse> StreamCourses { get; set; } = new List<StreamCourse>();
     }
 }

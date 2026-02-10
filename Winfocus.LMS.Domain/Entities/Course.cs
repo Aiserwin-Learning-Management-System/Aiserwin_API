@@ -26,6 +26,11 @@
         /// <summary>
         /// Gets or sets the identifier of the associated stream.
         /// </summary>
-        public Stream Stream { get; set; } = null!;
+        public Streams Stream { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the Streams mapped to this Course.
+        /// </summary>
+        public ICollection<StreamCourse> StreamCourses { get; set; } = new List<StreamCourse>();
     }
 }
