@@ -75,7 +75,11 @@ namespace Winfocus.LMS.API.Controllers
             Guid id,
             BatchTimingRequest request)
         {
-            await _batchtimingmtfService.UpdateAsync(id, request);
+            var updatedRequest = request with
+            {
+                userId = UserId
+            };
+            await _batchtimingmtfService.UpdateAsync(id, updatedRequest);
             return NoContent();
         }
 

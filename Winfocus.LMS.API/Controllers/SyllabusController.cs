@@ -11,7 +11,7 @@ namespace Winfocus.LMS.API.Controllers
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
-    public class SyllabusController : ControllerBase
+    public class SyllabusController : BaseController
     {
         private readonly ISyllabusService _syllabusService;
 
@@ -42,7 +42,11 @@ namespace Winfocus.LMS.API.Controllers
         public async Task<ActionResult<SyllabusDto>> Create(
             SyllabusRequest request)
         {
-            var created = await _syllabusService.CreateAsync(request);
+            var updatedRequest = request with
+            {
+                userId = UserId
+            };
+            var created = await _syllabusService.CreateAsync(updatedRequest);
             return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
         }
 
@@ -70,7 +74,11 @@ namespace Winfocus.LMS.API.Controllers
             Guid id,
             SyllabusRequest request)
         {
-            await _syllabusService.UpdateAsync(id, request);
+            var updatedRequest = request with
+            {
+                userId = UserId
+            };
+            await _syllabusService.UpdateAsync(id, updatedRequest);
             return NoContent();
         }
 

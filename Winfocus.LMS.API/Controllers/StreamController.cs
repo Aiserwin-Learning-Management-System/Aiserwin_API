@@ -4,6 +4,7 @@ using Winfocus.LMS.Application.DTOs;
 using Winfocus.LMS.Application.DTOs.Masters;
 using Winfocus.LMS.Application.Interfaces;
 using Winfocus.LMS.Application.Services;
+using Winfocus.LMS.Domain.Entities;
 
 namespace Winfocus.LMS.API.Controllers
 {
@@ -12,7 +13,7 @@ namespace Winfocus.LMS.API.Controllers
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
-    public class StreamController : ControllerBase
+    public class StreamController : BaseController
     {
         private readonly IStreamService _streamService;
 
@@ -43,7 +44,11 @@ namespace Winfocus.LMS.API.Controllers
         public async Task<ActionResult<StreamDto>> Create(
             StreamRequest request)
         {
-            var created = await _streamService.CreateAsync(request);
+            var updatedRequest = request with
+            {
+                userId = UserId
+            };
+            var created = await _streamService.CreateAsync(updatedRequest);
             return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
         }
 
@@ -71,7 +76,11 @@ namespace Winfocus.LMS.API.Controllers
             Guid id,
             StreamRequest request)
         {
-            await _streamService.UpdateAsync(id, request);
+            var updatedRequest = request with
+            {
+                userId = UserId
+            };
+            await _streamService.UpdateAsync(id, updatedRequest);
             return NoContent();
         }
 

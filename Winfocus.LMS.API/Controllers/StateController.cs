@@ -12,7 +12,7 @@ namespace Winfocus.LMS.API.Controllers
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
-    public sealed class StateController : ControllerBase
+    public sealed class StateController : BaseController
     {
         private readonly IStateService _stateService;
 
@@ -43,7 +43,11 @@ namespace Winfocus.LMS.API.Controllers
         public async Task<ActionResult<StateDto>> Create(
             CreateMasterStateRequest request)
         {
-            var created = await _stateService.CreateAsync(request);
+            var updatedRequest = request with
+            {
+                userId = UserId
+            };
+            var created = await _stateService.CreateAsync(updatedRequest);
             return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
         }
 
@@ -71,7 +75,11 @@ namespace Winfocus.LMS.API.Controllers
             Guid id,
             CreateMasterStateRequest request)
         {
-            await _stateService.UpdateAsync(id, request);
+            var updatedRequest = request with
+            {
+                userId = UserId
+            };
+            await _stateService.UpdateAsync(id, updatedRequest);
             return NoContent();
         }
 

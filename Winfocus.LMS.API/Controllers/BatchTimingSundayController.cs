@@ -4,6 +4,7 @@ using Winfocus.LMS.Application.DTOs;
 using Winfocus.LMS.Application.DTOs.Masters;
 using Winfocus.LMS.Application.Interfaces;
 using Winfocus.LMS.Application.Services;
+using Winfocus.LMS.Domain.Entities;
 
 namespace Winfocus.LMS.API.Controllers
 {
@@ -12,7 +13,7 @@ namespace Winfocus.LMS.API.Controllers
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
-    public class BatchTimingSundayController : ControllerBase
+    public class BatchTimingSundayController : BaseController
     {
         private readonly IBatchTimingSundayService _batchtimingsundayService;
 
@@ -43,7 +44,11 @@ namespace Winfocus.LMS.API.Controllers
         public async Task<ActionResult<BatchTimingSundayDto>> Create(
             BatchTimingRequest request)
         {
-            var created = await _batchtimingsundayService.CreateAsync(request);
+            var updatedRequest = request with
+            {
+                userId = UserId
+            };
+            var created = await _batchtimingsundayService.CreateAsync(updatedRequest);
             return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
         }
 
@@ -71,7 +76,11 @@ namespace Winfocus.LMS.API.Controllers
             Guid id,
             BatchTimingRequest request)
         {
-            await _batchtimingsundayService.UpdateAsync(id, request);
+            var updatedRequest = request with
+            {
+                userId = UserId
+            };
+            await _batchtimingsundayService.UpdateAsync(id, updatedRequest);
             return NoContent();
         }
 

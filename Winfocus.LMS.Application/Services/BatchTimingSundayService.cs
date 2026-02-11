@@ -65,6 +65,8 @@ namespace Winfocus.LMS.Application.Services
             {
                 BatchTime = request.batchTime,
                 SubjectId = request.subjectId,
+                CreatedAt = DateTime.UtcNow,
+                CreatedBy = request.userId,
             };
 
             var created = await _repository.AddAsync(batchtiming);
@@ -89,6 +91,8 @@ namespace Winfocus.LMS.Application.Services
 
             batchtiming.BatchTime = request.batchTime;
             batchtiming.SubjectId = request.subjectId;
+            batchtiming.UpdatedAt = DateTime.UtcNow;
+            batchtiming.UpdatedBy = request.userId;
 
             await _repository.UpdateAsync(batchtiming);
             _logger.LogInformation(
@@ -116,17 +120,16 @@ namespace Winfocus.LMS.Application.Services
        Id = c.Id,
        BatchTime = c.BatchTime,
        SubjectId = c.SubjectId,
+       CreatedAt = c.CreatedAt,
+       CreatedBy = c.CreatedBy,
+       UpdatedAt = c.UpdatedAt,
+       UpdatedBy = c.UpdatedBy,
        Subject = c.Subject == null ? null : new SubjectDto
        {
            Id = c.Subject.Id,
            SubjectName = c.Subject.SubjectName,
-           SubjectCode = c.Subject.SubjectCode,
-           CourseId = c.Subject.CourseId,
-           Course = c.Subject.Course == null ? null : new CourseDto
-           {
-               CourseCode = c.Subject.Course.CourseCode
-           }
-       }
+           SubjectCode = c.Subject.SubjectCode
+       },
    };
     }
 }

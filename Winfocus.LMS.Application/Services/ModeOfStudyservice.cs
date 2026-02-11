@@ -76,6 +76,7 @@ namespace Winfocus.LMS.Application.Services
                 ModeName = request.name,
                 ModeCode = request.code,
                 CreatedAt = DateTime.UtcNow,
+                CreatedBy = request.userId,
             };
 
             var created = await _repository.AddAsync(modeOfStudy);
@@ -103,6 +104,7 @@ namespace Winfocus.LMS.Application.Services
             modeOfStudy.ModeName = request.name;
             modeOfStudy.ModeCode = request.code;
             modeOfStudy.UpdatedAt = DateTime.UtcNow;
+            modeOfStudy.UpdatedBy = request.userId;
 
             await _repository.UpdateAsync(modeOfStudy);
             _logger.LogInformation(
@@ -153,6 +155,16 @@ namespace Winfocus.LMS.Application.Services
                 ModeName = c.ModeName,
                 ModeCode = c.ModeCode,
                 StateId = c.StateId,
+                CreatedBy = c.CreatedBy,
+                CreatedAt = c.CreatedAt,
+                UpdatedBy = c.UpdatedBy,
+                UpdatedAt = c.UpdatedAt,
+                State = c.State == null ? null : new StateDto
+                {
+                    Id = c.State.Id,
+                    StateName = c.State.StateName,
+                    StateCode = c.State.StateCode,
+                }
             };
     }
 }

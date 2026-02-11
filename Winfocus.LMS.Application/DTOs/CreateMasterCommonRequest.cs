@@ -5,5 +5,5 @@
     /// </summary>
     public sealed record class CreateMasterStateRequest
     (string name,
-        string code, Guid countryid);
+        string code, Guid countryid, Guid userId);
 }

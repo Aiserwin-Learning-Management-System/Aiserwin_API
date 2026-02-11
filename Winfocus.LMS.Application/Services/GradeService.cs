@@ -70,6 +70,7 @@ namespace Winfocus.LMS.Application.Services
                 GradeName = request.name,
                 GradeCode = request.code,
                 CreatedAt = DateTime.UtcNow,
+                CreatedBy = request.userId,
                 SyllabusId = request.syllabusid,
             };
 
@@ -91,6 +92,7 @@ namespace Winfocus.LMS.Application.Services
 
             grade.GradeName = request.name;
             grade.GradeCode = request.code;
+            grade.UpdatedBy = request.userId;
             grade.UpdatedAt = DateTime.UtcNow;
 
             await _repository.UpdateAsync(grade);
@@ -130,6 +132,10 @@ namespace Winfocus.LMS.Application.Services
          GradeName = c.GradeName,
          GradeCode = c.GradeCode,
          SyllabusId = c.SyllabusId,
+         UpdatedBy = c.UpdatedBy,
+         UpdatedAt = c.UpdatedAt,
+         CreatedBy = c.CreatedBy,
+         CreatedAt = c.CreatedAt,
          Syllabus = c.Syllabus == null ? null : new SyllabusDto
          {
              Id = c.Syllabus.Id,
