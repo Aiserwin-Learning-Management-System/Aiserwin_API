@@ -1,7 +1,7 @@
-﻿using Winfocus.LMS.Application.DTOs;
-
-namespace Winfocus.LMS.Application.Interfaces
+﻿namespace Winfocus.LMS.Application.Interfaces
 {
+    using Winfocus.LMS.Application.DTOs;
+
     /// <summary>
     /// ICountryService.
     /// </summary>

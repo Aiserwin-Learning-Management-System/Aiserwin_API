@@ -16,14 +16,11 @@
         public string CourseCode { get; set; } = null!;
 
         /// <summary>
-        /// Gets or sets the identifier of the associated stream.
+        /// Gets or sets the subjects.
         /// </summary>
-        public Guid StreamId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the identifier of the associated stream.
-        /// </summary>
-        public StreamDto Stream { get; set; } = null!;
-
+        /// <value>
+        /// The subjects.
+        /// </value>
+        public IReadOnlyList<SubjectDto>? Subjects { get; set; }
     }
 }

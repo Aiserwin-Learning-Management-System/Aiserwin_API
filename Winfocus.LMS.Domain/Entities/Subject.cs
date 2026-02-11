@@ -20,13 +20,12 @@
         public string SubjectCode { get; set; } = null!;
 
         /// <summary>
-        /// Gets or sets the identifier of the associated course.
+        /// Gets or sets the course subjects.
         /// </summary>
-        public Guid CourseId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the identifier of the associated course.
-        /// </summary>
-        public Course Course { get; set; } = null!;
+        /// <value>
+        /// The course subjects.
+        /// </value>
+        public ICollection<CourseSubject> CourseSubjects { get; set; }
+            = new List<CourseSubject>();
     }
 }
