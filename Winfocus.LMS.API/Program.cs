@@ -33,20 +33,6 @@ Log.Logger = new LoggerConfiguration()
 builder.Host.UseSerilog();
 
 // =====================
-// CORS Configuration 
-// =====================
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAngularApp", policy =>
-    {
-        policy.WithOrigins("http://localhost:4200")
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials();
-    });
-});
-
-// =====================
 // Database
 // =====================
 if (!builder.Environment.IsEnvironment("Testing"))
@@ -158,11 +144,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-// =====================
-// CORS
-// =====================
-app.UseCors("AllowAngularApp");
 
 app.UseAuthentication();
 app.UseAuthorization();
