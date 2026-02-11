@@ -88,7 +88,7 @@ namespace Winfocus.LMS.API.Controllers
         /// <param name="centerid">The identifier.</param>
         /// <returns>SyllabusDto by id.</returns>
         [HttpGet("by-center/{centerid:guid}")]
-        public async Task<ActionResult<SyllabusDto>> GetByCountryId(Guid centerid)
+        public async Task<ActionResult<SyllabusDto>> GetByCenterId(Guid centerid)
         {
             var result = await _syllabusService.GetByCenterIdAsync(centerid);
             return result == null ? NotFound() : Ok(result);

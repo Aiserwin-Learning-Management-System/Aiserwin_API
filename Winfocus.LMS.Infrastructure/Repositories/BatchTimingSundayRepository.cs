@@ -95,5 +95,18 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             _dbContext.BatchTimingSundays.Update(entity);
             await _dbContext.SaveChangesAsync();
         }
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="subjectid">The identifier.</param>
+        /// <returns>BatchTimings.</returns>
+        public async Task<List<BatchTimingSunday>> GetBySubjectIdAsync(Guid subjectid)
+        {
+            return await _dbContext.BatchTimingSundays
+                .Include(x => x.Subject)
+                .Where(x => x.SubjectId == subjectid)
+                .ToListAsync();
+        }
     }
 }

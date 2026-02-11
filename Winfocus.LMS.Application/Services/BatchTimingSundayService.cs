@@ -114,6 +114,22 @@ namespace Winfocus.LMS.Application.Services
            id);
         }
 
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="subjectid">The identifier.</param>
+        /// <returns>BatchTimingSundayDto.</returns>
+        public async Task<List<BatchTimingSundayDto>> GetBySubjectIdAsync(Guid subjectid)
+        {
+            var batchTimings = await _repository.GetBySubjectIdAsync(subjectid);
+            return Map(batchTimings);
+        }
+
+        private static List<BatchTimingSundayDto> Map(IEnumerable<BatchTimingSunday> batchTimingMTFs)
+        {
+            return batchTimingMTFs.Select(Map).ToList();
+        }
+
         private static BatchTimingSundayDto Map(BatchTimingSunday c) =>
    new BatchTimingSundayDto
    {

@@ -90,7 +90,7 @@ namespace Winfocus.LMS.API.Controllers
         /// <param name="gradeid">The identifier.</param>
         /// <returns>StreamDto by id.</returns>
         [HttpGet("by-grade/{gradeid:guid}")]
-        public async Task<ActionResult<StreamDto>> GetByCountryId(Guid gradeid)
+        public async Task<ActionResult<StreamDto>> GetByGradeId(Guid gradeid)
         {
             var result = await _streamService.GetByGradeIdAsync(gradeid);
             return result == null ? NotFound() : Ok(result);

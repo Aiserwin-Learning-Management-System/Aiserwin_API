@@ -95,5 +95,17 @@ namespace Winfocus.LMS.API.Controllers
             await _batchtimingService.DeleteAsync(id);
             return NoContent();
         }
+
+        /// <summary>
+        /// Gets the specified identifier.
+        /// </summary>
+        /// <param name="subjectid">The identifier.</param>
+        /// <returns>BatchTimingSaturdayDto by id.</returns>
+        [HttpGet("by-subject/{subjectid:guid}")]
+        public async Task<ActionResult<BatchTimingSaturdayDto>> GetBySubjectId(Guid subjectid)
+        {
+            var result = await _batchtimingService.GetBySubjectIdAsync(subjectid);
+            return result == null ? NotFound() : Ok(result);
+        }
     }
 }

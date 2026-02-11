@@ -43,5 +43,12 @@ namespace Winfocus.LMS.Application.Interfaces
         /// <param name="id">The identifier.</param>
         /// <returns>task.</returns>
         Task DeleteAsync(Guid id);
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="subjectid">The identifier.</param>
+        /// <returns>BatchTiming.</returns>
+        Task<List<BatchTimingSaturday>> GetBySubjectIdAsync(Guid subjectid);
     }
 }
