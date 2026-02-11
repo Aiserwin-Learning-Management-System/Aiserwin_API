@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Winfocus.LMS.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using Winfocus.LMS.Infrastructure.Data;
 namespace Winfocus.LMS.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260210124424_MigrationCourseSubject")]
+    partial class MigrationCourseSubject
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -67,8 +70,9 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("BatchTime")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("BatchTime")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -79,9 +83,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<Guid>("SubjectId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -89,8 +90,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("SubjectId");
 
                     b.ToTable("BatchTimingMTFs");
                 });
@@ -101,8 +100,9 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("BatchTime")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("BatchTime")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -113,9 +113,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<Guid>("SubjectId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -123,8 +120,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("SubjectId");
 
                     b.ToTable("BatchTimingSaturdays");
                 });
@@ -135,8 +130,9 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("BatchTime")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("BatchTime")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -147,9 +143,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<Guid>("SubjectId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -157,8 +150,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("SubjectId");
 
                     b.ToTable("BatchTimingSundays");
                 });
@@ -846,60 +837,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.ToTable("Subjects");
                 });
 
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.SubjectBatchTimingMTF", b =>
-                {
-                    b.Property<Guid>("SubjectId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("BatchTimingId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("BatchTimingSundayId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("SubjectId", "BatchTimingId");
-
-                    b.HasIndex("BatchTimingSundayId");
-
-                    b.ToTable("SubjectBatchTimingMTFs");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.SubjectBatchTimingSaturday", b =>
-                {
-                    b.Property<Guid>("SubjectId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("BatchTimingId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("BatchTimingSundayId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("SubjectId", "BatchTimingId");
-
-                    b.HasIndex("BatchTimingSundayId");
-
-                    b.ToTable("SubjectBatchTimingSaturdays");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.SubjectBatchTimingSunday", b =>
-                {
-                    b.Property<Guid>("SubjectId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("BatchTimingId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("BatchTimingSundayId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("SubjectId", "BatchTimingId");
-
-                    b.HasIndex("BatchTimingSundayId");
-
-                    b.ToTable("SubjectBatchTimingSundays");
-                });
-
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.Syllabus", b =>
                 {
                     b.Property<Guid>("Id")
@@ -997,39 +934,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                 });
 
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.Batch", b =>
-                {
-                    b.HasOne("Winfocus.LMS.Domain.Entities.Subject", "Subject")
-                        .WithMany()
-                        .HasForeignKey("SubjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Subject");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.BatchTimingMTF", b =>
-                {
-                    b.HasOne("Winfocus.LMS.Domain.Entities.Subject", "Subject")
-                        .WithMany()
-                        .HasForeignKey("SubjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Subject");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.BatchTimingSaturday", b =>
-                {
-                    b.HasOne("Winfocus.LMS.Domain.Entities.Subject", "Subject")
-                        .WithMany()
-                        .HasForeignKey("SubjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Subject");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.BatchTimingSunday", b =>
                 {
                     b.HasOne("Winfocus.LMS.Domain.Entities.Subject", "Subject")
                         .WithMany()
@@ -1303,74 +1207,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.Navigation("Subject");
 
                     b.Navigation("Syllabus");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.Subject", b =>
-                {
-                    b.HasOne("Winfocus.LMS.Domain.Entities.Course", "Course")
-                        .WithMany()
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Course");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.SubjectBatchTimingMTF", b =>
-                {
-                    b.HasOne("Winfocus.LMS.Domain.Entities.BatchTimingSaturday", "BatchTimingSunday")
-                        .WithMany()
-                        .HasForeignKey("BatchTimingSundayId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Winfocus.LMS.Domain.Entities.Subject", "Subject")
-                        .WithMany()
-                        .HasForeignKey("SubjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("BatchTimingSunday");
-
-                    b.Navigation("Subject");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.SubjectBatchTimingSaturday", b =>
-                {
-                    b.HasOne("Winfocus.LMS.Domain.Entities.BatchTimingSaturday", "BatchTimingSunday")
-                        .WithMany()
-                        .HasForeignKey("BatchTimingSundayId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Winfocus.LMS.Domain.Entities.Subject", "Subject")
-                        .WithMany()
-                        .HasForeignKey("SubjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("BatchTimingSunday");
-
-                    b.Navigation("Subject");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.SubjectBatchTimingSunday", b =>
-                {
-                    b.HasOne("Winfocus.LMS.Domain.Entities.BatchTimingSunday", "BatchTimingSunday")
-                        .WithMany()
-                        .HasForeignKey("BatchTimingSundayId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Winfocus.LMS.Domain.Entities.Subject", "Subject")
-                        .WithMany()
-                        .HasForeignKey("SubjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("BatchTimingSunday");
-
-                    b.Navigation("Subject");
                 });
 
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.Syllabus", b =>

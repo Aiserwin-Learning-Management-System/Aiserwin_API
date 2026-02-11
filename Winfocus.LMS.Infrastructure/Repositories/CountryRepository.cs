@@ -82,6 +82,7 @@
                 return;
             }
 
+            entity.UpdatedAt = DateTime.UtcNow;
             entity.IsActive = false;
 
             _db.Countries.Update(entity);

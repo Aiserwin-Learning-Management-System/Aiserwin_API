@@ -14,15 +14,5 @@
         /// Gets or sets the optional code for the subject.
         /// </summary>
         public string SubjectCode { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets the identifier of the associated course.
-        /// </summary>
-        public Guid CourseId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the identifier of the associated course.
-        /// </summary>
-        public CourseDto Course { get; set; } = null!;
     }
 }
