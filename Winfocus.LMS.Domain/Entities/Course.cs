@@ -32,5 +32,14 @@
         /// Gets or sets the Streams mapped to this Course.
         /// </summary>
         public ICollection<StreamCourse> StreamCourses { get; set; } = new List<StreamCourse>();
+
+        /// <summary>
+        /// Gets or sets the course subjects.
+        /// </summary>
+        /// <value>
+        /// The course subjects.
+        /// </value>
+        public ICollection<CourseSubject> CourseSubjects { get; set; }
+            = new List<CourseSubject>();
     }
 }

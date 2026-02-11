@@ -1,8 +1,8 @@
 ﻿namespace Winfocus.LMS.Application.Services
 {
+    using System.Data;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.Extensions.Logging;
-    using System.Data;
     using Winfocus.LMS.Application.DTOs;
     using Winfocus.LMS.Application.DTOs.Auth;
     using Winfocus.LMS.Application.Interfaces;

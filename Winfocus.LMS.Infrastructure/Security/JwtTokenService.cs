@@ -35,11 +35,10 @@
         /// </returns>
         public string GenerateToken(User user, IReadOnlyList<string> roles)
         {
-            var issuer = _configuration["Jwt:Issuer"]!;
-            var audience = _configuration["Jwt:Audience"]!;
+            var issuer = _configuration["Jwt:Issuer"] !;
+            var audience = _configuration["Jwt:Audience"] !;
             var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!)
-            );
+                Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] !));
 
             var claims = new List<Claim>
         {
@@ -61,8 +60,7 @@
                 expires: DateTime.UtcNow.AddDays(7),
                 signingCredentials: new SigningCredentials(
                     key,
-                    SecurityAlgorithms.HmacSha256)
-            );
+                    SecurityAlgorithms.HmacSha256));
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }

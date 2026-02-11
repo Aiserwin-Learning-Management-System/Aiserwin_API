@@ -2,6 +2,7 @@
 {
     using Microsoft.EntityFrameworkCore;
     using Winfocus.LMS.Domain.Entities;
+    using Winfocus.LMS.Infrastructure.Data.Configurations;
 
     /// <summary>
     /// Represents the application's database context for Entity Framework Core.
@@ -41,7 +42,6 @@
         /// Gets or sets the UserRoles in the database.
         /// </summary>
         public DbSet<UserRole> UserRoles { get; set; } = null!;
-
 
         /// <summary>
         /// Gets or sets the batches in the database.
@@ -124,11 +124,30 @@
         public DbSet<Streams> Streams { get; set; } = null!;
 
         /// <summary>
+        /// Gets or sets the course subjects.
+        /// </summary>
+        /// <value>
+        /// The course subjects.
+        /// </value>
+        public DbSet<CourseSubject> CourseSubjects { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the stream courses.
+        /// </summary>
+        /// <value>
+        /// The stream courses.
+        /// </value>
+        public DbSet<StreamCourse> StreamCourses { get; set; } = null!;
+
+        /// <summary>
         /// Configures the model for the context.
         /// </summary>
         /// <param name="modelBuilder">The builder being used to construct the model for this context.</param>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.ApplyConfiguration(new StreamCourseConfiguration());
+            modelBuilder.ApplyConfiguration(new CourseSubjectConfiguration());
+
             // User configuration
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Username)
