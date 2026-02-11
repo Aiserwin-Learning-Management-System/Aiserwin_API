@@ -65,6 +65,8 @@ namespace Winfocus.LMS.Application.Services
             {
                 BatchTime = request.batchTime,
                 SubjectId = request.subjectId,
+                CreatedBy = request.userId,
+                CreatedAt = DateTime.UtcNow,
             };
 
             var created = await _repository.AddAsync(batchtiming);
@@ -114,8 +116,13 @@ namespace Winfocus.LMS.Application.Services
     new BatchTimingMTFDto
     {
         Id = c.Id,
-        BatchTime = c.BatchTime,
+        BatchTime = c.BatchTime.ToString("dd/MM/yyyy hh:mm tt"),
         SubjectId = c.SubjectId,
+        CreatedAt = c.CreatedAt,
+        CreatedBy = c.CreatedBy,
+        UpdatedAt = c.UpdatedAt,
+        UpdatedBy = c.UpdatedBy,
+        IsActive = c.IsActive,
         Subject = c.Subject == null ? null : new SubjectDto
         {
             Id = c.Subject.Id,

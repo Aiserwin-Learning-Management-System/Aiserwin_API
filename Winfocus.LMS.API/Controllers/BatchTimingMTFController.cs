@@ -12,7 +12,7 @@ namespace Winfocus.LMS.API.Controllers
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
-    public class BatchTimingMTFController : ControllerBase
+    public class BatchTimingMTFController : BaseController
     {
         private readonly IBatchTimingMTFService _batchtimingmtfService;
 
@@ -43,7 +43,11 @@ namespace Winfocus.LMS.API.Controllers
         public async Task<ActionResult<BatchTimingMTFDto>> Create(
             BatchTimingRequest request)
         {
-            var created = await _batchtimingmtfService.CreateAsync(request);
+            var updatedRequest = request with
+            {
+                userId = UserId
+            };
+            var created = await _batchtimingmtfService.CreateAsync(updatedRequest);
             return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
         }
 

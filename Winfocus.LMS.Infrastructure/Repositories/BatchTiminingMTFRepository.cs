@@ -58,7 +58,6 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// <returns>country.</returns>
         public async Task<BatchTimingMTF> AddAsync(BatchTimingMTF batchtiming)
         {
-            batchtiming.CreatedAt = DateTime.UtcNow;
             _dbContext.BatchTimingMTFs.Add(batchtiming);
             await _dbContext.SaveChangesAsync();
             return batchtiming;

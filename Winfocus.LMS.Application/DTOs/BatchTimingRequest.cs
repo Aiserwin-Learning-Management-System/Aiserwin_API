@@ -8,5 +8,5 @@ namespace Winfocus.LMS.Application.DTOs
     /// Request for creating or updating a country.
     /// </summary>
     public sealed record BatchTimingRequest(DateTime batchTime,
-        Guid subjectId);
+        Guid subjectId, Guid userId);
 }

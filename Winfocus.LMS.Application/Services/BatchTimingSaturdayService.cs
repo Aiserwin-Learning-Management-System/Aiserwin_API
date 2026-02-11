@@ -64,6 +64,8 @@ namespace Winfocus.LMS.Application.Services
             {
                 BatchTime = request.batchTime,
                 SubjectId = request.subjectId,
+                CreatedBy = request.userId,
+                CreatedAt = DateTime.UtcNow,
             };
 
             var created = await _repository.AddAsync(batchtiming);
@@ -115,6 +117,11 @@ namespace Winfocus.LMS.Application.Services
         Id = c.Id,
         BatchTime = c.BatchTime,
         SubjectId = c.SubjectId,
+        CreatedBy = c.CreatedBy,
+        CreatedAt = c.CreatedAt,
+        UpdatedAt = c.UpdatedAt,
+        UpdatedBy = c.UpdatedBy,
+        IsActive = c.IsActive,
         Subject = c.Subject == null ? null : new SubjectDto
         {
             Id = c.Subject.Id,

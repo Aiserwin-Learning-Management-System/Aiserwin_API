@@ -58,7 +58,6 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// <returns>BatchTimingSaturday.</returns>
         public async Task<BatchTimingSaturday> AddAsync(BatchTimingSaturday batchtiming)
         {
-            batchtiming.CreatedAt = DateTime.UtcNow;
             _dbContext.BatchTimingSaturdays.Add(batchtiming);
             await _dbContext.SaveChangesAsync();
             return batchtiming;
