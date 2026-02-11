@@ -1,7 +1,7 @@
-﻿using Winfocus.LMS.Domain.Entities;
-
-namespace Winfocus.LMS.Application.Interfaces
+﻿namespace Winfocus.LMS.Application.Interfaces
 {
+    using Winfocus.LMS.Domain.Entities;
+
     /// <summary>
     /// ISyllabusRepository.
     /// </summary>

@@ -134,7 +134,7 @@ namespace Winfocus.LMS.Application.Services
    new BatchTimingSundayDto
    {
        Id = c.Id,
-       BatchTime = c.BatchTime,
+       BatchTime = c.BatchTime.ToString("dd/MM/yyyy hh:mm tt"),
        SubjectId = c.SubjectId,
        CreatedAt = c.CreatedAt,
        CreatedBy = c.CreatedBy,

@@ -24,6 +24,5 @@
         /// Gets or sets the identifier of the associated country.
         /// </summary>
         public StateDto State { get; set; } = null!;
-
-    }
+   }
 }

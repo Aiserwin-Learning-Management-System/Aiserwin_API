@@ -1,14 +1,11 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Winfocus.LMS.Application.DTOs;
-using Winfocus.LMS.Application.DTOs.Masters;
-using Winfocus.LMS.Application.Interfaces;
-using Winfocus.LMS.Domain.Entities;
-
-namespace Winfocus.LMS.Application.Services
+﻿namespace Winfocus.LMS.Application.Services
 {
+    using Microsoft.Extensions.Logging;
+    using Winfocus.LMS.Application.DTOs;
+    using Winfocus.LMS.Application.DTOs.Masters;
+    using Winfocus.LMS.Application.Interfaces;
+    using Winfocus.LMS.Domain.Entities;
+
     /// <summary>
     /// Provides business operations for <see cref="ModeOfStudy"/> entities.
     /// </summary>

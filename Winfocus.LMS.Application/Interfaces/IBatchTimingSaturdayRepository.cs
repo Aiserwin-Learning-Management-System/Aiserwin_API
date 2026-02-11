@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Winfocus.LMS.Domain.Entities;
-
-namespace Winfocus.LMS.Application.Interfaces
+﻿namespace Winfocus.LMS.Application.Interfaces
 {
+    using Winfocus.LMS.Domain.Entities;
+
     /// <summary>
     /// Defines business operations for <see cref="BatchTimingSaturday"/> entities.
     /// </summary>

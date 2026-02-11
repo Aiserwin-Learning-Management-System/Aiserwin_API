@@ -1,8 +1,8 @@
-﻿using Winfocus.LMS.Application.DTOs;
-using Winfocus.LMS.Application.DTOs.Masters;
-
-namespace Winfocus.LMS.Application.Interfaces
+﻿namespace Winfocus.LMS.Application.Interfaces
 {
+    using Winfocus.LMS.Application.DTOs;
+    using Winfocus.LMS.Application.DTOs.Masters;
+
     /// <summary>
     /// ISyllabusService.
     /// </summary>

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Winfocus.LMS.Domain.Entities
+﻿namespace Winfocus.LMS.Domain.Entities
 {
     /// <summary>
     /// Represents the association between a Subject and a BatchTimingSaturday.
