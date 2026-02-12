@@ -28,18 +28,22 @@
         /// </summary>
         public Streams Stream { get; set; } = null!;
 
-        /// <summary>
-        /// Gets or sets the Streams mapped to this Course.
-        /// </summary>
-        public ICollection<StreamCourse> StreamCourses { get; set; } = new List<StreamCourse>();
+        // Many courses → one subject
 
         /// <summary>
-        /// Gets or sets the course subjects.
+        /// Gets or sets the subject identifier.
         /// </summary>
         /// <value>
-        /// The course subjects.
+        /// The subject identifier.
         /// </value>
-        public ICollection<CourseSubject> CourseSubjects { get; set; }
-            = new List<CourseSubject>();
+        public Guid SubjectId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the subject.
+        /// </summary>
+        /// <value>
+        /// The subject.
+        /// </value>
+        public Subject Subject { get; set; } = null!;
     }
 }

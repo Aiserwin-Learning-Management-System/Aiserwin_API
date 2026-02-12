@@ -20,9 +20,14 @@
         /// </summary>
         public Guid GradeId { get; set; }
 
+        // One stream → many courses
+
         /// <summary>
-        /// Gets or sets the identifier of the associated grade.
+        /// Gets or sets the courses.
         /// </summary>
-        public GradeDto Grade { get; set; } = null!;
+        /// <value>
+        /// The courses.
+        /// </value>
+        public IReadOnlyList<CourseDto> Courses { get; set; } = new List<CourseDto>();
     }
 }

@@ -4,7 +4,7 @@
     /// Request model for creating or updating a course.
     /// </summary>
     public sealed record CourseRequest(
-        string coursename,
-        string coursecode,
-        List<Guid> subjectids);
+    string coursename,
+    string coursecode,
+    Guid subjectid);
 }

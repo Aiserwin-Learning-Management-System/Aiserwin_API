@@ -68,7 +68,6 @@
                 throw new InvalidOperationException("Stream code already exists");
             }
 
-            // Create Stream entity
             var stream = new Streams
             {
                 StreamName = request.name,
@@ -76,21 +75,12 @@
                 CreatedAt = DateTime.UtcNow,
                 CreatedBy = request.userId,
                 GradeId = request.gradeid,
-                StreamCourses = request.courseids?
-                    .Select(courseId => new StreamCourse
-                    {
-                        CourseId = courseId
-                    })
-                    .ToList() ?? new List<StreamCourse>()
+                Courses = new List<Course>(),
             };
 
-            // Save to database
             var created = await _repository.AddAsync(stream);
-
-            // Convert entity to DTO
             return Map(created);
         }
-
 
         /// <summary>
         /// Updates the asynchronous.
@@ -101,7 +91,7 @@
         /// <returns>task.</returns>
         public async Task UpdateAsync(Guid id, StreamRequest request)
         {
-            var stream = await _repository.GetByIdWithCoursesAsync(id)
+            var stream = await _repository.GetByIdAsync(id)
                 ?? throw new KeyNotFoundException("Stream not found");
 
             stream.StreamName = request.name;
@@ -109,36 +99,6 @@
             stream.GradeId = request.gradeid;
             stream.UpdatedBy = request.userId;
             stream.UpdatedAt = DateTime.UtcNow;
-
-            var requestedCourseIds = request.courseids?
-                .Distinct()
-                .ToList() ?? new List<Guid>();
-
-            var coursesToRemove = stream.StreamCourses
-                .Where(sc => !requestedCourseIds.Contains(sc.CourseId))
-                .ToList();
-
-            foreach (var course in coursesToRemove)
-            {
-                stream.StreamCourses.Remove(course);
-            }
-
-            var existingCourseIds = stream.StreamCourses
-                .Select(sc => sc.CourseId)
-                .ToList();
-
-            var coursesToAdd = requestedCourseIds
-                .Where(cid => !existingCourseIds.Contains(cid))
-                .Select(cid => new StreamCourse
-                {
-                    StreamId = stream.Id,
-                    CourseId = cid
-                });
-
-            foreach (var course in coursesToAdd)
-            {
-                stream.StreamCourses.Add(course);
-            }
 
             await _repository.UpdateAsync(stream);
         }
@@ -169,26 +129,17 @@
             return streams.Select(Map).ToList();
         }
 
-
         private static StreamDto Map(Streams c) =>
-     new StreamDto
-     {
-         Id = c.Id,
-         StreamName = c.StreamName,
-         StreamCode = c.StreamCode,
-         GradeId = c.GradeId,
-         CreatedBy = c.CreatedBy,
-         CreatedAt = c.CreatedAt,
-         UpdatedBy = c.UpdatedBy,
-         UpdatedAt = c.UpdatedAt,
-         Grade = c.Grade == null ? null : new GradeDto
+         new StreamDto
          {
-             Id = c.Grade.Id,
-             GradeName = c.Grade.GradeName,
-             GradeCode = c.Grade.GradeCode,
-             SyllabusId = c.Grade.SyllabusId
-         }
-     };
-
+             Id = c.Id,
+             StreamName = c.StreamName,
+             StreamCode = c.StreamCode,
+             GradeId = c.GradeId,
+             CreatedBy = c.CreatedBy,
+             CreatedAt = c.CreatedAt,
+             UpdatedBy = c.UpdatedBy,
+             UpdatedAt = c.UpdatedAt,
+         };
     }
 }

@@ -14,5 +14,15 @@
         /// Gets or sets the optional code for the subject.
         /// </summary>
         public string SubjectCode { get; set; } = null!;
+
+        // One subject → many courses
+
+        /// <summary>
+        /// Gets or sets the courses.
+        /// </summary>
+        /// <value>
+        /// The courses.
+        /// </value>
+        public IReadOnlyList<CourseDto> Courses { get; set; } = new List<CourseDto>();
     }
 }

@@ -8,25 +8,27 @@
     /// StreamCourseConfiguration.
     /// </summary>
     /// <seealso cref="Microsoft.EntityFrameworkCore.IEntityTypeConfiguration&lt;Winfocus.LMS.Domain.Entities.StreamCourse&gt;" />
-    public sealed class StreamCourseConfiguration
-        : IEntityTypeConfiguration<StreamCourse>
+    public sealed class StreamConfiguration : IEntityTypeConfiguration<Streams>
     {
         /// <summary>
         /// Configures the entity of type <typeparamref name="TEntity" />.
         /// </summary>
         /// <param name="builder">The builder to be used to configure the entity type.</param>
-        public void Configure(EntityTypeBuilder<StreamCourse> builder)
+        public void Configure(EntityTypeBuilder<Streams> builder)
         {
-            builder.HasKey(x => new { x.StreamId, x.CourseId });
+            builder.HasKey(s => s.Id);
 
-            builder.HasOne(x => x.Stream)
-                .WithMany(x => x.StreamCourses)
-                .HasForeignKey(x => x.StreamId)
-                .OnDelete(DeleteBehavior.Restrict);
+            builder.Property(s => s.StreamName)
+                .IsRequired()
+                .HasMaxLength(200);
 
-            builder.HasOne(x => x.Course)
-                .WithMany(x => x.StreamCourses)
-                .HasForeignKey(x => x.CourseId)
+            builder.Property(s => s.StreamCode)
+                .HasMaxLength(50);
+
+            // One stream → many courses
+            builder.HasMany(s => s.Courses)
+                .WithOne(c => c.Stream)
+                .HasForeignKey(c => c.StreamId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

@@ -73,10 +73,7 @@
             {
                 CourseName = request.coursename,
                 CourseCode = request.coursecode,
-                CourseSubjects = request.subjectids
-                    .Distinct()
-                    .Select(id => new CourseSubject { SubjectId = id })
-                    .ToList(),
+                SubjectId = request.subjectid,
                 CreatedAt = DateTime.UtcNow,
             };
 
@@ -94,34 +91,13 @@
         /// </returns>
         public async Task UpdateAsync(Guid id, CourseRequest request)
         {
-            var course = await _repo.GetByIdWithSubjectsAsync(id)
+            var course = await _repo.GetByIdAsync(id)
                 ?? throw new KeyNotFoundException("Course not found");
 
             course.CourseName = request.coursename;
             course.CourseCode = request.coursecode;
+            course.SubjectId = request.subjectid;
             course.UpdatedAt = DateTime.UtcNow;
-
-            var requested = request.subjectids.Distinct().ToList();
-
-            var remove = course.CourseSubjects
-                .Where(cs => !requested.Contains(cs.SubjectId))
-                .ToList();
-
-            foreach (var r in remove)
-            {
-                course.CourseSubjects.Remove(r);
-            }
-
-            var existing = course.CourseSubjects.Select(cs => cs.SubjectId).ToList();
-
-            foreach (var sid in requested.Where(x => !existing.Contains(x)))
-            {
-                course.CourseSubjects.Add(new CourseSubject
-                {
-                    CourseId = course.Id,
-                    SubjectId = sid,
-                });
-            }
 
             await _repo.UpdateAsync(course);
         }
@@ -141,12 +117,12 @@
             Id = c.Id,
             CourseName = c.CourseName,
             CourseCode = c.CourseCode,
-            Subjects = c.CourseSubjects.Select(cs => new SubjectDto
+            Subject = new SubjectDto
             {
-                Id = cs.Subject.Id,
-                SubjectName = cs.Subject.SubjectName,
-                SubjectCode = cs.Subject.SubjectCode,
-            }).ToList(),
+                Id = c.Subject.Id,
+                SubjectName = c.Subject.SubjectName,
+                SubjectCode = c.Subject.SubjectCode,
+            },
         };
     }
 }

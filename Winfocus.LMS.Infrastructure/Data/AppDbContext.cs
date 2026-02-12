@@ -160,8 +160,8 @@
         /// <param name="modelBuilder">The builder being used to construct the model for this context.</param>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.ApplyConfiguration(new StreamCourseConfiguration());
-            modelBuilder.ApplyConfiguration(new CourseSubjectConfiguration());
+            modelBuilder.ApplyConfiguration(new StreamConfiguration());
+            modelBuilder.ApplyConfiguration(new CourseConfiguration());
 
             // User configuration
             modelBuilder.Entity<User>()

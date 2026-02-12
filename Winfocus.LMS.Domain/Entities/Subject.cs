@@ -19,13 +19,14 @@
         /// </summary>
         public string SubjectCode { get; set; } = null!;
 
+        // One subject → many courses
+
         /// <summary>
-        /// Gets or sets the course subjects.
+        /// Gets or sets the courses.
         /// </summary>
         /// <value>
-        /// The course subjects.
+        /// The courses.
         /// </value>
-        public ICollection<CourseSubject> CourseSubjects { get; set; }
-            = new List<CourseSubject>();
+        public ICollection<Course> Courses { get; set; } = new List<Course>();
     }
 }

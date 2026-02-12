@@ -52,11 +52,9 @@
         /// Subject list.
         /// </returns>
         public async Task<IReadOnlyList<Subject>> GetByStreamAsync(Guid streamId)
-            => await _db.CourseSubjects
-                .Where(cs =>
-                    cs.Course.StreamCourses.Any(sc => sc.StreamId == streamId) &&
-                    cs.Subject.IsActive)
-                .Select(cs => cs.Subject)
+            => await _db.Courses
+                .Where(c => c.StreamId == streamId && c.Subject.IsActive && c.IsActive)
+                .Select(c => c.Subject)
                 .Distinct()
                 .AsNoTracking()
                 .ToListAsync();
