@@ -14,7 +14,7 @@ namespace Winfocus.LMS.API.Controllers
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
-    public sealed class StateController : ControllerBase
+    public sealed class StateController : BaseController
     {
         private readonly IStateService _stateService;
 

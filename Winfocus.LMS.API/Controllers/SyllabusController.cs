@@ -13,7 +13,7 @@ namespace Winfocus.LMS.API.Controllers
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
-    public class SyllabusController : ControllerBase
+    public class SyllabusController : BaseController
     {
         private readonly ISyllabusService _syllabusService;
 
