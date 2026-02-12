@@ -69,9 +69,10 @@
         public async Task<IReadOnlyList<Course>> GetByStreamAsync(Guid streamId)
             => await _db.StreamCourses
                 .Where(sc => sc.StreamId == streamId && sc.Course.IsActive)
+                .Include(sc => sc.Course)
+                .ThenInclude(c => c.CourseSubjects)
+                .ThenInclude(cs => cs.Subject)
                 .Select(sc => sc.Course)
-                .Include(c => c.CourseSubjects)
-                    .ThenInclude(cs => cs.Subject)
                 .AsNoTracking()
                 .ToListAsync();
 
