@@ -12,7 +12,7 @@
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
-    public class CenterController : Controller
+    public class CenterController : BaseController
     {
         private readonly ICentreService _centerService;
 

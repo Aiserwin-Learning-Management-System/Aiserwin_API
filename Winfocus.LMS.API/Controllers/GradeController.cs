@@ -14,7 +14,7 @@ namespace Winfocus.LMS.API.Controllers
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
-    public class GradeController : ControllerBase
+    public class GradeController : BaseController
     {
         private readonly IGradeService _gradeService;
 

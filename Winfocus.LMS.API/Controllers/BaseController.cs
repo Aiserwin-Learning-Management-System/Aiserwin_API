@@ -24,13 +24,26 @@ namespace Winfocus.LMS.API.Controllers
         {
             get
             {
-                var userIdString =
-                    User?.FindFirst(JwtRegisteredClaimNames.Sub)?.Value ??
-                    User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (User?.Identity?.IsAuthenticated != true)
+                {
+                    throw new UnauthorizedAccessException("User is not authenticated.");
+                }
 
-                return Guid.TryParse(userIdString, out Guid userId)
-                    ? userId
-                    : Guid.Empty;
+                var userIdString =
+                    User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value ??
+                    User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                if (string.IsNullOrWhiteSpace(userIdString))
+                {
+                    throw new UnauthorizedAccessException("User ID claim is missing.");
+                }
+
+                if (!Guid.TryParse(userIdString, out Guid userId))
+                {
+                    throw new UnauthorizedAccessException("Invalid User ID claim.");
+                }
+
+                return userId;
             }
         }
     }
