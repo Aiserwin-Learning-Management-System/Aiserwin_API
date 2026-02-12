@@ -30,6 +30,7 @@
         {
             return await _db.Streams
                 .Include(x => x.Grade)
+                .Include(x => x.Courses)
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -43,6 +44,7 @@
         {
             return await _db.Streams
                 .Include(x => x.Grade)
+                .Include(x => x.Courses)
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
 
@@ -107,6 +109,7 @@
         {
             return await _db.Streams
                 .Include(x => x.Grade)
+                .Include(x => x.Courses)
                 .Where(x => x.GradeId == gradeid)
                 .ToListAsync();
         }
@@ -119,7 +122,7 @@
         public async Task<Streams?> GetByIdWithCoursesAsync(Guid id)
         {
             return await _db.Streams
-                .Include(x => x.StreamCourses)
+                .Include(x => x.Courses)
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
 

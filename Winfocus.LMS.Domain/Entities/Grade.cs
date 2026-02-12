@@ -27,5 +27,13 @@
         /// Gets or sets the identifier of the associated syllabus.
         /// </summary>
         public Syllabus Syllabus { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the stream.
+        /// </summary>
+        /// <value>
+        /// The stream.
+        /// </value>
+        public Streams Stream { get; set; } = null!;
     }
 }

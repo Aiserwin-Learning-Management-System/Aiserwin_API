@@ -29,8 +29,11 @@
         public Grade Grade { get; set; } = null!;
 
         /// <summary>
-        /// Gets or sets the collection of courses mapped to this Stream.
+        /// Gets or sets the courses.
         /// </summary>
-        public ICollection<StreamCourse> StreamCourses { get; set; } = new List<StreamCourse>();
+        /// <value>
+        /// The courses.
+        /// </value>
+        public ICollection<Course> Courses { get; set; } = new List<Course>();
     }
 }
