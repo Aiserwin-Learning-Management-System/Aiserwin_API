@@ -1,5 +1,6 @@
 ﻿namespace Winfocus.LMS.Api.Controllers
 {
+    using Asp.Versioning;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Winfocus.LMS.Application.DTOs.Auth;
@@ -9,7 +10,8 @@
     /// Handles authentication endpoints.
     /// </summary>
     [ApiController]
-    [Route("api/[controller]")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public sealed class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;

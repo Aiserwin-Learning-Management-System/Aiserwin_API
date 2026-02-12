@@ -1,3 +1,5 @@
+using Asp.Versioning;
+using Asp.Versioning.ApiExplorer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -16,9 +18,8 @@ using Winfocus.LMS.Infrastructure.Security;
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
 
-// =====================
-// Serilog Configuration
-// =====================
+#region Serilog Configuration
+
 Log.Logger = new LoggerConfiguration()
     .Enrich.FromLogContext()
     .WriteTo.Console()
@@ -32,9 +33,10 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog();
 
-// =====================
-// CORS Configuration 
-// =====================
+#endregion
+
+#region CORS
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularApp", policy =>
@@ -46,18 +48,20 @@ builder.Services.AddCors(options =>
     });
 });
 
-// =====================
-// Database
-// =====================
+#endregion
+
+#region Database
+
 if (!builder.Environment.IsEnvironment("Testing"))
 {
     builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseSqlServer(config.GetConnectionString("DefaultConnection")));
 }
 
-// =====================
-// Dependency Injection
-// =====================
+#endregion
+
+#region Dependency Injection
+
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, JwtTokenService>();
 
@@ -84,9 +88,10 @@ builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
-// =====================
-// JWT Authentication
-// =====================
+#endregion
+
+#region JWT Authentication
+
 var jwtKey = config["Jwt:Key"]
     ?? throw new InvalidOperationException("Jwt:Key is not configured.");
 
@@ -121,20 +126,48 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddAuthorization();
+
+#endregion
+
+#region Controllers
+
 builder.Services.AddControllers();
+
+#endregion
+
+#region API Versioning
+
+builder.Services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new ApiVersion(1, 0);
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ReportApiVersions = true;
+})
+.AddApiExplorer(options =>
+{
+    options.GroupNameFormat = "'v'VVV";
+    options.SubstituteApiVersionInUrl = true;
+});
+
+#endregion
+
+#region Swagger
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+#endregion
+
 var app = builder.Build();
 
-// =====================
-// Global Exception Middleware (FIRST)
-// =====================
+#region Global Exception Middleware
+
 app.UseMiddleware<GlobalExceptionMiddleware>();
 
-// =====================
-// Database Migration + Seeding
-// =====================
+#endregion
+
+#region Database Migration + Seeding
+
 if (!app.Environment.IsEnvironment("Testing"))
 {
     using var scope = app.Services.CreateScope();
@@ -154,22 +187,39 @@ if (!app.Environment.IsEnvironment("Testing"))
     }
 }
 
-// =====================
-// HTTP Pipeline
-// =====================
+#endregion
+
+#region Swagger UI
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+
+    var provider = app.Services
+        .GetRequiredService<IApiVersionDescriptionProvider>();
+
+    app.UseSwaggerUI(options =>
+    {
+        foreach (var description in provider.ApiVersionDescriptions)
+        {
+            options.SwaggerEndpoint(
+                $"/swagger/{description.GroupName}/swagger.json",
+                $"Winfocus LMS API {description.GroupName.ToUpper()}");
+        }
+    });
 }
 
-// =====================
-// CORS
-// =====================
+#endregion
+
+#region Pipeline
+
 app.UseCors("AllowAngularApp");
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+#endregion
+
 app.Run();
