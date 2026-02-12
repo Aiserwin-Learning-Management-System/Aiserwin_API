@@ -23,6 +23,11 @@
         /// <summary>
         /// Gets or sets the BatchTimingSunday associated with this mapping.
         /// </summary>
-        public BatchTimingSaturday BatchTimingSunday { get; set; } = null!;
+        public BatchTimingMTF BatchTimingMTFs { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the collection of courses mapped to this Stream.
+        /// </summary>
+        public ICollection<SubjectBatchTimingMTF> SubjectBatchTimingMTFs { get; set; } = new List<SubjectBatchTimingMTF>();
     }
 }

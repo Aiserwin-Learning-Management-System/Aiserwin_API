@@ -107,5 +107,23 @@ namespace Winfocus.LMS.API.Controllers
             var result = await _batchtimingService.GetBySubjectIdAsync(subjectid);
             return result == null ? NotFound() : Ok(result);
         }
+
+        /// <summary>
+        /// Creates the specified request.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <returns>result.</returns>
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        [HttpPost]
+        public async Task<IActionResult> BatchTimingSubjectCreate(
+            SubjectBatchTimingRequest request)
+        {
+            var updatedRequest = request with
+            {
+                userid = UserId
+            };
+            await _batchtimingService.BatchTimingSubjectCreate(updatedRequest);
+            return NoContent();
+        }
     }
 }

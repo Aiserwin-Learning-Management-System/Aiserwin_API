@@ -49,5 +49,12 @@
         /// <param name="subjectid">The identifier.</param>
         /// <returns>BatchTimingSaturdayDto.</returns>
         Task<List<BatchTimingSaturdayDto>> GetBySubjectIdAsync(Guid subjectid);
+
+        /// <summary>
+        /// Creates the asynchronous.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <returns>.</returns>
+        Task BatchTimingSubjectCreate(SubjectBatchTimingRequest request);
     }
 }

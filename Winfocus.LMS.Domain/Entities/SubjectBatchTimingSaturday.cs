@@ -24,5 +24,10 @@
         /// Gets or sets the BatchTimingSunday associated with this mapping.
         /// </summary>
         public BatchTimingSaturday BatchTimingSunday { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the collection of Subject to BatchTimingsaturday.
+        /// </summary>
+        public ICollection<SubjectBatchTimingSaturday> SubjectBatchTimingSaturdays { get; set; } = new List<SubjectBatchTimingSaturday>();
     }
 }

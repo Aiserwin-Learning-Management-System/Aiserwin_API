@@ -122,6 +122,28 @@
             return Map(batchTimings);
         }
 
+        /// <summary>
+        /// Creates the asynchronous.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <returns>BatchTimingMTFDto.</returns>
+        /// <exception cref="InvalidOperationException">batch code already exists. </exception>
+        public async Task BatchTimingSubjectCreate(SubjectBatchTimingRequest request)
+        {
+            var batchtiming = new SubjectBatchTimingMTF
+            {
+                SubjectId = request.subjectId,
+                SubjectBatchTimingMTFs = request.Batchtimingids
+                    .Distinct()
+                    .Select(id => new SubjectBatchTimingMTF { SubjectId = id })
+                    .ToList(),
+            };
+
+            await _repository.BatchTimingSubjectCreate(batchtiming);
+            _logger.LogInformation(
+           "Batch Timing for monaday to friday for subject created successfully.");
+        }
+
         private static List<BatchTimingMTFDto> Map(IEnumerable<BatchTimingMTF> batchTimingMTFs)
         {
             return batchTimingMTFs.Select(Map).ToList();

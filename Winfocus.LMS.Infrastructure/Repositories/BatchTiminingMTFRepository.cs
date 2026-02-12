@@ -106,5 +106,17 @@ namespace Winfocus.LMS.Infrastructure.Repositories
                 .Where(x => x.SubjectId == subjectid)
                 .ToListAsync();
         }
+
+        /// <summary>
+        /// Adds the asynchronous.
+        /// </summary>
+        /// <param name="batchtiming">The country.</param>
+        /// <returns>country.</returns>
+        public async Task<SubjectBatchTimingMTF> BatchTimingSubjectCreate(SubjectBatchTimingMTF batchtiming)
+        {
+            _dbContext.SubjectBatchTimingMTFs.Add(batchtiming);
+            await _dbContext.SaveChangesAsync();
+            return batchtiming;
+        }
     }
 }

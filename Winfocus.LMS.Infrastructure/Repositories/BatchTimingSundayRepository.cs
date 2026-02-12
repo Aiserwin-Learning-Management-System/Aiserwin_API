@@ -108,5 +108,17 @@ namespace Winfocus.LMS.Infrastructure.Repositories
                 .Where(x => x.SubjectId == subjectid)
                 .ToListAsync();
         }
+
+        /// <summary>
+        /// Adds the asynchronous.
+        /// </summary>
+        /// <param name="batchtiming">The batchtiming.</param>
+        /// <returns>.</returns>
+        public async Task<SubjectBatchTimingSunday> BatchTimingSubjectCreate(SubjectBatchTimingSunday batchtiming)
+        {
+            _dbContext.SubjectBatchTimingSundays.Add(batchtiming);
+            await _dbContext.SaveChangesAsync();
+            return batchtiming;
+        }
     }
 }

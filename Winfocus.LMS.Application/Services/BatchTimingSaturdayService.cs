@@ -125,6 +125,27 @@ namespace Winfocus.LMS.Application.Services
             return Map(batchTimings);
         }
 
+        /// <summary>
+        /// Creates the asynchronous.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <returns>.</returns>
+        public async Task BatchTimingSubjectCreate(SubjectBatchTimingRequest request)
+        {
+            var batchtiming = new SubjectBatchTimingSaturday
+            {
+                SubjectId = request.subjectId,
+                SubjectBatchTimingSaturdays = request.Batchtimingids
+                    .Distinct()
+                    .Select(id => new SubjectBatchTimingSaturday { SubjectId = id })
+                    .ToList(),
+            };
+
+            await _repository.BatchTimingSubjectCreate(batchtiming);
+            _logger.LogInformation(
+           "Batch Timing for monaday to friday for subject created successfully.");
+        }
+
         private static List<BatchTimingSaturdayDto> Map(IEnumerable<BatchTimingSaturday> batchTimingMTFs)
         {
             return batchTimingMTFs.Select(Map).ToList();
