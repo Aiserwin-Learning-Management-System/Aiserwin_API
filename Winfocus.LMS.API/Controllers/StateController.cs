@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Asp.Versioning;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Winfocus.LMS.Application.DTOs;
 using Winfocus.LMS.Application.DTOs.Masters;
@@ -11,8 +12,9 @@ namespace Winfocus.LMS.API.Controllers
     /// Handles authentication endpoints.
     /// </summary>
     [ApiController]
-    [Route("api/[controller]")]
-    public sealed class StateController : BaseController
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
+    public sealed class StateController : ControllerBase
     {
         private readonly IStateService _stateService;
 
