@@ -22,5 +22,10 @@
     /// <summary>
     /// Gets the list of Course identifiers to be mapped to the Stream.
     /// </summary>
-    List<Guid> courseids);
+    List<Guid> courseids,
+
+        /// <summary>
+        /// Gets the identifier of the Grade associated with the user.
+        /// </summary>
+    Guid userId);
 }

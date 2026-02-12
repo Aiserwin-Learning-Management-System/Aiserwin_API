@@ -5,5 +5,5 @@
     /// </summary>
     public sealed record ModeOfStudyRequest(
         string name,
-        string code, Guid stateid);
+        string code, Guid stateid, Guid userId);
 }

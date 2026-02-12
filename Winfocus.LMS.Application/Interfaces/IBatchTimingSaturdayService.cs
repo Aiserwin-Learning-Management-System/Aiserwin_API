@@ -4,29 +4,29 @@
     using Winfocus.LMS.Application.DTOs.Masters;
 
     /// <summary>
-    /// ISyllabusService.
+    /// Defines business operations for <see cref="BatchTimingSaturday"/> entities.
     /// </summary>
-    public interface ISyllabusService
+    public interface IBatchTimingSaturdayService
     {
         /// <summary>
         /// Gets all asynchronous.
         /// </summary>
-        /// <returns>SyllabusDto.</returns>
-        Task<IReadOnlyList<SyllabusDto>> GetAllAsync();
+        /// <returns>BatchTimingSaturdayDto.</returns>
+        Task<IReadOnlyList<BatchTimingSaturdayDto>> GetAllAsync();
 
         /// <summary>
         /// Gets the by identifier asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
-        /// <returns>SyllabusDto.</returns>
-        Task<SyllabusDto?> GetByIdAsync(Guid id);
+        /// <returns>BatchTimingSaturdayDto.</returns>
+        Task<BatchTimingSaturdayDto?> GetByIdAsync(Guid id);
 
         /// <summary>
         /// Creates the asynchronous.
         /// </summary>
         /// <param name="request">The request.</param>
-        /// <returns>SyllabusDto.</returns>
-        Task<SyllabusDto> CreateAsync(SyllabusRequest request);
+        /// <returns>BatchTimingSaturdayDto.</returns>
+        Task<BatchTimingSaturdayDto> CreateAsync(BatchTimingRequest request);
 
         /// <summary>
         /// Updates the asynchronous.
@@ -34,7 +34,7 @@
         /// <param name="id">The identifier.</param>
         /// <param name="request">The request.</param>
         /// <returns>id.</returns>
-        Task UpdateAsync(Guid id, SyllabusRequest request);
+        Task UpdateAsync(Guid id, BatchTimingRequest request);
 
         /// <summary>
         /// Deletes the asynchronous.
@@ -46,8 +46,15 @@
         /// <summary>
         /// Gets the by identifier asynchronous.
         /// </summary>
-        /// <param name="centerid">The identifier.</param>
-        /// <returns>SyllabusDto.</returns>
-        Task<List<SyllabusDto>> GetByCenterIdAsync(Guid centerid);
+        /// <param name="subjectid">The identifier.</param>
+        /// <returns>BatchTimingSaturdayDto.</returns>
+        Task<List<BatchTimingSaturdayDto>> GetBySubjectIdAsync(Guid subjectid);
+
+        /// <summary>
+        /// Creates the asynchronous.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <returns>.</returns>
+        Task BatchTimingSubjectCreate(SubjectBatchTimingRequest request);
     }
 }

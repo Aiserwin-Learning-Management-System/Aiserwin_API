@@ -44,7 +44,11 @@ namespace Winfocus.LMS.API.Controllers
         public async Task<ActionResult<SyllabusDto>> Create(
             SyllabusRequest request)
         {
-            var created = await _syllabusService.CreateAsync(request);
+            var updatedRequest = request with
+            {
+                userId = UserId
+            };
+            var created = await _syllabusService.CreateAsync(updatedRequest);
             return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
         }
 
@@ -72,7 +76,11 @@ namespace Winfocus.LMS.API.Controllers
             Guid id,
             SyllabusRequest request)
         {
-            await _syllabusService.UpdateAsync(id, request);
+            var updatedRequest = request with
+            {
+                userId = UserId
+            };
+            await _syllabusService.UpdateAsync(id, updatedRequest);
             return NoContent();
         }
 
@@ -82,7 +90,7 @@ namespace Winfocus.LMS.API.Controllers
         /// <param name="centerid">The identifier.</param>
         /// <returns>SyllabusDto by id.</returns>
         [HttpGet("by-center/{centerid:guid}")]
-        public async Task<ActionResult<SyllabusDto>> GetByCountryId(Guid centerid)
+        public async Task<ActionResult<SyllabusDto>> GetByCenterId(Guid centerid)
         {
             var result = await _syllabusService.GetByCenterIdAsync(centerid);
             return result == null ? NotFound() : Ok(result);

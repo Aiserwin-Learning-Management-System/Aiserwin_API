@@ -5,6 +5,7 @@ using Winfocus.LMS.Application.DTOs;
 using Winfocus.LMS.Application.DTOs.Masters;
 using Winfocus.LMS.Application.Interfaces;
 using Winfocus.LMS.Application.Services;
+using Winfocus.LMS.Domain.Entities;
 
 namespace Winfocus.LMS.API.Controllers
 {
@@ -45,7 +46,11 @@ namespace Winfocus.LMS.API.Controllers
         public async Task<ActionResult<StreamDto>> Create(
             StreamRequest request)
         {
-            var created = await _streamService.CreateAsync(request);
+            var updatedRequest = request with
+            {
+                userId = UserId
+            };
+            var created = await _streamService.CreateAsync(updatedRequest);
             return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
         }
 
@@ -73,7 +78,11 @@ namespace Winfocus.LMS.API.Controllers
             Guid id,
             StreamRequest request)
         {
-            await _streamService.UpdateAsync(id, request);
+            var updatedRequest = request with
+            {
+                userId = UserId
+            };
+            await _streamService.UpdateAsync(id, updatedRequest);
             return NoContent();
         }
 
@@ -83,7 +92,7 @@ namespace Winfocus.LMS.API.Controllers
         /// <param name="gradeid">The identifier.</param>
         /// <returns>StreamDto by id.</returns>
         [HttpGet("by-grade/{gradeid:guid}")]
-        public async Task<ActionResult<StreamDto>> GetByCountryId(Guid gradeid)
+        public async Task<ActionResult<StreamDto>> GetByGradeId(Guid gradeid)
         {
             var result = await _streamService.GetByGradeIdAsync(gradeid);
             return result == null ? NotFound() : Ok(result);

@@ -3,7 +3,6 @@
     /// <summary>
     /// Request for creating or updating a country.
     /// </summary>
-    public sealed record class CreateMasterStateRequest
-    (string name,
-        string code, Guid countryid, Guid userId);
+    public sealed record BatchTimingRequest(DateTime batchTime,
+        Guid subjectId, Guid userId);
 }

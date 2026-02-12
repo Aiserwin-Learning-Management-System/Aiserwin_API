@@ -45,7 +45,11 @@ namespace Winfocus.LMS.API.Controllers
         public async Task<ActionResult<ModeOfStudyDto>> Create(
             ModeOfStudyRequest request)
         {
-            var created = await _modeofstudyService.CreateAsync(request);
+            var updatedRequest = request with
+            {
+                userId = UserId
+            };
+            var created = await _modeofstudyService.CreateAsync(updatedRequest);
             return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
         }
 
@@ -73,7 +77,11 @@ namespace Winfocus.LMS.API.Controllers
             Guid id,
             ModeOfStudyRequest request)
         {
-            await _modeofstudyService.UpdateAsync(id, request);
+            var updatedRequest = request with
+            {
+                userId = UserId
+            };
+            await _modeofstudyService.UpdateAsync(id, updatedRequest);
             return NoContent();
         }
 

@@ -5,5 +5,5 @@
     /// </summary>
     public sealed record GradeRequest(
         string name,
-        string code, Guid syllabusid);
+        string code, Guid syllabusid, Guid userId);
 }

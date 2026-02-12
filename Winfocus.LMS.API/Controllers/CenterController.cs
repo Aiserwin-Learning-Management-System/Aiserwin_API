@@ -55,7 +55,11 @@
         public async Task<ActionResult<CentreDto>> Create(
             CenterRequestDto request)
         {
-            var created = await _centerService.CreateAsync(request);
+            var updatedRequest = request with
+            {
+                userId = UserId
+            };
+            var created = await _centerService.CreateAsync(updatedRequest);
             return CreatedAtAction(nameof(Get), new { id = created.id }, created);
         }
 
@@ -71,7 +75,11 @@
             Guid id,
             CenterRequestDto request)
         {
-            await _centerService.UpdateAsync(id, request);
+            var updatedRequest = request with
+            {
+                userId = UserId
+            };
+            await _centerService.UpdateAsync(id, updatedRequest);
             return NoContent();
         }
 

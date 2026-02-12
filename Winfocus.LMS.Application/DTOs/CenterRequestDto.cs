@@ -5,5 +5,5 @@
     /// </summary>
     public sealed record CenterRequestDto(
         string name,
-        string code, Guid modeofstudy);
+        string code, Guid modeofstudy, Guid userId);
 }

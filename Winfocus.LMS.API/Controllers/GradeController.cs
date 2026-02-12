@@ -45,7 +45,11 @@ namespace Winfocus.LMS.API.Controllers
         public async Task<ActionResult<GradeDto>> Create(
             GradeRequest request)
         {
-            var created = await _gradeService.CreateAsync(request);
+            var updatedRequest = request with
+            {
+                userId = UserId
+            };
+            var created = await _gradeService.CreateAsync(updatedRequest);
             return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
         }
 
@@ -73,7 +77,11 @@ namespace Winfocus.LMS.API.Controllers
             Guid id,
             GradeRequest request)
         {
-            await _gradeService.UpdateAsync(id, request);
+            var updatedRequest = request with
+            {
+                userId = UserId
+            };
+            await _gradeService.UpdateAsync(id, updatedRequest);
             return NoContent();
         }
 

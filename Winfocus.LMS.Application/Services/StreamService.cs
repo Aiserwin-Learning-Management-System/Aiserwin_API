@@ -74,8 +74,8 @@
                 StreamName = request.name,
                 StreamCode = request.code,
                 CreatedAt = DateTime.UtcNow,
+                CreatedBy = request.userId,
                 GradeId = request.gradeid,
-
                 StreamCourses = request.courseids?
                     .Select(courseId => new StreamCourse
                     {
@@ -107,6 +107,7 @@
             stream.StreamName = request.name;
             stream.StreamCode = request.code;
             stream.GradeId = request.gradeid;
+            stream.UpdatedBy = request.userId;
             stream.UpdatedAt = DateTime.UtcNow;
 
             var requestedCourseIds = request.courseids?
@@ -176,6 +177,10 @@
          StreamName = c.StreamName,
          StreamCode = c.StreamCode,
          GradeId = c.GradeId,
+         CreatedBy = c.CreatedBy,
+         CreatedAt = c.CreatedAt,
+         UpdatedBy = c.UpdatedBy,
+         UpdatedAt = c.UpdatedAt,
          Grade = c.Grade == null ? null : new GradeDto
          {
              Id = c.Grade.Id,

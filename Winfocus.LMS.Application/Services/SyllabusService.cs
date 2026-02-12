@@ -70,6 +70,7 @@ namespace Winfocus.LMS.Application.Services
                 SyllabusName = request.name,
                 SyllabusCode = request.code,
                 CreatedAt = DateTime.UtcNow,
+                CreatedBy = request.userId,
                 CenterId = request.centerid,
             };
 
@@ -91,6 +92,7 @@ namespace Winfocus.LMS.Application.Services
 
             syllabus.SyllabusName = request.name;
             syllabus.SyllabusCode = request.code;
+            syllabus.UpdatedBy = request.userId;
             syllabus.UpdatedAt = DateTime.UtcNow;
 
             await _repository.UpdateAsync(syllabus);
@@ -122,7 +124,6 @@ namespace Winfocus.LMS.Application.Services
             return syllabuses.Select(Map).ToList();
         }
 
-
         private static SyllabusDto Map(Syllabus c) =>
      new SyllabusDto
      {
@@ -130,6 +131,10 @@ namespace Winfocus.LMS.Application.Services
          SyllabusName = c.SyllabusName,
          SyllabusCode = c.SyllabusCode,
          CenterId = c.CenterId,
+         CreatedBy = c.CreatedBy,
+         CreatedAt = c.CreatedAt,
+         UpdatedBy = c.UpdatedBy,
+         UpdatedAt = c.UpdatedAt,
          Center = c.Center == null ? null : new CenterDto1
          {
              Id = c.Center.Id,

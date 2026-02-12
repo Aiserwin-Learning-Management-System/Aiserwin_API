@@ -1,14 +1,11 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Winfocus.LMS.Application.DTOs;
-using Winfocus.LMS.Application.DTOs.Masters;
-using Winfocus.LMS.Application.Interfaces;
-using Winfocus.LMS.Domain.Entities;
-
-namespace Winfocus.LMS.Application.Services
+﻿namespace Winfocus.LMS.Application.Services
 {
+    using Microsoft.Extensions.Logging;
+    using Winfocus.LMS.Application.DTOs;
+    using Winfocus.LMS.Application.DTOs.Masters;
+    using Winfocus.LMS.Application.Interfaces;
+    using Winfocus.LMS.Domain.Entities;
+
     /// <summary>
     /// GradeService.
     /// </summary>
@@ -70,6 +67,7 @@ namespace Winfocus.LMS.Application.Services
                 GradeName = request.name,
                 GradeCode = request.code,
                 CreatedAt = DateTime.UtcNow,
+                CreatedBy = request.userId,
                 SyllabusId = request.syllabusid,
             };
 
@@ -91,6 +89,7 @@ namespace Winfocus.LMS.Application.Services
 
             grade.GradeName = request.name;
             grade.GradeCode = request.code;
+            grade.UpdatedBy = request.userId;
             grade.UpdatedAt = DateTime.UtcNow;
 
             await _repository.UpdateAsync(grade);
@@ -122,7 +121,6 @@ namespace Winfocus.LMS.Application.Services
             return grades.Select(Map).ToList();
         }
 
-
         private static GradeDto Map(Grade c) =>
      new GradeDto
      {
@@ -130,6 +128,10 @@ namespace Winfocus.LMS.Application.Services
          GradeName = c.GradeName,
          GradeCode = c.GradeCode,
          SyllabusId = c.SyllabusId,
+         UpdatedBy = c.UpdatedBy,
+         UpdatedAt = c.UpdatedAt,
+         CreatedBy = c.CreatedBy,
+         CreatedAt = c.CreatedAt,
          Syllabus = c.Syllabus == null ? null : new SyllabusDto
          {
              Id = c.Syllabus.Id,
@@ -138,6 +140,5 @@ namespace Winfocus.LMS.Application.Services
              CenterId = c.Syllabus.CenterId,
          },
      };
-
-    }
+}
 }

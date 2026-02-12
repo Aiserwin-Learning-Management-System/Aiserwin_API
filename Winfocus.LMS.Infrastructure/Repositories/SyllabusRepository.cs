@@ -113,6 +113,5 @@ namespace Winfocus.LMS.Infrastructure.Repositories
                 .Where(x => x.CenterId == centerid)
                 .ToListAsync();
         }
-
     }
 }

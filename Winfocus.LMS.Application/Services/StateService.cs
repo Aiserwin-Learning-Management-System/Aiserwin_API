@@ -1,14 +1,11 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Winfocus.LMS.Application.DTOs;
-using Winfocus.LMS.Application.DTOs.Masters;
-using Winfocus.LMS.Application.Interfaces;
-using Winfocus.LMS.Domain.Entities;
-
-namespace Winfocus.LMS.Application.Services
+﻿namespace Winfocus.LMS.Application.Services
 {
+    using Microsoft.Extensions.Logging;
+    using Winfocus.LMS.Application.DTOs;
+    using Winfocus.LMS.Application.DTOs.Masters;
+    using Winfocus.LMS.Application.Interfaces;
+    using Winfocus.LMS.Domain.Entities;
+
     /// <summary>
     /// Provides business operations for <see cref="State"/> entities.
     /// </summary>
@@ -87,6 +84,8 @@ namespace Winfocus.LMS.Application.Services
                 StateName = request.name,
                 StateCode = request.code,
                 CountryId = request.countryid,
+                CreatedBy = request.userId,
+                CreatedAt = DateTime.UtcNow,
             };
 
             var created = await _repository.AddAsync(state);
@@ -112,6 +111,8 @@ namespace Winfocus.LMS.Application.Services
 
             state.StateName = request.name;
             state.StateCode = request.code;
+            state.UpdatedBy = request.userId;
+            state.UpdatedAt = DateTime.UtcNow;
 
             await _repository.UpdateAsync(state);
             _logger.LogInformation(
@@ -163,6 +164,10 @@ namespace Winfocus.LMS.Application.Services
           StateName = c.StateName,
           StateCode = c.StateCode,
           CountryId = c.CountryId,
+          CreatedBy = c.CreatedBy,
+          CreatedAt = c.CreatedAt,
+          UpdatedAt = c.UpdatedAt,
+          UpdatedBy = c.UpdatedBy,
           Country = c.Country == null ? null : new CountryDto(
               c.Country.Id,
               c.Country.Name,

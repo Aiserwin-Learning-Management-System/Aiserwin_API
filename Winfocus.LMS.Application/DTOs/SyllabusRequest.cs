@@ -5,5 +5,5 @@
     /// </summary>
     public sealed record SyllabusRequest(
         string name,
-        string code, Guid centerid);
+        string code, Guid centerid, Guid userId);
 }

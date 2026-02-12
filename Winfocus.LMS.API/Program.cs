@@ -85,6 +85,12 @@ builder.Services.AddScoped<ISubjectService, SubjectService>();
 builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
+builder.Services.AddScoped<IBatchTimingSundayService, BatchTimingSundayService>();
+builder.Services.AddScoped<IBatchTimingSundayRepository, BatchTimingSundayRepository>();
+builder.Services.AddScoped<IBatchTimingSaturdayService, BatchTimingSaturdayService>();
+builder.Services.AddScoped<IBatchTimingSaturdayRepository, BatchTimingSaturdayRepository>();
+builder.Services.AddScoped<IBatchTimingMTFService, BatchTimingMTFService>();
+builder.Services.AddScoped<IBatchTimingMTFRepository, BatchTiminingMTFRepository>();
 
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 

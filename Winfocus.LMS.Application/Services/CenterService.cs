@@ -81,6 +81,7 @@ namespace Winfocus.LMS.Application.Services
                 Name = request.name,
                 Code = request.code,
                 CreatedAt = DateTime.UtcNow,
+                CreatedBy = request.userId,
                 ModeOfStudyId = request.modeofstudy,
             };
 
@@ -105,6 +106,7 @@ namespace Winfocus.LMS.Application.Services
             center.Name = request.name;
             center.Code = request.code;
             center.UpdatedAt = DateTime.UtcNow;
+            center.UpdatedBy = request.userId;
 
             await _repository.UpdateAsync(center);
             _logger.LogInformation("Centre updated successfully. CentreId: {CentreId}", id);

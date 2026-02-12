@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Winfocus.LMS.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using Winfocus.LMS.Infrastructure.Data;
 namespace Winfocus.LMS.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260210105432_subjectBatchtiming_tables")]
+    partial class subjectBatchtiming_tables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -308,21 +311,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.ToTable("Courses");
                 });
 
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.CourseSubject", b =>
-                {
-                    b.Property<Guid>("CourseId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("SubjectId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("CourseId", "SubjectId");
-
-                    b.HasIndex("SubjectId");
-
-                    b.ToTable("CourseSubjects");
-                });
-
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.Grade", b =>
                 {
                     b.Property<Guid>("Id")
@@ -518,7 +506,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
 
                     b.HasIndex("CourseId");
 
-                    b.ToTable("StreamCourses");
+                    b.ToTable("StreamCourse");
                 });
 
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.Streams", b =>
@@ -818,6 +806,9 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("CourseId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -842,6 +833,8 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CourseId");
 
                     b.ToTable("Subjects");
                 });
@@ -1078,25 +1071,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.Navigation("Stream");
                 });
 
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.CourseSubject", b =>
-                {
-                    b.HasOne("Winfocus.LMS.Domain.Entities.Course", "Course")
-                        .WithMany("CourseSubjects")
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Winfocus.LMS.Domain.Entities.Subject", "Subject")
-                        .WithMany("CourseSubjects")
-                        .HasForeignKey("SubjectId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Course");
-
-                    b.Navigation("Subject");
-                });
-
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.Grade", b =>
                 {
                     b.HasOne("Winfocus.LMS.Domain.Entities.Syllabus", "Syllabus")
@@ -1146,13 +1120,13 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.HasOne("Winfocus.LMS.Domain.Entities.Course", "Course")
                         .WithMany("StreamCourses")
                         .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Winfocus.LMS.Domain.Entities.Streams", "Stream")
                         .WithMany("StreamCourses")
                         .HasForeignKey("StreamId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Course");
@@ -1410,8 +1384,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
 
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.Course", b =>
                 {
-                    b.Navigation("CourseSubjects");
-
                     b.Navigation("StreamCourses");
                 });
 
@@ -1423,11 +1395,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.Streams", b =>
                 {
                     b.Navigation("StreamCourses");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.Subject", b =>
-                {
-                    b.Navigation("CourseSubjects");
                 });
 
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.User", b =>
