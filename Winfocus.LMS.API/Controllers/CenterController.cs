@@ -1,5 +1,6 @@
 ﻿namespace Winfocus.LMS.API.Controllers
 {
+    using Asp.Versioning;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Winfocus.LMS.Application.DTOs;
@@ -9,7 +10,8 @@
     /// Handles authentication endpoints.
     /// </summary>
     [ApiController]
-    [Route("api/[controller]")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public class CenterController : Controller
     {
         private readonly ICentreService _centerService;

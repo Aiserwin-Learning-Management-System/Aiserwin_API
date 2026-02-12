@@ -1,5 +1,6 @@
 ﻿namespace Winfocus.LMS.API.Controllers
 {
+    using Asp.Versioning;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Winfocus.LMS.Application.DTOs;
@@ -11,7 +12,8 @@
     /// </summary>
     /// <seealso cref="Microsoft.AspNetCore.Mvc.ControllerBase" />
     [ApiController]
-    [Route("api/[controller]")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public class SubjectController : ControllerBase
     {
         private readonly ISubjectService _service;
