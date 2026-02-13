@@ -49,10 +49,24 @@ namespace Winfocus.LMS.API.Controllers
         /// <returns>StudentDto.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPost]
-        public async Task<ActionResult<StudentDto>> Create(StudentDto request)
+        public async Task<ActionResult<StudentDto>> Create(StudentRequest request)
         {
-            request.Userid = UserId;
-            var created = await _studentService.CreateAsync(request);
+           // request.Userid = UserId;
+            var academicDetails = await _studentAcademicdetailsService.CreateAsync(request.academicdetails);
+            var personalDetails = await _studentPersonaldetailsService.CreateAsync(request.personaldetails);
+            var uploaddocDetails = await _studentAcademicdetailsService.AddUploadedDocuments(request.docdetails);
+            StudentDto studentDto = new StudentDto
+            {
+                StudentAcademicId = academicDetails.Data.Id,
+                AcademicDetails = academicDetails.Data,
+                StudentPersonalId = personalDetails.Data.Id,
+                PersonalDetails = personalDetails.Data,
+                StudentDocumentsId = uploaddocDetails.Data.Id,
+                StudentDocuments = uploaddocDetails.Data,
+                Userid = UserId,
+            };
+
+            var created = await _studentService.CreateAsync(studentDto);
             return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
         }
 

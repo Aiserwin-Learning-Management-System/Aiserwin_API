@@ -9,9 +9,9 @@ using Winfocus.LMS.Infrastructure.Data;
 namespace Winfocus.LMS.Infrastructure.Repositories
 {
     /// <summary>
-    /// Provides data access operations for <see cref="StudentPersonaldetails"/> entities.
+    /// Provides data access operations for <see cref="Student"/> entities.
     /// </summary>
-    public sealed class StudentPersonaldetailsRepository : IStudentPersonaldetailsRepository
+    public sealed class StudentRepository : IStudentRepository
     {
         /// <summary>
         /// The application database context used to access persistence.
@@ -19,10 +19,10 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         private readonly AppDbContext _dbContext;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="StudentPersonaldetailsRepository"/> class.
+        /// Initializes a new instance of the <see cref="StudentRepository"/> class.
         /// </summary>
         /// <param name="dbContext">The database context.</param>
-        public StudentPersonaldetailsRepository(AppDbContext dbContext)
+        public StudentRepository(AppDbContext dbContext)
         {
             _dbContext = dbContext;
         }
@@ -30,10 +30,10 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// <summary>
         /// Gets all asynchronous.
         /// </summary>
-        /// <returns>StudentPersonalDetails list.</returns>
-        public async Task<IReadOnlyList<StudentPersonalDetails>> GetAllAsync()
+        /// <returns>Student list.</returns>
+        public async Task<IReadOnlyList<Student>> GetAllAsync()
         {
-            return await _dbContext.StudentPersonalDetails
+            return await _dbContext.Students
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -42,35 +42,35 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// Gets the by identifier asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
-        /// <returns>StudentPersonalDetails.</returns>
-        public async Task<StudentPersonalDetails?> GetByIdAsync(Guid id)
+        /// <returns>Student.</returns>
+        public async Task<Student?> GetByIdAsync(Guid id)
         {
-            return await _dbContext.StudentPersonalDetails
+            return await _dbContext.Students
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
 
         /// <summary>
         /// Adds the asynchronous.
         /// </summary>
-        /// <param name="studentPersonalDetails">The studentAcademicDetails.</param>
-        /// <returns>studentPersonalDetails.</returns>
-        public async Task<StudentPersonalDetails> AddAsync(StudentPersonalDetails studentPersonalDetails)
+        /// <param name="student">The student.</param>
+        /// <returns>Student.</returns>
+        public async Task<Student> AddAsync(Student student)
         {
-            studentPersonalDetails.CreatedAt = DateTime.UtcNow;
-            _dbContext.StudentPersonalDetails.Add(studentPersonalDetails);
+            student.CreatedAt = DateTime.UtcNow;
+            _dbContext.Students.Add(student);
             await _dbContext.SaveChangesAsync();
-            return studentPersonalDetails;
+            return student;
         }
 
         /// <summary>
         /// Updates the asynchronous.
         /// </summary>
-        /// <param name="studentPersonalDetails">The studentPersonalDetails.</param>
+        /// <param name="student">The student.</param>
         /// <returns>task.</returns>
-        public async Task UpdateAsync(StudentPersonalDetails studentPersonalDetails)
+        public async Task UpdateAsync(Student student)
         {
-            studentPersonalDetails.UpdatedAt = DateTime.UtcNow;
-            _dbContext.StudentPersonalDetails.Update(studentPersonalDetails);
+            student.UpdatedAt = DateTime.UtcNow;
+            _dbContext.Students.Update(student);
             await _dbContext.SaveChangesAsync();
         }
 
@@ -81,7 +81,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// <returns>task.</returns>
         public async Task DeleteAsync(Guid id)
         {
-            var entity = await _dbContext.StudentPersonalDetails.FindAsync(id);
+            var entity = await _dbContext.Students.FindAsync(id);
             if (entity == null)
             {
                 return;
@@ -89,7 +89,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
 
             entity.IsActive = false;
 
-            _dbContext.StudentPersonalDetails.Update(entity);
+            _dbContext.Students.Update(entity);
             await _dbContext.SaveChangesAsync();
         }
     }

@@ -60,7 +60,7 @@ namespace Winfocus.LMS.Application.Services
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>StudentPersonaldetailsdto.</returns>
-        public async Task<StudentPersonaldetailsdto> CreateAsync(StudentPersonaldetailsRequest request)
+        public async Task<CommonResponse<StudentPersonaldetailsdto>> CreateAsync(StudentPersonaldetailsRequest request)
         {
             var studentPersonalDetails = new StudentPersonalDetails
             {
@@ -79,7 +79,11 @@ namespace Winfocus.LMS.Application.Services
             _logger.LogInformation(
            "State created successfully. StateId: {StateId}",
            created.Id);
-            return Map(created);
+
+            var dto = Map(created);
+
+            return CommonResponse<StudentPersonaldetailsdto>
+                .SuccessResponse("Student personal details created successfully", dto);
         }
 
         /// <summary>

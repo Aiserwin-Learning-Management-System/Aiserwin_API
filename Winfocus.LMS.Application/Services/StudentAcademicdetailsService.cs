@@ -87,36 +87,50 @@ namespace Winfocus.LMS.Application.Services
         /// <param name="request">The request.</param>
         /// <returns>StateDto.</returns>
         /// <exception cref="InvalidOperationException">State code already exists. </exception>
-        public async Task<StudentAcademicdetailsDto> CreateAsync(StudentAcademicdetailsRequest request)
+        public async Task<CommonResponse<StudentAcademicdetailsDto>> CreateAsync(StudentAcademicdetailsRequest request)
         {
-            var countryTask = _countryRepository.GetByIdAsync(request.countryId);
-            var stateTask = _stateRepository.GetByIdAsync(request.stateId);
-            var modeOfStudyTask = _modeOfStudyRepository.GetByIdAsync(request.modeOfStudyId);
-            var centerTask = _centerRepository.GetByIdAsync(request.centerId);
-            var syllabusTask = _syllabusRepository.GetByIdAsync(request.syllabusId);
-            var gradeTask = _gradeRepository.GetByIdAsync(request.gradeId);
-            var streamTask = _streamRepository.GetByIdAsync(request.streamId);
+            var country = await _countryRepository.GetByIdAsync(request.countryId);
+            if (country == null)
+                return CommonResponse<StudentAcademicdetailsDto>
+                    .FailureResponse("Country not found");
 
-            await Task.WhenAll(
-                countryTask,
-                stateTask,
-                modeOfStudyTask,
-                centerTask,
-                syllabusTask,
-                gradeTask,
-                streamTask
-            );
-
-            var country = await countryTask ?? throw new InvalidOperationException("Country not found");
             if (!country.IsActive)
-                throw new InvalidOperationException("Cannot create with inactive country");
+                return CommonResponse<StudentAcademicdetailsDto>
+                    .FailureResponse("Cannot create with inactive country");
 
-            _ = await stateTask ?? throw new InvalidOperationException("State not found");
-            _ = await modeOfStudyTask ?? throw new InvalidOperationException("Mode of study not found");
-            _ = await centerTask ?? throw new InvalidOperationException("Center not found");
-            _ = await syllabusTask ?? throw new InvalidOperationException("Syllabus not found");
-            _ = await gradeTask ?? throw new InvalidOperationException("Grade not found");
-            _ = await streamTask ?? throw new InvalidOperationException("Stream not found");
+            var state = await _stateRepository.GetByIdAsync(request.stateId);
+            if (state == null)
+                return CommonResponse<StudentAcademicdetailsDto>
+                    .FailureResponse("State not found");
+
+            var modeOfStudy = await _modeOfStudyRepository.GetByIdAsync(request.modeOfStudyId);
+            if (modeOfStudy == null)
+                return CommonResponse<StudentAcademicdetailsDto>
+                    .FailureResponse("Mode of study not found");
+
+            var center = await _centerRepository.GetByIdAsync(request.centerId);
+            if (center == null)
+                return CommonResponse<StudentAcademicdetailsDto>
+                    .FailureResponse("Center not found");
+
+
+            var syllabus = await _syllabusRepository.GetByIdAsync(request.syllabusId);
+            if (syllabus == null)
+                return CommonResponse<StudentAcademicdetailsDto>
+                    .FailureResponse("Syllabus not found");
+
+
+            var grade = await _gradeRepository.GetByIdAsync(request.gradeId);
+            if (grade == null)
+                return CommonResponse<StudentAcademicdetailsDto>
+                    .FailureResponse("Grade not found");
+
+
+            var stream = await _streamRepository.GetByIdAsync(request.streamId);
+            if (stream == null)
+                return CommonResponse<StudentAcademicdetailsDto>
+                    .FailureResponse("Stream not found");
+
 
             var academicDetails = new StudentAcademicDetails
             {
@@ -141,7 +155,10 @@ namespace Winfocus.LMS.Application.Services
                 "Student academic details created successfully. Id: {Id}",
                 created.Id);
 
-            return Map(created);
+            var dto = Map(created);
+
+            return CommonResponse<StudentAcademicdetailsDto>
+                .SuccessResponse("Student academic details created successfully", dto);
         }
 
         /// <summary>
@@ -234,7 +251,7 @@ namespace Winfocus.LMS.Application.Services
         /// <param name="request">The request.</param>
         /// <returns>StudentDocumentsDto.</returns>
         /// <exception cref="InvalidOperationException">State code already exists. </exception>
-        public async Task<StudentDocumentsDto> AddUploadedDocuments(StudentUploaddocumetsRequest request)
+        public async Task<CommonResponse<StudentDocumentsDto>> AddUploadedDocuments(StudentUploaddocumetsRequest request)
         {
             var studentDocuments = new StudentDocuments
             {
@@ -250,7 +267,10 @@ namespace Winfocus.LMS.Application.Services
                 "Student details created successfully. Id: {Id}",
                 created.Id);
 
-            return MapDocs(created);
+            var dto = MapDocs(created);
+
+            return CommonResponse<StudentDocumentsDto>
+                .SuccessResponse("Student academic details created successfully", dto);
         }
 
         private static StudentDocumentsDto MapDocs(StudentDocuments c) =>

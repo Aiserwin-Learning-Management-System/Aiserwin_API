@@ -26,7 +26,7 @@
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>StudentAcademicdetailsDto.</returns>
-        Task<StudentAcademicdetailsDto> CreateAsync(StudentAcademicdetailsRequest request);
+        Task<CommonResponse<StudentAcademicdetailsDto>> CreateAsync(StudentAcademicdetailsRequest request);
 
         /// <summary>
         /// Updates the asynchronous.
@@ -48,6 +48,6 @@
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>StudentDocumentsDto.</returns>
-        Task<StudentDocumentsDto> AddUploadedDocuments(StudentUploaddocumetsRequest request);
+        Task<CommonResponse<StudentDocumentsDto>> AddUploadedDocuments(StudentUploaddocumetsRequest request);
     }
 }

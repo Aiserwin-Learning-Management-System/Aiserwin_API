@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Winfocus.LMS.Application.DTOs;
 using Winfocus.LMS.Application.DTOs.Students;
 
 namespace Winfocus.LMS.Application.Interfaces
@@ -28,7 +29,7 @@ namespace Winfocus.LMS.Application.Interfaces
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>StudentPersonaldetailsdto.</returns>
-        Task<StudentPersonaldetailsdto> CreateAsync(StudentPersonaldetailsRequest request);
+        Task<CommonResponse<StudentPersonaldetailsdto>> CreateAsync(StudentPersonaldetailsRequest request);
 
         /// <summary>
         /// Updates the asynchronous.
