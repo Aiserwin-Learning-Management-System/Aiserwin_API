@@ -5,9 +5,9 @@
     using Winfocus.LMS.Domain.Entities;
 
     /// <summary>
-    /// StreamCourseConfiguration.
+    /// StreamConfiguration.
     /// </summary>
-    /// <seealso cref="Microsoft.EntityFrameworkCore.IEntityTypeConfiguration&lt;Winfocus.LMS.Domain.Entities.StreamCourse&gt;" />
+    /// <seealso cref="Microsoft.EntityFrameworkCore.IEntityTypeConfiguration&lt;Winfocus.LMS.Domain.Entities.Streams&gt;" />
     public sealed class StreamConfiguration : IEntityTypeConfiguration<Streams>
     {
         /// <summary>

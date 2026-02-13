@@ -52,6 +52,22 @@
             => (await _repo.GetByStreamAsync(streamId)).Select(Map).ToList();
 
         /// <summary>
+        /// Gets the by course ids asynchronous.
+        /// </summary>
+        /// <param name="courseIds">The course ids.</param>
+        /// <returns>Subject list.</returns>
+        public async Task<IReadOnlyList<SubjectDto>> GetByCourseIdsAsync(List<Guid> courseIds)
+        {
+            var subjects = await _repo.GetByCourseIdsAsync(courseIds);
+            return subjects.Select(s => new SubjectDto
+            {
+                Id = s.Id,
+                SubjectName = s.SubjectName,
+                SubjectCode = s.SubjectCode,
+            }).ToList();
+        }
+
+        /// <summary>
         /// Creates a new subject.
         /// </summary>
         /// <param name="request">The subject creation request.</param>
