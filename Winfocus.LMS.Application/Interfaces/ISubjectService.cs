@@ -29,6 +29,13 @@
         Task<IReadOnlyList<SubjectDto>> GetByStreamAsync(Guid streamId);
 
         /// <summary>
+        /// Gets the by course ids asynchronous.
+        /// </summary>
+        /// <param name="courseIds">The course ids.</param>
+        /// <returns>list.</returns>
+        Task<IReadOnlyList<SubjectDto>> GetByCourseIdsAsync(List<Guid> courseIds);
+
+        /// <summary>
         /// Creates a new subject.
         /// </summary>
         /// <param name="request">The subject creation request.</param>

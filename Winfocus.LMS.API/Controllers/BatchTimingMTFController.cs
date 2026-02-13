@@ -116,7 +116,7 @@ namespace Winfocus.LMS.API.Controllers
         /// <param name="request">The request.</param>
         /// <returns>result.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
-        [HttpPost]
+        [HttpPost("subject")]
         public async Task<IActionResult> BatchTimingSubjectCreate(
             SubjectBatchTimingRequest request)
         {

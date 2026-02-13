@@ -60,6 +60,23 @@
                 .ToListAsync();
 
         /// <summary>
+        /// Gets the by course ids asynchronous.
+        /// </summary>
+        /// <param name="courseIds">The course ids.</param>
+        /// <returns>
+        /// Subject list.
+        /// </returns>
+        public async Task<IReadOnlyList<Subject>> GetByCourseIdsAsync(List<Guid> courseIds)
+        {
+            return await _db.Courses
+                .Where(c => courseIds.Contains(c.Id) && c.IsActive)
+                .Select(c => c.Subject)
+                .Distinct()
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
+        /// <summary>
         /// Adds the asynchronous.
         /// </summary>
         /// <param name="subject">The subject.</param>

@@ -28,6 +28,13 @@
         Task<IReadOnlyList<Subject>> GetByStreamAsync(Guid streamId);
 
         /// <summary>
+        /// Gets the by course ids asynchronous.
+        /// </summary>
+        /// <param name="courseIds">The course ids.</param>
+        /// <returns>list.</returns>
+        Task<IReadOnlyList<Subject>> GetByCourseIdsAsync(List<Guid> courseIds);
+
+        /// <summary>
         /// Adds the asynchronous.
         /// </summary>
         /// <param name="subject">The subject.</param>

@@ -39,10 +39,22 @@
         /// Gets the specified identifier.
         /// </summary>
         /// <param name="id">The identifier.</param>
-        /// <returns>SubjectDto list.</returns>
+        /// <returns>SubjectDto.</returns>
         [HttpGet("{id:guid}")]
-        public async Task<ActionResult<IReadOnlyList<SubjectDto>>> Get(Guid id)
-            => Ok(await _service.GetByIdAsync(id));
+        public async Task<ActionResult<SubjectDto>> Get(Guid id)
+                        => Ok(await _service.GetByIdAsync(id));
+
+        /// <summary>
+        /// Gets the subjects by courses.
+        /// </summary>
+        /// <param name="courseIds">The course ids.</param>
+        /// <returns>SubjectDto list.</returns>
+        [HttpPost("courses/subjects")]
+        public async Task<ActionResult<IReadOnlyList<SubjectDto>>> GetSubjectsByCourses([FromBody] List<Guid> courseIds)
+        {
+            var subjects = await _service.GetByCourseIdsAsync(courseIds);
+            return Ok(subjects);
+        }
 
         /// <summary>
         /// Gets the by stream.

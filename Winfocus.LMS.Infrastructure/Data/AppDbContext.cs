@@ -124,22 +124,6 @@
         public DbSet<Streams> Streams { get; set; } = null!;
 
         /// <summary>
-        /// Gets or sets the course subjects.
-        /// </summary>
-        /// <value>
-        /// The course subjects.
-        /// </value>
-        public DbSet<CourseSubject> CourseSubjects { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets the stream courses.
-        /// </summary>
-        /// <value>
-        /// The stream courses.
-        /// </value>
-        public DbSet<StreamCourse> StreamCourses { get; set; } = null!;
-
-        /// <summary>
         /// Gets or sets the SubjectBatchTimingMTFs  in the database.
         /// </summary>
         public DbSet<SubjectBatchTimingMTF> SubjectBatchTimingMTFs { get; set; } = null!;
@@ -226,13 +210,6 @@
                  .WithMany(x => x.Centres)
                  .HasForeignKey(x => x.CountryId);
             });
-
-            /// <summary>
-            /// Configures composite key for StreamCourse junction table.
-            /// Ensures each Stream-Course combination is unique.
-            /// </summary>
-            modelBuilder.Entity<StreamCourse>()
-                .HasKey(x => new { x.StreamId, x.CourseId });
 
             modelBuilder.Entity<SubjectBatchTimingMTF>()
                 .HasKey(x => new { x.SubjectId, x.BatchTimingId });
