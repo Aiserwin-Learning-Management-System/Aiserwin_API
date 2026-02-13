@@ -42,5 +42,12 @@
         /// <param name="id">The identifier.</param>
         /// <returns>id.</returns>
         Task DeleteAsync(Guid id);
+
+        /// <summary>
+        /// Creates the asynchronous.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <returns>StudentDocumentsDto.</returns>
+        Task<StudentDocumentsDto> AddUploadedDocuments(StudentUploaddocumetsRequest request);
     }
 }

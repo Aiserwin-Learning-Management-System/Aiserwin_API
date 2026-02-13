@@ -37,5 +37,10 @@
         /// Gets or sets the navigation property to the student's documents.
         /// </summary>
         public StudentDocumentsDto StudentDocuments { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the identifier of the userid.
+        /// </summary>
+        public Guid Userid { get; set; }
     }
 }

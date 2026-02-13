@@ -91,5 +91,18 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             _dbContext.StudentAcademicDetails.Update(entity);
             await _dbContext.SaveChangesAsync();
         }
+
+        /// <summary>
+        /// Adds the asynchronous.
+        /// </summary>
+        /// <param name="studentDocuments">The studentDocuments.</param>
+        /// <returns>StudentDocuments.</returns>
+        public async Task<StudentDocuments> AddUploadedDocuments(StudentDocuments studentDocuments)
+        {
+            studentDocuments.CreatedAt = DateTime.UtcNow;
+            _dbContext.StudentDocuments.Add(studentDocuments);
+            await _dbContext.SaveChangesAsync();
+            return studentDocuments;
+        }
     }
 }

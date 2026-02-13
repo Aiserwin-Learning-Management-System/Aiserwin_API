@@ -1,0 +1,71 @@
+﻿using Asp.Versioning;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Winfocus.LMS.Application.DTOs;
+using Winfocus.LMS.Application.DTOs.Masters;
+using Winfocus.LMS.Application.DTOs.Students;
+using Winfocus.LMS.Application.Interfaces;
+using Winfocus.LMS.Application.Services;
+
+namespace Winfocus.LMS.API.Controllers
+{
+    /// <summary>
+    /// Handles authentication endpoints.
+    /// </summary>
+    [ApiController]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
+    public sealed class StudentController : BaseController
+    {
+        private readonly IStudentService _studentService;
+        private readonly IStudentAcademicdetailsService _studentAcademicdetailsService;
+        private readonly IStudentPersonaldetailsService _studentPersonaldetailsService;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StudentController"/> class.
+        /// </summary>
+        /// <param name="studentService">The student service.</param>
+        /// <param name="studentAcademicdetailsService">The studentacademic details service.</param>
+        /// <param name="studentPersonaldetailsService">The studentpersonal details service.</param>
+        public StudentController(IStudentService studentService, IStudentAcademicdetailsService studentAcademicdetailsService, IStudentPersonaldetailsService studentPersonaldetailsService)
+        {
+            _studentService = studentService;
+            _studentAcademicdetailsService = studentAcademicdetailsService;
+            _studentPersonaldetailsService = studentPersonaldetailsService;
+        }
+
+        /// <summary>
+        /// Gets all.
+        /// </summary>
+        /// <returns>StateDto list.</returns>
+        [HttpGet]
+        public async Task<ActionResult<IReadOnlyList<StudentDto>>> GetAll()
+            => Ok(await _studentService.GetAllAsync());
+
+        /// <summary>
+        /// Creates the specified request.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <returns>StudentDto.</returns>
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        [HttpPost]
+        public async Task<ActionResult<StudentDto>> Create(StudentDto request)
+        {
+            request.Userid = UserId;
+            var created = await _studentService.CreateAsync(request);
+            return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
+        }
+
+        /// <summary>
+        /// Gets the specified identifier.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>StudentDto by id.</returns>
+        [HttpGet("{id:guid}")]
+        public async Task<ActionResult<StudentDto>> Get(Guid id)
+        {
+            var result = await _studentService.GetByIdAsync(id);
+            return result == null ? NotFound() : Ok(result);
+        }
+    }
+}

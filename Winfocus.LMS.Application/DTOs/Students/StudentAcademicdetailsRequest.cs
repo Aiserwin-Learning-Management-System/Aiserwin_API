@@ -1,6 +1,8 @@
-﻿namespace Winfocus.LMS.Application.DTOs.Students
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Winfocus.LMS.Application.DTOs.Students
 {
-    public sealed record StudentAcademicdetailsRequest(Guid countryId, Guid stateId, Guid modeOfStudyId, Guid centerId,
-        Guid syllabusId, Guid gradeId, Guid streamId, List<Guid> courseId, Guid subjectId, List<Guid> batchTimingMTFIds,
-        List<Guid> batchTimingstaurdayIds, List<Guid> batchTimingSundayIds);
+    public sealed record StudentAcademicdetailsRequest([Required] Guid countryId, [Required] Guid stateId, [Required] Guid modeOfStudyId, [Required] Guid centerId,
+[Required] Guid syllabusId, [Required] Guid gradeId, [Required] Guid streamId, [Required] List<Guid> courseId, [Required] Guid subjectId, [Required] List<Guid> batchTimingMTFIds,
+[Required] List<Guid> batchTimingstaurdayIds, [Required] List<Guid> batchTimingSundayIds, Guid batchId, Guid preferredbatchtimeId, string pastyearperformance, string pastschoolname, string pastschoollocation, string emirates, Guid userid);
 }

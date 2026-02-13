@@ -79,16 +79,6 @@
         public Streams Stream { get; set; } = null!;
 
         /// <summary>
-        /// Gets or sets the identifier of the associated course.
-        /// </summary>
-        public Guid CourseId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the identifier of the associated course.
-        /// </summary>
-        public Course Course { get; set; } = null!;
-
-        /// <summary>
         /// Gets or sets the identifier of the associated subject.
         /// </summary>
         public Guid SubjectId { get; set; }
@@ -99,44 +89,24 @@
         public Subject Subject { get; set; } = null!;
 
         /// <summary>
-        /// Gets or sets the identifier of the associated batch timing for MTF.
+        /// Gets or sets the identifier of the  batch  selection.
         /// </summary>
-        public Guid BatchTimingMTFId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the identifier of the associated batch timing for MTF.
-        /// </summary>
-        public BatchTimingMTF BatchTimingMTF { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets the identifier of the associated batch timing for Saturday.
-        /// </summary>
-        public Guid BatchTimingSaturdayId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the identifier of the associated batch timing for Saturday.
-        /// </summary>
-        public BatchTimingSaturday BatchTimingSaturday { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets the identifier of the associated batch timing for Sunday.
-        /// </summary>
-        public Guid BatchTimingSundayId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the identifier of the associated batch timing for Sunday.
-        /// </summary>
-        public BatchTimingSunday BatchTimingSunday { get; set; } = null!;
+        public Guid BatchId { get; set; }
 
         /// <summary>
         /// Gets or sets the identifier of the preferred batch time selection.
         /// </summary>
-        public Guid PreferredBatchTime { get; set; }
+        public PreferredBatch Batch { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the identifier of the preferred batch time selection.
         /// </summary>
-        public PreferredBatch PreferredBatch { get; set; } = null!;
+        public Guid PreferredBatchTimeId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the identifier of the preferred batch time selection.
+        /// </summary>
+        public PreferredBatch PreferredBatchTime { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the past year performance details (textual).
