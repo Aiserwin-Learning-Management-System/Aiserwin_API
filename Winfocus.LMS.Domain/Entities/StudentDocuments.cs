@@ -11,11 +11,21 @@
         /// <summary>
         /// Gets or sets the path or binary reference to the student's photo.
         /// </summary>
-        public string StudentPhoto { get; set; } = null!;
+        public string StudentPhotoPath { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the path or binary reference to the student's signature.
         /// </summary>
-        public string StudentSignature { get; set; } = null!;
+        public string StudentSignaturePath { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the student has accepted the Terms and Conditions.
+        /// </summary>
+        public bool IsAcceptedTermsAndConditions { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the student has accepted the agreement.
+        /// </summary>
+        public bool IsAcceptedAgreement { get; set; }
     }
 }

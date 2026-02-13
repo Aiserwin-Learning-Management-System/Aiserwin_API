@@ -10,6 +10,11 @@
     public class Student : BaseEntity
     {
         /// <summary>
+        /// Gets or sets the identifier of the student's registration number.
+        /// </summary>
+        public string RegistrationNumber { get; set; } = null!;
+
+        /// <summary>
         /// Gets or sets the identifier of the student's academic details.
         /// </summary>
         public Guid StudentAcademicId { get; set; }
@@ -38,5 +43,10 @@
         /// Gets or sets the navigation property to the student's documents.
         /// </summary>
         public StudentDocuments StudentDocuments { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the identifier of the student's status.
+        /// </summary>
+        public string Status { get; set; } = null!;
     }
 }
