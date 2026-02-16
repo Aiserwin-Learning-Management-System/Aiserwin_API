@@ -201,6 +201,7 @@ if (!app.Environment.IsEnvironment("Testing"))
     {
         db.Database.Migrate();
         CountryDataSeeder.Seed(db);
+        StateDataSeeder.Seed(db);
         RoleDataSeeder.Seed(db);
     }
     catch (Exception ex)
