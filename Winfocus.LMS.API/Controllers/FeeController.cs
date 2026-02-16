@@ -31,7 +31,7 @@
         /// <param name="studentId">The student identifier.</param>
         /// <returns>Task&lt;IActionResult&gt;.</returns>
         [HttpGet("{studentId}")]
-        public async Task<IActionResult> GetFeePage(Guid studentId)
+        public async Task<ActionResult<IReadOnlyList<FeePageResponseDto>>> GetFeePage(Guid studentId)
         {
             var result = await _service.GetFeePageAsync(studentId);
             return Ok(result);
