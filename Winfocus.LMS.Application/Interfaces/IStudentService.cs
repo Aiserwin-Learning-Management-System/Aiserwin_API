@@ -47,5 +47,40 @@ namespace Winfocus.LMS.Application.Interfaces
         /// <returns>id.</returns>
         Task DeleteAsync(Guid id);
 
+        /// <summary>
+        /// Gets the filtered asynchronous.
+        /// </summary>
+        /// <param name="countryId">The country identifier.</param>
+        /// <param name="stateId">The state identifier.</param>
+        /// <param name="modeId">The mode identifier.</param>
+        /// <param name="centreId">The centre identifier.</param>
+        /// <param name="batchId">The batch identifier.</param>
+        /// <param name="gradeId">The grade identifier.</param>
+        /// <param name="courseId">The course identifier.</param>
+        /// <param name="startDate">The start date.</param>
+        /// <param name="endDate">The end date.</param>
+        /// <param name="registrationStatus">The registration status.</param>
+        /// <param name="searchText">The search text.</param>
+        /// <param name="limit">The limit.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="sortBy">The sort by.</param>
+        /// <param name="sortOrder">The sort order.</param>
+        /// <returns>StudentDto.</returns>
+        Task<IReadOnlyList<StudentDto>> GetFilteredAsync(
+        Guid? countryId,
+        Guid? stateId,
+        Guid? modeId,
+        Guid? centreId,
+        Guid? batchId,
+        Guid? gradeId,
+        Guid? courseId,
+        DateTime? startDate,
+        DateTime? endDate,
+        string? registrationStatus,
+        string? searchText,
+        int limit,
+        int offset,
+        string sortBy,
+        string sortOrder);
     }
 }

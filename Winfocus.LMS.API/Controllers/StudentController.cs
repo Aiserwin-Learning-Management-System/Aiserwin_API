@@ -1,14 +1,11 @@
-﻿using Asp.Versioning;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Winfocus.LMS.Application.DTOs;
-using Winfocus.LMS.Application.DTOs.Masters;
-using Winfocus.LMS.Application.DTOs.Students;
-using Winfocus.LMS.Application.Interfaces;
-using Winfocus.LMS.Application.Services;
-
-namespace Winfocus.LMS.API.Controllers
+﻿namespace Winfocus.LMS.API.Controllers
 {
+    using Asp.Versioning;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+    using Winfocus.LMS.Application.DTOs.Students;
+    using Winfocus.LMS.Application.Interfaces;
+
     /// <summary>
     /// Handles student CRUD operations.
     /// </summary>
@@ -47,7 +44,6 @@ namespace Winfocus.LMS.API.Controllers
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>StudentDto.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPost]
         public async Task<ActionResult<StudentDto>> Create(StudentRequest request)
         {
@@ -100,6 +96,64 @@ namespace Winfocus.LMS.API.Controllers
         {
             var result = await _studentService.GetByIdAsync(id);
             return result == null ? NotFound() : Ok(result);
+        }
+
+        /// <summary>
+        /// Gets the filtered.
+        /// </summary>
+        /// <param name="countryId">The country identifier.</param>
+        /// <param name="stateId">The state identifier.</param>
+        /// <param name="modeId">The mode identifier.</param>
+        /// <param name="centreId">The centre identifier.</param>
+        /// <param name="batchId">The batch identifier.</param>
+        /// <param name="gradeId">The grade identifier.</param>
+        /// <param name="courseId">The course identifier.</param>
+        /// <param name="startDate">The start date.</param>
+        /// <param name="endDate">The end date.</param>
+        /// <param name="registrationStatus">The registration status.</param>
+        /// <param name="searchText">The search text.</param>
+        /// <param name="limit">The limit.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="sortBy">The sort by.</param>
+        /// <param name="sortOrder">The sort order.</param>
+        /// <returns>Filtered StudentDto list.</returns>
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        [HttpGet("filter")]
+        public async Task<ActionResult<IReadOnlyList<StudentDto>>> GetFiltered(
+        Guid? countryId,
+        Guid? stateId,
+        Guid? modeId,
+        Guid? centreId,
+        Guid? batchId,
+        Guid? gradeId,
+        Guid? courseId,
+        DateTime? startDate,
+        DateTime? endDate,
+        string? registrationStatus,
+        string? searchText,
+        int limit = 20,
+        int offset = 0,
+        string sortBy = "FullName",
+        string sortOrder = "asc")
+        {
+            var students = await _studentService.GetFilteredAsync(
+                countryId,
+                stateId,
+                modeId,
+                centreId,
+                batchId,
+                gradeId,
+                courseId,
+                startDate,
+                endDate,
+                registrationStatus,
+                searchText,
+                limit,
+                offset,
+                sortBy,
+                sortOrder);
+
+            return Ok(students);
         }
     }
 }

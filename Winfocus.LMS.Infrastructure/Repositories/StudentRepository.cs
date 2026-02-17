@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -17,14 +18,17 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// The application database context used to access persistence.
         /// </summary>
         private readonly AppDbContext _dbContext;
+        private readonly ILogger<StudentRepository> _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StudentRepository"/> class.
         /// </summary>
         /// <param name="dbContext">The database context.</param>
-        public StudentRepository(AppDbContext dbContext)
+        /// <param name="logger">The logger.</param>
+        public StudentRepository(AppDbContext dbContext, ILogger<StudentRepository> logger)
         {
             _dbContext = dbContext;
+            _logger = logger;
         }
 
         /// <summary>
@@ -91,6 +95,109 @@ namespace Winfocus.LMS.Infrastructure.Repositories
 
             _dbContext.Students.Update(entity);
             await _dbContext.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Gets the filtered asynchronous.
+        /// </summary>
+        /// <param name="countryId">The country identifier.</param>
+        /// <param name="stateId">The state identifier.</param>
+        /// <param name="modeId">The mode identifier.</param>
+        /// <param name="centreId">The centre identifier.</param>
+        /// <param name="batchId">The batch identifier.</param>
+        /// <param name="gradeId">The grade identifier.</param>
+        /// <param name="courseId">The course identifier.</param>
+        /// <param name="startDate">The start date.</param>
+        /// <param name="endDate">The end date.</param>
+        /// <param name="registrationStatus">The registration status.</param>
+        /// <param name="searchText">The search text.</param>
+        /// <param name="limit">The limit.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="sortBy">The sort by.</param>
+        /// <param name="sortOrder">The sort order.</param>
+        /// <returns>
+        /// Student.
+        /// </returns>
+        public async Task<IReadOnlyList<Student>> GetFilteredAsync(
+        Guid? countryId,
+        Guid? stateId,
+        Guid? modeId,
+        Guid? centreId,
+        Guid? batchId,
+        Guid? gradeId,
+        Guid? courseId,
+        DateTime? startDate,
+        DateTime? endDate,
+        string? registrationStatus,
+        string? searchText,
+        int limit,
+        int offset,
+        string sortBy,
+        string sortOrder)
+        {
+            _logger.LogInformation(
+                "Executing student filter query with parameters: Country={CountryId}, State={StateId}, Mode={ModeId}, Centre={CentreId}, Batch={BatchId}, Grade={GradeId}, Course={CourseId}, StartDate={StartDate}, EndDate={EndDate}, RegistrationStatus={RegistrationStatus}, SearchText={SearchText}, Limit={Limit}, Offset={Offset}, SortBy={SortBy}, SortOrder={SortOrder}",
+                countryId,
+                stateId,
+                modeId,
+                centreId,
+                batchId,
+                gradeId,
+                courseId,
+                startDate,
+                endDate,
+                registrationStatus,
+                searchText,
+                limit,
+                offset,
+                sortBy,
+                sortOrder);
+
+            var query = _dbContext.Students
+                .Include(s => s.AcademicDetails)
+                .Include(s => s.PersonalDetails)
+                .Include(s => s.StudentDocuments)
+                .Include(s => s.StudentAcademicCouses)
+                    .ThenInclude(sc => sc.Course)
+                .AsQueryable();
+
+            // Filters
+            if (countryId.HasValue) query = query.Where(s => s.AcademicDetails.CountryId == countryId.Value);
+            if (stateId.HasValue) query = query.Where(s => s.AcademicDetails.StateId == stateId.Value);
+            if (modeId.HasValue) query = query.Where(s => s.AcademicDetails.ModeOfStudyId == modeId.Value);
+            if (centreId.HasValue) query = query.Where(s => s.AcademicDetails.CenterId == centreId.Value);
+            if (batchId.HasValue) query = query.Where(s => s.AcademicDetails.BatchId == batchId.Value);
+            if (gradeId.HasValue) query = query.Where(s => s.AcademicDetails.GradeId == gradeId.Value);
+            if (courseId.HasValue) query = query.Where(s => s.StudentAcademicCouses.Any(c => c.CourseId == courseId.Value));
+
+            if (startDate.HasValue && endDate.HasValue)
+                query = query.Where(s => s.CreatedAt >= startDate.Value && s.CreatedAt <= endDate.Value);
+
+            if (!string.IsNullOrEmpty(registrationStatus))
+                query = query.Where(s => s.RegistrationStatus == registrationStatus);
+
+            // Search (partial match)
+            if (!string.IsNullOrEmpty(searchText))
+            {
+                var lower = searchText.ToLower();
+                query = query.Where(s =>
+                    s.PersonalDetails.FullName.ToLower().Contains(lower) ||
+                    s.PersonalDetails.EmailAddress.ToLower().Contains(lower) ||
+                    s.PersonalDetails.MobileWhatsapp.ToLower().Contains(lower));
+            }
+
+            // Sorting
+            query = sortOrder.ToLower() == "desc"
+                ? query.OrderByDescending(e => EF.Property<object>(e, sortBy))
+                : query.OrderBy(e => EF.Property<object>(e, sortBy));
+
+            // Pagination
+            query = query.Skip(offset).Take(limit);
+
+            var result = await query.ToListAsync();
+            _logger.LogInformation("Student filter query returned {Count} records", result.Count);
+
+            return result;
         }
     }
 }

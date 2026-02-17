@@ -42,5 +42,13 @@
         /// Gets or sets the identifier of the userid.
         /// </summary>
         public Guid Userid { get; set; }
+
+        /// <summary>
+        /// Gets or sets the courses.
+        /// </summary>
+        /// <value>
+        /// The courses.
+        /// </value>
+        public List<CourseDto> Courses { get; set; } = new ();
     }
 }
