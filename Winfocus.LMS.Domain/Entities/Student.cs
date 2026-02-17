@@ -38,5 +38,14 @@
         /// Gets or sets the navigation property to the student's documents.
         /// </summary>
         public StudentDocuments StudentDocuments { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the student academic couses.
+        /// </summary>
+        /// <value>
+        /// The student academic couses.
+        /// </value>
+        public ICollection<StudentAcademicCouses> StudentAcademicCouses { get; set; }
+    = new List<StudentAcademicCouses>();
     }
 }
