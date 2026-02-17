@@ -8,7 +8,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
     /// <summary>
     /// Provides data access operations for <see cref="StudentAcademicdetails"/> entities.
     /// </summary>
-    public sealed class StudentAcademicdetailsRepository : IStudentAcademicdeatilsRepository
+    public sealed class StudentAcademicdetailsRepository : IStudentAcademicdetailsRepository
     {
         /// <summary>
         /// The application database context used to access persistence.

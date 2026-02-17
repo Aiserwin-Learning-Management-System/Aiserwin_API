@@ -15,7 +15,7 @@ namespace Winfocus.LMS.Application.Services
  /// </summary>
     public sealed class StudentAcademicdetailsService : IStudentAcademicdetailsService
     {
-        private readonly IStudentAcademicdeatilsRepository _repository;
+        private readonly IStudentAcademicdetailsRepository _repository;
         private readonly ILogger<StateService> _logger;
         private readonly ICountryRepository _countryRepository;
         private readonly IModeOfStudyRepository _modeOfStudyRepository;
@@ -41,7 +41,7 @@ namespace Winfocus.LMS.Application.Services
         /// <param name="courseRepository">courseRepository used for data access.</param>
         /// <param name="subjectRepository">subjectRepository used for data access.</param>
         /// <param name="logger">Logger.</param>
-        public StudentAcademicdetailsService(IStudentAcademicdeatilsRepository repository, ILogger<StateService> logger, ICountryRepository countryRepository, IModeOfStudyRepository modeOfStudyRepository, IStateRepository stateRepository, ICentreRepository centerRepository, ISyllabusRepository syllabusRepository, IGradeRepository gradeRepository, IStreamRepository streamRepository, ICourseRepository courseRepository, ISubjectRepository subjectRepository)
+        public StudentAcademicdetailsService(IStudentAcademicdetailsRepository repository, ILogger<StateService> logger, ICountryRepository countryRepository, IModeOfStudyRepository modeOfStudyRepository, IStateRepository stateRepository, ICentreRepository centerRepository, ISyllabusRepository syllabusRepository, IGradeRepository gradeRepository, IStreamRepository streamRepository, ICourseRepository courseRepository, ISubjectRepository subjectRepository)
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -91,46 +91,58 @@ namespace Winfocus.LMS.Application.Services
         {
             var country = await _countryRepository.GetByIdAsync(request.countryId);
             if (country == null)
+            {
                 return CommonResponse<StudentAcademicdetailsDto>
                     .FailureResponse("Country not found");
+            }
 
             if (!country.IsActive)
+            {
                 return CommonResponse<StudentAcademicdetailsDto>
                     .FailureResponse("Cannot create with inactive country");
+            }
 
             var state = await _stateRepository.GetByIdAsync(request.stateId);
             if (state == null)
+            {
                 return CommonResponse<StudentAcademicdetailsDto>
                     .FailureResponse("State not found");
+            }
 
             var modeOfStudy = await _modeOfStudyRepository.GetByIdAsync(request.modeOfStudyId);
             if (modeOfStudy == null)
+            {
                 return CommonResponse<StudentAcademicdetailsDto>
                     .FailureResponse("Mode of study not found");
+            }
 
             var center = await _centerRepository.GetByIdAsync(request.centerId);
             if (center == null)
+            {
                 return CommonResponse<StudentAcademicdetailsDto>
                     .FailureResponse("Center not found");
-
+            }
 
             var syllabus = await _syllabusRepository.GetByIdAsync(request.syllabusId);
             if (syllabus == null)
+            {
                 return CommonResponse<StudentAcademicdetailsDto>
                     .FailureResponse("Syllabus not found");
-
+            }
 
             var grade = await _gradeRepository.GetByIdAsync(request.gradeId);
             if (grade == null)
+            {
                 return CommonResponse<StudentAcademicdetailsDto>
                     .FailureResponse("Grade not found");
-
+            }
 
             var stream = await _streamRepository.GetByIdAsync(request.streamId);
             if (stream == null)
+            {
                 return CommonResponse<StudentAcademicdetailsDto>
                     .FailureResponse("Stream not found");
-
+            }
 
             var academicDetails = new StudentAcademicDetails
             {

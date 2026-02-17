@@ -5,7 +5,7 @@
     /// <summary>
     /// Defines CRUD operations for <see cref="StudentAcademicDetails"/> entities.
     /// </summary>
-    public interface IStudentAcademicdeatilsRepository
+    public interface IStudentAcademicdetailsRepository
     {
         /// <summary>
         /// Gets all asynchronous.
