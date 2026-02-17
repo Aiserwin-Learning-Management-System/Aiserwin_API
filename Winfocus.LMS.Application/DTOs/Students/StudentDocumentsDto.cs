@@ -16,5 +16,15 @@
         /// Gets or sets the path or binary reference to the student's signature.
         /// </summary>
         public string StudentSignature { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether gets or sets the path or binary reference to the IsAcceptedAgreement.
+        /// </summary>
+        public bool IsAcceptedAgreement { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether gets or sets the path or binary reference to the IsAcceptedAgreement.
+        /// </summary>
+        public bool IsAcceptedTermsAndConditions { get; set; }
     }
 }

@@ -91,6 +91,12 @@ builder.Services.AddScoped<IBatchTimingSaturdayService, BatchTimingSaturdayServi
 builder.Services.AddScoped<IBatchTimingSaturdayRepository, BatchTimingSaturdayRepository>();
 builder.Services.AddScoped<IBatchTimingMTFService, BatchTimingMTFService>();
 builder.Services.AddScoped<IBatchTimingMTFRepository, BatchTiminingMTFRepository>();
+builder.Services.AddScoped<IStudentAcademicdetailsService, StudentAcademicdetailsService>();
+builder.Services.AddScoped<IStudentAcademicdetailsRepository, StudentAcademicdetailsRepository>();
+builder.Services.AddScoped<IStudentPersonaldetailsService, StudentPersonaldetailService>();
+builder.Services.AddScoped<IStudentPersonaldetailsRepository, StudentPersonaldetailsRepository>();
+builder.Services.AddScoped<IStudentService, StudentService>();
+builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
@@ -199,7 +205,7 @@ if (!app.Environment.IsEnvironment("Testing"))
 
     try
     {
-        db.Database.Migrate();
+       // db.Database.Migrate();
         CountryDataSeeder.Seed(db);
         StateDataSeeder.Seed(db);
         RoleDataSeeder.Seed(db);
