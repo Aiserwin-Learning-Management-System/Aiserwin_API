@@ -45,5 +45,14 @@
         /// The subject.
         /// </value>
         public Subject Subject { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the fee plans.
+        /// </summary>
+        /// <value>
+        /// The fee plans.
+        /// </value>
+        public ICollection<FeePlan> FeePlans { get; set; }
+    = new List<FeePlan>();
     }
 }

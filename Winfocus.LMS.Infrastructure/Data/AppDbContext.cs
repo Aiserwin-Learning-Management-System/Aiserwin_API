@@ -139,6 +139,46 @@
         public DbSet<SubjectBatchTimingSunday> SubjectBatchTimingSundays { get; set; } = null!;
 
         /// <summary>
+        /// Gets or sets the fee plans.
+        /// </summary>
+        /// <value>
+        /// The fee plans.
+        /// </value>
+        public DbSet<FeePlan> FeePlans { get; set; }
+
+        /// <summary>
+        /// Gets or sets the fee installments.
+        /// </summary>
+        /// <value>
+        /// The fee installments.
+        /// </value>
+        public DbSet<FeeInstallment> FeeInstallments { get; set; }
+
+        /// <summary>
+        /// Gets or sets the student fee selections.
+        /// </summary>
+        /// <value>
+        /// The student fee selections.
+        /// </value>
+        public DbSet<StudentFeeSelection> StudentFeeSelections { get; set; }
+
+        /// <summary>
+        /// Gets or sets the student installments.
+        /// </summary>
+        /// <value>
+        /// The student installments.
+        /// </value>
+        public DbSet<StudentInstallment> StudentInstallments { get; set; }
+
+        /// <summary>
+        /// Gets or sets the student academic couses.
+        /// </summary>
+        /// <value>
+        /// The student academic couses.
+        /// </value>
+        public DbSet<StudentAcademicCouses> StudentAcademicCouses { get; set; }
+
+        /// <summary>
         /// Configures the model for the context.
         /// </summary>
         /// <param name="modelBuilder">The builder being used to construct the model for this context.</param>
@@ -217,6 +257,15 @@
                .HasKey(x => new { x.SubjectId, x.BatchTimingId });
             modelBuilder.Entity<SubjectBatchTimingSunday>()
                .HasKey(x => new { x.SubjectId, x.BatchTimingId });
+
+            modelBuilder.Entity<StudentFeeSelection>()
+            .HasIndex(x => new { x.StudentId, x.CourseId })
+            .IsUnique();
+
+            modelBuilder.Entity<FeePlan>()
+            .HasOne(fp => fp.Course)
+            .WithMany(c => c.FeePlans)
+            .HasForeignKey(fp => fp.CourseId);
 
             base.OnModelCreating(modelBuilder);
         }
