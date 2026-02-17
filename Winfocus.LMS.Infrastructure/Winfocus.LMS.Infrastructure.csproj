@@ -12,6 +12,7 @@
     <None Remove="Services\**" />
   </ItemGroup>
 
+
   <ItemGroup>
     <None Remove="SeederFile\countries.json" />
   </ItemGroup>
@@ -46,6 +47,10 @@
     <Content Include="SeederFile\countries.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Filestorage\" />
   </ItemGroup>
 
 </Project>

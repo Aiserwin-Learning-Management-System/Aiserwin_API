@@ -179,6 +179,30 @@
         public DbSet<StudentAcademicCouses> StudentAcademicCouses { get; set; }
 
         /// <summary>
+        /// Gets or sets the student academic batchtiming mtfs.
+        /// </summary>
+        /// <value>
+        /// The student academic batchtiming mtf.
+        /// </value>
+        public DbSet<StudentBatchTimingMTF> StudentBatchTimingMTFs { get; set; }
+
+        /// <summary>
+        /// Gets or sets the student academic batchtiming saturdays.
+        /// </summary>
+        /// <value>
+        /// The student academic batchtiming saturdays.
+        /// </value>
+        public DbSet<StudentBatchTimingSaturday> StudentBatchTimingSaturdays { get; set; }
+
+        /// <summary>
+        /// Gets or sets the student academic batchtiming sundays.
+        /// </summary>
+        /// <value>
+        /// The student academic batchtiming sundays.
+        /// </value>
+        public DbSet<StudentBatchTimingSunday> StudentBatchTimingSundays { get; set; }
+
+        /// <summary>
         /// Configures the model for the context.
         /// </summary>
         /// <param name="modelBuilder">The builder being used to construct the model for this context.</param>
@@ -261,6 +285,15 @@
             modelBuilder.Entity<StudentFeeSelection>()
             .HasIndex(x => new { x.StudentId, x.CourseId })
             .IsUnique();
+
+            modelBuilder.Entity<StudentAcademicCouses>()
+               .HasKey(x => new { x.StudentId, x.CourseId });
+            modelBuilder.Entity<StudentBatchTimingMTF>()
+               .HasKey(x => new { x.StudentId, x.BatchTimingMTFId });
+            modelBuilder.Entity<StudentBatchTimingSaturday>()
+               .HasKey(x => new { x.StudentId, x.BatchTimingSaturdayId });
+            modelBuilder.Entity<StudentBatchTimingSunday>()
+               .HasKey(x => new { x.StudentId, x.BatchTimingSundayId });
 
             modelBuilder.Entity<FeePlan>()
             .HasOne(fp => fp.Course)

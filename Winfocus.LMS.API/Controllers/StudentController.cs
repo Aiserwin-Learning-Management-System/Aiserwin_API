@@ -47,9 +47,8 @@ namespace Winfocus.LMS.API.Controllers
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>StudentDto.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPost]
-        public async Task<ActionResult<StudentDto>> Create(StudentRequest request)
+        public async Task<ActionResult<StudentDto>> Create([FromForm] StudentRequest request)
         {
             var academicDetails = await _studentAcademicdetailsService.CreateAsync(request.academicdetails);
             if (!academicDetails.Success || academicDetails.Data == null)
@@ -64,9 +63,9 @@ namespace Winfocus.LMS.API.Controllers
             }
 
             var uploaddocDetails = await _studentAcademicdetailsService.AddUploadedDocuments(request.docdetails);
-            if (!uploaddocDetails.Success || uploaddocDetails.Data == null)
+            if (uploaddocDetails == null)
             {
-                return BadRequest(uploaddocDetails.Message);
+                return BadRequest();
             }
 
             StudentDto studentDto = new StudentDto
@@ -75,17 +74,23 @@ namespace Winfocus.LMS.API.Controllers
                 AcademicDetails = academicDetails.Data,
                 StudentPersonalId = personalDetails.Data.Id,
                 PersonalDetails = personalDetails.Data,
-                StudentDocumentsId = uploaddocDetails.Data.Id,
-                StudentDocuments = uploaddocDetails.Data,
+                StudentDocumentsId = uploaddocDetails.Id,
+                StudentDocuments = uploaddocDetails,
                 Userid = UserId,
+                Status = "Draft",
+                RegistraionNumber = request.academicdetails.registraionNumber,
             };
 
             var created = await _studentService.CreateAsync(studentDto);
-
             if (created == null)
             {
                 return BadRequest("Failed to create student.");
             }
+
+            await _studentAcademicdetailsService.AddCoursesAsync(created.Id, request.academicdetails.courseId);
+            await _studentAcademicdetailsService.AddBatchTimingMTFsAsync(created.Id, request.academicdetails.batchTimingMTFIds);
+            await _studentAcademicdetailsService.AddBatchTimingSaturdaysAsync(created.Id, request.academicdetails.batchTimingstaurdayIds);
+            await _studentAcademicdetailsService.AddBatchTimingSundaysAsync(created.Id, request.academicdetails.batchTimingSundayIds);
 
             return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
         }

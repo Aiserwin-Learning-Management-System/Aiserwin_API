@@ -60,11 +60,13 @@ namespace Winfocus.LMS.Application.Services
         {
             var student = new Student
             {
-                StudentAcademicId = request.StudentAcademicId,
+                StudentAcademicDetailsId = request.StudentAcademicId,
                 StudentDocumentsId = request.StudentDocumentsId,
-                StudentPersonalId = request.StudentPersonalId,
+                StudentPersonalDetailsId = request.StudentPersonalId,
                 CreatedBy = request.Userid,
                 CreatedAt = DateTime.UtcNow,
+                Status = request.Status,
+                RegistrationNumber = request.RegistraionNumber,
             };
 
             var created = await _repository.AddAsync(student);
@@ -83,9 +85,9 @@ namespace Winfocus.LMS.Application.Services
             var student = await _repository.GetByIdAsync(id)
                 ?? throw new KeyNotFoundException("Student not found");
 
-            student.StudentAcademicId = request.StudentAcademicId;
+            student.StudentAcademicDetailsId = request.StudentAcademicId;
             student.StudentDocumentsId = request.StudentDocumentsId;
-            student.StudentPersonalId = request.StudentPersonalId;
+            student.StudentPersonalDetailsId = request.StudentPersonalId;
             student.UpdatedBy = request.Userid;
             student.UpdatedAt = DateTime.UtcNow;
             await _repository.UpdateAsync(student);
@@ -105,6 +107,84 @@ namespace Winfocus.LMS.Application.Services
      new StudentDto
      {
          Id = c.Id,
+         AcademicDetails = new StudentAcademicdetailsDto
+         {
+             Id = c.StudentAcademicDetailsId,
+             CountryId = c.AcademicDetails.CountryId,
+             Country = new CountryDto1
+             {
+                 Id = c.AcademicDetails.CountryId,
+                 Name = c.AcademicDetails.Country.Name,
+             },
+             StateId = c.AcademicDetails.StateId,
+             State = new StateDto
+             {
+                 Id = c.AcademicDetails.StateId,
+                 StateName = c.AcademicDetails.State.StateName,
+             },
+             ModeOfStudyId = c.AcademicDetails.ModeOfStudyId,
+             ModeOfStudy = new ModeOfStudyDto
+             {
+                 Id = c.AcademicDetails.ModeOfStudyId,
+                 ModeName = c.AcademicDetails.ModeOfStudy.ModeName,
+             },
+             CenterId = c.AcademicDetails.CenterId,
+             Center = new CenterDto1
+              {
+                    Id = c.AcademicDetails.CenterId,
+                    Name = c.AcademicDetails.Center.Name,
+              },
+             SyllabusId = c.AcademicDetails.SyllabusId,
+             Syllabus = new SyllabusDto
+                {
+                    Id = c.AcademicDetails.SyllabusId,
+                    SyllabusName = c.AcademicDetails.Syllabus.SyllabusName,
+                },
+             GradeId = c.AcademicDetails.GradeId,
+             Grade = new GradeDto
+              {
+                    Id = c.AcademicDetails.GradeId,
+                    GradeName = c.AcademicDetails.Grade.GradeName,
+              },
+             StreamId = c.AcademicDetails.StreamId,
+             Stream = new StreamDto
+                {
+                        Id = c.AcademicDetails.StreamId,
+                        StreamName = c.AcademicDetails.Stream.StreamName,
+                },
+             SubjectId = c.AcademicDetails.SubjectId,
+             Subject = new SubjectDto
+               {
+                        Id = c.AcademicDetails.SubjectId,
+                        SubjectName = c.AcademicDetails.Subject.SubjectName,
+               },
+             PastYearPerformance = c.AcademicDetails.PastYearPerformance,
+             PastSchoolLocation = c.AcademicDetails.PastSchoolLocation,
+             PastSchoolName = c.AcademicDetails.PastSchoolName,
+             Emirates = c.AcademicDetails.Emirates,
+         },
+         PersonalDetails = new StudentPersonaldetailsdto
+         {
+             Id = c.StudentPersonalDetailsId,
+             FullName = c.StudentPersonalDetails.FullName,
+             EmailAddress = c.StudentPersonalDetails.EmailAddress,
+             DOB = c.StudentPersonalDetails.DOB,
+             MobileWhatsapp = c.StudentPersonalDetails.MobileWhatsapp,
+             MobileBotim = c.StudentPersonalDetails.MobileBotim,
+             MobileComera = c.StudentPersonalDetails.MobileComera,
+             AreaName = c.StudentPersonalDetails.AreaName,
+             DistrictOrLocation = c.StudentPersonalDetails.DistrictOrLocation,
+             Emirates = c.StudentPersonalDetails.Emirates,
+         },
+         StudentDocuments = new StudentDocumentsDto
+         {
+             Id = c.StudentDocumentsId,
+             StudentPhoto = c.StudentDocuments.StudentPhotoPath,
+             StudentSignature = c.StudentDocuments.StudentSignaturePath,
+             IsAcceptedAgreement = c.StudentDocuments.IsAcceptedAgreement,
+             IsAcceptedTermsAndConditions = c.StudentDocuments.IsAcceptedTermsAndConditions,
+         },
+         RegistraionNumber = c.RegistrationNumber,
          CreatedBy = c.CreatedBy,
          CreatedAt = c.CreatedAt,
          UpdatedAt = c.UpdatedAt,
