@@ -1,9 +1,11 @@
-﻿namespace Winfocus.LMS.Domain.Entities
+﻿using Winfocus.LMS.Domain.Common;
+
+namespace Winfocus.LMS.Domain.Entities
 {
     /// <summary>
     /// Represents the association between a Student and a course.
     /// </summary>
-    public class StudentAcademicCouses
+    public class StudentAcademicCouses : BaseEntity
     {
         /// <summary>
         /// Gets or sets the identifier of the student.

@@ -45,8 +45,12 @@
         public StudentDocuments StudentDocuments { get; set; } = null!;
 
         /// <summary>
-        /// Gets or sets the identifier of the student's status.
+        /// Gets or sets the student academic couses.
         /// </summary>
-        public string Status { get; set; } = null!;
+        /// <value>
+        /// The student academic couses.
+        /// </value>
+        public ICollection<StudentAcademicCouses> StudentAcademicCouses { get; set; }
+    = new List<StudentAcademicCouses>();
     }
 }

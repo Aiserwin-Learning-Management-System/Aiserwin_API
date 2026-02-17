@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Winfocus.LMS.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using Winfocus.LMS.Infrastructure.Data;
 namespace Winfocus.LMS.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260216105626_AddedStudentFeeTables")]
+    partial class AddedStudentFeeTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -651,14 +654,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.Property<Guid>("PersonalDetailsId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("RegistrationNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<Guid>("StudentAcademicId")
                         .HasColumnType("uniqueidentifier");
 
@@ -727,13 +722,22 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("BatchId")
+                    b.Property<Guid>("BatchTimingMTFId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BatchTimingSaturdayId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BatchTimingSundayId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("CenterId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("CountryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CourseId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAt")
@@ -767,7 +771,10 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("PreferredBatchTimeId")
+                    b.Property<Guid>("PreferredBatchId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PreferredBatchTime")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("StateId")
@@ -790,17 +797,23 @@ namespace Winfocus.LMS.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BatchId");
+                    b.HasIndex("BatchTimingMTFId");
+
+                    b.HasIndex("BatchTimingSaturdayId");
+
+                    b.HasIndex("BatchTimingSundayId");
 
                     b.HasIndex("CenterId");
 
                     b.HasIndex("CountryId");
 
+                    b.HasIndex("CourseId");
+
                     b.HasIndex("GradeId");
 
                     b.HasIndex("ModeOfStudyId");
 
-                    b.HasIndex("PreferredBatchTimeId");
+                    b.HasIndex("PreferredBatchId");
 
                     b.HasIndex("StateId");
 
@@ -825,20 +838,14 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<bool>("IsAcceptedAgreement")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsAcceptedTermsAndConditions")
-                        .HasColumnType("bit");
-
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<string>("StudentPhotoPath")
+                    b.Property<string>("StudentPhoto")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("StudentSignaturePath")
+                    b.Property<string>("StudentSignature")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -1426,9 +1433,21 @@ namespace Winfocus.LMS.Infrastructure.Migrations
 
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.StudentAcademicDetails", b =>
                 {
-                    b.HasOne("Winfocus.LMS.Domain.Entities.PreferredBatch", "Batch")
+                    b.HasOne("Winfocus.LMS.Domain.Entities.BatchTimingMTF", "BatchTimingMTF")
                         .WithMany()
-                        .HasForeignKey("BatchId")
+                        .HasForeignKey("BatchTimingMTFId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Winfocus.LMS.Domain.Entities.BatchTimingSaturday", "BatchTimingSaturday")
+                        .WithMany()
+                        .HasForeignKey("BatchTimingSaturdayId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Winfocus.LMS.Domain.Entities.BatchTimingSunday", "BatchTimingSunday")
+                        .WithMany()
+                        .HasForeignKey("BatchTimingSundayId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1444,6 +1463,12 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Winfocus.LMS.Domain.Entities.Course", "Course")
+                        .WithMany()
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Winfocus.LMS.Domain.Entities.Grade", "Grade")
                         .WithMany()
                         .HasForeignKey("GradeId")
@@ -1456,9 +1481,9 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Winfocus.LMS.Domain.Entities.PreferredBatch", "PreferredBatchTime")
+                    b.HasOne("Winfocus.LMS.Domain.Entities.PreferredBatch", "PreferredBatch")
                         .WithMany()
-                        .HasForeignKey("PreferredBatchTimeId")
+                        .HasForeignKey("PreferredBatchId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1486,17 +1511,23 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Batch");
+                    b.Navigation("BatchTimingMTF");
+
+                    b.Navigation("BatchTimingSaturday");
+
+                    b.Navigation("BatchTimingSunday");
 
                     b.Navigation("Center");
 
                     b.Navigation("Country");
 
+                    b.Navigation("Course");
+
                     b.Navigation("Grade");
 
                     b.Navigation("ModeOfStudy");
 
-                    b.Navigation("PreferredBatchTime");
+                    b.Navigation("PreferredBatch");
 
                     b.Navigation("State");
 
