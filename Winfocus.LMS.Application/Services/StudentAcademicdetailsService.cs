@@ -16,7 +16,7 @@ namespace Winfocus.LMS.Application.Services
     public sealed class StudentAcademicdetailsService : IStudentAcademicdetailsService
     {
         private readonly IStudentAcademicdetailsRepository _repository;
-        private readonly ILogger<StateService> _logger;
+        private readonly ILogger<StudentAcademicdetailsService> _logger;
         private readonly ICountryRepository _countryRepository;
         private readonly IModeOfStudyRepository _modeOfStudyRepository;
         private readonly IStateRepository _stateRepository;
@@ -41,7 +41,7 @@ namespace Winfocus.LMS.Application.Services
         /// <param name="courseRepository">courseRepository used for data access.</param>
         /// <param name="subjectRepository">subjectRepository used for data access.</param>
         /// <param name="logger">Logger.</param>
-        public StudentAcademicdetailsService(IStudentAcademicdetailsRepository repository, ILogger<StateService> logger, ICountryRepository countryRepository, IModeOfStudyRepository modeOfStudyRepository, IStateRepository stateRepository, ICentreRepository centerRepository, ISyllabusRepository syllabusRepository, IGradeRepository gradeRepository, IStreamRepository streamRepository, ICourseRepository courseRepository, ISubjectRepository subjectRepository)
+        public StudentAcademicdetailsService(IStudentAcademicdetailsRepository repository, ILogger<StudentAcademicdetailsService> logger, ICountryRepository countryRepository, IModeOfStudyRepository modeOfStudyRepository, IStateRepository stateRepository, ICentreRepository centerRepository, ISyllabusRepository syllabusRepository, IGradeRepository gradeRepository, IStreamRepository streamRepository, ICourseRepository courseRepository, ISubjectRepository subjectRepository)
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -263,14 +263,14 @@ namespace Winfocus.LMS.Application.Services
         /// <param name="request">The request.</param>
         /// <returns>StudentDocumentsDto.</returns>
         /// <exception cref="InvalidOperationException">State code already exists. </exception>
-        public async Task<CommonResponse<StudentDocumentsDto>> AddUploadedDocuments(StudentUploaddocumetsRequest request)
+        public async Task<CommonResponse<StudentDocumentsDto>> AddUploadedDocuments(StudentUploaddocumentsRequest request)
         {
             var studentDocuments = new StudentDocuments
             {
                 StudentPhotoPath = request.studentphoto,
                 StudentSignaturePath = request.signature,
                 IsAcceptedAgreement = request.isAcceptedAgreement,
-                IsAcceptedTermsAndConditions = request.isAcceptedTersms,
+                IsAcceptedTermsAndConditions = request.isAcceptedTermsAndConditions,
             };
 
             var created = await _repository.AddUploadedDocuments(studentDocuments);

@@ -48,6 +48,6 @@
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>StudentDocumentsDto.</returns>
-        Task<CommonResponse<StudentDocumentsDto>> AddUploadedDocuments(StudentUploaddocumetsRequest request);
+        Task<CommonResponse<StudentDocumentsDto>> AddUploadedDocuments(StudentUploaddocumentsRequest request);
     }
 }

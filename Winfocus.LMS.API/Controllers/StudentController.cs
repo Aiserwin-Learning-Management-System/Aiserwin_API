@@ -10,7 +10,7 @@ using Winfocus.LMS.Application.Services;
 namespace Winfocus.LMS.API.Controllers
 {
     /// <summary>
-    /// Handles authentication endpoints.
+    /// Handles student CRUD operations.
     /// </summary>
     [ApiController]
     [ApiVersion("1.0")]
@@ -37,7 +37,7 @@ namespace Winfocus.LMS.API.Controllers
         /// <summary>
         /// Gets all.
         /// </summary>
-        /// <returns>StateDto list.</returns>
+        /// <returns>StudentDto list.</returns>
         [HttpGet]
         public async Task<ActionResult<IReadOnlyList<StudentDto>>> GetAll()
             => Ok(await _studentService.GetAllAsync());
@@ -51,10 +51,24 @@ namespace Winfocus.LMS.API.Controllers
         [HttpPost]
         public async Task<ActionResult<StudentDto>> Create(StudentRequest request)
         {
-           // request.Userid = UserId;
             var academicDetails = await _studentAcademicdetailsService.CreateAsync(request.academicdetails);
+            if (!academicDetails.Success || academicDetails.Data == null)
+            {
+                return BadRequest(academicDetails.Message);
+            }
+
             var personalDetails = await _studentPersonaldetailsService.CreateAsync(request.personaldetails);
+            if (!personalDetails.Success || personalDetails.Data == null)
+            {
+                return BadRequest(personalDetails.Message);
+            }
+
             var uploaddocDetails = await _studentAcademicdetailsService.AddUploadedDocuments(request.docdetails);
+            if (!uploaddocDetails.Success || uploaddocDetails.Data == null)
+            {
+                return BadRequest(uploaddocDetails.Message);
+            }
+
             StudentDto studentDto = new StudentDto
             {
                 StudentAcademicId = academicDetails.Data.Id,
@@ -67,6 +81,12 @@ namespace Winfocus.LMS.API.Controllers
             };
 
             var created = await _studentService.CreateAsync(studentDto);
+
+            if (created == null)
+            {
+                return BadRequest("Failed to create student.");
+            }
+
             return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
         }
 

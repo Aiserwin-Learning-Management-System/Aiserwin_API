@@ -4,5 +4,5 @@ using System.Text;
 
 namespace Winfocus.LMS.Application.DTOs.Students
 {
-    public sealed record StudentRequest(StudentAcademicdetailsRequest academicdetails, StudentPersonaldetailsRequest personaldetails, StudentUploaddocumetsRequest docdetails);
+    public sealed record StudentRequest(StudentAcademicdetailsRequest academicdetails, StudentPersonaldetailsRequest personaldetails, StudentUploaddocumentsRequest docdetails);
 }

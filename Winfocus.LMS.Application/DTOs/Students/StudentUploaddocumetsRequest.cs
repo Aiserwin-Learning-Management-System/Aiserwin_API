@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Winfocus.LMS.Application.DTOs.Students
 {
-    public sealed record StudentUploaddocumetsRequest(
+    public sealed record StudentUploaddocumentsRequest(
 
      [Required]
      string studentphoto,
@@ -13,6 +13,6 @@ namespace Winfocus.LMS.Application.DTOs.Students
      [Required]
      string signature,
 
-     bool isAcceptedTersms,
-     bool isAcceptedAgreement);
+     bool isAcceptedAgreement,
+     bool isAcceptedTermsAndConditions);
 }
