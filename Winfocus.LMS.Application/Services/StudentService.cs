@@ -70,7 +70,7 @@ namespace Winfocus.LMS.Application.Services
             };
 
             var created = await _repository.AddAsync(student);
-            return Map(created);
+            return Mapstud(created);
         }
 
         /// <summary>
@@ -190,5 +190,19 @@ namespace Winfocus.LMS.Application.Services
          UpdatedAt = c.UpdatedAt,
          UpdatedBy = c.UpdatedBy,
      };
+
+        private static StudentDto Mapstud(Student c) =>
+ new StudentDto
+ {
+     Id = c.Id,
+     StudentAcademicId = c.StudentAcademicDetailsId,
+     StudentPersonalId = c.StudentPersonalDetailsId,
+     StudentDocumentsId = c.StudentDocumentsId,
+     RegistraionNumber = c.RegistrationNumber,
+     CreatedBy = c.CreatedBy,
+     CreatedAt = c.CreatedAt,
+     UpdatedAt = c.UpdatedAt,
+     UpdatedBy = c.UpdatedBy,
+ };
     }
 }
