@@ -96,17 +96,7 @@
         /// <summary>
         /// Gets or sets the identifier of the preferred batch time selection.
         /// </summary>
-        public PreferredBatch Batch { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets the identifier of the preferred batch time selection.
-        /// </summary>
         public Guid PreferredBatchTimeId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the identifier of the preferred batch time selection.
-        /// </summary>
-        public PreferredBatch PreferredBatchTime { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the past year performance details (textual).

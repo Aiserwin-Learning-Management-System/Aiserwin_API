@@ -46,7 +46,33 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         public async Task<Student?> GetByIdAsync(Guid id)
         {
             return await _dbContext.Students
-                .FirstOrDefaultAsync(x => x.Id == id);
+        .Include(x => x.AcademicDetails)
+           .ThenInclude(ad => ad.Country)
+        .Include(x => x.AcademicDetails)
+           .ThenInclude(ad => ad.State)
+        .Include(x => x.AcademicDetails)
+           .ThenInclude(ad => ad.ModeOfStudy)
+        .Include(x => x.AcademicDetails)
+           .ThenInclude(ad => ad.Center)
+        .Include(x => x.AcademicDetails)
+           .ThenInclude(ad => ad.Syllabus)
+        .Include(x => x.AcademicDetails)
+           .ThenInclude(ad => ad.Grade)
+        .Include(x => x.AcademicDetails)
+           .ThenInclude(ad => ad.Stream)
+        .Include(x => x.AcademicDetails)
+           .ThenInclude(ad => ad.Subject)
+        .Include(x => x.StudentPersonalDetails)
+        .Include(x => x.StudentDocuments)
+
+        .Include(x => x.StudentAcademicCouses)
+            .ThenInclude(sc => sc.Course)
+
+        .Include(x => x.StudentBatchTimingMTFs)
+        .Include(x => x.StudentBatchTimingSaturdays)
+        .Include(x => x.StudentBatchTimingSundays)
+
+        .FirstOrDefaultAsync(x => x.Id == id);
         }
 
         /// <summary>

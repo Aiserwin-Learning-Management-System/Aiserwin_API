@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Winfocus.LMS.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using Winfocus.LMS.Infrastructure.Data;
 namespace Winfocus.LMS.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260217120027_studentacademicdetailstablemodified")]
+    partial class studentacademicdetailstablemodified
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -636,6 +639,9 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("AcademicDetailsId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -648,6 +654,9 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.Property<bool>("Isscholershipstudent")
                         .HasColumnType("bit");
 
+                    b.Property<Guid>("PersonalDetailsId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("RegistrationNumber")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -656,13 +665,13 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("StudentAcademicDetailsId")
+                    b.Property<Guid>("StudentAcademicId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("StudentDocumentsId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("StudentPersonalDetailsId")
+                    b.Property<Guid>("StudentPersonalId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -673,11 +682,11 @@ namespace Winfocus.LMS.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("StudentAcademicDetailsId");
+                    b.HasIndex("AcademicDetailsId");
+
+                    b.HasIndex("PersonalDetailsId");
 
                     b.HasIndex("StudentDocumentsId");
-
-                    b.HasIndex("StudentPersonalDetailsId");
 
                     b.ToTable("Students");
                 });
@@ -1417,7 +1426,13 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                 {
                     b.HasOne("Winfocus.LMS.Domain.Entities.StudentAcademicDetails", "AcademicDetails")
                         .WithMany()
-                        .HasForeignKey("StudentAcademicDetailsId")
+                        .HasForeignKey("AcademicDetailsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Winfocus.LMS.Domain.Entities.StudentPersonalDetails", "PersonalDetails")
+                        .WithMany()
+                        .HasForeignKey("PersonalDetailsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1427,17 +1442,11 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Winfocus.LMS.Domain.Entities.StudentPersonalDetails", "StudentPersonalDetails")
-                        .WithMany()
-                        .HasForeignKey("StudentPersonalDetailsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("AcademicDetails");
 
-                    b.Navigation("StudentDocuments");
+                    b.Navigation("PersonalDetails");
 
-                    b.Navigation("StudentPersonalDetails");
+                    b.Navigation("StudentDocuments");
                 });
 
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.StudentAcademicCouses", b =>

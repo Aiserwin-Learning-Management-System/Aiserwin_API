@@ -26,6 +26,7 @@ namespace Winfocus.LMS.Application.Services
         private readonly IStreamRepository _streamRepository;
         private readonly ICourseRepository _courseRepository;
         private readonly ISubjectRepository _subjectRepository;
+        private readonly IFileStorageService _fileStorageService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StudentAcademicdetailsService"/> class.
@@ -41,7 +42,8 @@ namespace Winfocus.LMS.Application.Services
         /// <param name="courseRepository">courseRepository used for data access.</param>
         /// <param name="subjectRepository">subjectRepository used for data access.</param>
         /// <param name="logger">Logger.</param>
-        public StudentAcademicdetailsService(IStudentAcademicdetailsRepository repository, ILogger<StudentAcademicdetailsService> logger, ICountryRepository countryRepository, IModeOfStudyRepository modeOfStudyRepository, IStateRepository stateRepository, ICentreRepository centerRepository, ISyllabusRepository syllabusRepository, IGradeRepository gradeRepository, IStreamRepository streamRepository, ICourseRepository courseRepository, ISubjectRepository subjectRepository)
+        /// <param name="fileStorageService">fileStorageService used for access service.</param>
+        public StudentAcademicdetailsService(IStudentAcademicdetailsRepository repository, ILogger<StudentAcademicdetailsService> logger, ICountryRepository countryRepository, IModeOfStudyRepository modeOfStudyRepository, IStateRepository stateRepository, ICentreRepository centerRepository, ISyllabusRepository syllabusRepository, IGradeRepository gradeRepository, IStreamRepository streamRepository, ICourseRepository courseRepository, ISubjectRepository subjectRepository, IFileStorageService fileStorageService)
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -54,6 +56,7 @@ namespace Winfocus.LMS.Application.Services
             _streamRepository = streamRepository;
             _courseRepository = courseRepository;
             _subjectRepository = subjectRepository;
+            _fileStorageService = fileStorageService;
         }
 
         /// <summary>
@@ -159,6 +162,7 @@ namespace Winfocus.LMS.Application.Services
                 PastSchoolName = request.pastschoolname,
                 PastSchoolLocation = request.pastschoollocation,
                 Emirates = request.emirates,
+                SubjectId = request.subjectId,
             };
 
             var created = await _repository.AddAsync(academicDetails);
@@ -255,34 +259,112 @@ namespace Winfocus.LMS.Application.Services
            "State deleted successfully. StateId: {StateId}",
            id);
         }
-
-
         /// <summary>
         /// Creates the asynchronous.
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>StudentDocumentsDto.</returns>
         /// <exception cref="InvalidOperationException">State code already exists. </exception>
-        public async Task<CommonResponse<StudentDocumentsDto>> AddUploadedDocuments(StudentUploaddocumentsRequest request)
+        public async Task<StudentDocumentsDto> AddUploadedDocuments(StudentUploaddocumentsRequest request)
         {
-            var studentDocuments = new StudentDocuments
+            //var studentDocuments = new StudentDocuments
+            //{
+            //    StudentPhotoPath = request.studentphoto,
+            //    StudentSignaturePath = request.signature,
+            //    IsAcceptedAgreement = request.isAcceptedAgreement,
+            //    IsAcceptedTermsAndConditions = request.isAcceptedTermsAndConditions,
+            //};
+
+            //var created = await _repository.AddUploadedDocuments(studentDocuments);
+
+            //_logger.LogInformation(
+            //    "Student details created successfully. Id: {Id}",
+            //    created.Id);
+
+            //var dto = MapDocs(created);
+
+            //return CommonResponse<StudentDocumentsDto>
+            //    .SuccessResponse("Student academic details created successfully", dto);
+
+            var photoPath = await _fileStorageService
+            .SaveFileAsync(request.studentphoto, "Photos");
+
+            var signaturePath = await _fileStorageService
+                .SaveFileAsync(request.signature, "Signatures");
+
+            var document = new StudentDocuments
             {
-                StudentPhotoPath = request.studentphoto,
-                StudentSignaturePath = request.signature,
+                Id = Guid.NewGuid(),
+                StudentPhotoPath = photoPath,
+                StudentSignaturePath = signaturePath,
                 IsAcceptedAgreement = request.isAcceptedAgreement,
                 IsAcceptedTermsAndConditions = request.isAcceptedTermsAndConditions,
             };
 
-            var created = await _repository.AddUploadedDocuments(studentDocuments);
+            await _repository.AddUploadedDocuments(document);
 
-            _logger.LogInformation(
-                "Student details created successfully. Id: {Id}",
-                created.Id);
+            return MapDocs(document);
+        }
 
-            var dto = MapDocs(created);
+        /// <inheritdoc/>
+        public async Task AddCoursesAsync(
+            Guid studentId,
+            List<Guid> courseIds)
+        {
+            var courses = courseIds.Select(courseId =>
+                new StudentAcademicCouses
+                {
+                    Id = Guid.NewGuid(),
+                    StudentId = studentId,
+                    CourseId = courseId,
+                }).ToList();
 
-            return CommonResponse<StudentDocumentsDto>
-                .SuccessResponse("Student academic details created successfully", dto);
+            await _repository.AddCourseRangeAsync(courses);
+        }
+
+        /// <inheritdoc/>
+        public async Task AddBatchTimingMTFsAsync(
+            Guid studentId,
+            List<Guid> batchtimingmtfid)
+        {
+            var batchtimingmtfs = batchtimingmtfid.Select(batchtimeid =>
+                new StudentBatchTimingMTF
+                {
+                    StudentId = studentId,
+                    BatchTimingMTFId = batchtimeid,
+                }).ToList();
+
+            await _repository.AddBatchtimingmtfRangeAsync(batchtimingmtfs);
+        }
+
+        /// <inheritdoc/>
+        public async Task AddBatchTimingSaturdaysAsync(
+          Guid studentId,
+          List<Guid> batchtimingsaturdayids)
+        {
+            var batchtimingsaturdays = batchtimingsaturdayids.Select(batchtimingsaturdayid =>
+                new StudentBatchTimingSaturday
+                {
+                    StudentId = studentId,
+                    BatchTimingSaturdayId = batchtimingsaturdayid,
+                }).ToList();
+
+            await _repository.AddBatchtimingsaturdayRangeAsync(batchtimingsaturdays);
+        }
+
+        /// <inheritdoc/>
+        public async Task AddBatchTimingSundaysAsync(
+          Guid studentId,
+          List<Guid> batchtimingsundayids)
+        {
+            var batchtimingsundays = batchtimingsundayids.Select(batchtimingsundayid =>
+                new StudentBatchTimingSunday
+                {
+                    StudentId = studentId,
+                    BatchTimingSundayId = batchtimingsundayid,
+                }).ToList();
+
+            await _repository.AddBatchtimingsundayRangeAsync(batchtimingsundays);
         }
 
         private static StudentDocumentsDto MapDocs(StudentDocuments c) =>
