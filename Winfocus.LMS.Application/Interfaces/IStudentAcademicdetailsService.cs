@@ -2,6 +2,7 @@
 {
     using Winfocus.LMS.Application.DTOs;
     using Winfocus.LMS.Application.DTOs.Students;
+    using Winfocus.LMS.Domain.Entities;
 
     /// <summary>
     /// Defines business operations for <see cref="StudentAcademicdetails"/> entities.
@@ -48,6 +49,38 @@
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>StudentDocumentsDto.</returns>
-        Task<CommonResponse<StudentDocumentsDto>> AddUploadedDocuments(StudentUploaddocumentsRequest request);
+        Task<StudentDocumentsDto> AddUploadedDocuments(StudentUploaddocumentsRequest request);
+
+        /// <summary>
+        /// Adds courses for a specific student academic record.
+        /// </summary>
+        /// <param name="studentId">Student details identifier.</param>
+        /// <param name="courseIds">List of course identifiers.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        Task AddCoursesAsync(Guid studentId, List<Guid> courseIds);
+
+        /// <summary>
+        /// Adds courses for a specific student academic record.
+        /// </summary>
+        /// <param name="studentId">Student  details identifier.</param>
+        /// <param name="batchtimingmtfid">List of Batchtimingmtf identifiers.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        Task AddBatchTimingMTFsAsync(Guid studentId, List<Guid> batchtimingmtfid);
+
+        /// <summary>
+        /// Adds courses for a specific student academic record.
+        /// </summary>
+        /// <param name="studentId">Student  details identifier.</param>
+        /// <param name="batchtimingsaturdayid">List of Batchtiming saturday identifiers.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        Task AddBatchTimingSaturdaysAsync(Guid studentId, List<Guid> batchtimingsaturdayid);
+
+        /// <summary>
+        /// Adds courses for a specific student academic record.
+        /// </summary>
+        /// <param name="studentId">Student  details identifier.</param>
+        /// <param name="batchtimingsundaysid">List of Batchtiming sunday identifiers.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        Task AddBatchTimingSundaysAsync(Guid studentId, List<Guid> batchtimingsundaysid);
     }
 }

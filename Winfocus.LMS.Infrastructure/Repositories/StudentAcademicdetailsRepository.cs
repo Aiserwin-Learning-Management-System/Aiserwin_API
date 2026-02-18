@@ -104,5 +104,33 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             await _dbContext.SaveChangesAsync();
             return studentDocuments;
         }
+
+        /// <inheritdoc/>
+        public async Task AddCourseRangeAsync(List<StudentAcademicCouses> courses)
+        {
+            await _dbContext.StudentAcademicCouses.AddRangeAsync(courses);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        /// <inheritdoc/>
+        public async Task AddBatchtimingmtfRangeAsync(List<StudentBatchTimingMTF> batchmtfs)
+        {
+            await _dbContext.StudentBatchTimingMTFs.AddRangeAsync(batchmtfs);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        /// <inheritdoc/>
+        public async Task AddBatchtimingsaturdayRangeAsync(List<StudentBatchTimingSaturday> batchsaturdays)
+        {
+            await _dbContext.StudentBatchTimingSaturdays.AddRangeAsync(batchsaturdays);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        /// <inheritdoc/>
+        public async Task AddBatchtimingsundayRangeAsync(List<StudentBatchTimingSunday> batchsundays)
+        {
+            await _dbContext.StudentBatchTimingSundays.AddRangeAsync(batchsundays);
+            await _dbContext.SaveChangesAsync();
+        }
     }
 }

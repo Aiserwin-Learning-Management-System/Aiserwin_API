@@ -97,6 +97,7 @@ builder.Services.AddScoped<IStudentPersonaldetailsService, StudentPersonaldetail
 builder.Services.AddScoped<IStudentPersonaldetailsRepository, StudentPersonaldetailsRepository>();
 builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
+builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 

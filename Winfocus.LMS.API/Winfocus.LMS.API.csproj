@@ -39,6 +39,8 @@
 
   <ItemGroup>
     <Folder Include="Extensions\" />
+    <Folder Include="StudentFiles\signature\" />
+    <Folder Include="StudentFiles\photos\" />
   </ItemGroup>
 
 </Project>

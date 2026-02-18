@@ -44,6 +44,16 @@
         public Guid Userid { get; set; }
 
         /// <summary>
+        /// Gets or sets the identifier of the status.
+        /// </summary>
+        public string Status { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the identifier of the RegistraionNumber.
+        /// </summary>
+        public string RegistraionNumber { get; set; } = null!;
+
+        /// <summary>
         /// Gets or sets the courses.
         /// </summary>
         /// <value>
