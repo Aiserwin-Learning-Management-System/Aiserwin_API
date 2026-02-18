@@ -3,6 +3,7 @@
     using System;
     using System.ComponentModel.DataAnnotations.Schema;
     using Winfocus.LMS.Domain.Common;
+    using Winfocus.LMS.Domain.Enums;
 
     /// <summary>
     /// Represents a student and references to their related details entities.
@@ -50,9 +51,12 @@
         public bool Isscholershipstudent { get; set; }
 
         /// <summary>
-        /// Gets or sets the identifier of the Status.
+        /// Gets or sets the registration status.
         /// </summary>
-        public string Status { get; set; } = null!;
+        /// <value>
+        /// The registration status.
+        /// </value>
+        public RegistrationStatus RegistrationStatus { get; set; }
 
         /// <summary>
         /// Gets or sets the student academic couses.
@@ -89,6 +93,5 @@
         /// </value>
         public ICollection<StudentBatchTimingSunday> StudentBatchTimingSundays { get; set; }
             = new List<StudentBatchTimingSunday>();
-
     }
 }

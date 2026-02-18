@@ -4,6 +4,7 @@ using System.Text;
 using Winfocus.LMS.Application.DTOs;
 using Winfocus.LMS.Application.DTOs.Masters;
 using Winfocus.LMS.Application.DTOs.Students;
+using Winfocus.LMS.Domain.Enums;
 
 namespace Winfocus.LMS.Application.Interfaces
 {
@@ -76,7 +77,7 @@ namespace Winfocus.LMS.Application.Interfaces
         Guid? courseId,
         DateTime? startDate,
         DateTime? endDate,
-        string? registrationStatus,
+        RegistrationStatus? registrationStatus,
         string? searchText,
         int limit,
         int offset,

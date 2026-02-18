@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Winfocus.LMS.Domain.Entities;
+using Winfocus.LMS.Domain.Enums;
 
 namespace Winfocus.LMS.Application.Interfaces
 {
@@ -73,7 +74,7 @@ namespace Winfocus.LMS.Application.Interfaces
          Guid? courseId,
          DateTime? startDate,
          DateTime? endDate,
-         string? registrationStatus,
+         RegistrationStatus? registrationStatus,
          string? searchText,
          int limit,
          int offset,

@@ -5,6 +5,7 @@
     using Microsoft.AspNetCore.Mvc;
     using Winfocus.LMS.Application.DTOs.Students;
     using Winfocus.LMS.Application.Interfaces;
+    using Winfocus.LMS.Domain.Enums;
 
     /// <summary>
     /// Handles student CRUD operations.
@@ -74,7 +75,7 @@
                 StudentDocumentsId = uploaddocDetails.Id,
                 StudentDocuments = uploaddocDetails,
                 Userid = UserId,
-                Status = "Draft",
+                RegistrationStatus = RegistrationStatus.Draft,
                 RegistraionNumber = request.academicdetails.registraionNumber,
             };
 
@@ -135,7 +136,7 @@
         Guid? courseId,
         DateTime? startDate,
         DateTime? endDate,
-        string? registrationStatus,
+        RegistrationStatus? registrationStatus,
         string? searchText,
         int limit = 20,
         int offset = 0,

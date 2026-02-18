@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 using Winfocus.LMS.Application.Interfaces;
 using Winfocus.LMS.Domain.Entities;
+using Winfocus.LMS.Domain.Enums;
 using Winfocus.LMS.Infrastructure.Data;
 
 namespace Winfocus.LMS.Infrastructure.Repositories
@@ -154,7 +155,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         Guid? courseId,
         DateTime? startDate,
         DateTime? endDate,
-        string? registrationStatus,
+        RegistrationStatus? registrationStatus,
         string? searchText,
         int limit,
         int offset,
@@ -181,35 +182,66 @@ namespace Winfocus.LMS.Infrastructure.Repositories
 
             var query = _dbContext.Students
                 .Include(s => s.AcademicDetails)
-                .Include(s => s.PersonalDetails)
+                .Include(s => s.StudentPersonalDetails)
                 .Include(s => s.StudentDocuments)
                 .Include(s => s.StudentAcademicCouses)
                     .ThenInclude(sc => sc.Course)
                 .AsQueryable();
 
             // Filters
-            if (countryId.HasValue) query = query.Where(s => s.AcademicDetails.CountryId == countryId.Value);
-            if (stateId.HasValue) query = query.Where(s => s.AcademicDetails.StateId == stateId.Value);
-            if (modeId.HasValue) query = query.Where(s => s.AcademicDetails.ModeOfStudyId == modeId.Value);
-            if (centreId.HasValue) query = query.Where(s => s.AcademicDetails.CenterId == centreId.Value);
-            if (batchId.HasValue) query = query.Where(s => s.AcademicDetails.BatchId == batchId.Value);
-            if (gradeId.HasValue) query = query.Where(s => s.AcademicDetails.GradeId == gradeId.Value);
-            if (courseId.HasValue) query = query.Where(s => s.StudentAcademicCouses.Any(c => c.CourseId == courseId.Value));
+            if (countryId.HasValue)
+            {
+                query = query.Where(s => s.AcademicDetails.CountryId == countryId.Value);
+            }
+
+            if (stateId.HasValue)
+            {
+                query = query.Where(s => s.AcademicDetails.StateId == stateId.Value);
+            }
+
+            if (modeId.HasValue)
+            {
+                query = query.Where(s => s.AcademicDetails.ModeOfStudyId == modeId.Value);
+            }
+
+            if (centreId.HasValue)
+            {
+                query = query.Where(s => s.AcademicDetails.CenterId == centreId.Value);
+            }
+
+            if (batchId.HasValue)
+            {
+                query = query.Where(s => s.AcademicDetails.BatchId == batchId.Value);
+            }
+
+            if (gradeId.HasValue)
+            {
+                query = query.Where(s => s.AcademicDetails.GradeId == gradeId.Value);
+            }
+
+            if (courseId.HasValue)
+            {
+                query = query.Where(s => s.StudentAcademicCouses.Any(c => c.CourseId == courseId.Value));
+            }
 
             if (startDate.HasValue && endDate.HasValue)
+            {
                 query = query.Where(s => s.CreatedAt >= startDate.Value && s.CreatedAt <= endDate.Value);
+            }
 
-            if (!string.IsNullOrEmpty(registrationStatus))
-                query = query.Where(s => s.RegistrationStatus == registrationStatus);
+            if (registrationStatus.HasValue)
+            {
+                query = query.Where(s => s.RegistrationStatus == registrationStatus.Value);
+            }
 
             // Search (partial match)
             if (!string.IsNullOrEmpty(searchText))
             {
                 var lower = searchText.ToLower();
                 query = query.Where(s =>
-                    s.PersonalDetails.FullName.ToLower().Contains(lower) ||
-                    s.PersonalDetails.EmailAddress.ToLower().Contains(lower) ||
-                    s.PersonalDetails.MobileWhatsapp.ToLower().Contains(lower));
+                    s.StudentPersonalDetails.FullName.ToLower().Contains(lower) ||
+                    s.StudentPersonalDetails.EmailAddress.ToLower().Contains(lower) ||
+                    s.StudentPersonalDetails.MobileWhatsapp.ToLower().Contains(lower));
             }
 
             // Sorting

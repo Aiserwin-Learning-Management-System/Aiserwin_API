@@ -5,6 +5,7 @@
     using Winfocus.LMS.Application.DTOs.Students;
     using Winfocus.LMS.Application.Interfaces;
     using Winfocus.LMS.Domain.Entities;
+    using Winfocus.LMS.Domain.Enums;
 
     /// <summary>
     /// Provides business operations for <see cref="Student"/> entities.
@@ -61,7 +62,7 @@
                 StudentPersonalDetailsId = request.StudentPersonalId,
                 CreatedBy = request.Userid,
                 CreatedAt = DateTime.UtcNow,
-                Status = request.Status,
+                RegistrationStatus = request.RegistrationStatus,
                 RegistrationNumber = request.RegistraionNumber,
             };
 
@@ -128,7 +129,7 @@
         Guid? courseId,
         DateTime? startDate,
         DateTime? endDate,
-        string? registrationStatus,
+        RegistrationStatus? registrationStatus,
         string? searchText,
         int limit,
         int offset,
@@ -138,9 +139,21 @@
             _logger.LogInformation("Calling repository for student filter with SortBy={SortBy}, SortOrder={SortOrder}", sortBy, sortOrder);
 
             var students = await _repository.GetFilteredAsync(
-                countryId, stateId, modeId, centreId, batchId, gradeId, courseId,
-                startDate, endDate, registrationStatus, searchText,
-                limit, offset, sortBy, sortOrder);
+                countryId,
+                stateId,
+                modeId,
+                centreId,
+                batchId,
+                gradeId,
+                courseId,
+                startDate,
+                endDate,
+                registrationStatus,
+                searchText,
+                limit,
+                offset,
+                sortBy,
+                sortOrder);
 
             var dtos = students.Select(MapToDto).ToList();
 
@@ -154,9 +167,10 @@
             return new StudentDto
             {
                 Id = entity.Id,
-                Userid = entity.CreatedBy, // or UserId if you have it
-
-                StudentAcademicId = entity.StudentAcademicId,
+                Userid = entity.StudentPersonalDetailsId,
+                RegistrationStatus = entity.RegistrationStatus,
+                RegistraionNumber = entity.RegistrationNumber,
+                StudentAcademicId = entity.StudentAcademicDetailsId,
                 AcademicDetails = new StudentAcademicdetailsDto
                 {
                     CountryId = entity.AcademicDetails.CountryId,
@@ -171,18 +185,18 @@
                     Emirates = entity.AcademicDetails.Emirates,
                 },
 
-                StudentPersonalId = entity.StudentPersonalId,
+                StudentPersonalId = entity.StudentPersonalDetailsId,
                 PersonalDetails = new StudentPersonaldetailsdto
                 {
-                    FullName = entity.PersonalDetails.FullName,
-                    EmailAddress = entity.PersonalDetails.EmailAddress,
-                    DOB = entity.PersonalDetails.DOB,
-                    MobileWhatsapp = entity.PersonalDetails.MobileWhatsapp,
-                    MobileBotim = entity.PersonalDetails.MobileBotim,
-                    MobileComera = entity.PersonalDetails.MobileComera,
-                    AreaName = entity.PersonalDetails.AreaName,
-                    DistrictOrLocation = entity.PersonalDetails.DistrictOrLocation,
-                    Emirates = entity.PersonalDetails.Emirates,
+                    FullName = entity.StudentPersonalDetails.FullName,
+                    EmailAddress = entity.StudentPersonalDetails.EmailAddress,
+                    DOB = entity.StudentPersonalDetails.DOB,
+                    MobileWhatsapp = entity.StudentPersonalDetails.MobileWhatsapp,
+                    MobileBotim = entity.StudentPersonalDetails.MobileBotim,
+                    MobileComera = entity.StudentPersonalDetails.MobileComera,
+                    AreaName = entity.StudentPersonalDetails.AreaName,
+                    DistrictOrLocation = entity.StudentPersonalDetails.DistrictOrLocation,
+                    Emirates = entity.StudentPersonalDetails.Emirates,
                 },
 
                 StudentDocumentsId = entity.StudentDocumentsId,
