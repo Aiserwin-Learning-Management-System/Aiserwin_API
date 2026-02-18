@@ -1,15 +1,12 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Winfocus.LMS.Application.DTOs;
-using Winfocus.LMS.Application.DTOs.Masters;
-using Winfocus.LMS.Application.DTOs.Students;
-using Winfocus.LMS.Application.Interfaces;
-using Winfocus.LMS.Domain.Entities;
-
-namespace Winfocus.LMS.Application.Services
+﻿namespace Winfocus.LMS.Application.Services
 {
+    using Microsoft.Extensions.Logging;
+    using Winfocus.LMS.Application.DTOs.Masters;
+    using Winfocus.LMS.Application.DTOs.Students;
+    using Winfocus.LMS.Application.Interfaces;
+    using Winfocus.LMS.Domain.Entities;
+    using Winfocus.LMS.Domain.Enums;
+
     /// <summary>
     /// Provides business operations for <see cref="Student"/> entities.
     /// </summary>
@@ -65,7 +62,7 @@ namespace Winfocus.LMS.Application.Services
                 StudentPersonalDetailsId = request.StudentPersonalId,
                 CreatedBy = request.Userid,
                 CreatedAt = DateTime.UtcNow,
-                Status = request.Status,
+                RegistrationStatus = request.RegistrationStatus,
                 RegistrationNumber = request.RegistraionNumber,
             };
 
@@ -101,6 +98,124 @@ namespace Winfocus.LMS.Application.Services
         public async Task DeleteAsync(Guid id)
         {
             await _repository.DeleteAsync(id);
+        }
+
+        /// <summary>
+        /// Gets the filtered asynchronous.
+        /// </summary>
+        /// <param name="countryId">The country identifier.</param>
+        /// <param name="stateId">The state identifier.</param>
+        /// <param name="modeId">The mode identifier.</param>
+        /// <param name="centreId">The centre identifier.</param>
+        /// <param name="batchId">The batch identifier.</param>
+        /// <param name="gradeId">The grade identifier.</param>
+        /// <param name="courseId">The course identifier.</param>
+        /// <param name="startDate">The start date.</param>
+        /// <param name="endDate">The end date.</param>
+        /// <param name="registrationStatus">The registration status.</param>
+        /// <param name="searchText">The search text.</param>
+        /// <param name="limit">The limit.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="sortBy">The sort by.</param>
+        /// <param name="sortOrder">The sort order.</param>
+        /// <returns>StudentDto.</returns>
+        public async Task<IReadOnlyList<StudentDto>> GetFilteredAsync(
+        Guid? countryId,
+        Guid? stateId,
+        Guid? modeId,
+        Guid? centreId,
+        Guid? batchId,
+        Guid? gradeId,
+        Guid? courseId,
+        DateTime? startDate,
+        DateTime? endDate,
+        RegistrationStatus? registrationStatus,
+        string? searchText,
+        int limit,
+        int offset,
+        string sortBy,
+        string sortOrder)
+        {
+            _logger.LogInformation("Calling repository for student filter with SortBy={SortBy}, SortOrder={SortOrder}", sortBy, sortOrder);
+
+            var students = await _repository.GetFilteredAsync(
+                countryId,
+                stateId,
+                modeId,
+                centreId,
+                batchId,
+                gradeId,
+                courseId,
+                startDate,
+                endDate,
+                registrationStatus,
+                searchText,
+                limit,
+                offset,
+                sortBy,
+                sortOrder);
+
+            var dtos = students.Select(MapToDto).ToList();
+
+            _logger.LogInformation("Mapped {Count} student entities to DTOs", dtos.Count);
+
+            return dtos;
+        }
+
+        private StudentDto MapToDto(Student entity)
+        {
+            return new StudentDto
+            {
+                Id = entity.Id,
+                Userid = entity.StudentPersonalDetailsId,
+                RegistrationStatus = entity.RegistrationStatus,
+                RegistraionNumber = entity.RegistrationNumber,
+                StudentAcademicId = entity.StudentAcademicDetailsId,
+                AcademicDetails = new StudentAcademicdetailsDto
+                {
+                    CountryId = entity.AcademicDetails.CountryId,
+                    StateId = entity.AcademicDetails.StateId,
+                    CenterId = entity.AcademicDetails.CenterId,
+                    GradeId = entity.AcademicDetails.GradeId,
+                    StreamId = entity.AcademicDetails.StreamId,
+                    SubjectId = entity.AcademicDetails.SubjectId,
+                    PastYearPerformance = entity.AcademicDetails.PastYearPerformance,
+                    PastSchoolName = entity.AcademicDetails.PastSchoolName,
+                    PastSchoolLocation = entity.AcademicDetails.PastSchoolLocation,
+                    Emirates = entity.AcademicDetails.Emirates,
+                },
+
+                StudentPersonalId = entity.StudentPersonalDetailsId,
+                PersonalDetails = new StudentPersonaldetailsdto
+                {
+                    FullName = entity.StudentPersonalDetails.FullName,
+                    EmailAddress = entity.StudentPersonalDetails.EmailAddress,
+                    DOB = entity.StudentPersonalDetails.DOB,
+                    MobileWhatsapp = entity.StudentPersonalDetails.MobileWhatsapp,
+                    MobileBotim = entity.StudentPersonalDetails.MobileBotim,
+                    MobileComera = entity.StudentPersonalDetails.MobileComera,
+                    AreaName = entity.StudentPersonalDetails.AreaName,
+                    DistrictOrLocation = entity.StudentPersonalDetails.DistrictOrLocation,
+                    Emirates = entity.StudentPersonalDetails.Emirates,
+                },
+
+                StudentDocumentsId = entity.StudentDocumentsId,
+                StudentDocuments = new StudentDocumentsDto
+                {
+                    StudentPhoto = entity.StudentDocuments.StudentPhotoPath,
+                    StudentSignature = entity.StudentDocuments.StudentSignaturePath,
+                    IsAcceptedAgreement = entity.StudentDocuments.IsAcceptedAgreement,
+                    IsAcceptedTermsAndConditions = entity.StudentDocuments.IsAcceptedTermsAndConditions,
+                },
+
+                Courses = entity.StudentAcademicCouses
+                    .Select(c => new CourseDto
+                    {
+                        Id = c.CourseId,
+                        CourseName = c.Course.CourseName,
+                        CourseCode = c.Course.CourseCode,
+                    }).ToList(),
+            };
         }
 
         private static StudentDto Map(Student c) =>

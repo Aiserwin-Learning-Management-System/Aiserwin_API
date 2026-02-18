@@ -2,6 +2,7 @@
 {
 
     using Winfocus.LMS.Application.DTOs.Masters;
+    using Winfocus.LMS.Domain.Enums;
 
     /// <summary>
     /// Represents a student and references to their related details entities.
@@ -44,13 +45,24 @@
         public Guid Userid { get; set; }
 
         /// <summary>
-        /// Gets or sets the identifier of the status.
+        /// Gets or sets the registration status.
         /// </summary>
-        public string Status { get; set; } = null!;
+        /// <value>
+        /// The registration status.
+        /// </value>
+        public RegistrationStatus RegistrationStatus { get; set; }
 
         /// <summary>
         /// Gets or sets the identifier of the RegistraionNumber.
         /// </summary>
         public string RegistraionNumber { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the courses.
+        /// </summary>
+        /// <value>
+        /// The courses.
+        /// </value>
+        public List<CourseDto> Courses { get; set; } = new ();
     }
 }

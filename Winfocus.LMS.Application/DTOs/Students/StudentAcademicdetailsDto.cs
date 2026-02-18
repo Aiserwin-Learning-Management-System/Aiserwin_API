@@ -78,16 +78,6 @@
         public StreamDto Stream { get; set; } = null!;
 
         /// <summary>
-        /// Gets or sets the identifier of the associated course.
-        /// </summary>
-        public Guid CourseId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the identifier of the associated course.
-        /// </summary>
-        public CourseDto Course { get; set; } = null!;
-
-        /// <summary>
         /// Gets or sets the identifier of the associated subject.
         /// </summary>
         public Guid SubjectId { get; set; }
