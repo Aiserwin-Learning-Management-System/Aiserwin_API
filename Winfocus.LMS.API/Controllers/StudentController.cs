@@ -76,7 +76,6 @@
                 StudentDocuments = uploaddocDetails,
                 Userid = UserId,
                 RegistrationStatus = RegistrationStatus.Draft,
-                RegistraionNumber = request.academicdetails.registraionNumber,
             };
 
             var created = await _studentService.CreateAsync(studentDto);

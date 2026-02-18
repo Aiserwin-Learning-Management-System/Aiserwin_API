@@ -63,11 +63,10 @@
                 CreatedBy = request.Userid,
                 CreatedAt = DateTime.UtcNow,
                 RegistrationStatus = request.RegistrationStatus,
-                RegistrationNumber = request.RegistraionNumber,
             };
 
             var created = await _repository.AddAsync(student);
-            return Mapstud(created);
+            return MapCreate(created);
         }
 
         /// <summary>
@@ -299,6 +298,34 @@
              IsAcceptedAgreement = c.StudentDocuments.IsAcceptedAgreement,
              IsAcceptedTermsAndConditions = c.StudentDocuments.IsAcceptedTermsAndConditions,
          },
+         Courses = c.StudentAcademicCouses?
+            .Select(x => new CourseDto
+            {
+                Id = x.CourseId,
+                CourseName = x.Course.CourseName,
+                CourseCode = x.Course.CourseCode,
+            }).ToList() ?? new List<CourseDto>(),
+         BatchTimingMTFs = c.StudentBatchTimingMTFs?
+            .Select(x => new BatchTimingMTFDto
+            {
+                Id = x.BatchTimingMTFId,
+                BatchTime = x.BatchTimingMTF.BatchTime.ToString("dd/MM/yyyy hh:mm tt"),
+            }).ToList() ?? new List<BatchTimingMTFDto>(),
+         BatchTimingSaturdays = c.StudentBatchTimingSaturdays?
+            .Select(x => new BatchTimingSaturdayDto
+            {
+                Id = x.BatchTimingSaturdayId,
+                BatchTime = x.BatchTimingSaturday.BatchTime.ToString("dd/MM/yyyy hh:mm tt"),
+            }).ToList() ?? new List<BatchTimingSaturdayDto>(),
+         BatchTimingSundays = c.StudentBatchTimingSundays?
+            .Select(x => new BatchTimingSundayDto
+            {
+                Id = x.BatchTimingSundayId,
+                BatchTime = x.BatchTimingSunday.BatchTime.ToString("dd/MM/yyyy hh:mm tt"),
+            }).ToList() ?? new List<BatchTimingSundayDto>(),
+         StudentAcademicId = c.StudentAcademicDetailsId,
+         StudentDocumentsId = c.StudentDocumentsId,
+         StudentPersonalId = c.StudentPersonalDetailsId,
          RegistraionNumber = c.RegistrationNumber,
          CreatedBy = c.CreatedBy,
          CreatedAt = c.CreatedAt,
@@ -306,7 +333,7 @@
          UpdatedBy = c.UpdatedBy,
      };
 
-        private static StudentDto Mapstud(Student c) =>
+        private static StudentDto MapCreate(Student c) =>
  new StudentDto
  {
      Id = c.Id,

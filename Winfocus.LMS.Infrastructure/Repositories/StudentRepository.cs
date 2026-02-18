@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 using Winfocus.LMS.Application.Interfaces;
 using Winfocus.LMS.Domain.Entities;
 using Winfocus.LMS.Domain.Enums;
@@ -74,8 +75,11 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             .ThenInclude(sc => sc.Course)
 
         .Include(x => x.StudentBatchTimingMTFs)
+           .ThenInclude(sc => sc.BatchTimingMTF)
         .Include(x => x.StudentBatchTimingSaturdays)
+           .ThenInclude(sc => sc.BatchTimingSaturday)
         .Include(x => x.StudentBatchTimingSundays)
+           .ThenInclude(sc => sc.BatchTimingSunday)
 
         .FirstOrDefaultAsync(x => x.Id == id);
         }
@@ -87,6 +91,31 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// <returns>Student.</returns>
         public async Task<Student> AddAsync(Student student)
         {
+            var latestRecord = _dbContext.Students
+                    .Where(item => !string.IsNullOrEmpty(item.RegistrationNumber))
+                    .AsEnumerable()
+                    .OrderByDescending(item => Convert.ToInt32(item.RegistrationNumber.Split('-').Last()))
+                    .FirstOrDefault();
+
+            var maxValue = latestRecord?.RegistrationNumber;
+
+            if (string.IsNullOrEmpty(maxValue))
+            {
+                maxValue = "1";
+                string formattedNumber = maxValue.ToString().PadLeft(4, '0');
+                student.RegistrationNumber = $"AIS-{DateTime.Now.Year}{DateTime.Now.Month:D2}-{formattedNumber}";
+            }
+            else
+            {
+                    string formattedNumber = maxValue.ToString().PadLeft(5, '0');
+                    string digitsOnly = Regex.Replace(formattedNumber, "[^0-9]", "");
+                    digitsOnly = digitsOnly.Substring(digitsOnly.Length - 4);
+                    int val = int.Parse(digitsOnly);
+                    val++;
+                    string num = val.ToString().PadLeft(5, '0');
+                    student.RegistrationNumber = $"AIS-{DateTime.Now.Year}{DateTime.Now.Month:D2}-{num}";
+            }
+
             student.CreatedAt = DateTime.UtcNow;
             _dbContext.Students.Add(student);
             await _dbContext.SaveChangesAsync();
