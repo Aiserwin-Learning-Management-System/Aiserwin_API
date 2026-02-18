@@ -35,7 +35,7 @@ namespace Winfocus.LMS.Application.Interfaces
         /// </summary>
         /// <param name="studentPersonalDetails">The state.</param>
         /// <returns>StudentPersonalDetails.</returns>
-        Task UpdateAsync(StudentPersonalDetails studentPersonalDetails);
+        Task<StudentPersonalDetails> UpdateAsync(StudentPersonalDetails studentPersonalDetails);
 
         /// <summary>
         /// Deletes the asynchronous.

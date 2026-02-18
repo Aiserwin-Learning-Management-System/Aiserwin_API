@@ -1,6 +1,7 @@
 ﻿namespace Winfocus.LMS.Application.Services
 {
     using Microsoft.Extensions.Logging;
+    using Winfocus.LMS.Application.DTOs;
     using Winfocus.LMS.Application.DTOs.Masters;
     using Winfocus.LMS.Application.DTOs.Students;
     using Winfocus.LMS.Application.Interfaces;
@@ -94,9 +95,9 @@
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>task.</returns>
-        public async Task DeleteAsync(Guid id)
+        public async Task<CommonResponse<bool>> DeleteAsync(Guid id)
         {
-            await _repository.DeleteAsync(id);
+           return await _repository.DeleteAsync(id);
         }
 
         /// <summary>
@@ -159,6 +160,16 @@
             _logger.LogInformation("Mapped {Count} student entities to DTOs", dtos.Count);
 
             return dtos;
+        }
+
+        /// <summary>
+        /// update the registration status.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>task.</returns>
+        public async Task<CommonResponse<bool>> StudentConfirm(Guid id)
+        {
+           return await _repository.StudentConfirm(id);
         }
 
         private StudentDto MapToDto(Student entity)
@@ -327,6 +338,7 @@
          StudentDocumentsId = c.StudentDocumentsId,
          StudentPersonalId = c.StudentPersonalDetailsId,
          RegistraionNumber = c.RegistrationNumber,
+         RegistrationStatus = c.RegistrationStatus,
          CreatedBy = c.CreatedBy,
          CreatedAt = c.CreatedAt,
          UpdatedAt = c.UpdatedAt,

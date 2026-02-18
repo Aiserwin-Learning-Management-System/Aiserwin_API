@@ -67,11 +67,12 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// </summary>
         /// <param name="studentPersonalDetails">The studentPersonalDetails.</param>
         /// <returns>task.</returns>
-        public async Task UpdateAsync(StudentPersonalDetails studentPersonalDetails)
+        public async Task<StudentPersonalDetails> UpdateAsync(StudentPersonalDetails studentPersonalDetails)
         {
             studentPersonalDetails.UpdatedAt = DateTime.UtcNow;
             _dbContext.StudentPersonalDetails.Update(studentPersonalDetails);
             await _dbContext.SaveChangesAsync();
+            return studentPersonalDetails;
         }
 
         /// <summary>

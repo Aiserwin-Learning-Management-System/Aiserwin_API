@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
+using Winfocus.LMS.Application.DTOs;
 using Winfocus.LMS.Application.Interfaces;
 using Winfocus.LMS.Domain.Entities;
 using Winfocus.LMS.Domain.Enums;
@@ -81,7 +82,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         .Include(x => x.StudentBatchTimingSundays)
            .ThenInclude(sc => sc.BatchTimingSunday)
 
-        .FirstOrDefaultAsync(x => x.Id == id);
+        .FirstOrDefaultAsync(x => x.Id == id && x.IsActive == true);
         }
 
         /// <summary>
@@ -139,18 +140,23 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>task.</returns>
-        public async Task DeleteAsync(Guid id)
+        public async Task<CommonResponse<bool>> DeleteAsync(Guid id)
         {
             var entity = await _dbContext.Students.FindAsync(id);
             if (entity == null)
             {
-                return;
+                return CommonResponse<bool>
+                   .FailureResponse("Student not found");
             }
 
             entity.IsActive = false;
+            entity.UpdatedAt = DateTime.UtcNow;
+            entity.RegistrationStatus = RegistrationStatus.Disabled;
 
             _dbContext.Students.Update(entity);
             await _dbContext.SaveChangesAsync();
+            return CommonResponse<bool>
+       .SuccessResponse("Student successfully deleted", true);
         }
 
         /// <summary>
@@ -285,6 +291,36 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             _logger.LogInformation("Student filter query returned {Count} records", result.Count);
 
             return result;
+        }
+
+        /// <summary>
+        /// update the registration status.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>task.</returns>
+        public async Task<CommonResponse<bool>> StudentConfirm(Guid id)
+        {
+            var entity = await _dbContext.Students.FindAsync(id);
+            if (entity == null)
+            {
+                return CommonResponse<bool>
+                    .FailureResponse("Student not found");
+            }
+
+            if (!entity.IsActive)
+            {
+                return CommonResponse<bool>
+                    .FailureResponse("Student is inactive");
+            }
+
+            entity.UpdatedAt = DateTime.UtcNow;
+            entity.RegistrationStatus = RegistrationStatus.Submitted;
+
+            _dbContext.Students.Update(entity);
+            await _dbContext.SaveChangesAsync();
+
+            return CommonResponse<bool>
+        .SuccessResponse("Student confirmed successfully", true);
         }
     }
 }
