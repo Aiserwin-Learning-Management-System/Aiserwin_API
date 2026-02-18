@@ -27,5 +27,26 @@
         /// <param name="user">The user.</param>
         /// <returns>task.</returns>
         Task AddAsync(User user);
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>user.</returns>
+        Task<User?> GetByIdAsync(Guid id);
+
+        /// <summary>
+        /// Updates the asynchronous.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <returns>task.</returns>
+        Task UpdateAsync(User user);
+
+        /// <summary>
+        /// Gets the by names asynchronous.
+        /// </summary>
+        /// <param name="roleNames">The role names.</param>
+        /// <returns>Task&lt;IReadOnlyList&lt;Role&gt;&gt;.</returns>
+        Task<IReadOnlyList<Role>> GetByNamesAsync(IReadOnlyList<string> roleNames);
     }
 }

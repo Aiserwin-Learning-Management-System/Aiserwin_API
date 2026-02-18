@@ -1,8 +1,5 @@
 ﻿namespace Winfocus.LMS.Application.Interfaces
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
     using Winfocus.LMS.Application.DTOs;
     using Winfocus.LMS.Application.DTOs.Auth;
 
@@ -24,5 +21,12 @@
         /// <param name="request">The request.</param>
         /// <returns>AuthResponseDto.</returns>
         Task<AuthResponseDto> LoginAsync(LoginRequestDto request);
+
+        /// <summary>
+        /// Sets the password asynchronous.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <returns>Task.</returns>
+        Task SetPasswordAsync(SetPasswordDto request);
     }
 }

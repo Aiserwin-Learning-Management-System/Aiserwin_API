@@ -60,5 +60,44 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             _dbContext.Users.Add(user);
             await _dbContext.SaveChangesAsync();
         }
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>
+        /// user.
+        /// </returns>
+        public Task<User?> GetByIdAsync(Guid id)
+        {
+            return _dbContext.Users
+                .FirstOrDefaultAsync(x => x.Id == id);
+        }
+
+        /// <summary>
+        /// Updates the asynchronous.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <returns>
+        /// Task.
+        /// </returns>
+        public async Task UpdateAsync(User user)
+        {
+            _dbContext.Users.Update(user);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Gets the by names asynchronous.
+        /// </summary>
+        /// <param name="roleNames">The role names.</param>
+        /// <returns>
+        /// List of roles.
+        public async Task<IReadOnlyList<Role>> GetByNamesAsync(IReadOnlyList<string> roleNames)
+        {
+            return await _dbContext.Roles
+                .Where(r => roleNames.Contains(r.Name))
+                .ToListAsync();
+        }
     }
 }
