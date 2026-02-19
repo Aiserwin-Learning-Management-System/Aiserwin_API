@@ -1,6 +1,7 @@
 ﻿namespace Winfocus.LMS.Application.Interfaces
 {
     using Winfocus.LMS.Domain.Entities;
+    using Winfocus.LMS.Domain.Enums;
 
     /// <summary>
     /// IUserActivationTokenRepository.
@@ -25,7 +26,15 @@
         /// Invalidates the user tokens asynchronous.
         /// </summary>
         /// <param name="userId">The user identifier.</param>
+        /// <param name="purpose">The purpose.</param>
         /// <returns>Task.</returns>
-        Task InvalidateUserTokensAsync(Guid userId);
+        Task InvalidateUserTokensAsync(Guid userId, TokenPurpose purpose);
+
+        /// <summary>
+        /// Updates the asynchronous.
+        /// </summary>
+        /// <param name="token">The token.</param>
+        /// <returns>Task.</returns>
+        Task UpdateAsync(UserActivationToken token);
     }
 }

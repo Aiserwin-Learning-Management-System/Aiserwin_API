@@ -48,5 +48,12 @@
         /// <param name="roleNames">The role names.</param>
         /// <returns>Task&lt;IReadOnlyList&lt;Role&gt;&gt;.</returns>
         Task<IReadOnlyList<Role>> GetByNamesAsync(IReadOnlyList<string> roleNames);
+
+        /// <summary>
+        /// Gets the by email asynchronous.
+        /// </summary>
+        /// <param name="email">The email.</param>
+        /// <returns>user.</returns>
+        Task<User?> GetByEmailAsync(string email);
     }
 }

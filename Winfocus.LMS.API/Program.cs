@@ -201,7 +201,7 @@ builder.Services.AddRateLimiter(options =>
 {
     options.AddFixedWindowLimiter("SetPasswordPolicy", config =>
     {
-        config.PermitLimit = 5;                 // 5 requests
+        config.PermitLimit = 1;                 // 5 requests
         config.Window = TimeSpan.FromMinutes(1); // per minute
         config.QueueProcessingOrder = System.Threading.RateLimiting.QueueProcessingOrder.OldestFirst;
         config.QueueLimit = 2;

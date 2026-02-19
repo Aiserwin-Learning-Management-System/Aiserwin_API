@@ -1,10 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Winfocus.LMS.Application.Interfaces;
-using Winfocus.LMS.Domain.Entities;
-using Winfocus.LMS.Infrastructure.Data;
-
-namespace Winfocus.LMS.Infrastructure.Repositories
+﻿namespace Winfocus.LMS.Infrastructure.Repositories
 {
+    using Microsoft.EntityFrameworkCore;
+    using Winfocus.LMS.Application.Interfaces;
+    using Winfocus.LMS.Domain.Entities;
+    using Winfocus.LMS.Infrastructure.Data;
+
     /// <summary>
     /// EF Core implementation of <see cref="IUserRepository"/>.
     /// </summary>
@@ -98,6 +98,21 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             return await _dbContext.Roles
                 .Where(r => roleNames.Contains(r.Name))
                 .ToListAsync();
+        }
+
+        /// <summary>
+        /// Gets the by email asynchronous.
+        /// </summary>
+        /// <param name="email">The email.</param>
+        /// <returns>
+        /// user.
+        /// </returns>
+        public async Task<User?> GetByEmailAsync(string email)
+        {
+            return await _dbContext.Users
+                .Include(u => u.UserRoles)
+                    .ThenInclude(ur => ur.Role)
+                .FirstOrDefaultAsync(u => u.Email == email);
         }
     }
 }

@@ -9,6 +9,7 @@
     using Winfocus.LMS.Application.DTOs.Auth;
     using Winfocus.LMS.Application.Interfaces;
     using Winfocus.LMS.Domain.Entities;
+    using Winfocus.LMS.Domain.Enums;
     using static Winfocus.LMS.Application.Common.Helpers.ValidationHelper;
 
     /// <summary>
@@ -154,6 +155,7 @@
                     Id = Guid.NewGuid(),
                     UserId = user.Id,
                     Token = token,
+                    Purpose = TokenPurpose.SetPassword,
                     ExpiryDate = DateTime.UtcNow.AddHours(24),
                     IsUsed = false,
                     CreatedAt = DateTime.UtcNow,
@@ -311,6 +313,124 @@
                 _logger.LogError(ex, "Password setup failed for token {Token}", request.token);
                 throw;
             }
+        }
+
+        /// <summary>
+        /// Forgots the password asynchronous.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <exception cref="CustomException">Invalid email.</exception>
+        /// <returns>Task.</returns>
+        public async Task ForgotPasswordAsync(ForgotPasswordDto request)
+        {
+            var user = await _userRepository.GetByEmailAsync(request.email);
+
+            if (user == null)
+            {
+                _logger.LogInformation("ForgotPassword for non-existing email {Email}", request.email);
+                return;
+            }
+
+            // Decide purpose based on activation state
+            var purpose = user.IsActive
+                ? TokenPurpose.ResetPassword
+                : TokenPurpose.SetPassword;
+
+            await _activationRepository
+                .InvalidateUserTokensAsync(user.Id, purpose);
+
+            var token = Guid.NewGuid().ToString("N");
+
+            var resetToken = new UserActivationToken
+            {
+                Id = Guid.NewGuid(),
+                UserId = user.Id,
+                Token = token,
+                Purpose = purpose,
+                ExpiryDate = DateTime.UtcNow.AddHours(24),
+                IsUsed = false,
+                CreatedAt = DateTime.UtcNow,
+            };
+
+            await _activationRepository.AddAsync(resetToken);
+
+            if (purpose == TokenPurpose.SetPassword)
+            {
+                await _emailService.SendActivationEmailAsync(
+                    user.Email,
+                    user.Username,
+                    token);
+            }
+            else
+            {
+                await _emailService.SendResetPasswordEmailAsync(
+                    user.Email,
+                    user.Username,
+                    token);
+            }
+        }
+
+        /// <summary>
+        /// Resets the password asynchronous.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <exception cref="CustomException">
+        /// Invalid token. - INVALID_TOKEN
+        /// or
+        /// Invalid token purpose. - INVALID_TOKEN
+        /// or
+        /// Token already used. - TOKEN_ALREADY_USED
+        /// or
+        /// Token expired. - TOKEN_EXPIRED
+        /// or
+        /// User not found. - USER_NOT_FOUND.
+        /// </exception>
+        /// <returns>Task.</returns>
+        public async Task ResetPasswordAsync(ResetPasswordDto request)
+        {
+            var tokenEntity = await _activationRepository
+                .GetByTokenAsync(request.token)
+                ?? throw new CustomException(
+                    "Invalid token.",
+                    StatusCodes.Status400BadRequest,
+                    "INVALID_TOKEN");
+
+            if (tokenEntity.IsUsed)
+            {
+                throw new CustomException(
+                    "Token already used.",
+                    StatusCodes.Status400BadRequest,
+                    "TOKEN_ALREADY_USED");
+            }
+
+            if (tokenEntity.ExpiryDate < DateTime.UtcNow)
+            {
+                throw new CustomException(
+                    "Token expired.",
+                    StatusCodes.Status400BadRequest,
+                    "TOKEN_EXPIRED");
+            }
+
+            var user = await _userRepository
+                .GetByIdAsync(tokenEntity.UserId)
+                ?? throw new CustomException(
+                    "User not found.",
+                    StatusCodes.Status404NotFound,
+                    "USER_NOT_FOUND");
+
+            user.PasswordHash =
+                _passwordHasher.HashPassword(user, request.newPassword);
+
+
+            if (tokenEntity.Purpose == TokenPurpose.SetPassword)
+            {
+                user.IsActive = true;
+            }
+
+            tokenEntity.IsUsed = true;
+
+            await _userRepository.UpdateAsync(user);
+            await _activationRepository.UpdateAsync(tokenEntity);
         }
     }
 }

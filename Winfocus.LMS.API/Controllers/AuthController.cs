@@ -65,5 +65,34 @@
             await _authService.SetPasswordAsync(request);
             return Ok("Password set successfully.");
         }
+
+        /// <summary>
+        /// Forgots the password.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <returns>Task.</returns>
+        [AllowAnonymous]
+        [EnableRateLimiting("SetPasswordPolicy")]
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordDto request)
+        {
+            await _authService.ForgotPasswordAsync(request);
+            return Ok(new { message = "If the email exists, a reset link has been sent." });
+        }
+
+        /// <summary>
+        /// Resets the password.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <returns>Task.</returns>
+        [AllowAnonymous]
+        [EnableRateLimiting("SetPasswordPolicy")]
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword(ResetPasswordDto request)
+        {
+            await _authService.ResetPasswordAsync(request);
+            return Ok(new { message = "Password reset successfully." });
+        }
+
     }
 }

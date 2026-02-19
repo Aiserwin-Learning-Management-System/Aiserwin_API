@@ -3,6 +3,7 @@
     using Microsoft.EntityFrameworkCore;
     using Winfocus.LMS.Application.Interfaces;
     using Winfocus.LMS.Domain.Entities;
+    using Winfocus.LMS.Domain.Enums;
     using Winfocus.LMS.Infrastructure.Data;
 
     /// <summary>
@@ -50,11 +51,16 @@
         /// Invalidates the user tokens asynchronous.
         /// </summary>
         /// <param name="userId">The user identifier.</param>
+        /// <param name="purpose">The purpose.</param>
         /// <returns>Task.</returns>
-        public async Task InvalidateUserTokensAsync(Guid userId)
+        public async Task InvalidateUserTokensAsync(
+        Guid userId,
+        TokenPurpose purpose)
         {
             var tokens = await _dbContext.UserActivationTokens
-                .Where(x => x.UserId == userId && !x.IsUsed)
+                .Where(t => t.UserId == userId &&
+                            t.Purpose == purpose &&
+                            !t.IsUsed)
                 .ToListAsync();
 
             foreach (var token in tokens)
@@ -62,6 +68,17 @@
                 token.IsUsed = true;
             }
 
+            await _dbContext.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Updates the asynchronous.
+        /// </summary>
+        /// <param name="token">The token.</param>
+        /// <returns>Task.</returns>
+        public async Task UpdateAsync(UserActivationToken token)
+        {
+            _dbContext.UserActivationTokens.Update(token);
             await _dbContext.SaveChangesAsync();
         }
     }

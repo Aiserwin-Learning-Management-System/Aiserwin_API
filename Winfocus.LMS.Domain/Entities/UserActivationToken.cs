@@ -1,6 +1,7 @@
 ﻿namespace Winfocus.LMS.Domain.Entities
 {
     using Winfocus.LMS.Domain.Common;
+    using Winfocus.LMS.Domain.Enums;
 
     /// <summary>
     /// Represents activation token for password setup.
@@ -16,6 +17,14 @@
         /// Gets or sets the activation token string.
         /// </summary>
         public string Token { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the purpose.
+        /// </summary>
+        /// <value>
+        /// The purpose.
+        /// </value>
+        public TokenPurpose Purpose { get; set; }
 
         /// <summary>
         /// Gets or sets expiration date.
