@@ -322,5 +322,35 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             return CommonResponse<bool>
         .SuccessResponse("Student confirmed successfully", true);
         }
+
+        /// <summary>
+        /// update the registration status.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>task.</returns>
+        public async Task<CommonResponse<bool>> StudentApprove(Guid id)
+        {
+            var entity = await _dbContext.Students.FindAsync(id);
+            if (entity == null)
+            {
+                return CommonResponse<bool>
+                    .FailureResponse("Student not found");
+            }
+
+            if (!entity.IsActive)
+            {
+                return CommonResponse<bool>
+                    .FailureResponse("Student is inactive");
+            }
+
+            entity.UpdatedAt = DateTime.UtcNow;
+            entity.RegistrationStatus = RegistrationStatus.Approved;
+
+            _dbContext.Students.Update(entity);
+            await _dbContext.SaveChangesAsync();
+
+            return CommonResponse<bool>
+        .SuccessResponse("Student approved successfully", true);
+        }
     }
 }

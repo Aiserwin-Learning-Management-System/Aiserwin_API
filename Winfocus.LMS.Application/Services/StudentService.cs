@@ -173,6 +173,16 @@
            return await _repository.StudentConfirm(id);
         }
 
+        /// <summary>
+        /// update the registration status.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>task.</returns>
+        public async Task<CommonResponse<bool>> StudentApprove(Guid id)
+        {
+            return await _repository.StudentApprove(id);
+        }
+
         private StudentDto MapToDto(Student entity)
         {
             return new StudentDto
