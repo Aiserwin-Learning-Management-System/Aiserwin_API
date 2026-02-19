@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Net.Mail;
@@ -93,11 +94,15 @@ namespace Winfocus.LMS.Application.Services
         /// <param name="request">The request.</param>
         /// <exception cref="KeyNotFoundException">State not found.</exception>
         /// <returns>task.</returns>
-        public async Task UpdateAsync(Guid id, StudentPersonaldetailsRequest request)
+        public async Task<CommonResponse<StudentPersonaldetailsdto>> UpdateAsync(Guid id, StudentPersonaldetailsRequest request)
         {
             _logger.LogInformation("Updating StudentPersonaldetails Id: {StudentPersonaldetails}", id);
-            var studentPersonal = await _repository.GetByIdAsync(id)
-                ?? throw new KeyNotFoundException("StudentPersonaldetails not found");
+            var studentPersonal = await _repository.GetByIdAsync(id);
+            if (studentPersonal == null)
+            {
+                return CommonResponse<StudentPersonaldetailsdto>
+                    .FailureResponse("Student personal details not found");
+            }
 
             studentPersonal.FullName = request.fullname;
             studentPersonal.EmailAddress = request.emailaddress;
@@ -108,11 +113,17 @@ namespace Winfocus.LMS.Application.Services
             studentPersonal.AreaName = request.areaname;
             studentPersonal.DistrictOrLocation = request.districtorlocation;
             studentPersonal.Emirates = request.emirates;
+            studentPersonal.Id = id;
 
-            await _repository.UpdateAsync(studentPersonal);
+            var updated = await _repository.UpdateAsync(studentPersonal);
             _logger.LogInformation(
            "studentPersonal updated successfully. studentPersonalId: {studentPersonalId}",
            id);
+
+            var dto = Map(updated);
+
+            return CommonResponse<StudentPersonaldetailsdto>
+                .SuccessResponse("Student personal details updated successfully", dto);
         }
 
         /// <summary>

@@ -46,7 +46,7 @@ namespace Winfocus.LMS.Application.Interfaces
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>id.</returns>
-        Task DeleteAsync(Guid id);
+        Task<CommonResponse<bool>> DeleteAsync(Guid id);
 
         /// <summary>
         /// Gets the filtered asynchronous.
@@ -83,5 +83,12 @@ namespace Winfocus.LMS.Application.Interfaces
         int offset,
         string sortBy,
         string sortOrder);
+
+        /// <summary>
+        /// update the registration status.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>id.</returns>
+        Task<CommonResponse<bool>> StudentConfirm(Guid id);
     }
 }

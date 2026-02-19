@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Winfocus.LMS.Application.DTOs;
 using Winfocus.LMS.Domain.Entities;
 using Winfocus.LMS.Domain.Enums;
 
@@ -43,7 +44,7 @@ namespace Winfocus.LMS.Application.Interfaces
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>task.</returns>
-        Task DeleteAsync(Guid id);
+        Task<CommonResponse<bool>> DeleteAsync(Guid id);
 
         /// <summary>
         /// Gets the filtered asynchronous.
@@ -80,5 +81,12 @@ namespace Winfocus.LMS.Application.Interfaces
          int offset,
          string sortBy,
          string sortOrder);
+
+        /// <summary>
+        /// update the registration status.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>task.</returns>
+        Task<CommonResponse<bool>> StudentConfirm(Guid id);
     }
 }
