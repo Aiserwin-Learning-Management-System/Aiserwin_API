@@ -35,7 +35,7 @@
         /// <param name="id">The identifier.</param>
         /// <param name="request">The request.</param>
         /// <returns>id.</returns>
-        Task UpdateAsync(Guid id, StudentAcademicdetailsRequest request);
+        Task<CommonResponse<StudentAcademicdetailsDto>> UpdateAsync(Guid id, StudentAcademicdetailsRequest request);
 
         /// <summary>
         /// Deletes the asynchronous.
@@ -60,12 +60,28 @@
         Task AddCoursesAsync(Guid studentId, List<Guid> courseIds);
 
         /// <summary>
+        /// updates courses for a specific student academic record.
+        /// </summary>
+        /// <param name="studentId">Student details identifier.</param>
+        /// <param name="courseIds">List of course identifiers.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        Task UpdateCoursesAsync(Guid studentId, List<Guid> courseIds);
+
+        /// <summary>
         /// Adds courses for a specific student academic record.
         /// </summary>
         /// <param name="studentId">Student  details identifier.</param>
         /// <param name="batchtimingmtfid">List of Batchtimingmtf identifiers.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
         Task AddBatchTimingMTFsAsync(Guid studentId, List<Guid> batchtimingmtfid);
+
+        /// <summary>
+        /// updates courses for a specific student academic record.
+        /// </summary>
+        /// <param name="studentId">Student  details identifier.</param>
+        /// <param name="batchtimingmtfid">List of Batchtimingmtf identifiers.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        Task UpdateBatchTimingMTFsAsync(Guid studentId, List<Guid> batchtimingmtfid);
 
         /// <summary>
         /// Adds courses for a specific student academic record.
@@ -76,11 +92,35 @@
         Task AddBatchTimingSaturdaysAsync(Guid studentId, List<Guid> batchtimingsaturdayid);
 
         /// <summary>
+        /// update courses for a specific student academic record.
+        /// </summary>
+        /// <param name="studentId">Student  details identifier.</param>
+        /// <param name="batchtimingsaturdayid">List of Batchtiming saturday identifiers.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        Task UpdateBatchTimingSaturdaysAsync(Guid studentId, List<Guid> batchtimingsaturdayid);
+
+        /// <summary>
         /// Adds courses for a specific student academic record.
         /// </summary>
         /// <param name="studentId">Student  details identifier.</param>
         /// <param name="batchtimingsundaysid">List of Batchtiming sunday identifiers.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
         Task AddBatchTimingSundaysAsync(Guid studentId, List<Guid> batchtimingsundaysid);
+
+        /// <summary>
+        /// update courses for a specific student academic record.
+        /// </summary>
+        /// <param name="studentId">Student  details identifier.</param>
+        /// <param name="batchtimingsundaysid">List of Batchtiming sunday identifiers.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        Task UpdateBatchTimingSundaysAsync(Guid studentId, List<Guid> batchtimingsundaysid);
+
+        /// <summary>
+        /// updates the asynchronous.
+        /// </summary>
+        /// /// <param name="studentId">Student  details identifier.</param>
+        /// <param name="request">The request.</param>
+        /// <returns>StudentDocumentsDto.</returns>
+        Task<CommonResponse<StudentDocumentsDto>> UpdateUploadedDocuments(Guid studentId, StudentUploaddocumentsRequest request);
     }
 }
