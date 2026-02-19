@@ -30,6 +30,8 @@
 
             builder.Property(x => x.IsUsed)
                 .HasDefaultValue(false);
+
+            builder.Property(x => x.Purpose).HasConversion<int>().IsRequired();
         }
     }
 }

@@ -96,7 +96,7 @@
 
                 List<Role> roles;
 
-                if (request.roleNames != null && request.roleNames.Any())
+                if (request.roleNames != null && request.roleNames.Any(r => !string.IsNullOrWhiteSpace(r)))
                 {
                     var distinctRoleNames = request.roleNames
                         .Where(r => !string.IsNullOrWhiteSpace(r))

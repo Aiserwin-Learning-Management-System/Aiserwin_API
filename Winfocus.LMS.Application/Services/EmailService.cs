@@ -6,6 +6,7 @@
     using Microsoft.Extensions.Options;
     using MimeKit;
     using Winfocus.LMS.Application.Configuration;
+    using Winfocus.LMS.Application.Helpers;
     using Winfocus.LMS.Application.Interfaces;
 
     /// <summary>
@@ -42,33 +43,28 @@
             string username,
             string token)
         {
-            try
-            {
-                var activationLink =
-                    $"https://localhost:4200/activate-account?token={token}";
+            var activationLink =
+                $"{_smtpSettings.Domain}/activate-account?token={token}";
 
-                var message = BuildHtmlEmail(
-                    email,
-                    "Activate Your Account",
-                    username,
-                    "Activate Account",
-                    activationLink,
-                    "activate your account");
+            var htmlBody = EmailTemplateRenderer.Render(
+                "activation.html",
+                new Dictionary<string, string>
+                {
+                    { "USERNAME", username },
+                    { "ACTION_LINK", activationLink },
+                    { "BUTTON_TEXT", "Set Password" },
+                });
 
-                await SendAsync(message);
+            var message = BuildMessage(
+                email,
+                "AISERWIN Registration Successful",
+                htmlBody);
 
-                _logger.LogInformation(
-                    "Activation email sent successfully to {Email}",
-                    email);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(
-                    ex,
-                    "Failed to send activation email to {Email}",
-                    email);
-                throw;
-            }
+            await SendAsync(message);
+
+            _logger.LogInformation(
+                "Activation email sent successfully to {Email}",
+                email);
         }
 
         /// <summary>
@@ -83,42 +79,34 @@
             string username,
             string token)
         {
-            try
-            {
-                var resetLink =
-                    $"https://localhost:4200/reset-password?token={token}";
+            var resetLink =
+                $"{_smtpSettings.Domain}/reset-password?token={token}";
 
-                var message = BuildHtmlEmail(
-                    email,
-                    "Reset Your Password",
-                    username,
-                    "Reset Password",
-                    resetLink,
-                    "reset your password");
+            var htmlBody = EmailTemplateRenderer.Render(
+                "reset-password.html",
+                new Dictionary<string, string>
+                {
+                    { "USERNAME", username },
+                    { "ACTION_LINK", resetLink },
+                    { "BUTTON_TEXT", "Reset Password" },
+                });
 
-                await SendAsync(message);
+            var message = BuildMessage(
+                email,
+                "Reset Your AISERWIN Password",
+                htmlBody);
 
-                _logger.LogInformation(
-                    "Reset password email sent successfully to {Email}",
-                    email);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(
-                    ex,
-                    "Failed to send reset password email to {Email}",
-                    email);
-                throw;
-            }
+            await SendAsync(message);
+
+            _logger.LogInformation(
+                "Reset password email sent successfully to {Email}",
+                email);
         }
 
-        private MimeMessage BuildHtmlEmail(
+        private MimeMessage BuildMessage(
             string toEmail,
             string subject,
-            string username,
-            string buttonText,
-            string actionLink,
-            string actionDescription)
+            string htmlBody)
         {
             var message = new MimeMessage();
 
@@ -132,25 +120,8 @@
 
             var bodyBuilder = new BodyBuilder
             {
-                HtmlBody = $@"
-                    <div style='font-family: Arial, sans-serif;'>
-                        <h2>Hello {username},</h2>
-                        <p>Please click the button below to {actionDescription}:</p>
-                        <p>
-                            <a href='{actionLink}'
-                               style='display:inline-block;
-                                      padding:10px 18px;
-                                      background-color:#007bff;
-                                      color:#ffffff;
-                                      text-decoration:none;
-                                      border-radius:4px;'>
-                               {buttonText}
-                            </a>
-                        </p>
-                        <p>This link will expire in 24 hours.</p>
-                        <br/>
-                        <p>If you did not request this, please ignore this email.</p>
-                    </div>",
+                HtmlBody = htmlBody,
+                TextBody = "Please view this email in an HTML-compatible client.",
             };
 
             message.Body = bodyBuilder.ToMessageBody();

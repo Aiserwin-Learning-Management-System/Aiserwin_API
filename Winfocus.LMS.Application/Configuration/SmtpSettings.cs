@@ -60,5 +60,13 @@
         /// From name.
         /// </value>
         public string FromName { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the domain.
+        /// </summary>
+        /// <value>
+        /// The domain.
+        /// </value>
+        public string Domain { get; set; } = null!;
     }
 }

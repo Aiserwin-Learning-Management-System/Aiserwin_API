@@ -12,12 +12,18 @@
 
   <ItemGroup>
     <Folder Include="Features\" />
+    <Folder Include="EmailTemplates\" />
   </ItemGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
-
   <ItemGroup>
+  	<Content Include="EmailTemplates\*.html">
+  		<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+  	</Content>
+  </ItemGroup>
+
+	<ItemGroup>
     <PackageReference Include="FluentValidation" Version="12.1.1" />
     <PackageReference Include="MailKit" Version="4.15.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="10.0.102">
