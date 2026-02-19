@@ -6,5 +6,5 @@
     public sealed record CourseRequest(
     string coursename,
     string coursecode,
-    Guid subjectid, Guid gradeid, string cousedescription, string courseurl, int maxstudent, string academicyear);
+    Guid subjectid, Guid gradeid, string cousedescription, string courseurl, int maxstudent, Guid academicyear);
 }

@@ -77,6 +77,7 @@
                 PersonalDetails = personalDetails.Data,
                 StudentDocumentsId = uploaddocDetails.Id,
                 StudentDocuments = uploaddocDetails,
+                IsScholershipStudent = request.isscholershipstudent,
                 //Userid = UserId,
                 RegistrationStatus = RegistrationStatus.Draft,
             };

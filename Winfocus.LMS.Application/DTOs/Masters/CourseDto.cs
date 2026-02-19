@@ -81,6 +81,6 @@ namespace Winfocus.LMS.Application.DTOs.Masters
         /// <value>
         /// The academic year.
         /// </value>
-        public string AcademicYear { get; set; } = null!;
+        public Guid AcademicYear { get; set; }
     }
 }

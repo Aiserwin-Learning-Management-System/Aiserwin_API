@@ -64,6 +64,7 @@
                 CreatedBy = request.Userid,
                 CreatedAt = DateTime.UtcNow,
                 RegistrationStatus = request.RegistrationStatus,
+                Isscholershipstudent = request.IsScholershipStudent,
             };
 
             var created = await _repository.AddAsync(student);
@@ -339,6 +340,7 @@
          StudentPersonalId = c.StudentPersonalDetailsId,
          RegistraionNumber = c.RegistrationNumber,
          RegistrationStatus = c.RegistrationStatus,
+         IsScholershipStudent = c.Isscholershipstudent,
          CreatedBy = c.CreatedBy,
          CreatedAt = c.CreatedAt,
          UpdatedAt = c.UpdatedAt,
