@@ -104,17 +104,17 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             {
                 maxValue = "1";
                 string formattedNumber = maxValue.ToString().PadLeft(4, '0');
-                student.RegistrationNumber = $"AIS-{DateTime.Now.Year}{DateTime.Now.Month:D2}-{formattedNumber}";
+                student.RegistrationNumber = $"AIS-{formattedNumber}";
             }
             else
             {
-                    string formattedNumber = maxValue.ToString().PadLeft(5, '0');
+                    string formattedNumber = maxValue.ToString().PadLeft(4, '0');
                     string digitsOnly = Regex.Replace(formattedNumber, "[^0-9]", "");
                     digitsOnly = digitsOnly.Substring(digitsOnly.Length - 4);
                     int val = int.Parse(digitsOnly);
                     val++;
-                    string num = val.ToString().PadLeft(5, '0');
-                    student.RegistrationNumber = $"AIS-{DateTime.Now.Year}{DateTime.Now.Month:D2}-{num}";
+                    string num = val.ToString().PadLeft(4, '0');
+                    student.RegistrationNumber = $"AIS-{num}";
             }
 
             student.CreatedAt = DateTime.UtcNow;
@@ -321,6 +321,36 @@ namespace Winfocus.LMS.Infrastructure.Repositories
 
             return CommonResponse<bool>
         .SuccessResponse("Student confirmed successfully", true);
+        }
+
+        /// <summary>
+        /// update the registration status.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>task.</returns>
+        public async Task<CommonResponse<bool>> StudentApprove(Guid id)
+        {
+            var entity = await _dbContext.Students.FindAsync(id);
+            if (entity == null)
+            {
+                return CommonResponse<bool>
+                    .FailureResponse("Student not found");
+            }
+
+            if (!entity.IsActive)
+            {
+                return CommonResponse<bool>
+                    .FailureResponse("Student is inactive");
+            }
+
+            entity.UpdatedAt = DateTime.UtcNow;
+            entity.RegistrationStatus = RegistrationStatus.Approved;
+
+            _dbContext.Students.Update(entity);
+            await _dbContext.SaveChangesAsync();
+
+            return CommonResponse<bool>
+        .SuccessResponse("Student approved successfully", true);
         }
     }
 }

@@ -88,5 +88,14 @@
         /// The batchtimings.
         /// </value>
         public List<BatchTimingSundayDto> BatchTimingSundays { get; set; } = new ();
+
+        /// <summary>
+        /// Gets or sets a value indicating whether gets or sets the IsScholershipStudent.
+        /// </summary>
+        /// <value>
+        /// The IsScholershipStudent.
+        /// </value>
+        public bool IsScholershipStudent { get; set; }
+
     }
 }

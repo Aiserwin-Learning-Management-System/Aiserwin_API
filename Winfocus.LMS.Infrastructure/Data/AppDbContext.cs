@@ -203,6 +203,14 @@
         public DbSet<StudentBatchTimingSunday> StudentBatchTimingSundays { get; set; }
 
         /// <summary>
+        /// Gets or sets the academic year.
+        /// </summary>
+        /// <value>
+        /// The academic year.
+        /// </value>
+        public DbSet<AcademicYear> AcademicYears { get; set; }
+
+        /// <summary>
         /// Gets or sets the user activation token.
         /// </summary>
         /// <value>
