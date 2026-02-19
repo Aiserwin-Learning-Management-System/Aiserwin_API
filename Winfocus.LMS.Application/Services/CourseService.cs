@@ -74,6 +74,11 @@
                 CourseName = request.coursename,
                 CourseCode = request.coursecode,
                 SubjectId = request.subjectid,
+                GradeId = request.gradeid,
+                CourseDescription = request.cousedescription,
+                CourseUrl = request.courseurl,
+                MaxStudent = request.maxstudent,
+                AcademicYear = request.academicyear,
                 CreatedAt = DateTime.UtcNow,
             };
 
@@ -97,6 +102,11 @@
             course.CourseName = request.coursename;
             course.CourseCode = request.coursecode;
             course.SubjectId = request.subjectid;
+            course.GradeId = request.gradeid;
+            course.CourseDescription = request.cousedescription;
+            course.CourseUrl = request.courseurl;
+            course.MaxStudent = request.maxstudent;
+            course.AcademicYear = request.academicyear;
             course.UpdatedAt = DateTime.UtcNow;
 
             await _repo.UpdateAsync(course);
@@ -117,6 +127,11 @@
             Id = c.Id,
             CourseName = c.CourseName,
             CourseCode = c.CourseCode,
+            GradeId = c.GradeId,
+            CourseDescription = c.CourseDescription,
+            CourseUrl = c.CourseUrl,
+            MaxStudent = c.MaxStudent,
+            AcademicYear = c.AcademicYear,
             Subject = new SubjectDto
             {
                 Id = c.Subject.Id,
