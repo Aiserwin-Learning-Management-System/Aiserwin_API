@@ -77,7 +77,7 @@
                 PersonalDetails = personalDetails.Data,
                 StudentDocumentsId = uploaddocDetails.Id,
                 StudentDocuments = uploaddocDetails,
-                Userid = UserId,
+                //Userid = UserId,
                 RegistrationStatus = RegistrationStatus.Draft,
             };
 
