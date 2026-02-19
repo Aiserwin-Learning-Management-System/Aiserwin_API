@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Azure.Core;
+using Microsoft.EntityFrameworkCore;
 using Winfocus.LMS.Application.Interfaces;
 using Winfocus.LMS.Domain.Entities;
 using Winfocus.LMS.Infrastructure.Data;
@@ -68,10 +69,30 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// <returns>task.</returns>
         public async Task<StudentAcademicDetails> UpdateAsync(StudentAcademicDetails studentAcademicDetails)
         {
-            studentAcademicDetails.UpdatedAt = DateTime.UtcNow;
-            _dbContext.StudentAcademicDetails.Update(studentAcademicDetails);
+            var existing = await _dbContext.StudentAcademicDetails
+                .FirstOrDefaultAsync(x => x.Id == studentAcademicDetails.Id);
+
+            if (existing == null)
+                throw new Exception("StudentAcademicDetails not found");
+
+            existing.CountryId = studentAcademicDetails.CountryId;
+            existing.StateId = studentAcademicDetails.StateId;
+            existing.ModeOfStudyId = studentAcademicDetails.ModeOfStudyId;
+            existing.CenterId = studentAcademicDetails.CenterId;
+            existing.SyllabusId = studentAcademicDetails.SyllabusId;
+            existing.GradeId = studentAcademicDetails.GradeId;
+            existing.StreamId = studentAcademicDetails.StreamId;
+            existing.BatchId = studentAcademicDetails.BatchId;
+            existing.PreferredBatchTimeId = studentAcademicDetails.PreferredBatchTimeId;
+            existing.PastYearPerformance = studentAcademicDetails.PastYearPerformance;
+            existing.PastSchoolName = studentAcademicDetails.PastSchoolName;
+            existing.PastSchoolLocation = studentAcademicDetails.PastSchoolLocation;
+            existing.Emirates = studentAcademicDetails.Emirates;
+            existing.SubjectId = studentAcademicDetails.SubjectId;
+            existing.UpdatedAt = DateTime.UtcNow;
             await _dbContext.SaveChangesAsync();
-            return studentAcademicDetails;
+
+            return existing;
         }
 
         /// <summary>
@@ -292,10 +313,21 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// <returns>StudentDocuments.</returns>
         public async Task<StudentDocuments> UpdateUploadedDocuments(StudentDocuments studentDocuments)
         {
-            studentDocuments.UpdatedAt = DateTime.UtcNow;
-            _dbContext.StudentDocuments.Update(studentDocuments);
+            var existing = await _dbContext.StudentDocuments
+            .FirstOrDefaultAsync(x => x.Id == studentDocuments.Id);
+
+            if (existing == null)
+                throw new Exception("StudentDocuments not found");
+
+            existing.StudentPhotoPath = studentDocuments.StudentPhotoPath;
+            existing.StudentSignaturePath = studentDocuments.StudentSignaturePath;
+            existing.IsAcceptedAgreement = studentDocuments.IsAcceptedAgreement;
+            existing.IsAcceptedTermsAndConditions = studentDocuments.IsAcceptedTermsAndConditions;
+            existing.UpdatedAt = DateTime.UtcNow;
+
             await _dbContext.SaveChangesAsync();
-            return studentDocuments;
+
+            return existing;
         }
     }
 }
