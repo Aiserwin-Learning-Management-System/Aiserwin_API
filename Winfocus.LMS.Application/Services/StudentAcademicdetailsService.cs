@@ -27,6 +27,7 @@ namespace Winfocus.LMS.Application.Services
         private readonly ICourseRepository _courseRepository;
         private readonly ISubjectRepository _subjectRepository;
         private readonly IFileStorageService _fileStorageService;
+        private readonly IAcademicYearRepository _yearRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StudentAcademicdetailsService"/> class.
@@ -43,7 +44,8 @@ namespace Winfocus.LMS.Application.Services
         /// <param name="subjectRepository">subjectRepository used for data access.</param>
         /// <param name="logger">Logger.</param>
         /// <param name="fileStorageService">fileStorageService used for access service.</param>
-        public StudentAcademicdetailsService(IStudentAcademicdetailsRepository repository, ILogger<StudentAcademicdetailsService> logger, ICountryRepository countryRepository, IModeOfStudyRepository modeOfStudyRepository, IStateRepository stateRepository, ICentreRepository centerRepository, ISyllabusRepository syllabusRepository, IGradeRepository gradeRepository, IStreamRepository streamRepository, ICourseRepository courseRepository, ISubjectRepository subjectRepository, IFileStorageService fileStorageService)
+        /// <param name="yearRepository">yearRepository.</param>
+        public StudentAcademicdetailsService(IStudentAcademicdetailsRepository repository, ILogger<StudentAcademicdetailsService> logger, ICountryRepository countryRepository, IModeOfStudyRepository modeOfStudyRepository, IStateRepository stateRepository, ICentreRepository centerRepository, ISyllabusRepository syllabusRepository, IGradeRepository gradeRepository, IStreamRepository streamRepository, ICourseRepository courseRepository, ISubjectRepository subjectRepository, IFileStorageService fileStorageService, IAcademicYearRepository yearRepository)
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -57,6 +59,7 @@ namespace Winfocus.LMS.Application.Services
             _courseRepository = courseRepository;
             _subjectRepository = subjectRepository;
             _fileStorageService = fileStorageService;
+            _yearRepository = yearRepository;
         }
 
         /// <summary>
@@ -164,6 +167,13 @@ namespace Winfocus.LMS.Application.Services
                 Emirates = request.emirates,
                 SubjectId = request.subjectId,
             };
+            var today = DateTime.UtcNow.Date;
+            var currentYear = await _yearRepository.GetByDateAsync(today);
+
+            if (currentYear != null)
+            {
+                academicDetails.AcademicYearId = currentYear.Id;
+            }
 
             var created = await _repository.AddAsync(academicDetails);
 

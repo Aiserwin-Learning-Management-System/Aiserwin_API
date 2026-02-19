@@ -35,5 +35,14 @@
                 .AsNoTracking()
                 .ToListAsync();
         }
+
+        /// <inheritdoc/>
+        public async Task<AcademicYear?> GetByDateAsync(DateTime date)
+        {
+            return await _dbContext.AcademicYears
+                .FirstOrDefaultAsync(x =>
+                    x.StartDate <= date &&
+                    x.EndDate >= date);
+        }
     }
 }

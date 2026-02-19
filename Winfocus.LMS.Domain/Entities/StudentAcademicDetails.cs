@@ -117,5 +117,10 @@
         /// Gets or sets the emirate associated with the student's record.
         /// </summary>
         public string Emirates { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the academic year id.
+        /// </summary>
+        public Guid AcademicYearId { get; set; }
     }
 }

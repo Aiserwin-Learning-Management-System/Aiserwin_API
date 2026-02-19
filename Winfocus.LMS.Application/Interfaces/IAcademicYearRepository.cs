@@ -15,5 +15,12 @@ namespace Winfocus.LMS.Application.Interfaces
         /// </summary>
         /// <returns>BatchTimingMTF.</returns>
         Task<IReadOnlyList<AcademicYear>> GetAllAsync();
+
+        /// <summary>
+        /// Gets the academic year that contains the specified date.
+        /// </summary>
+        /// <param name="date">The date used to determine the academic year.</param>
+        /// <returns>The matching academic year if found; otherwise null.</returns>
+        Task<AcademicYear?> GetByDateAsync(DateTime date);
     }
 }
