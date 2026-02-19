@@ -1,9 +1,11 @@
 ﻿namespace Winfocus.LMS.API.Controllers
 {
     using Asp.Versioning;
+    using Azure.Core;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Winfocus.LMS.Application.DTOs;
+    using Winfocus.LMS.Application.DTOs.Auth;
     using Winfocus.LMS.Application.DTOs.Students;
     using Winfocus.LMS.Application.Interfaces;
     using Winfocus.LMS.Application.Services;
@@ -21,6 +23,7 @@
         private readonly IStudentService _studentService;
         private readonly IStudentAcademicdetailsService _studentAcademicdetailsService;
         private readonly IStudentPersonaldetailsService _studentPersonaldetailsService;
+        private readonly IAuthService _authService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StudentController"/> class.
@@ -28,11 +31,13 @@
         /// <param name="studentService">The student service.</param>
         /// <param name="studentAcademicdetailsService">The studentacademic details service.</param>
         /// <param name="studentPersonaldetailsService">The studentpersonal details service.</param>
-        public StudentController(IStudentService studentService, IStudentAcademicdetailsService studentAcademicdetailsService, IStudentPersonaldetailsService studentPersonaldetailsService)
+        /// <param name="authService">The student auth service.</param>
+        public StudentController(IStudentService studentService, IStudentAcademicdetailsService studentAcademicdetailsService, IStudentPersonaldetailsService studentPersonaldetailsService, IAuthService authService)
         {
             _studentService = studentService;
             _studentAcademicdetailsService = studentAcademicdetailsService;
             _studentPersonaldetailsService = studentPersonaldetailsService;
+            _authService = authService;
         }
 
         /// <summary>
@@ -77,7 +82,8 @@
                 PersonalDetails = personalDetails.Data,
                 StudentDocumentsId = uploaddocDetails.Id,
                 StudentDocuments = uploaddocDetails,
-               // Userid = UserId,
+                IsScholershipStudent = request.isscholershipstudent,
+                //Userid = UserId,
                 RegistrationStatus = RegistrationStatus.Draft,
             };
 
@@ -190,7 +196,7 @@
         [HttpPost("{id:guid}/confirm")]
         public async Task<CommonResponse<bool>> StudentConfirm(Guid id)
         {
-           return await _studentService.StudentConfirm(id);
+            return await _studentService.StudentConfirm(id);
         }
 
         /// <summary>
@@ -234,6 +240,37 @@
             await _studentAcademicdetailsService.UpdateBatchTimingSundaysAsync(student.Id, request.academicdetails.batchTimingSundayIds);
 
             return CreatedAtAction(nameof(Get), new { id = student.Id }, student);
+        }
+
+        /// <summary>
+        /// student confirm.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>result.</returns>
+        [HttpPost("{id:guid}/approve")]
+        public async Task<CommonResponse<bool>> StudentApprove(Guid id)
+        {
+            var response = await _studentService.StudentApprove(id);
+            var student = await _studentService.GetByIdAsync(id);
+
+            if (response.Success && student != null)
+            {
+                var username = student.PersonalDetails.FullName
+                    ?.Trim()
+                    .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                    .FirstOrDefault();
+
+                RegisterRequestDto obj = new RegisterRequestDto(
+                    username,
+                    student.PersonalDetails.EmailAddress,
+                    "Test@123",
+                    new List<string> { "Student" }
+                );
+
+                var result = await _authService.RegisterAsync(obj);
+            }
+
+            return response;
         }
     }
 }

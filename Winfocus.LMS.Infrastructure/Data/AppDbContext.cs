@@ -203,6 +203,14 @@
         public DbSet<StudentBatchTimingSunday> StudentBatchTimingSundays { get; set; }
 
         /// <summary>
+        /// Gets or sets the academic year.
+        /// </summary>
+        /// <value>
+        /// The academic year.
+        /// </value>
+        public DbSet<AcademicYear> AcademicYears { get; set; }
+
+        /// <summary>
         /// Configures the model for the context.
         /// </summary>
         /// <param name="modelBuilder">The builder being used to construct the model for this context.</param>
