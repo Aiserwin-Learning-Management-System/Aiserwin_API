@@ -22,6 +22,7 @@
         private readonly ITokenService _tokenService;
         private readonly IUserActivationTokenRepository _activationRepository;
         private readonly IEmailService _emailService;
+        private readonly IUsernameGeneratorService _usernameGeneratorService;
         private readonly IPasswordHasher<User> _passwordHasher;
         private readonly ILogger<AuthService> _logger;
 
@@ -35,6 +36,7 @@
         /// <param name="logger">The logger.</param>
         /// <param name="activationRepository">The user activation token repository.</param>
         /// <param name="emailService">The email service.</param>
+        /// <param name="usernameGeneratorService">The username generator service.</param>
         public AuthService(
             IUserRepository userRepository,
             IRoleRepository roleRepository,
@@ -42,7 +44,8 @@
             IPasswordHasher<User> passwordHasher,
             ILogger<AuthService> logger,
             IUserActivationTokenRepository activationRepository,
-            IEmailService emailService)
+            IEmailService emailService,
+            IUsernameGeneratorService usernameGeneratorService)
         {
             _userRepository = userRepository;
             _roleRepository = roleRepository;
@@ -51,6 +54,7 @@
             _logger = logger;
             _activationRepository = activationRepository;
             _emailService = emailService;
+            _usernameGeneratorService = usernameGeneratorService;
         }
 
         /// <summary>
@@ -67,7 +71,10 @@
         {
             try
             {
-                _logger.LogInformation("Registration attempt for {Username}", request.username);
+                _logger.LogInformation(
+                           "Registration attempt — FullName: '{FullName}', Email: '{Email}'",
+                           request.username,
+                           request.email);
 
                 var validationErrors = new Dictionary<string, string[]>();
 
@@ -86,13 +93,24 @@
                     throw new ValidationException("Validation failed", validationErrors);
                 }
 
-                if (await _userRepository.UsernameExistsAsync(request.username))
+                if (await _userRepository.EmailExistsAsync(request.email))
                 {
+                    _logger.LogWarning(
+                        "Registration rejected: email '{Email}' already exists.", request.email);
                     throw new CustomException(
-                        "Username already exists.",
+                        "Email address is already registered.",
                         StatusCodes.Status409Conflict,
-                        "USERNAME_ALREADY_EXISTS");
+                        "EMAIL_ALREADY_EXISTS");
                 }
+
+                // We generate the canonical username from the first name + year + sequence.
+                var generatedUsername = await _usernameGeneratorService
+                    .GenerateAsync(request.username, DateTime.UtcNow.Year);
+
+                _logger.LogInformation(
+                    "Username generated: '{Username}' for FullName='{FullName}'",
+                    generatedUsername,
+                    request.username);
 
                 List<Role> roles;
 
@@ -134,7 +152,7 @@
                 var user = new User
                 {
                     Id = Guid.NewGuid(),
-                    Username = request.username,
+                    Username = generatedUsername,
                     Email = request.email,
                     CreatedAt = DateTime.UtcNow,
                     IsActive = false,
@@ -163,20 +181,24 @@
 
                 await _activationRepository.AddAsync(activationToken);
 
-                await _emailService.SendActivationEmailAsync(user.Email, user.Username, token);
+                await _emailService.SendActivationEmailAsync(user.Email, generatedUsername, token);
 
                 _logger.LogInformation("Activation token generated for {UserId}", user.Id);
 
                 return new AuthResponseDto(
                     string.Empty,
                     user.Id,
-                    user.Username,
+                    generatedUsername,
                     user.Email,
                     roles.Select(r => r.Name).ToList());
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Registration failed for {Username}", request.username);
+                _logger.LogError(
+                            ex,
+                            "Registration failed for FullName='{FullName}', Email='{Email}'",
+                            request.username,
+                            request.email);
                 throw;
             }
         }

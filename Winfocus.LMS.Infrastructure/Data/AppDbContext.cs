@@ -318,6 +318,16 @@
             .WithMany(c => c.FeePlans)
             .HasForeignKey(fp => fp.CourseId);
 
+            // Ensure email is globally unique
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Email)
+                .IsUnique();
+
+            // Ensure username is globally unique
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Username)
+                .IsUnique();
+
             base.OnModelCreating(modelBuilder);
         }
     }
