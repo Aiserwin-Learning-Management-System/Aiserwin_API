@@ -298,6 +298,7 @@
              PastSchoolLocation = c.AcademicDetails.PastSchoolLocation,
              PastSchoolName = c.AcademicDetails.PastSchoolName,
              Emirates = c.AcademicDetails.Emirates,
+             AcademicYearId = c.AcademicDetails.AcademicYearId,
          },
          PersonalDetails = new StudentPersonaldetailsdto
          {
