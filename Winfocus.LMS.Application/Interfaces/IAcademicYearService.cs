@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Winfocus.LMS.Application.DTOs.Masters;
+using Winfocus.LMS.Domain.Entities;
 
 namespace Winfocus.LMS.Application.Interfaces
 {
@@ -15,5 +16,11 @@ namespace Winfocus.LMS.Application.Interfaces
         /// </summary>
         /// <returns>AcademicYearDto.</returns>
         Task<IReadOnlyList<AcademicYearDto>> GetAllAsync();
+
+        /// <summary>
+        /// Gets the currently active academic year.
+        /// </summary>
+        /// <returns>AcademicYearDto.</returns>
+        Task<AcademicYearDto?> GetCurrentAcademicYearAsync();
     }
 }

@@ -16,5 +16,15 @@ namespace Winfocus.LMS.Domain.Entities
         /// Example: "2025-2026".
         /// </summary>
         public string Name { get; set; } = default!;
+
+        /// <summary>
+        /// Gets or sets the starting date of the academic year.
+        /// </summary>
+        public DateTime StartDate { get; set; }
+
+        /// <summary>
+        /// Gets or sets the ending date of the academic year.
+        /// </summary>
+        public DateTime EndDate { get; set; }
     }
 }

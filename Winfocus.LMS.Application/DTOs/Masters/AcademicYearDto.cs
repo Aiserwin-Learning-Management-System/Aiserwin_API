@@ -13,5 +13,15 @@ namespace Winfocus.LMS.Application.DTOs.Masters
         /// Gets or sets the display name of the academic year.
         /// </summary>
         public string Name { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the starting date of the academic year.
+        /// </summary>
+        public DateTime StartDate { get; set; }
+
+        /// <summary>
+        /// Gets or sets the ending date of the academic year.
+        /// </summary>
+        public DateTime EndDate { get; set; }
     }
 }
