@@ -64,5 +64,29 @@
         /// The courses.
         /// </value>
         public List<CourseDto> Courses { get; set; } = new ();
+
+        /// <summary>
+        /// Gets or sets the batchtiming monday to fridays.
+        /// </summary>
+        /// <value>
+        /// The batchtimings.
+        /// </value>
+        public List<BatchTimingMTFDto> BatchTimingMTFs { get; set; } = new ();
+
+        /// <summary>
+        /// Gets or sets the batchtiming saturdays.
+        /// </summary>
+        /// <value>
+        /// The batchtimings.
+        /// </value>
+        public List<BatchTimingSaturdayDto> BatchTimingSaturdays { get; set; } = new ();
+
+        /// <summary>
+        /// Gets or sets the batchtiming sundays.
+        /// </summary>
+        /// <value>
+        /// The batchtimings.
+        /// </value>
+        public List<BatchTimingSundayDto> BatchTimingSundays { get; set; } = new ();
     }
 }

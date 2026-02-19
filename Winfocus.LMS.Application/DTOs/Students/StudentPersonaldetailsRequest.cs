@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Text;
-
-namespace Winfocus.LMS.Application.DTOs.Students
+﻿namespace Winfocus.LMS.Application.DTOs.Students
 {
+    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
+    using System.Text;
+
     public sealed record StudentPersonaldetailsRequest(
 
         [Required]

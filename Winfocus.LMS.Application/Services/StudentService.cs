@@ -1,6 +1,7 @@
 ﻿namespace Winfocus.LMS.Application.Services
 {
     using Microsoft.Extensions.Logging;
+    using Winfocus.LMS.Application.DTOs;
     using Winfocus.LMS.Application.DTOs.Masters;
     using Winfocus.LMS.Application.DTOs.Students;
     using Winfocus.LMS.Application.Interfaces;
@@ -63,11 +64,10 @@
                 CreatedBy = request.Userid,
                 CreatedAt = DateTime.UtcNow,
                 RegistrationStatus = request.RegistrationStatus,
-                RegistrationNumber = request.RegistraionNumber,
             };
 
             var created = await _repository.AddAsync(student);
-            return Mapstud(created);
+            return MapCreate(created);
         }
 
         /// <summary>
@@ -95,9 +95,9 @@
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>task.</returns>
-        public async Task DeleteAsync(Guid id)
+        public async Task<CommonResponse<bool>> DeleteAsync(Guid id)
         {
-            await _repository.DeleteAsync(id);
+           return await _repository.DeleteAsync(id);
         }
 
         /// <summary>
@@ -160,6 +160,16 @@
             _logger.LogInformation("Mapped {Count} student entities to DTOs", dtos.Count);
 
             return dtos;
+        }
+
+        /// <summary>
+        /// update the registration status.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>task.</returns>
+        public async Task<CommonResponse<bool>> StudentConfirm(Guid id)
+        {
+           return await _repository.StudentConfirm(id);
         }
 
         private StudentDto MapToDto(Student entity)
@@ -299,14 +309,43 @@
              IsAcceptedAgreement = c.StudentDocuments.IsAcceptedAgreement,
              IsAcceptedTermsAndConditions = c.StudentDocuments.IsAcceptedTermsAndConditions,
          },
+         Courses = c.StudentAcademicCouses?
+            .Select(x => new CourseDto
+            {
+                Id = x.CourseId,
+                CourseName = x.Course.CourseName,
+                CourseCode = x.Course.CourseCode,
+            }).ToList() ?? new List<CourseDto>(),
+         BatchTimingMTFs = c.StudentBatchTimingMTFs?
+            .Select(x => new BatchTimingMTFDto
+            {
+                Id = x.BatchTimingMTFId,
+                BatchTime = x.BatchTimingMTF.BatchTime.ToString("dd/MM/yyyy hh:mm tt"),
+            }).ToList() ?? new List<BatchTimingMTFDto>(),
+         BatchTimingSaturdays = c.StudentBatchTimingSaturdays?
+            .Select(x => new BatchTimingSaturdayDto
+            {
+                Id = x.BatchTimingSaturdayId,
+                BatchTime = x.BatchTimingSaturday.BatchTime.ToString("dd/MM/yyyy hh:mm tt"),
+            }).ToList() ?? new List<BatchTimingSaturdayDto>(),
+         BatchTimingSundays = c.StudentBatchTimingSundays?
+            .Select(x => new BatchTimingSundayDto
+            {
+                Id = x.BatchTimingSundayId,
+                BatchTime = x.BatchTimingSunday.BatchTime.ToString("dd/MM/yyyy hh:mm tt"),
+            }).ToList() ?? new List<BatchTimingSundayDto>(),
+         StudentAcademicId = c.StudentAcademicDetailsId,
+         StudentDocumentsId = c.StudentDocumentsId,
+         StudentPersonalId = c.StudentPersonalDetailsId,
          RegistraionNumber = c.RegistrationNumber,
+         RegistrationStatus = c.RegistrationStatus,
          CreatedBy = c.CreatedBy,
          CreatedAt = c.CreatedAt,
          UpdatedAt = c.UpdatedAt,
          UpdatedBy = c.UpdatedBy,
      };
 
-        private static StudentDto Mapstud(Student c) =>
+        private static StudentDto MapCreate(Student c) =>
  new StudentDto
  {
      Id = c.Id,

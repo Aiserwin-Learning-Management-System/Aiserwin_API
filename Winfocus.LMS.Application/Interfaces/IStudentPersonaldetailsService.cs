@@ -37,7 +37,7 @@ namespace Winfocus.LMS.Application.Interfaces
         /// <param name="id">The identifier.</param>
         /// <param name="request">The request.</param>
         /// <returns>id.</returns>
-        Task UpdateAsync(Guid id, StudentPersonaldetailsRequest request);
+        Task<CommonResponse<StudentPersonaldetailsdto>> UpdateAsync(Guid id, StudentPersonaldetailsRequest request);
 
         /// <summary>
         /// Deletes the asynchronous.
