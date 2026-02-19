@@ -88,5 +88,12 @@ namespace Winfocus.LMS.Application.Interfaces
         /// <param name="id">The identifier.</param>
         /// <returns>task.</returns>
         Task<CommonResponse<bool>> StudentConfirm(Guid id);
+
+        /// <summary>
+        /// update the registration status.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>task.</returns>
+        Task<CommonResponse<bool>> StudentApprove(Guid id);
     }
 }

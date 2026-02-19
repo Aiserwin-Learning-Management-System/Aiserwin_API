@@ -64,6 +64,7 @@
                 CreatedBy = request.Userid,
                 CreatedAt = DateTime.UtcNow,
                 RegistrationStatus = request.RegistrationStatus,
+                Isscholershipstudent = request.IsScholershipStudent,
             };
 
             var created = await _repository.AddAsync(student);
@@ -170,6 +171,16 @@
         public async Task<CommonResponse<bool>> StudentConfirm(Guid id)
         {
            return await _repository.StudentConfirm(id);
+        }
+
+        /// <summary>
+        /// update the registration status.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>task.</returns>
+        public async Task<CommonResponse<bool>> StudentApprove(Guid id)
+        {
+            return await _repository.StudentApprove(id);
         }
 
         private StudentDto MapToDto(Student entity)
@@ -339,6 +350,7 @@
          StudentPersonalId = c.StudentPersonalDetailsId,
          RegistraionNumber = c.RegistrationNumber,
          RegistrationStatus = c.RegistrationStatus,
+         IsScholershipStudent = c.Isscholershipstudent,
          CreatedBy = c.CreatedBy,
          CreatedAt = c.CreatedAt,
          UpdatedAt = c.UpdatedAt,
