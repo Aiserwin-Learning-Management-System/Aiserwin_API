@@ -101,6 +101,9 @@ builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 builder.Services.AddScoped<IAcademicYearService, AcademiYearService>();
 builder.Services.AddScoped<IAcademicYearRepository, AcademicYearRepository>();
 
+builder.Services.AddScoped<IFeeRepository, FeeRepository>();
+builder.Services.AddScoped<IFeeService, FeeService>();
+
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
 #endregion

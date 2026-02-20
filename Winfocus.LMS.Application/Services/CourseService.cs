@@ -80,6 +80,7 @@
                 MaxStudent = request.maxstudent,
                 AcademicYear = request.academicyear,
                 CreatedAt = DateTime.UtcNow,
+                Status = request.status,
             };
 
             return Map(await _repo.AddAsync(course));
@@ -132,6 +133,7 @@
             CourseUrl = c.CourseUrl,
             MaxStudent = c.MaxStudent,
             AcademicYear = c.AcademicYear,
+            Status = c.Status,
             Subject = new SubjectDto
             {
                 Id = c.Subject.Id,
