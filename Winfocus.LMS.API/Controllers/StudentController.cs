@@ -263,9 +263,7 @@
                 RegisterRequestDto obj = new RegisterRequestDto(
                     username,
                     student.PersonalDetails.EmailAddress,
-                    "Test@123",
-                    new List<string> { "Student" }
-                );
+                    new List<string> { "Student" });
 
                 var result = await _authService.RegisterAsync(obj);
             }

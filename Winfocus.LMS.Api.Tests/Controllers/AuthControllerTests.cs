@@ -33,7 +33,6 @@
             var request = new RegisterRequestDto(
                 "testuser",
                 "test@winfocus.com",
-                "Password@123",
                 null
             );
 
@@ -57,7 +56,6 @@
                 new RegisterRequestDto(
                     "loginuser",
                     "login@winfocus.com",
-                    "Password@123",
                     null));
 
             // Login
@@ -80,7 +78,6 @@
             var request = new RegisterRequestDto(
                 "user",
                 "invalid-email",
-                "Password@123",
                 null);
 
             var response = await _client.PostAsJsonAsync(

@@ -211,6 +211,14 @@
         public DbSet<AcademicYear> AcademicYears { get; set; }
 
         /// <summary>
+        /// Gets or sets the user activation token.
+        /// </summary>
+        /// <value>
+        /// The user activation token.
+        /// </value>
+        public DbSet<UserActivationToken> UserActivationTokens { get; set; }
+
+        /// <summary>
         /// Configures the model for the context.
         /// </summary>
         /// <param name="modelBuilder">The builder being used to construct the model for this context.</param>
@@ -218,6 +226,8 @@
         {
             modelBuilder.ApplyConfiguration(new StreamConfiguration());
             modelBuilder.ApplyConfiguration(new CourseConfiguration());
+            modelBuilder.ApplyConfiguration(new SubjectConfiguration());
+            modelBuilder.ApplyConfiguration(new UserActivationTokenConfiguration());
 
             // User configuration
             modelBuilder.Entity<User>()
@@ -307,6 +317,16 @@
             .HasOne(fp => fp.Course)
             .WithMany(c => c.FeePlans)
             .HasForeignKey(fp => fp.CourseId);
+
+            // Ensure email is globally unique
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Email)
+                .IsUnique();
+
+            // Ensure username is globally unique
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Username)
+                .IsUnique();
 
             base.OnModelCreating(modelBuilder);
         }

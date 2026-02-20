@@ -10,16 +10,16 @@ namespace Winfocus.LMS.Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "Status",
-                table: "Students");
+            //migrationBuilder.DropColumn(
+            //    name: "Status",
+            //    table: "Students");
 
-            migrationBuilder.AddColumn<int>(
-                name: "RegistrationStatus",
-                table: "Students",
-                type: "int",
-                nullable: false,
-                defaultValue: 0);
+            //migrationBuilder.AddColumn<int>(
+            //    name: "RegistrationStatus",
+            //    table: "Students",
+            //    type: "int",
+            //    nullable: false,
+            //    defaultValue: 0);
         }
 
         /// <inheritdoc />
