@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 using Winfocus.LMS.Application.DTOs;
+using Winfocus.LMS.Application.DTOs.Common;
+using Winfocus.LMS.Application.DTOs.Students;
 using Winfocus.LMS.Domain.Entities;
 using Winfocus.LMS.Domain.Enums;
 
@@ -81,6 +83,13 @@ namespace Winfocus.LMS.Application.Interfaces
          int offset,
          string sortBy,
          string sortOrder);
+
+        /// <summary>
+        /// Gets the filtered asynchronous.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <returns>Student.</returns>
+        Task<PagedResult<Student>> GetFilteredAsync(StudentFilterRequest request);
 
         /// <summary>
         /// update the registration status.

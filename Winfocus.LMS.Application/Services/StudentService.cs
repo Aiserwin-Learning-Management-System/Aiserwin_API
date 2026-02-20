@@ -2,6 +2,7 @@
 {
     using Microsoft.Extensions.Logging;
     using Winfocus.LMS.Application.DTOs;
+    using Winfocus.LMS.Application.DTOs.Common;
     using Winfocus.LMS.Application.DTOs.Masters;
     using Winfocus.LMS.Application.DTOs.Students;
     using Winfocus.LMS.Application.Interfaces;
@@ -161,6 +162,40 @@
             _logger.LogInformation("Mapped {Count} student entities to DTOs", dtos.Count);
 
             return dtos;
+        }
+
+        /// <summary>
+        /// Gets the filtered asynchronous.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <returns>StudentDto.</returns>
+        public async Task<PagedResult<StudentDto>> GetFilteredAsync(StudentFilterRequest request)
+        {
+            _logger.LogDebug("Starting student filter service for SearchText: {Search}", request.SearchText);
+
+            try
+            {
+                // 1. Get the Paged Entities from Repository
+                var pagedStudents = await _repository.GetFilteredAsync(request);
+
+                // 2. Map the Entities to DTOs using your existing method
+                var dtos = pagedStudents.items.Select(MapToDto).ToList();
+
+                _logger.LogInformation("Successfully mapped {Count} students to DTOs.", dtos.Count);
+
+                // 3. Wrap the DTOs back into a PagedResult for the Frontend
+                return new PagedResult<StudentDto>(
+                    dtos,
+                    pagedStudents.totalCount,
+                    request.Limit,
+                    request.Offset
+                );
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while filtering and mapping students.");
+                throw;
+            }
         }
 
         /// <summary>
