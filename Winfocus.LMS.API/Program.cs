@@ -107,6 +107,10 @@ builder.Services.AddScoped<IUserActivationTokenRepository, UserActivationTokenRe
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IAcademicYearService, AcademiYearService>();
 builder.Services.AddScoped<IAcademicYearRepository, AcademicYearRepository>();
+
+builder.Services.AddScoped<IFeeRepository, FeeRepository>();
+builder.Services.AddScoped<IFeeService, FeeService>();
+
 builder.Services.AddScoped<IUsernameGeneratorService, UsernameGeneratorService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
