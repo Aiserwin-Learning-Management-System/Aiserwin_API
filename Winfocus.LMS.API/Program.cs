@@ -98,6 +98,8 @@ builder.Services.AddScoped<IStudentPersonaldetailsRepository, StudentPersonaldet
 builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 builder.Services.AddScoped<IFileStorageService, FileStorageService>();
+builder.Services.AddScoped<IAcademicYearService, AcademiYearService>();
+builder.Services.AddScoped<IAcademicYearRepository, AcademicYearRepository>();
 
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 

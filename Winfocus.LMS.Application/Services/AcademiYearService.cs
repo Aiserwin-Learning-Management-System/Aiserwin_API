@@ -34,11 +34,27 @@ namespace Winfocus.LMS.Application.Services
             return academicyear.Select(Map).ToList();
         }
 
+        /// <summary>
+        /// Gets the current academic year based on the system date.
+        /// </summary>
+        /// <returns>The current academic year if available; otherwise null.</returns>
+        public async Task<AcademicYearDto?> GetCurrentAcademicYearAsync()
+        {
+            var today = DateTime.UtcNow.Date;
+
+            var academicYear = await _repository
+                .GetByDateAsync(today);
+
+            return academicYear == null ? null : Map(academicYear);
+        }
+
         private static AcademicYearDto Map(AcademicYear c) =>
          new AcademicYearDto
          {
              Id = c.Id,
              Name = c.Name,
+             StartDate = c.StartDate,
+             EndDate = c.EndDate,
              CreatedAt = c.CreatedAt,
              CreatedBy = c.CreatedBy,
              UpdatedAt = c.UpdatedAt,
