@@ -12,12 +12,7 @@
         /// <summary>
         /// Gets or sets the display name of the subject.
         /// </summary>
-        public string SubjectName { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets the optional code for the subject.
-        /// </summary>
-        public string SubjectCode { get; set; } = null!;
+        public string Name { get; set; } = null!;
 
         // One subject → many courses
 

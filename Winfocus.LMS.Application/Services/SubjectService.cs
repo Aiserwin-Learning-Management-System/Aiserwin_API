@@ -62,8 +62,7 @@
             return subjects.Select(s => new SubjectDto
             {
                 Id = s.Id,
-                SubjectName = s.SubjectName,
-                SubjectCode = s.SubjectCode,
+                Name = s.Name,
             }).ToList();
         }
 
@@ -78,8 +77,7 @@
         {
             var subject = new Subject
             {
-                SubjectName = request.subjectname,
-                SubjectCode = request.subjectcode,
+                Name = request.name,
                 CreatedAt = DateTime.UtcNow,
             };
 
@@ -100,8 +98,7 @@
             var subject = await _repo.GetByIdAsync(id)
                 ?? throw new KeyNotFoundException("Subject not found");
 
-            subject.SubjectName = request.subjectname;
-            subject.SubjectCode = request.subjectcode;
+            subject.Name = request.name;
             subject.UpdatedAt = DateTime.UtcNow;
 
             await _repo.UpdateAsync(subject);
@@ -120,8 +117,7 @@
         private static SubjectDto Map(Subject s) => new ()
         {
             Id = s.Id,
-            SubjectName = s.SubjectName,
-            SubjectCode = s.SubjectCode,
+            Name = s.Name,
         };
     }
 }

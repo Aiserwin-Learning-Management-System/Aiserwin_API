@@ -164,8 +164,7 @@ namespace Winfocus.LMS.Application.Services
        Subject = c.Subject == null ? null : new SubjectDto
        {
            Id = c.Subject.Id,
-           SubjectName = c.Subject.SubjectName,
-           SubjectCode = c.Subject.SubjectCode
+           Name = c.Subject.Name,
        },
    };
     }

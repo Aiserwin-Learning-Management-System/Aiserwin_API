@@ -18,12 +18,9 @@
         {
             builder.HasKey(c => c.Id);
 
-            builder.Property(c => c.CourseName)
+            builder.Property(c => c.Name)
                 .IsRequired()
                 .HasMaxLength(200);
-
-            builder.Property(c => c.CourseCode)
-                .HasMaxLength(50);
 
             // Many courses → one subject
             builder.HasOne(c => c.Subject)

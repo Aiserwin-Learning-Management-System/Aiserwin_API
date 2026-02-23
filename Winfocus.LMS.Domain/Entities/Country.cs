@@ -13,11 +13,6 @@
         public string Name { get; set; } = null!;
 
         /// <summary>
-        /// Gets or sets the code of the country.
-        /// </summary>
-        public string Code { get; set; } = null!;
-
-        /// <summary>
         /// Gets or sets the iso alpha3.
         /// </summary>
         /// <value>

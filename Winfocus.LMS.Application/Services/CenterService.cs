@@ -69,24 +69,16 @@ namespace Winfocus.LMS.Application.Services
         /// <exception cref="InvalidOperationException">Center code already exists.</exception>
         public async Task<CentreDto> CreateAsync(CenterRequestDto request)
         {
-            _logger.LogInformation("Creating centre with Code: {CentreCode}", request.code);
-            if (await _repository.ExistsByCodeAsync(request.code))
-            {
-                _logger.LogWarning("Centre creation failed. Code already exists: {CentreCode}", request.code);
-                throw new InvalidOperationException("Center code already exists");
-            }
-
             var centre = new Centre
             {
                 Name = request.name,
-                Code = request.code,
                 CreatedAt = DateTime.UtcNow,
                 CreatedBy = request.userId,
                 ModeOfStudyId = request.modeofstudy,
             };
 
             var created = await _repository.AddAsync(centre);
-            _logger.LogInformation("Centre created successfully. CentreId: {CentreId}, Code: {CentreCode}", created.Id, created.Code);
+            _logger.LogInformation("Centre created successfully. CentreId: {CentreId}", created.Id);
             return Map(created);
         }
 
@@ -104,7 +96,6 @@ namespace Winfocus.LMS.Application.Services
                 ?? throw new KeyNotFoundException("Center not found");
 
             center.Name = request.name;
-            center.Code = request.code;
             center.UpdatedAt = DateTime.UtcNow;
             center.UpdatedBy = request.userId;
 
@@ -161,7 +152,7 @@ namespace Winfocus.LMS.Application.Services
             return new CentreDto(
                 c.Id,
                 c.Name,
-                c.Code
+                c.CenterType.ToString()
             );
         }
     }

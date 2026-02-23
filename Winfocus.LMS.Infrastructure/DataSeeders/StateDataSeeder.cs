@@ -38,8 +38,7 @@
                             var state = new State
                             {
                                 Id = Guid.NewGuid(),
-                                StateName = stateDto.StateName,
-                                StateCode = stateDto.StateCode,
+                                Name = stateDto.Name,
                                 CountryId = country.Id,
                                 CreatedAt = DateTime.UtcNow,
                                 CreatedBy = Guid.Empty,
@@ -57,10 +56,7 @@
 
         private class StateSeedDto
         {
-            public string StateName { get; set; } = null!;
-
-            public string StateCode { get; set; } = null!;
-
+            public string Name { get; set; } = null!;
             public string CountryName { get; set; } = null!;
         }
     }

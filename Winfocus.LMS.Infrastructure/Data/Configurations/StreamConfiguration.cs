@@ -18,12 +18,9 @@
         {
             builder.HasKey(s => s.Id);
 
-            builder.Property(s => s.StreamName)
+            builder.Property(s => s.Name)
                 .IsRequired()
                 .HasMaxLength(200);
-
-            builder.Property(s => s.StreamCode)
-                .HasMaxLength(50);
 
             // One stream → many courses
             builder.HasMany(s => s.Courses)

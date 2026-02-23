@@ -4,6 +4,5 @@
     /// Request for creating or updating a syllabus.
     /// </summary>
     public sealed record SyllabusRequest(
-        string name,
-        string code, Guid centerid, Guid userId);
+        string name, Guid centerid, Guid userId);
 }

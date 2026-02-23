@@ -97,7 +97,7 @@
         /// <returns>bool.</returns>
         public async Task<bool> ExistsByCodeAsync(string code)
         {
-            return await _db.Streams.AnyAsync(x => x.StreamCode == code);
+            return await _db.Streams.AnyAsync(x => x.Name == code);
         }
 
         /// <summary>

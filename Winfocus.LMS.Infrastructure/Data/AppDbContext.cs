@@ -261,9 +261,7 @@
 
             modelBuilder.Entity<Country>(e =>
             {
-                e.HasIndex(x => x.Code).IsUnique();
                 e.Property(x => x.Name).IsRequired().HasMaxLength(100);
-                e.Property(x => x.Code).IsRequired().HasMaxLength(10);
             });
 
             modelBuilder.Entity<Country>(e =>
@@ -271,14 +269,10 @@
                 e.Property(x => x.Name)
                     .IsRequired()
                     .HasMaxLength(100);
-                e.Property(x => x.Code)
-                    .IsRequired()
-                    .HasMaxLength(2);
                 e.Property(x => x.IsoAlpha3)
                     .HasMaxLength(3);
                 e.Property(x => x.IsoNumeric);
 
-                e.HasIndex(x => x.Code).IsUnique();
                 e.HasIndex(x => x.IsoAlpha3).IsUnique();
                 e.HasIndex(x => x.IsoNumeric).IsUnique();
             });

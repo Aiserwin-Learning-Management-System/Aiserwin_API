@@ -95,7 +95,7 @@
         /// <returns>bool.</returns>
         public async Task<bool> ExistsByCodeAsync(string code)
         {
-            return await _db.Grades.AnyAsync(x => x.GradeCode == code);
+            return await _db.Grades.AnyAsync(x => x.Name == code);
         }
 
         /// <summary>
