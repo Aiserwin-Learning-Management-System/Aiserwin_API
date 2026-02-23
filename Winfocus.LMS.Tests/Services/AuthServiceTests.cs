@@ -21,6 +21,7 @@
         private readonly Mock<IUserActivationTokenRepository> _userActivationTokenRepositoryMock;
         private readonly IPasswordHasher<User> _passwordHasher;
         private readonly AuthService _authService;
+        private readonly Mock<IUsernameGeneratorService> _usernameGeneratorService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthServiceTests"/> class.
@@ -33,6 +34,7 @@
             _emailServiceMock = new Mock<IEmailService>();
             _userActivationTokenRepositoryMock = new Mock<IUserActivationTokenRepository>();
             _passwordHasher = new PasswordHasher<User>();
+            _usernameGeneratorService = new Mock<IUsernameGeneratorService>();
 
             _authService = new AuthService(
                 _userRepositoryMock.Object,
@@ -41,7 +43,8 @@
                 _passwordHasher,
                 NullLogger<AuthService>.Instance,
                 _userActivationTokenRepositoryMock.Object,
-                _emailServiceMock.Object);
+                _emailServiceMock.Object,
+                _usernameGeneratorService.Object);
         }
 
         /// <summary>
