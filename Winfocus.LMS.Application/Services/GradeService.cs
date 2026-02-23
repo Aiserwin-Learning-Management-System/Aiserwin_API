@@ -57,15 +57,9 @@
         /// <exception cref="InvalidOperationException">grade code already exists.</exception>
         public async Task<GradeDto> CreateAsync(GradeRequest request)
         {
-            if (await _repository.ExistsByCodeAsync(request.code))
-            {
-                throw new InvalidOperationException("Grade code already exists");
-            }
-
             var grades = new Grade
             {
-                GradeName = request.name,
-                GradeCode = request.code,
+                Name = request.name,
                 CreatedAt = DateTime.UtcNow,
                 CreatedBy = request.userId,
                 SyllabusId = request.syllabusid,
@@ -87,8 +81,7 @@
             var grade = await _repository.GetByIdAsync(id)
                 ?? throw new KeyNotFoundException("Grade not found");
 
-            grade.GradeName = request.name;
-            grade.GradeCode = request.code;
+            grade.Name = request.name;
             grade.UpdatedBy = request.userId;
             grade.UpdatedAt = DateTime.UtcNow;
 
@@ -125,8 +118,7 @@
      new GradeDto
      {
          Id = c.Id,
-         GradeName = c.GradeName,
-         GradeCode = c.GradeCode,
+         Name = c.Name,
          SyllabusId = c.SyllabusId,
          UpdatedBy = c.UpdatedBy,
          UpdatedAt = c.UpdatedAt,
@@ -135,8 +127,7 @@
          Syllabus = c.Syllabus == null ? null : new SyllabusDto
          {
              Id = c.Syllabus.Id,
-             SyllabusName = c.Syllabus.SyllabusName,
-             SyllabusCode = c.Syllabus.SyllabusCode,
+             Name = c.Syllabus.Name,
              CenterId = c.Syllabus.CenterId,
          },
      };

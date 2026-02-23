@@ -4,6 +4,5 @@
     /// Request for creating or updating a country.
     /// </summary>
     public sealed record CreateCountryRequest(
-        string name,
-        string code);
+        string name);
 }

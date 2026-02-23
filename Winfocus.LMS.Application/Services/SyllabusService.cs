@@ -60,15 +60,9 @@ namespace Winfocus.LMS.Application.Services
         /// <exception cref="InvalidOperationException">syllabus code already exists.</exception>
         public async Task<SyllabusDto> CreateAsync(SyllabusRequest request)
         {
-            if (await _repository.ExistsByCodeAsync(request.code))
-            {
-                throw new InvalidOperationException("Syllabus code already exists");
-            }
-
             var syllabus = new Syllabus
             {
-                SyllabusName = request.name,
-                SyllabusCode = request.code,
+                Name = request.name,
                 CreatedAt = DateTime.UtcNow,
                 CreatedBy = request.userId,
                 CenterId = request.centerid,
@@ -90,8 +84,7 @@ namespace Winfocus.LMS.Application.Services
             var syllabus = await _repository.GetByIdAsync(id)
                 ?? throw new KeyNotFoundException("syllabus not found");
 
-            syllabus.SyllabusName = request.name;
-            syllabus.SyllabusCode = request.code;
+            syllabus.Name = request.name;
             syllabus.UpdatedBy = request.userId;
             syllabus.UpdatedAt = DateTime.UtcNow;
 
@@ -128,8 +121,7 @@ namespace Winfocus.LMS.Application.Services
      new SyllabusDto
      {
          Id = c.Id,
-         SyllabusName = c.SyllabusName,
-         SyllabusCode = c.SyllabusCode,
+         Name = c.Name,
          CenterId = c.CenterId,
          CreatedBy = c.CreatedBy,
          CreatedAt = c.CreatedAt,

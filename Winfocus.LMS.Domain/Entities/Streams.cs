@@ -11,12 +11,7 @@
         /// <summary>
         /// Gets or sets the display name of the stream.
         /// </summary>
-        public string StreamName { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets the optional code for the stream.
-        /// </summary>
-        public string StreamCode { get; set; } = null!;
+        public string Name { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the identifier of the associated grade.

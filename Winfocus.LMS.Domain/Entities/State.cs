@@ -10,12 +10,7 @@
         /// <summary>
         /// Gets or sets the display name of the state.
         /// </summary>
-        public string StateName { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets the optional code for the state.
-        /// </summary>
-        public string StateCode { get; set; } = null!;
+        public string Name { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the identifier of the associated country.

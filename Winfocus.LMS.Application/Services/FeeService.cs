@@ -59,7 +59,7 @@
                     {
                         CourseId = course.Id,
                         FeePlanId = feePlan.Id,
-                        CourseName = course.CourseName,
+                        CourseName = course.Name,
                         YearlyFee = baseAmount,
                         PaymentType = feePlan.PlanName,
                         ScholarshipPercent = feePlan.ScholarshipPercent,

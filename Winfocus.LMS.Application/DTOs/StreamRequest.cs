@@ -10,11 +10,6 @@
     string name,
 
     /// <summary>
-    /// Gets the unique code of the Stream.
-    /// </summary>
-    string code,
-
-    /// <summary>
     /// Gets the identifier of the Grade associated with the Stream.
     /// </summary>
     Guid gradeid,

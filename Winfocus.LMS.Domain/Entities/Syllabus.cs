@@ -12,12 +12,7 @@
         /// <summary>
         /// Gets or sets the display name of the syllabus.
         /// </summary>
-        public string SyllabusName { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets the optional code for the syllabus.
-        /// </summary>
-        public string SyllabusCode { get; set; } = null!;
+        public string Name { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the identifier of the associated centre.

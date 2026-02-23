@@ -4,6 +4,5 @@
     /// Request for creating or updating a grade.
     /// </summary>
     public sealed record GradeRequest(
-        string name,
-        string code, Guid syllabusid, Guid userId);
+        string name, Guid syllabusid, Guid userId);
 }

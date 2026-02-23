@@ -62,16 +62,9 @@
         /// </summary>
         public async Task<StreamDto> CreateAsync(StreamRequest request)
         {
-            // Validate duplicate Stream Code
-            if (await _repository.ExistsByCodeAsync(request.code))
-            {
-                throw new InvalidOperationException("Stream code already exists");
-            }
-
             var stream = new Streams
             {
-                StreamName = request.name,
-                StreamCode = request.code,
+                Name = request.name,
                 CreatedAt = DateTime.UtcNow,
                 CreatedBy = request.userId,
                 GradeId = request.gradeid,
@@ -94,8 +87,7 @@
             var stream = await _repository.GetByIdAsync(id)
                 ?? throw new KeyNotFoundException("Stream not found");
 
-            stream.StreamName = request.name;
-            stream.StreamCode = request.code;
+            stream.Name = request.name;
             stream.GradeId = request.gradeid;
             stream.UpdatedBy = request.userId;
             stream.UpdatedAt = DateTime.UtcNow;
@@ -133,8 +125,7 @@
          new StreamDto
          {
              Id = c.Id,
-             StreamName = c.StreamName,
-             StreamCode = c.StreamCode,
+             Name = c.Name,
              GradeId = c.GradeId,
              CreatedBy = c.CreatedBy,
              CreatedAt = c.CreatedAt,

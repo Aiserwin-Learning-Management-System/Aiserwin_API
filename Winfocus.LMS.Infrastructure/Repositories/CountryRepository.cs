@@ -96,7 +96,7 @@
         /// <returns>bool.</returns>
         public async Task<bool> ExistsByCodeAsync(string code)
         {
-            return await _db.Countries.AnyAsync(x => x.Code == code);
+            return await _db.Countries.AnyAsync(x => x.Name == code);
         }
     }
 }

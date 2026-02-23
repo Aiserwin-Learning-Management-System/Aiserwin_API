@@ -101,7 +101,7 @@
         /// <returns>bool.</returns>
         public async Task<bool> ExistsByCodeAsync(string code)
         {
-            return await _dbContext.ModeOfStudies.AnyAsync(x => x.ModeCode == code);
+            return await _dbContext.ModeOfStudies.AnyAsync(x => x.Name == code);
         }
 
         /// <summary>

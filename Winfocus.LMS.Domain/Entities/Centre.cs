@@ -14,11 +14,6 @@
         public string Name { get; set; } = null!;
 
         /// <summary>
-        /// Gets or sets the code of the centre.
-        /// </summary>
-        public string Code { get; set; } = null!;
-
-        /// <summary>
         /// Gets or sets the type of the centre (Offline, Online, or Hybrid).
         /// </summary>
         public CentreType CenterType { get; set; }

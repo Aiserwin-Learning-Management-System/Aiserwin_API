@@ -70,17 +70,15 @@
             var modeOfStudy = new ModeOfStudy
             {
                 StateId = request.stateid,
-                ModeName = request.name,
-                ModeCode = request.code,
+                Name = request.name,
                 CreatedAt = DateTime.UtcNow,
                 CreatedBy = request.userId,
             };
 
             var created = await _repository.AddAsync(modeOfStudy);
             _logger.LogInformation(
-           "Mode of study created successfully. ModeOfStudyId: {ModeOfStudyId}, Code: {ModeCode}",
-           created.Id,
-           created.ModeCode);
+           "Mode of study created successfully. ModeOfStudyId: {ModeOfStudyId}",
+           created.Id);
 
             return Map(created);
         }
@@ -98,8 +96,7 @@
             var modeOfStudy = await _repository.GetByIdAsync(id)
                 ?? throw new KeyNotFoundException("Mode of study not found");
 
-            modeOfStudy.ModeName = request.name;
-            modeOfStudy.ModeCode = request.code;
+            modeOfStudy.Name = request.name;
             modeOfStudy.UpdatedAt = DateTime.UtcNow;
             modeOfStudy.UpdatedBy = request.userId;
 
@@ -149,8 +146,7 @@
             new ModeOfStudyDto
             {
                 Id = c.Id,
-                ModeName = c.ModeName,
-                ModeCode = c.ModeCode,
+                Name = c.Name,
                 StateId = c.StateId,
                 CreatedBy = c.CreatedBy,
                 CreatedAt = c.CreatedAt,
@@ -159,8 +155,7 @@
                 State = c.State == null ? null : new StateDto
                 {
                     Id = c.State.Id,
-                    StateName = c.State.StateName,
-                    StateCode = c.State.StateCode,
+                    Name = c.State.Name
                 }
             };
     }

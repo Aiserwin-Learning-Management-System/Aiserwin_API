@@ -81,8 +81,7 @@
 
             var state = new State
             {
-                StateName = request.name,
-                StateCode = request.code,
+                Name = request.name,
                 CountryId = request.countryid,
                 CreatedBy = request.userId,
                 CreatedAt = DateTime.UtcNow,
@@ -90,9 +89,8 @@
 
             var created = await _repository.AddAsync(state);
             _logger.LogInformation(
-           "State created successfully. StateId: {StateId}, Code: {StateCode}",
-           created.Id,
-           created.StateCode);
+           "State created successfully. StateId: {StateId}",
+           created.Id);
             return Map(created);
         }
 
@@ -109,8 +107,7 @@
             var state = await _repository.GetByIdAsync(id)
                 ?? throw new KeyNotFoundException("State not found");
 
-            state.StateName = request.name;
-            state.StateCode = request.code;
+            state.Name = request.name;
             state.UpdatedBy = request.userId;
             state.UpdatedAt = DateTime.UtcNow;
 
@@ -161,8 +158,7 @@
       new StateDto
       {
           Id = c.Id,
-          StateName = c.StateName,
-          StateCode = c.StateCode,
+          Name = c.Name,
           CountryId = c.CountryId,
           CreatedBy = c.CreatedBy,
           CreatedAt = c.CreatedAt,
@@ -171,7 +167,6 @@
           Country = c.Country == null ? null : new CountryDto(
               c.Country.Id,
               c.Country.Name,
-              c.Country.Code,
               c.Country.IsoAlpha3,
               c.Country.IsoNumeric,
               c.Country.Centres?

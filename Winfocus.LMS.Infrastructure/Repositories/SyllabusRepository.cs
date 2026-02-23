@@ -98,7 +98,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// <returns>bool.</returns>
         public async Task<bool> ExistsByCodeAsync(string code)
         {
-            return await _db.Syllabuses.AnyAsync(x => x.SyllabusCode == code);
+            return await _db.Syllabuses.AnyAsync(x => x.Name == code);
         }
 
         /// <summary>

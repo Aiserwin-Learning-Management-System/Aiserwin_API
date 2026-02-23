@@ -57,15 +57,9 @@
         /// <exception cref="InvalidOperationException">Country code already exists.</exception>
         public async Task<CountryDto> CreateAsync(CreateCountryRequest request)
         {
-            if (await _repository.ExistsByCodeAsync(request.code))
-            {
-                throw new InvalidOperationException("Country code already exists");
-            }
-
             var country = new Country
             {
                 Name = request.name,
-                Code = request.code,
                 CreatedAt = DateTime.UtcNow,
             };
 
@@ -86,7 +80,6 @@
                 ?? throw new KeyNotFoundException("Country not found");
 
             country.Name = request.name;
-            country.Code = request.code;
             country.UpdatedAt = DateTime.UtcNow;
 
             await _repository.UpdateAsync(country);
@@ -106,7 +99,6 @@
             new (
                 c.Id,
                 c.Name,
-                c.Code,
                 c.IsoAlpha3,
                 c.IsoNumeric,
                 c.Centres.Select(x =>

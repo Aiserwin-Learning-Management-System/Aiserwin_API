@@ -10,12 +10,7 @@ namespace Winfocus.LMS.Application.DTOs.Masters
         /// <summary>
         /// Gets or sets the display name of the course.
         /// </summary>
-        public string CourseName { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets the optional code for the course.
-        /// </summary>
-        public string CourseCode { get; set; } = null!;
+        public string Name { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the stream identifier.

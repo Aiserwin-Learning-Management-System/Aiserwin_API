@@ -71,8 +71,7 @@
         {
             var course = new Course
             {
-                CourseName = request.coursename,
-                CourseCode = request.coursecode,
+                Name = request.coursename,
                 SubjectId = request.subjectid,
                 GradeId = request.gradeid,
                 CourseDescription = request.cousedescription,
@@ -100,8 +99,7 @@
             var course = await _repo.GetByIdAsync(id)
                 ?? throw new KeyNotFoundException("Course not found");
 
-            course.CourseName = request.coursename;
-            course.CourseCode = request.coursecode;
+            course.Name = request.coursename;
             course.SubjectId = request.subjectid;
             course.GradeId = request.gradeid;
             course.CourseDescription = request.cousedescription;
@@ -126,8 +124,7 @@
         private static CourseDto Map(Course c) => new ()
         {
             Id = c.Id,
-            CourseName = c.CourseName,
-            CourseCode = c.CourseCode,
+            Name = c.Name,
             GradeId = c.GradeId,
             CourseDescription = c.CourseDescription,
             CourseUrl = c.CourseUrl,
@@ -137,8 +134,7 @@
             Subject = new SubjectDto
             {
                 Id = c.Subject.Id,
-                SubjectName = c.Subject.SubjectName,
-                SubjectCode = c.Subject.SubjectCode,
+                Name = c.Subject.Name,
             },
         };
     }

@@ -283,13 +283,13 @@
                     State = entity.AcademicDetails.State != null ? new StateDto
                     {
                         Id = entity.AcademicDetails.StateId,
-                        StateName = entity.AcademicDetails.State.StateName,
+                        Name = entity.AcademicDetails.State.Name,
                     } : null!,
                     ModeOfStudyId = entity.AcademicDetails.ModeOfStudyId,
                     ModeOfStudy = entity.AcademicDetails.ModeOfStudy != null ? new ModeOfStudyDto
                     {
                         Id = entity.AcademicDetails.ModeOfStudyId,
-                        ModeName = entity.AcademicDetails.ModeOfStudy.ModeName,
+                        Name = entity.AcademicDetails.ModeOfStudy.Name,
                     } : null!,
                     CenterId = entity.AcademicDetails.CenterId,
                     Center = entity.AcademicDetails.Center != null ? new CenterDto1
@@ -301,25 +301,25 @@
                     Syllabus = entity.AcademicDetails.Syllabus != null ? new SyllabusDto
                     {
                         Id = entity.AcademicDetails.SyllabusId,
-                        SyllabusName = entity.AcademicDetails.Syllabus.SyllabusName,
+                        Name = entity.AcademicDetails.Syllabus.Name,
                     } : null!,
                     GradeId = entity.AcademicDetails.GradeId,
                     Grade = entity.AcademicDetails.Grade != null ? new GradeDto
                     {
                         Id = entity.AcademicDetails.GradeId,
-                        GradeName = entity.AcademicDetails.Grade.GradeName,
+                        Name = entity.AcademicDetails.Grade.Name,
                     } : null!,
                     StreamId = entity.AcademicDetails.StreamId,
                     Stream = entity.AcademicDetails.Stream != null ? new StreamDto
                     {
                         Id = entity.AcademicDetails.StreamId,
-                        StreamName = entity.AcademicDetails.Stream.StreamName,
+                        Name = entity.AcademicDetails.Stream.Name,
                     } : null!,
                     SubjectId = entity.AcademicDetails.SubjectId,
                     Subject = entity.AcademicDetails.Subject != null ? new SubjectDto
                     {
                         Id = entity.AcademicDetails.SubjectId,
-                        SubjectName = entity.AcademicDetails.Subject.SubjectName,
+                        Name = entity.AcademicDetails.Subject.Name,
                     } : null!,
                     PastYearPerformance = entity.AcademicDetails.PastYearPerformance,
                     PastSchoolName = entity.AcademicDetails.PastSchoolName,
@@ -356,8 +356,7 @@
                     .Select(c => new CourseDto
                     {
                         Id = c.CourseId,
-                        CourseName = c.Course.CourseName,
-                        CourseCode = c.Course.CourseCode,
+                        Name = c.Course.Name,
                     }).ToList() ?? new List<CourseDto>(),
             };
         }
@@ -379,13 +378,13 @@
              State = new StateDto
              {
                  Id = c.AcademicDetails.StateId,
-                 StateName = c.AcademicDetails.State.StateName,
+                 Name = c.AcademicDetails.State.Name,
              },
              ModeOfStudyId = c.AcademicDetails.ModeOfStudyId,
              ModeOfStudy = new ModeOfStudyDto
              {
                  Id = c.AcademicDetails.ModeOfStudyId,
-                 ModeName = c.AcademicDetails.ModeOfStudy.ModeName,
+                 Name = c.AcademicDetails.ModeOfStudy.Name,
              },
              CenterId = c.AcademicDetails.CenterId,
              Center = new CenterDto1
@@ -397,25 +396,25 @@
              Syllabus = new SyllabusDto
              {
                  Id = c.AcademicDetails.SyllabusId,
-                 SyllabusName = c.AcademicDetails.Syllabus.SyllabusName,
+                 Name = c.AcademicDetails.Syllabus.Name,
              },
              GradeId = c.AcademicDetails.GradeId,
              Grade = new GradeDto
              {
                  Id = c.AcademicDetails.GradeId,
-                 GradeName = c.AcademicDetails.Grade.GradeName,
+                 Name = c.AcademicDetails.Grade.Name,
              },
              StreamId = c.AcademicDetails.StreamId,
              Stream = new StreamDto
              {
                  Id = c.AcademicDetails.StreamId,
-                 StreamName = c.AcademicDetails.Stream.StreamName,
+                 Name = c.AcademicDetails.Stream.Name,
              },
              SubjectId = c.AcademicDetails.SubjectId,
              Subject = new SubjectDto
              {
                  Id = c.AcademicDetails.SubjectId,
-                 SubjectName = c.AcademicDetails.Subject.SubjectName,
+                 Name = c.AcademicDetails.Subject.Name,
              },
              PastYearPerformance = c.AcademicDetails.PastYearPerformance,
              PastSchoolLocation = c.AcademicDetails.PastSchoolLocation,
@@ -448,8 +447,7 @@
             .Select(x => new CourseDto
             {
                 Id = x.CourseId,
-                CourseName = x.Course.CourseName,
-                CourseCode = x.Course.CourseCode,
+                Name = x.Course.Name,
             }).ToList() ?? new List<CourseDto>(),
          BatchTimingMTFs = c.StudentBatchTimingMTFs?
             .Select(x => new BatchTimingMTFDto
