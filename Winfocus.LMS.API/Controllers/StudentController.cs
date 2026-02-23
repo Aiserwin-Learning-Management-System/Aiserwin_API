@@ -6,6 +6,7 @@
     using Microsoft.AspNetCore.Mvc;
     using Winfocus.LMS.Application.DTOs;
     using Winfocus.LMS.Application.DTOs.Auth;
+    using Winfocus.LMS.Application.DTOs.Common;
     using Winfocus.LMS.Application.DTOs.Students;
     using Winfocus.LMS.Application.Interfaces;
     using Winfocus.LMS.Application.Services;
@@ -177,6 +178,20 @@
         }
 
         /// <summary>
+        /// Gets the filtered.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <returns>Filtered StudentDto list.</returns>
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        [HttpGet("student-filter")]
+        public async Task<ActionResult<PagedResult<StudentDto>>> GetFiltered([FromQuery] StudentFilterRequest request)
+        {
+            var result = await _studentService.GetFilteredAsync(request);
+
+            return Ok(result);
+        }
+
+        /// <summary>
         /// Deletes the specified identifier.
         /// </summary>
         /// <param name="id">The identifier.</param>
@@ -263,9 +278,7 @@
                 RegisterRequestDto obj = new RegisterRequestDto(
                     username,
                     student.PersonalDetails.EmailAddress,
-                    "Test@123",
-                    new List<string> { "Student" }
-                );
+                    new List<string> { "Student" });
 
                 var result = await _authService.RegisterAsync(obj);
             }

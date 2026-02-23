@@ -2,6 +2,7 @@
 {
     using Microsoft.Extensions.Logging;
     using Winfocus.LMS.Application.DTOs;
+    using Winfocus.LMS.Application.DTOs.Common;
     using Winfocus.LMS.Application.DTOs.Masters;
     using Winfocus.LMS.Application.DTOs.Students;
     using Winfocus.LMS.Application.Interfaces;
@@ -136,8 +137,6 @@
         /// <returns>task.</returns>
         public async Task<CommonResponse<bool>> DeleteAsync(Guid id)
         {
-            _logger.LogInformation(
-                 "Deleting student. StudentId: {StudentId}", id);
             return await _repository.DeleteAsync(id);
         }
 
@@ -204,14 +203,46 @@
         }
 
         /// <summary>
+        /// Gets the filtered asynchronous.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <returns>StudentDto.</returns>
+        public async Task<PagedResult<StudentDto>> GetFilteredAsync(StudentFilterRequest request)
+        {
+            _logger.LogDebug("Starting student filter service for SearchText: {Search}", request.SearchText);
+
+            try
+            {
+                // 1. Get the Paged Entities from Repository
+                var pagedStudents = await _repository.GetFilteredAsync(request);
+
+                // 2. Map the Entities to DTOs using your existing method
+                var dtos = pagedStudents.items.Select(MapToDto).ToList();
+
+                _logger.LogInformation("Successfully mapped {Count} students to DTOs.", dtos.Count);
+
+                // 3. Wrap the DTOs back into a PagedResult for the Frontend
+                return new PagedResult<StudentDto>(
+                    dtos,
+                    pagedStudents.totalCount,
+                    request.Limit,
+                    request.Offset
+                );
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while filtering and mapping students.");
+                throw;
+            }
+        }
+
+        /// <summary>
         /// update the registration status.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>task.</returns>
         public async Task<CommonResponse<bool>> StudentConfirm(Guid id)
         {
-            _logger.LogInformation(
-             "confirm student. StudentId: {StudentId}", id);
             return await _repository.StudentConfirm(id);
         }
 
@@ -235,15 +266,61 @@
                 Userid = entity.StudentPersonalDetailsId,
                 RegistrationStatus = entity.RegistrationStatus,
                 RegistraionNumber = entity.RegistrationNumber,
+                CreatedAt = entity.CreatedAt,
+                CreatedBy = entity.CreatedBy,
+
                 StudentAcademicId = entity.StudentAcademicDetailsId,
                 AcademicDetails = new StudentAcademicdetailsDto
                 {
+                    Id = entity.StudentAcademicDetailsId,
                     CountryId = entity.AcademicDetails.CountryId,
+                    Country = entity.AcademicDetails.Country != null ? new CountryDto1
+                    {
+                        Id = entity.AcademicDetails.CountryId,
+                        Name = entity.AcademicDetails.Country.Name,
+                    } : null!,
                     StateId = entity.AcademicDetails.StateId,
+                    State = entity.AcademicDetails.State != null ? new StateDto
+                    {
+                        Id = entity.AcademicDetails.StateId,
+                        StateName = entity.AcademicDetails.State.StateName,
+                    } : null!,
+                    ModeOfStudyId = entity.AcademicDetails.ModeOfStudyId,
+                    ModeOfStudy = entity.AcademicDetails.ModeOfStudy != null ? new ModeOfStudyDto
+                    {
+                        Id = entity.AcademicDetails.ModeOfStudyId,
+                        ModeName = entity.AcademicDetails.ModeOfStudy.ModeName,
+                    } : null!,
                     CenterId = entity.AcademicDetails.CenterId,
+                    Center = entity.AcademicDetails.Center != null ? new CenterDto1
+                    {
+                        Id = entity.AcademicDetails.CenterId,
+                        Name = entity.AcademicDetails.Center.Name,
+                    } : null!,
+                    SyllabusId = entity.AcademicDetails.SyllabusId,
+                    Syllabus = entity.AcademicDetails.Syllabus != null ? new SyllabusDto
+                    {
+                        Id = entity.AcademicDetails.SyllabusId,
+                        SyllabusName = entity.AcademicDetails.Syllabus.SyllabusName,
+                    } : null!,
                     GradeId = entity.AcademicDetails.GradeId,
+                    Grade = entity.AcademicDetails.Grade != null ? new GradeDto
+                    {
+                        Id = entity.AcademicDetails.GradeId,
+                        GradeName = entity.AcademicDetails.Grade.GradeName,
+                    } : null!,
                     StreamId = entity.AcademicDetails.StreamId,
+                    Stream = entity.AcademicDetails.Stream != null ? new StreamDto
+                    {
+                        Id = entity.AcademicDetails.StreamId,
+                        StreamName = entity.AcademicDetails.Stream.StreamName,
+                    } : null!,
                     SubjectId = entity.AcademicDetails.SubjectId,
+                    Subject = entity.AcademicDetails.Subject != null ? new SubjectDto
+                    {
+                        Id = entity.AcademicDetails.SubjectId,
+                        SubjectName = entity.AcademicDetails.Subject.SubjectName,
+                    } : null!,
                     PastYearPerformance = entity.AcademicDetails.PastYearPerformance,
                     PastSchoolName = entity.AcademicDetails.PastSchoolName,
                     PastSchoolLocation = entity.AcademicDetails.PastSchoolLocation,
@@ -253,6 +330,7 @@
                 StudentPersonalId = entity.StudentPersonalDetailsId,
                 PersonalDetails = new StudentPersonaldetailsdto
                 {
+                    Id = entity.StudentPersonalDetailsId,
                     FullName = entity.StudentPersonalDetails.FullName,
                     EmailAddress = entity.StudentPersonalDetails.EmailAddress,
                     DOB = entity.StudentPersonalDetails.DOB,
@@ -267,19 +345,20 @@
                 StudentDocumentsId = entity.StudentDocumentsId,
                 StudentDocuments = new StudentDocumentsDto
                 {
+                    Id = entity.StudentDocumentsId,
                     StudentPhoto = entity.StudentDocuments.StudentPhotoPath,
                     StudentSignature = entity.StudentDocuments.StudentSignaturePath,
                     IsAcceptedAgreement = entity.StudentDocuments.IsAcceptedAgreement,
                     IsAcceptedTermsAndConditions = entity.StudentDocuments.IsAcceptedTermsAndConditions,
                 },
 
-                Courses = entity.StudentAcademicCouses
+                Courses = entity.StudentAcademicCouses?
                     .Select(c => new CourseDto
                     {
                         Id = c.CourseId,
                         CourseName = c.Course.CourseName,
                         CourseCode = c.Course.CourseCode,
-                    }).ToList(),
+                    }).ToList() ?? new List<CourseDto>(),
             };
         }
 
@@ -310,34 +389,34 @@
              },
              CenterId = c.AcademicDetails.CenterId,
              Center = new CenterDto1
-              {
-                    Id = c.AcademicDetails.CenterId,
-                    Name = c.AcademicDetails.Center.Name,
-              },
+             {
+                 Id = c.AcademicDetails.CenterId,
+                 Name = c.AcademicDetails.Center.Name,
+             },
              SyllabusId = c.AcademicDetails.SyllabusId,
              Syllabus = new SyllabusDto
-                {
-                    Id = c.AcademicDetails.SyllabusId,
-                    SyllabusName = c.AcademicDetails.Syllabus.SyllabusName,
-                },
+             {
+                 Id = c.AcademicDetails.SyllabusId,
+                 SyllabusName = c.AcademicDetails.Syllabus.SyllabusName,
+             },
              GradeId = c.AcademicDetails.GradeId,
              Grade = new GradeDto
-              {
-                    Id = c.AcademicDetails.GradeId,
-                    GradeName = c.AcademicDetails.Grade.GradeName,
-              },
+             {
+                 Id = c.AcademicDetails.GradeId,
+                 GradeName = c.AcademicDetails.Grade.GradeName,
+             },
              StreamId = c.AcademicDetails.StreamId,
              Stream = new StreamDto
-                {
-                        Id = c.AcademicDetails.StreamId,
-                        StreamName = c.AcademicDetails.Stream.StreamName,
-                },
+             {
+                 Id = c.AcademicDetails.StreamId,
+                 StreamName = c.AcademicDetails.Stream.StreamName,
+             },
              SubjectId = c.AcademicDetails.SubjectId,
              Subject = new SubjectDto
-               {
-                        Id = c.AcademicDetails.SubjectId,
-                        SubjectName = c.AcademicDetails.Subject.SubjectName,
-               },
+             {
+                 Id = c.AcademicDetails.SubjectId,
+                 SubjectName = c.AcademicDetails.Subject.SubjectName,
+             },
              PastYearPerformance = c.AcademicDetails.PastYearPerformance,
              PastSchoolLocation = c.AcademicDetails.PastSchoolLocation,
              PastSchoolName = c.AcademicDetails.PastSchoolName,

@@ -8,6 +8,5 @@
     public sealed record RegisterRequestDto(
         [Required] string username,
         [Required][EmailAddress] string email,
-        [Required] string password,
-        IReadOnlyList<string>? roleNames); // nullable
+        IReadOnlyList<string>? roleNames);
 }

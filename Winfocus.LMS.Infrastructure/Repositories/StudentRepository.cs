@@ -2,9 +2,12 @@
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Winfocus.LMS.Application.DTOs;
+using Winfocus.LMS.Application.DTOs.Common;
+using Winfocus.LMS.Application.DTOs.Students;
 using Winfocus.LMS.Application.Interfaces;
 using Winfocus.LMS.Domain.Entities;
 using Winfocus.LMS.Domain.Enums;
@@ -217,11 +220,26 @@ namespace Winfocus.LMS.Infrastructure.Repositories
 
             var query = _dbContext.Students
                 .Include(s => s.AcademicDetails)
-                .Include(s => s.StudentPersonalDetails)
-                .Include(s => s.StudentDocuments)
-                .Include(s => s.StudentAcademicCouses)
-                    .ThenInclude(sc => sc.Course)
-                .AsQueryable();
+                .ThenInclude(ad => ad.Grade)
+                .Include(s => s.AcademicDetails)
+                .ThenInclude(ad => ad.Stream)
+                .Include(s => s.AcademicDetails)
+                .ThenInclude(ad => ad.ModeOfStudy)
+                .Include(s => s.AcademicDetails)
+                .ThenInclude(ad => ad.Country)
+                .Include(s => s.AcademicDetails)
+                .ThenInclude(ad => ad.State)
+                .Include(s => s.AcademicDetails)
+                .ThenInclude(ad => ad.Center)
+                .Include(s => s.AcademicDetails)
+                .ThenInclude(ad => ad.Syllabus)
+                .Include(s => s.AcademicDetails)
+                .ThenInclude(ad => ad.Subject)
+    .Include(s => s.StudentPersonalDetails)
+    .Include(s => s.StudentDocuments)
+    .Include(s => s.StudentAcademicCouses)
+        .ThenInclude(sc => sc.Course)
+    .AsQueryable();
 
             // Filters
             if (countryId.HasValue)
@@ -280,9 +298,21 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             }
 
             // Sorting
-            query = sortOrder.ToLower() == "desc"
-                ? query.OrderByDescending(e => EF.Property<object>(e, sortBy))
-                : query.OrderBy(e => EF.Property<object>(e, sortBy));
+            query = (sortBy?.ToLower(), sortOrder?.ToLower()) switch
+            {
+                ("fullname", "desc") => query.OrderByDescending(e => e.StudentPersonalDetails.FullName),
+                ("fullname", _) => query.OrderBy(e => e.StudentPersonalDetails.FullName),
+                ("emailaddress", "desc") => query.OrderByDescending(e => e.StudentPersonalDetails.EmailAddress),
+                ("emailaddress", _) => query.OrderBy(e => e.StudentPersonalDetails.EmailAddress),
+                ("registrationnumber", "desc") => query.OrderByDescending(e => e.RegistrationNumber),
+                ("registrationnumber", _) => query.OrderBy(e => e.RegistrationNumber),
+                ("createdat", "desc") => query.OrderByDescending(e => e.CreatedAt),
+                ("createdat", _) => query.OrderBy(e => e.CreatedAt),
+                ("registrationstatus", "desc") => query.OrderByDescending(e => e.RegistrationStatus),
+                ("registrationstatus", _) => query.OrderBy(e => e.RegistrationStatus),
+                (_, "desc") => query.OrderByDescending(e => e.StudentPersonalDetails.FullName),
+                _ => query.OrderBy(e => e.StudentPersonalDetails.FullName),
+            };
 
             // Pagination
             query = query.Skip(offset).Take(limit);
@@ -291,6 +321,72 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             _logger.LogInformation("Student filter query returned {Count} records", result.Count);
 
             return result;
+        }
+
+        /// <summary>
+        /// Gets the filtered asynchronous.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <returns>Student.</returns>
+        public async Task<PagedResult<Student>> GetFilteredAsync(StudentFilterRequest request)
+        {
+            // 1. Start with the query and include all necessary relationships
+            var query = _dbContext.Students
+                .Include(s => s.AcademicDetails)
+                .Include(s => s.StudentPersonalDetails)
+                .Include(s => s.StudentAcademicCouses)
+                    .ThenInclude(sc => sc.Course)
+                .AsNoTracking()
+                .AsQueryable();
+
+            // 2. Apply Filters
+            if (request.CountryId.HasValue)
+            {
+                query = query.Where(s => s.AcademicDetails.CountryId == request.CountryId);
+            }
+
+            if (request.StateId.HasValue)
+            {
+                query = query.Where(s => s.AcademicDetails.StateId == request.StateId);
+            }
+
+            if (request.RegistrationStatus.HasValue)
+            {
+                query = query.Where(s => s.RegistrationStatus == request.RegistrationStatus);
+            }
+
+            if (!string.IsNullOrEmpty(request.SearchText))
+            {
+                var search = request.SearchText.ToLower();
+                query = query.Where(s =>
+                    s.StudentPersonalDetails.FullName.ToLower().Contains(search) ||
+                    s.StudentPersonalDetails.EmailAddress.ToLower().Contains(search));
+            }
+
+            // 3. Count Total Records BEFORE Pagination
+            var totalCount = await query.CountAsync();
+
+            // 4. Apply Sorting
+            bool isDesc = request.SortOrder?.ToLower() == "desc";
+
+            query = request.SortBy?.ToLower() switch
+            {
+                "fullname" => isDesc ? query.OrderByDescending(s => s.StudentPersonalDetails.FullName)
+                                     : query.OrderBy(s => s.StudentPersonalDetails.FullName),
+                "createdat" => isDesc ? query.OrderByDescending(s => s.CreatedAt)
+                                      : query.OrderBy(s => s.CreatedAt),
+                "registrationnumber" => isDesc ? query.OrderByDescending(s => s.RegistrationNumber)
+                                               : query.OrderBy(s => s.RegistrationNumber),
+                _ => query.OrderBy(s => s.CreatedAt)
+            };
+
+            // 5. Apply Pagination
+            var items = await query
+                .Skip(request.Offset)
+                .Take(request.Limit)
+                .ToListAsync();
+
+            return new PagedResult<Student>(items, totalCount, request.Limit, request.Offset);
         }
 
         /// <summary>

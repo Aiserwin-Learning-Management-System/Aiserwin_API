@@ -1,12 +1,16 @@
 ﻿namespace Winfocus.LMS.Application.Services
 {
-    using System.Data;
+    using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.Extensions.Logging;
+    using System.Data;
+    using Winfocus.LMS.Application.Common.Exceptions;
     using Winfocus.LMS.Application.DTOs;
     using Winfocus.LMS.Application.DTOs.Auth;
     using Winfocus.LMS.Application.Interfaces;
     using Winfocus.LMS.Domain.Entities;
+    using Winfocus.LMS.Domain.Enums;
+    using static Winfocus.LMS.Application.Common.Helpers.ValidationHelper;
 
     /// <summary>
     /// Handles authentication business logic.
@@ -16,6 +20,9 @@
         private readonly IUserRepository _userRepository;
         private readonly IRoleRepository _roleRepository;
         private readonly ITokenService _tokenService;
+        private readonly IUserActivationTokenRepository _activationRepository;
+        private readonly IEmailService _emailService;
+        private readonly IUsernameGeneratorService _usernameGeneratorService;
         private readonly IPasswordHasher<User> _passwordHasher;
         private readonly ILogger<AuthService> _logger;
 
@@ -27,18 +34,27 @@
         /// <param name="tokenService">The token service.</param>
         /// <param name="passwordHasher">The password hasher.</param>
         /// <param name="logger">The logger.</param>
+        /// <param name="activationRepository">The user activation token repository.</param>
+        /// <param name="emailService">The email service.</param>
+        /// <param name="usernameGeneratorService">The username generator service.</param>
         public AuthService(
             IUserRepository userRepository,
             IRoleRepository roleRepository,
             ITokenService tokenService,
             IPasswordHasher<User> passwordHasher,
-            ILogger<AuthService> logger)
+            ILogger<AuthService> logger,
+            IUserActivationTokenRepository activationRepository,
+            IEmailService emailService,
+            IUsernameGeneratorService usernameGeneratorService)
         {
             _userRepository = userRepository;
             _roleRepository = roleRepository;
             _tokenService = tokenService;
             _passwordHasher = passwordHasher;
             _logger = logger;
+            _activationRepository = activationRepository;
+            _emailService = emailService;
+            _usernameGeneratorService = usernameGeneratorService;
         }
 
         /// <summary>
@@ -53,71 +69,138 @@
         /// </exception>
         public async Task<AuthResponseDto> RegisterAsync(RegisterRequestDto request)
         {
-            _logger.LogInformation(
-                "Registration attempt for Username: {Username}",
-                request.username);
-
-            var existingUser = await _userRepository.GetByUsernameAsync(request.username);
-
-            if (existingUser != null && existingUser.IsActive)
+            try
             {
-                _logger.LogWarning(
-                    "Registration failed. Invalid username or inactive user: {Username}",
+                _logger.LogInformation(
+                           "Registration attempt — FullName: '{FullName}', Email: '{Email}'",
+                           request.username,
+                           request.email);
+
+                var validationErrors = new Dictionary<string, string[]>();
+
+                if (string.IsNullOrWhiteSpace(request.username))
+                {
+                    AddError(validationErrors, "Username", "Username is required.");
+                }
+
+                if (string.IsNullOrWhiteSpace(request.email))
+                {
+                    AddError(validationErrors, "Email", "Email is required.");
+                }
+
+                if (validationErrors.Any())
+                {
+                    throw new ValidationException("Validation failed", validationErrors);
+                }
+
+                if (await _userRepository.EmailExistsAsync(request.email))
+                {
+                    _logger.LogWarning(
+                        "Registration rejected: email '{Email}' already exists.", request.email);
+                    throw new CustomException(
+                        "Email address is already registered.",
+                        StatusCodes.Status409Conflict,
+                        "EMAIL_ALREADY_EXISTS");
+                }
+
+                // We generate the canonical username from the first name + year + sequence.
+                var generatedUsername = await _usernameGeneratorService
+                    .GenerateAsync(request.username, DateTime.UtcNow.Year);
+
+                _logger.LogInformation(
+                    "Username generated: '{Username}' for FullName='{FullName}'",
+                    generatedUsername,
                     request.username);
 
-                throw new InvalidOperationException("Invalid username or password.");
-            }
+                List<Role> roles;
 
-            var user = new User
-            {
-                Username = request.username,
-                Email = request.email,
-                CreatedAt = DateTime.UtcNow,
-                IsActive = true,
-            };
-
-            user.PasswordHash = _passwordHasher.HashPassword(user, request.password);
-
-            // If no roles provided, default to "Student"
-            var roleNames = (request.roleNames == null || !request.roleNames.Any())
-                            ? new List<string> { "Student" }
-                            : request.roleNames;
-
-            var roles = new List<string>();
-
-            // Loop through all requested roles
-            foreach (var roleName in roleNames)
-            {
-                var role = await _roleRepository.GetByNameAsync(roleName)
-                           ?? throw new InvalidOperationException($"Invalid role: {roleName}");
-
-                user.UserRoles.Add(new UserRole
+                if (request.roleNames != null && request.roleNames.Any(r => !string.IsNullOrWhiteSpace(r)))
                 {
-                    RoleId = role.Id,
+                    var distinctRoleNames = request.roleNames
+                        .Where(r => !string.IsNullOrWhiteSpace(r))
+                        .Select(r => r.Trim())
+                        .Distinct(StringComparer.OrdinalIgnoreCase)
+                        .ToList();
+
+                    roles = (await _userRepository.GetByNamesAsync(distinctRoleNames)).ToList();
+
+                    var invalidRoles = distinctRoleNames
+                        .Except(roles.Select(r => r.Name), StringComparer.OrdinalIgnoreCase)
+                        .ToList();
+
+                    if (invalidRoles.Any())
+                    {
+                        throw new CustomException(
+                            $"Invalid roles: {string.Join(", ", invalidRoles)}",
+                            StatusCodes.Status400BadRequest,
+                            "INVALID_ROLE");
+                    }
+                }
+                else
+                {
+                    roles = (await _userRepository.GetByNamesAsync(new[] { "Student" })).ToList();
+
+                    if (!roles.Any())
+                    {
+                        throw new CustomException(
+                            "Default role 'Student' not configured in system.",
+                            StatusCodes.Status500InternalServerError,
+                            "DEFAULT_ROLE_NOT_FOUND");
+                    }
+                }
+
+                var user = new User
+                {
+                    Id = Guid.NewGuid(),
+                    Username = generatedUsername,
+                    Email = request.email,
+                    CreatedAt = DateTime.UtcNow,
+                    IsActive = false,
+                };
+
+                user.UserRoles = roles.Select(role => new UserRole
+                {
                     UserId = user.Id,
-                    Role = role,
-                });
+                    RoleId = role.Id,
+                }).ToList();
 
-                roles.Add(roleName);
+                await _userRepository.AddAsync(user);
+
+                var token = Guid.NewGuid().ToString("N");
+
+                var activationToken = new UserActivationToken
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = user.Id,
+                    Token = token,
+                    Purpose = TokenPurpose.SetPassword,
+                    ExpiryDate = DateTime.UtcNow.AddHours(24),
+                    IsUsed = false,
+                    CreatedAt = DateTime.UtcNow,
+                };
+
+                await _activationRepository.AddAsync(activationToken);
+
+                await _emailService.SendActivationEmailAsync(user.Email, generatedUsername, token);
+
+                _logger.LogInformation("Activation token generated for {UserId}", user.Id);
+
+                return new AuthResponseDto(
+                    string.Empty,
+                    user.Id,
+                    generatedUsername,
+                    user.Email,
+                    roles.Select(r => r.Name).ToList());
             }
-
-            await _userRepository.AddAsync(user);
-
-            // Generate token with all roles
-            var token = _tokenService.GenerateToken(user, roles);
-
-            _logger.LogInformation(
-                   "User registered successfully. Username: {Username}, UserId: {UserId}, Roles: {Roles}",
-                   user.Username,
-                   user.Id,
-                   string.Join(",", roles));
-
-            return new AuthResponseDto(
-                token,
-                user.Id,
-                user.Username,
-                user.Email,
-                roles);
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                            ex,
+                            "Registration failed for FullName='{FullName}', Email='{Email}'",
+                            request.username,
+                            request.email);
+                throw;
+            }
         }
 
         /// <summary>
@@ -132,29 +215,43 @@
                 "Login attempt for username: {Username}",
                 request.username);
 
-            var user = await _userRepository.GetByUsernameAsync(request.username)
-                       ?? throw new UnauthorizedAccessException("Invalid credentials.");
+            var user = await _userRepository.GetByUsernameAsync(request.username);
 
-            if (user == null || !user.IsActive)
+            if (user == null)
             {
-                _logger.LogWarning(
-                    "Login failed for username {Username}: user not found or inactive",
-                    request.username);
-
-                throw new UnauthorizedAccessException("Invalid username or password");
+                throw new CustomException(
+                    "Invalid credentials.",
+                    StatusCodes.Status401Unauthorized,
+                    "INVALID_CREDENTIALS");
             }
 
-            var verificationResult = _passwordHasher.VerifyHashedPassword(
-                user,
-                user.PasswordHash,
-                request.password);
-
-            if (verificationResult == PasswordVerificationResult.Failed)
+            if (!user.IsActive)
             {
-                _logger.LogWarning(
-                    "Login failed for username {Username}: invalid password",
-                    request.username);
-                throw new UnauthorizedAccessException("Invalid credentials.");
+                throw new CustomException(
+                    "Account not activated.",
+                    StatusCodes.Status403Forbidden,
+                    "ACCOUNT_NOT_ACTIVE");
+            }
+
+            if (user.PasswordHash == null)
+            {
+                throw new CustomException(
+                    "Account not activated.",
+                    StatusCodes.Status403Forbidden,
+                    "ACCOUNT_NOT_ACTIVE");
+            }
+
+            var result = _passwordHasher.VerifyHashedPassword(
+                                                                user,
+                                                                user.PasswordHash,
+                                                                request.password);
+
+            if (result == PasswordVerificationResult.Failed)
+            {
+                throw new CustomException(
+                    "Invalid credentials.",
+                    StatusCodes.Status401Unauthorized,
+                    "INVALID_CREDENTIALS");
             }
 
             var roles = user.UserRoles
@@ -175,6 +272,187 @@
                 user.Username,
                 user.Email,
                 roles);
+        }
+
+        /// <summary>
+        /// Sets the password asynchronous.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <exception cref="InvalidOperationException">
+        /// Invalid token.
+        /// or
+        /// Token already used.
+        /// or
+        /// Token expired.
+        /// </exception>
+        /// <exception cref="KeyNotFoundException">User not found.</exception>
+        /// <returns>Task.</returns>
+        public async Task SetPasswordAsync(SetPasswordDto request)
+        {
+            try
+            {
+                _logger.LogInformation("Password setup attempt for token {Token}", request.token);
+
+                var tokenEntity = await _activationRepository.GetByTokenAsync(request.token)
+                                    ?? throw new CustomException(
+                                        "Invalid token.",
+                                        StatusCodes.Status400BadRequest,
+                                        "INVALID_TOKEN");
+
+                if (tokenEntity.IsUsed)
+                {
+                    throw new CustomException(
+                        "Token already used.",
+                        StatusCodes.Status400BadRequest,
+                        "TOKEN_ALREADY_USED");
+                }
+
+                if (tokenEntity.ExpiryDate < DateTime.UtcNow)
+                {
+                    throw new CustomException(
+                        "Token expired.",
+                        StatusCodes.Status400BadRequest,
+                        "TOKEN_EXPIRED");
+                }
+
+                var user = await _userRepository.GetByIdAsync(tokenEntity.UserId)
+                    ?? throw new CustomException(
+                        "User not found.",
+                        StatusCodes.Status404NotFound,
+                        "USER_NOT_FOUND");
+
+                user.PasswordHash = _passwordHasher.HashPassword(user, request.password);
+                user.IsActive = true;
+
+                tokenEntity.IsUsed = true;
+
+                await _userRepository.UpdateAsync(user);
+
+                _logger.LogInformation("Password set successfully for user {UserId}", user.Id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Password setup failed for token {Token}", request.token);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Forgots the password asynchronous.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <exception cref="CustomException">Invalid email.</exception>
+        /// <returns>Task.</returns>
+        public async Task ForgotPasswordAsync(ForgotPasswordDto request)
+        {
+            var user = await _userRepository.GetByEmailAsync(request.email);
+
+            if (user == null)
+            {
+                _logger.LogInformation("ForgotPassword for non-existing email {Email}", request.email);
+                return;
+            }
+
+            // Decide purpose based on activation state
+            var purpose = user.IsActive
+                ? TokenPurpose.ResetPassword
+                : TokenPurpose.SetPassword;
+
+            await _activationRepository
+                .InvalidateUserTokensAsync(user.Id, purpose);
+
+            var token = Guid.NewGuid().ToString("N");
+
+            var resetToken = new UserActivationToken
+            {
+                Id = Guid.NewGuid(),
+                UserId = user.Id,
+                Token = token,
+                Purpose = purpose,
+                ExpiryDate = DateTime.UtcNow.AddHours(24),
+                IsUsed = false,
+                CreatedAt = DateTime.UtcNow,
+            };
+
+            await _activationRepository.AddAsync(resetToken);
+
+            if (purpose == TokenPurpose.SetPassword)
+            {
+                await _emailService.SendActivationEmailAsync(
+                    user.Email,
+                    user.Username,
+                    token);
+            }
+            else
+            {
+                await _emailService.SendResetPasswordEmailAsync(
+                    user.Email,
+                    user.Username,
+                    token);
+            }
+        }
+
+        /// <summary>
+        /// Resets the password asynchronous.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <exception cref="CustomException">
+        /// Invalid token. - INVALID_TOKEN
+        /// or
+        /// Invalid token purpose. - INVALID_TOKEN
+        /// or
+        /// Token already used. - TOKEN_ALREADY_USED
+        /// or
+        /// Token expired. - TOKEN_EXPIRED
+        /// or
+        /// User not found. - USER_NOT_FOUND.
+        /// </exception>
+        /// <returns>Task.</returns>
+        public async Task ResetPasswordAsync(ResetPasswordDto request)
+        {
+            var tokenEntity = await _activationRepository
+                .GetByTokenAsync(request.token)
+                ?? throw new CustomException(
+                    "Invalid token.",
+                    StatusCodes.Status400BadRequest,
+                    "INVALID_TOKEN");
+
+            if (tokenEntity.IsUsed)
+            {
+                throw new CustomException(
+                    "Token already used.",
+                    StatusCodes.Status400BadRequest,
+                    "TOKEN_ALREADY_USED");
+            }
+
+            if (tokenEntity.ExpiryDate < DateTime.UtcNow)
+            {
+                throw new CustomException(
+                    "Token expired.",
+                    StatusCodes.Status400BadRequest,
+                    "TOKEN_EXPIRED");
+            }
+
+            var user = await _userRepository
+                .GetByIdAsync(tokenEntity.UserId)
+                ?? throw new CustomException(
+                    "User not found.",
+                    StatusCodes.Status404NotFound,
+                    "USER_NOT_FOUND");
+
+            user.PasswordHash =
+                _passwordHasher.HashPassword(user, request.newPassword);
+
+
+            if (tokenEntity.Purpose == TokenPurpose.SetPassword)
+            {
+                user.IsActive = true;
+            }
+
+            tokenEntity.IsUsed = true;
+
+            await _userRepository.UpdateAsync(user);
+            await _activationRepository.UpdateAsync(tokenEntity);
         }
     }
 }

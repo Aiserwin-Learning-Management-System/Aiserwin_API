@@ -20,7 +20,7 @@
         /// <summary>
         /// Gets or sets the hashed password of the user.
         /// </summary>
-        public string PasswordHash { get; set; } = null!;
+        public string? PasswordHash { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the collection of UserRole associated with the user.
