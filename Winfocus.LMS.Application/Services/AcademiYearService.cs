@@ -14,14 +14,17 @@ namespace Winfocus.LMS.Application.Services
     public class AcademiYearService : IAcademicYearService
     {
         private readonly IAcademicYearRepository _repository;
+        private readonly ILogger<AcademiYearService> _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AcademiYearService"/> class.
         /// </summary>
         /// <param name="repository">Repository used for data access.</param>
-        public AcademiYearService(IAcademicYearRepository repository)
+        /// <param name="logger">Logger.</param>
+        public AcademiYearService(IAcademicYearRepository repository, ILogger<AcademiYearService> logger)
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            _logger = logger;
         }
 
         /// <summary>
@@ -30,6 +33,7 @@ namespace Winfocus.LMS.Application.Services
         /// <returns>AcademicYearDto.</returns>
         public async Task<IReadOnlyList<AcademicYearDto>> GetAllAsync()
         {
+            _logger.LogInformation("Fetching all academic years.");
             var academicyear = await _repository.GetAllAsync();
             return academicyear.Select(Map).ToList();
         }
@@ -40,6 +44,7 @@ namespace Winfocus.LMS.Application.Services
         /// <returns>The current academic year if available; otherwise null.</returns>
         public async Task<AcademicYearDto?> GetCurrentAcademicYearAsync()
         {
+            _logger.LogInformation("Fetching current academic year.");
             var today = DateTime.UtcNow.Date;
 
             var academicYear = await _repository

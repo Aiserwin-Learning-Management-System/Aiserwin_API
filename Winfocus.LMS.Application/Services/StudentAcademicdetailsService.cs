@@ -1,18 +1,18 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Winfocus.LMS.Application.DTOs;
-using Winfocus.LMS.Application.DTOs.Masters;
-using Winfocus.LMS.Application.DTOs.Students;
-using Winfocus.LMS.Application.Interfaces;
-using Winfocus.LMS.Domain.Entities;
-
-namespace Winfocus.LMS.Application.Services
+﻿namespace Winfocus.LMS.Application.Services
 {
- /// <summary>
- /// Provides business operations for <see cref="StudentAcademicdetails"/> entities.
- /// </summary>
+    using System;
+    using System.Collections.Generic;
+    using System.Text;
+    using Microsoft.Extensions.Logging;
+    using Winfocus.LMS.Application.DTOs;
+    using Winfocus.LMS.Application.DTOs.Masters;
+    using Winfocus.LMS.Application.DTOs.Students;
+    using Winfocus.LMS.Application.Interfaces;
+    using Winfocus.LMS.Domain.Entities;
+
+    /// <summary>
+    /// Provides business operations for <see cref="StudentAcademicdetails"/> entities.
+    /// </summary>
     public sealed class StudentAcademicdetailsService : IStudentAcademicdetailsService
     {
         private readonly IStudentAcademicdetailsRepository _repository;
@@ -70,7 +70,7 @@ namespace Winfocus.LMS.Application.Services
         {
             _logger.LogInformation("Fetching all Student Academic details");
             var studentAcademicDetails = await _repository.GetAllAsync();
-            _logger.LogInformation("Fetched {Count} states", studentAcademicDetails.Count());
+            _logger.LogInformation("Fetched {Count} students", studentAcademicDetails.Count());
             return studentAcademicDetails.Select(Map).ToList();
         }
 
@@ -81,7 +81,7 @@ namespace Winfocus.LMS.Application.Services
         /// <returns>StudentAcademicdetailsDto.</returns>
         public async Task<StudentAcademicdetailsDto?> GetByIdAsync(Guid id)
         {
-            _logger.LogInformation("Fetching state by Id: {StudentacademicdetailsId}", id);
+            _logger.LogInformation("Fetching avademic details by Id: {StudentacademicdetailsId}", id);
             var studentAcademicDetails = await _repository.GetByIdAsync(id);
             _logger.LogInformation("StudentAcademicdetails fetched successfully for Id: {StudentacademicdetailsId}", id);
             return studentAcademicDetails == null ? null : Map(studentAcademicDetails);
@@ -95,15 +95,23 @@ namespace Winfocus.LMS.Application.Services
         /// <exception cref="InvalidOperationException">State code already exists. </exception>
         public async Task<CommonResponse<StudentAcademicdetailsDto>> CreateAsync(StudentAcademicdetailsRequest request)
         {
+            _logger.LogInformation(
+                "Creating StudentAcademicDetails for CountryId: {CountryId}, StateId: {StateId}, CenterId: {CenterId}",
+                request.countryId, request.stateId, request.centerId);
+
             var country = await _countryRepository.GetByIdAsync(request.countryId);
             if (country == null)
             {
+                _logger.LogWarning("CreateAcademicDetails failed: Country not found. CountryId: {CountryId}", request.countryId);
+
                 return CommonResponse<StudentAcademicdetailsDto>
                     .FailureResponse("Country not found");
             }
 
             if (!country.IsActive)
             {
+                _logger.LogWarning("CreateAcademicDetails failed: Country inactive. CountryId: {CountryId}", request.countryId);
+
                 return CommonResponse<StudentAcademicdetailsDto>
                     .FailureResponse("Cannot create with inactive country");
             }
@@ -111,6 +119,8 @@ namespace Winfocus.LMS.Application.Services
             var state = await _stateRepository.GetByIdAsync(request.stateId);
             if (state == null)
             {
+                _logger.LogWarning("CreateAcademicDetails failed: State not found. StateId: {StateId}", request.stateId);
+
                 return CommonResponse<StudentAcademicdetailsDto>
                     .FailureResponse("State not found");
             }
@@ -118,6 +128,8 @@ namespace Winfocus.LMS.Application.Services
             var modeOfStudy = await _modeOfStudyRepository.GetByIdAsync(request.modeOfStudyId);
             if (modeOfStudy == null)
             {
+                _logger.LogWarning("CreateAcademicDetails failed: ModeOfStudy not found. Id: {ModeOfStudyId}", request.modeOfStudyId);
+
                 return CommonResponse<StudentAcademicdetailsDto>
                     .FailureResponse("Mode of study not found");
             }
@@ -125,6 +137,8 @@ namespace Winfocus.LMS.Application.Services
             var center = await _centerRepository.GetByIdAsync(request.centerId);
             if (center == null)
             {
+                _logger.LogWarning("CreateAcademicDetails failed: Center not found. CenterId: {CenterId}", request.centerId);
+
                 return CommonResponse<StudentAcademicdetailsDto>
                     .FailureResponse("Center not found");
             }
@@ -132,6 +146,8 @@ namespace Winfocus.LMS.Application.Services
             var syllabus = await _syllabusRepository.GetByIdAsync(request.syllabusId);
             if (syllabus == null)
             {
+                _logger.LogWarning("CreateAcademicDetails failed: Syllabus not found. SyllabusId: {SyllabusId}", request.syllabusId);
+
                 return CommonResponse<StudentAcademicdetailsDto>
                     .FailureResponse("Syllabus not found");
             }
@@ -139,6 +155,8 @@ namespace Winfocus.LMS.Application.Services
             var grade = await _gradeRepository.GetByIdAsync(request.gradeId);
             if (grade == null)
             {
+                _logger.LogWarning("CreateAcademicDetails failed: Grade not found. GradeId: {GradeId}", request.gradeId);
+
                 return CommonResponse<StudentAcademicdetailsDto>
                     .FailureResponse("Grade not found");
             }
@@ -146,6 +164,8 @@ namespace Winfocus.LMS.Application.Services
             var stream = await _streamRepository.GetByIdAsync(request.streamId);
             if (stream == null)
             {
+                _logger.LogWarning("CreateAcademicDetails failed: Stream not found. StreamId: {StreamId}", request.streamId);
+
                 return CommonResponse<StudentAcademicdetailsDto>
                     .FailureResponse("Stream not found");
             }
@@ -167,12 +187,24 @@ namespace Winfocus.LMS.Application.Services
                 Emirates = request.emirates,
                 SubjectId = request.subjectId,
             };
+
             var today = DateTime.UtcNow.Date;
+
+            _logger.LogInformation("Fetching AcademicYear for Date: {Date}", today);
+
             var currentYear = await _yearRepository.GetByDateAsync(today);
 
             if (currentYear != null)
             {
                 academicDetails.AcademicYearId = currentYear.Id;
+
+                _logger.LogInformation(
+                    "AcademicYear assigned. AcademicYearId: {AcademicYearId}",
+                    currentYear.Id);
+            }
+            else
+            {
+                _logger.LogWarning("No AcademicYear found for Date: {Date}", today);
             }
 
             var created = await _repository.AddAsync(academicDetails);
@@ -194,24 +226,41 @@ namespace Winfocus.LMS.Application.Services
         /// <param name="request">The request.</param>
         /// <exception cref="KeyNotFoundException">State not found.</exception>
         /// <returns>task.</returns>
-        public async Task<CommonResponse<StudentAcademicdetailsDto>> UpdateAsync(Guid id, StudentAcademicdetailsRequest request)
+        public async Task<CommonResponse<StudentAcademicdetailsDto>> UpdateAsync(
+      Guid id,
+      StudentAcademicdetailsRequest request)
         {
-            _logger.LogInformation("Updating StudentAcademicDetails Id: {Id}", id);
+            _logger.LogInformation(
+                "Updating StudentAcademicDetails started. Id: {Id}", id);
+
             var studentacademic = await _repository.GetByIdAsync(id);
+
             if (studentacademic == null)
             {
+                _logger.LogWarning(
+                    "Update failed. StudentAcademicDetails not found. Id: {Id}", id);
+
                 return CommonResponse<StudentAcademicdetailsDto>
                     .FailureResponse("Student academic details not found");
             }
+
             var country = await _countryRepository.GetByIdAsync(request.countryId);
             if (country == null)
             {
+                _logger.LogWarning(
+                    "Update failed. Country not found. CountryId: {CountryId}",
+                    request.countryId);
+
                 return CommonResponse<StudentAcademicdetailsDto>
                     .FailureResponse("Country not found");
             }
 
             if (!country.IsActive)
             {
+                _logger.LogWarning(
+                    "Update failed. Country inactive. CountryId: {CountryId}",
+                    request.countryId);
+
                 return CommonResponse<StudentAcademicdetailsDto>
                     .FailureResponse("Cannot create with inactive country");
             }
@@ -219,6 +268,10 @@ namespace Winfocus.LMS.Application.Services
             var state = await _stateRepository.GetByIdAsync(request.stateId);
             if (state == null)
             {
+                _logger.LogWarning(
+                    "Update failed. State not found. StateId: {StateId}",
+                    request.stateId);
+
                 return CommonResponse<StudentAcademicdetailsDto>
                     .FailureResponse("State not found");
             }
@@ -226,6 +279,10 @@ namespace Winfocus.LMS.Application.Services
             var modeOfStudy = await _modeOfStudyRepository.GetByIdAsync(request.modeOfStudyId);
             if (modeOfStudy == null)
             {
+                _logger.LogWarning(
+                    "Update failed. ModeOfStudy not found. Id: {ModeOfStudyId}",
+                    request.modeOfStudyId);
+
                 return CommonResponse<StudentAcademicdetailsDto>
                     .FailureResponse("Mode of study not found");
             }
@@ -233,6 +290,10 @@ namespace Winfocus.LMS.Application.Services
             var center = await _centerRepository.GetByIdAsync(request.centerId);
             if (center == null)
             {
+                _logger.LogWarning(
+                    "Update failed. Center not found. CenterId: {CenterId}",
+                    request.centerId);
+
                 return CommonResponse<StudentAcademicdetailsDto>
                     .FailureResponse("Center not found");
             }
@@ -240,6 +301,10 @@ namespace Winfocus.LMS.Application.Services
             var syllabus = await _syllabusRepository.GetByIdAsync(request.syllabusId);
             if (syllabus == null)
             {
+                _logger.LogWarning(
+                    "Update failed. Syllabus not found. SyllabusId: {SyllabusId}",
+                    request.syllabusId);
+
                 return CommonResponse<StudentAcademicdetailsDto>
                     .FailureResponse("Syllabus not found");
             }
@@ -247,6 +312,10 @@ namespace Winfocus.LMS.Application.Services
             var grade = await _gradeRepository.GetByIdAsync(request.gradeId);
             if (grade == null)
             {
+                _logger.LogWarning(
+                    "Update failed. Grade not found. GradeId: {GradeId}",
+                    request.gradeId);
+
                 return CommonResponse<StudentAcademicdetailsDto>
                     .FailureResponse("Grade not found");
             }
@@ -254,34 +323,35 @@ namespace Winfocus.LMS.Application.Services
             var stream = await _streamRepository.GetByIdAsync(request.streamId);
             if (stream == null)
             {
+                _logger.LogWarning(
+                    "Update failed. Stream not found. StreamId: {StreamId}",
+                    request.streamId);
+
                 return CommonResponse<StudentAcademicdetailsDto>
                     .FailureResponse("Stream not found");
             }
 
-            var academicDetails = new StudentAcademicDetails
-            {
-                CountryId = request.countryId,
-                StateId = request.stateId,
-                ModeOfStudyId = request.modeOfStudyId,
-                CenterId = request.centerId,
-                SyllabusId = request.syllabusId,
-                GradeId = request.gradeId,
-                StreamId = request.streamId,
-                BatchId = request.batchId,
-                PreferredBatchTimeId = request.preferredbatchtimeId,
-                PastYearPerformance = request.pastyearperformance,
-                PastSchoolName = request.pastschoolname,
-                PastSchoolLocation = request.pastschoollocation,
-                Emirates = request.emirates,
-                SubjectId = request.subjectId,
-                Id = id,
-            };
+            // ✅ UPDATE EXISTING ENTITY (IMPORTANT)
+            studentacademic.CountryId = request.countryId;
+            studentacademic.StateId = request.stateId;
+            studentacademic.ModeOfStudyId = request.modeOfStudyId;
+            studentacademic.CenterId = request.centerId;
+            studentacademic.SyllabusId = request.syllabusId;
+            studentacademic.GradeId = request.gradeId;
+            studentacademic.StreamId = request.streamId;
+            studentacademic.BatchId = request.batchId;
+            studentacademic.PreferredBatchTimeId = request.preferredbatchtimeId;
+            studentacademic.PastYearPerformance = request.pastyearperformance;
+            studentacademic.PastSchoolName = request.pastschoolname;
+            studentacademic.PastSchoolLocation = request.pastschoollocation;
+            studentacademic.Emirates = request.emirates;
+            studentacademic.SubjectId = request.subjectId;
 
-            var updated = await _repository.UpdateAsync(academicDetails);
+            var updated = await _repository.UpdateAsync(studentacademic);
 
             _logger.LogInformation(
-                "Student academic details updated successfully. Id: {Id}",
-                id);
+                "StudentAcademicDetails updated successfully. Id: {Id}",
+                updated.Id);
 
             var dto = Map(updated);
 
@@ -296,10 +366,10 @@ namespace Winfocus.LMS.Application.Services
         /// <returns>task.</returns>
         public async Task DeleteAsync(Guid id)
         {
-            _logger.LogInformation("Deleting state Id: {StateId}", id);
+            _logger.LogInformation("Deleting academicdeatails Id: {id}", id);
             await _repository.DeleteAsync(id);
             _logger.LogInformation(
-           "State deleted successfully. StateId: {StateId}",
+           "academicdeatails deleted successfully. Id: {id}",
            id);
         }
 
@@ -308,27 +378,48 @@ namespace Winfocus.LMS.Application.Services
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>StudentDocumentsDto.</returns>
-        public async Task<StudentDocumentsDto> AddUploadedDocuments(StudentUploaddocumentsRequest request)
+        public async Task<StudentDocumentsDto> AddUploadedDocuments(
+       StudentUploaddocumentsRequest request)
         {
+            _logger.LogInformation(
+                "Uploading student documents started.");
 
-            var photoPath = await _fileStorageService
-            .SaveFileAsync(request.studentphoto, "Photos");
-
-            var signaturePath = await _fileStorageService
-                .SaveFileAsync(request.signature, "Signatures");
-
-            var document = new StudentDocuments
+            try
             {
-                Id = Guid.NewGuid(),
-                StudentPhotoPath = photoPath,
-                StudentSignaturePath = signaturePath,
-                IsAcceptedAgreement = request.isAcceptedAgreement,
-                IsAcceptedTermsAndConditions = request.isAcceptedTermsAndConditions,
-            };
+                // Upload photo
+                _logger.LogInformation("Saving student photo...");
+                var photoPath = await _fileStorageService
+                    .SaveFileAsync(request.studentphoto, "Photos");
 
-            await _repository.AddUploadedDocuments(document);
+                // Upload signature
+                _logger.LogInformation("Saving student signature...");
+                var signaturePath = await _fileStorageService
+                    .SaveFileAsync(request.signature, "Signatures");
 
-            return MapDocs(document);
+                var document = new StudentDocuments
+                {
+                    Id = Guid.NewGuid(),
+                    StudentPhotoPath = photoPath,
+                    StudentSignaturePath = signaturePath,
+                    IsAcceptedAgreement = request.isAcceptedAgreement,
+                    IsAcceptedTermsAndConditions = request.isAcceptedTermsAndConditions,
+                };
+
+                await _repository.AddUploadedDocuments(document);
+
+                _logger.LogInformation(
+                    "Student documents uploaded successfully. DocumentId: {DocumentId}",
+                    document.Id);
+
+                return MapDocs(document);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex,
+                    "Error occurred while uploading student documents.");
+
+                throw; // let global exception middleware handle response
+            }
         }
 
         /// <summary>
@@ -337,17 +428,36 @@ namespace Winfocus.LMS.Application.Services
         /// <param name="studentId">Student  details identifier.</param>
         /// <param name="request">The request.</param>
         /// <returns>StudentDocumentsDto.</returns>
-        public async Task<CommonResponse<StudentDocumentsDto>> UpdateUploadedDocuments(Guid studentId, StudentUploaddocumentsRequest request)
+        public async Task<CommonResponse<StudentDocumentsDto>> UpdateUploadedDocuments(
+      Guid studentId,
+      StudentUploaddocumentsRequest request)
         {
+            _logger.LogInformation(
+                "Updating student documents started. StudentId: {StudentId}",
+                studentId);
+
             var studentdocuments = await _repository.DocsGetByIdAsync(studentId);
+
             if (studentdocuments == null)
             {
+                _logger.LogWarning(
+                    "Update failed. Student document details not found. StudentId: {StudentId}",
+                    studentId);
+
                 return CommonResponse<StudentDocumentsDto>
                     .FailureResponse("Student document details not found");
             }
 
+            _logger.LogInformation(
+                "Saving student photo. StudentId: {StudentId}",
+                studentId);
+
             var photoPath = await _fileStorageService
-            .SaveFileAsync(request.studentphoto, "Photos");
+                .SaveFileAsync(request.studentphoto, "Photos");
+
+            _logger.LogInformation(
+                "Saving student signature. StudentId: {StudentId}",
+                studentId);
 
             var signaturePath = await _fileStorageService
                 .SaveFileAsync(request.signature, "Signatures");
@@ -361,7 +471,15 @@ namespace Winfocus.LMS.Application.Services
                 IsAcceptedTermsAndConditions = request.isAcceptedTermsAndConditions,
             };
 
+            _logger.LogInformation(
+                "Updating student document record in database. StudentId: {StudentId}",
+                studentId);
+
             await _repository.UpdateUploadedDocuments(document);
+
+            _logger.LogInformation(
+                "Student documents updated successfully. StudentId: {StudentId}",
+                studentId);
 
             var dto = MapDocs(document);
 
@@ -369,12 +487,16 @@ namespace Winfocus.LMS.Application.Services
                 .SuccessResponse("Student documents details created successfully", dto);
         }
 
-
         /// <inheritdoc/>
         public async Task AddCoursesAsync(
             Guid studentId,
             List<Guid> courseIds)
         {
+            _logger.LogInformation(
+       "Adding courses started. StudentId: {StudentId}, CourseCount: {CourseCount}",
+       studentId,
+       courseIds?.Count ?? 0);
+
             var courses = courseIds.Select(courseId =>
                 new StudentAcademicCouses
                 {
@@ -382,8 +504,16 @@ namespace Winfocus.LMS.Application.Services
                     StudentId = studentId,
                     CourseId = courseId,
                 }).ToList();
+            _logger.LogInformation(
+        "Prepared {CourseCount} course records for StudentId: {StudentId}",
+        courses.Count,
+        studentId);
 
             await _repository.AddCourseRangeAsync(courses);
+
+            _logger.LogInformation(
+        "Courses added successfully for StudentId: {StudentId}",
+        studentId);
         }
 
         /// <inheritdoc/>
@@ -391,6 +521,10 @@ namespace Winfocus.LMS.Application.Services
           Guid studentId,
           List<Guid> courseIds)
         {
+            _logger.LogInformation(
+       "Updating courses started. StudentId: {StudentId}, CourseCount: {CourseCount}",
+       studentId,
+       courseIds?.Count ?? 0);
             var courses = courseIds.Select(courseId =>
                 new StudentAcademicCouses
                 {
@@ -399,7 +533,16 @@ namespace Winfocus.LMS.Application.Services
                     CourseId = courseId,
                 }).ToList();
 
+            _logger.LogInformation(
+       "Prepared {CourseCount} updated course records for StudentId: {StudentId}",
+       courses.Count,
+       studentId);
+
             await _repository.UpdateCourseRangeAsync(courses);
+
+            _logger.LogInformation(
+       "Courses updated successfully for StudentId: {StudentId}",
+       studentId);
         }
 
         /// <inheritdoc/>
@@ -422,6 +565,11 @@ namespace Winfocus.LMS.Application.Services
             Guid studentId,
             List<Guid> batchtimingmtfid)
         {
+            _logger.LogInformation(
+      "Adding MTF batch timings started. StudentId: {StudentId}, BatchTimingCount: {Count}",
+      studentId,
+      batchtimingmtfid?.Count ?? 0);
+
             var batchtimingmtfs = batchtimingmtfid.Select(batchtimeid =>
                 new StudentBatchTimingMTF
                 {
@@ -429,7 +577,16 @@ namespace Winfocus.LMS.Application.Services
                     BatchTimingMTFId = batchtimeid,
                 }).ToList();
 
+            _logger.LogInformation(
+       "Prepared {Count} MTF batch timing records for StudentId: {StudentId}",
+       batchtimingmtfs.Count,
+       studentId);
+
             await _repository.UpdateBatchtimingmtfRangeAsync(batchtimingmtfs);
+
+            _logger.LogInformation(
+     "MTF batch timings added successfully for StudentId: {StudentId}",
+     studentId);
         }
 
         /// <inheritdoc/>
@@ -437,6 +594,10 @@ namespace Winfocus.LMS.Application.Services
           Guid studentId,
           List<Guid> batchtimingsaturdayids)
         {
+            _logger.LogInformation(
+      "Adding Saturday batch timings started. StudentId: {StudentId}, BatchTimingCount: {Count}",
+      studentId,
+      batchtimingsaturdayids?.Count ?? 0);
             var batchtimingsaturdays = batchtimingsaturdayids.Select(batchtimingsaturdayid =>
                 new StudentBatchTimingSaturday
                 {
@@ -444,7 +605,16 @@ namespace Winfocus.LMS.Application.Services
                     BatchTimingSaturdayId = batchtimingsaturdayid,
                 }).ToList();
 
+            _logger.LogInformation(
+       "Prepared {Count} Saturday batch timing records for StudentId: {StudentId}",
+       batchtimingsaturdays.Count,
+       studentId);
+
             await _repository.AddBatchtimingsaturdayRangeAsync(batchtimingsaturdays);
+
+            _logger.LogInformation(
+       "Saturday batch timings added successfully for StudentId: {StudentId}",
+       studentId);
         }
 
         /// <inheritdoc/>
@@ -452,6 +622,10 @@ namespace Winfocus.LMS.Application.Services
           Guid studentId,
           List<Guid> batchtimingsaturdayids)
         {
+            _logger.LogInformation(
+       "Updating Saturday batch timings. StudentId: {StudentId}, Count: {Count}",
+       studentId,
+       batchtimingsaturdayids?.Count ?? 0);
             var batchtimingsaturdays = batchtimingsaturdayids.Select(batchtimingsaturdayid =>
                 new StudentBatchTimingSaturday
                 {
@@ -460,6 +634,10 @@ namespace Winfocus.LMS.Application.Services
                 }).ToList();
 
             await _repository.UpdateBatchtimingsaturdayRangeAsync(batchtimingsaturdays);
+
+            _logger.LogInformation(
+        "Saturday batch timings updated successfully. StudentId: {StudentId}",
+        studentId);
         }
 
         /// <inheritdoc/>
@@ -467,6 +645,11 @@ namespace Winfocus.LMS.Application.Services
           Guid studentId,
           List<Guid> batchtimingsundayids)
         {
+
+            _logger.LogInformation(
+      "Adding Sunday batch timings. StudentId: {StudentId}, Count: {Count}",
+      studentId,
+      batchtimingsundayids?.Count ?? 0);
             var batchtimingsundays = batchtimingsundayids.Select(batchtimingsundayid =>
                 new StudentBatchTimingSunday
                 {
@@ -475,6 +658,10 @@ namespace Winfocus.LMS.Application.Services
                 }).ToList();
 
             await _repository.AddBatchtimingsundayRangeAsync(batchtimingsundays);
+
+            _logger.LogInformation(
+        "Sunday batch timings added successfully. StudentId: {StudentId}",
+        studentId);
         }
 
         /// <inheritdoc/>
@@ -482,6 +669,11 @@ namespace Winfocus.LMS.Application.Services
           Guid studentId,
           List<Guid> batchtimingsundayids)
         {
+            _logger.LogInformation(
+               "Updating Sunday batch timings. StudentId: {StudentId}, Count: {Count}",
+               studentId,
+               batchtimingsundayids?.Count ?? 0);
+
             var batchtimingsundays = batchtimingsundayids.Select(batchtimingsundayid =>
                 new StudentBatchTimingSunday
                 {
@@ -490,6 +682,10 @@ namespace Winfocus.LMS.Application.Services
                 }).ToList();
 
             await _repository.UpdateBatchtimingsundayRangeAsync(batchtimingsundays);
+
+            _logger.LogInformation(
+              "Sunday batch timings updated successfully. StudentId: {StudentId}",
+              studentId);
         }
 
         private static StudentDocumentsDto MapDocs(StudentDocuments c) =>
