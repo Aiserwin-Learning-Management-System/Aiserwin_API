@@ -3,6 +3,7 @@
     using Asp.Versioning;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
+    using Microsoft.AspNetCore.RateLimiting;
     using Winfocus.LMS.Application.DTOs.Auth;
     using Winfocus.LMS.Application.Interfaces;
 
@@ -50,5 +51,48 @@
             var result = await _authService.LoginAsync(request);
             return Ok(result);
         }
+
+        /// <summary>
+        /// Sets the password.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <returns>Task.</returns>
+        [AllowAnonymous]
+        [EnableRateLimiting("SetPasswordPolicy")]
+        [HttpPost("set-password")]
+        public async Task<IActionResult> SetPassword([FromBody] SetPasswordDto request)
+        {
+            await _authService.SetPasswordAsync(request);
+            return Ok("Password set successfully.");
+        }
+
+        /// <summary>
+        /// Forgots the password.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <returns>Task.</returns>
+        [AllowAnonymous]
+        [EnableRateLimiting("SetPasswordPolicy")]
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordDto request)
+        {
+            await _authService.ForgotPasswordAsync(request);
+            return Ok(new { message = "If the email exists, a reset link has been sent." });
+        }
+
+        /// <summary>
+        /// Resets the password.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <returns>Task.</returns>
+        [AllowAnonymous]
+        [EnableRateLimiting("SetPasswordPolicy")]
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword(ResetPasswordDto request)
+        {
+            await _authService.ResetPasswordAsync(request);
+            return Ok(new { message = "Password reset successfully." });
+        }
+
     }
 }

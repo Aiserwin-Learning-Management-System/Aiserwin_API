@@ -102,5 +102,13 @@
         /// The academic year.
         /// </value>
         public Guid AcademicYear { get; set; }
+
+        /// <summary>
+        /// Gets or sets the status.
+        /// </summary>
+        /// <value>
+        /// The status.
+        /// </value>
+        public string Status { get; set; } = null!;
     }
 }

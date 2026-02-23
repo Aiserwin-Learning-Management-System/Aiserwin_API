@@ -2,11 +2,13 @@ using Asp.Versioning;
 using Asp.Versioning.ApiExplorer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using System.Text;
 using Winfocus.LMS.API.Middleware;
+using Winfocus.LMS.Application.Configuration;
 using Winfocus.LMS.Application.Interfaces;
 using Winfocus.LMS.Application.Services;
 using Winfocus.LMS.Domain.Entities;
@@ -17,6 +19,9 @@ using Winfocus.LMS.Infrastructure.Security;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
+
+builder.Services.Configure<SmtpSettings>(
+    builder.Configuration.GetSection("SmtpSettings"));
 
 #region Serilog Configuration
 
@@ -98,9 +103,15 @@ builder.Services.AddScoped<IStudentPersonaldetailsRepository, StudentPersonaldet
 builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 builder.Services.AddScoped<IFileStorageService, FileStorageService>();
+builder.Services.AddScoped<IUserActivationTokenRepository, UserActivationTokenRepository>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IAcademicYearService, AcademiYearService>();
 builder.Services.AddScoped<IAcademicYearRepository, AcademicYearRepository>();
 
+builder.Services.AddScoped<IFeeRepository, FeeRepository>();
+builder.Services.AddScoped<IFeeService, FeeService>();
+
+builder.Services.AddScoped<IUsernameGeneratorService, UsernameGeneratorService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
 #endregion
@@ -190,6 +201,21 @@ builder.Services.AddSwaggerGen(options =>
 
 #endregion
 
+#region Rate Limiting
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddFixedWindowLimiter("SetPasswordPolicy", config =>
+    {
+        config.PermitLimit = 1;                 // 5 requests
+        config.Window = TimeSpan.FromMinutes(1); // per minute
+        config.QueueProcessingOrder = System.Threading.RateLimiting.QueueProcessingOrder.OldestFirst;
+        config.QueueLimit = 2;
+    });
+});
+
+#endregion
+
 var app = builder.Build();
 
 #region Global Exception Middleware
@@ -250,6 +276,7 @@ app.UseCors("AllowAngularApp");
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseRateLimiter();
 
 app.MapControllers();
 

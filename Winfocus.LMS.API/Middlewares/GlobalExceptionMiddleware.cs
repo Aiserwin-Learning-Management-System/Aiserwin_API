@@ -1,37 +1,38 @@
-﻿using System.Net;
-using System.Text.Json;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-
-namespace Winfocus.LMS.API.Middleware
+﻿namespace Winfocus.LMS.API.Middleware
 {
+    using System.Text.Json;
+    using Winfocus.LMS.Application.Common.Exceptions;
+
     /// <summary>
-    /// Middleware to handle all unhandled exceptions globally.
-    /// Converts exceptions into standardized API error responses.
+    /// GlobalExceptionMiddleware.
     /// </summary>
     public sealed class GlobalExceptionMiddleware
     {
         private readonly RequestDelegate _next;
         private readonly ILogger<GlobalExceptionMiddleware> _logger;
+        private readonly IWebHostEnvironment _environment;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GlobalExceptionMiddleware"/> class.
         /// </summary>
-        /// <param name="next">Next middleware in the pipeline.</param>
-        /// <param name="logger">Logger instance.</param>
+        /// <param name="next">The next.</param>
+        /// <param name="logger">The logger.</param>
+        /// <param name="environment">The environment.</param>
         public GlobalExceptionMiddleware(
             RequestDelegate next,
-            ILogger<GlobalExceptionMiddleware> logger)
+            ILogger<GlobalExceptionMiddleware> logger,
+            IWebHostEnvironment environment)
         {
             _next = next;
             _logger = logger;
+            _environment = environment;
         }
 
         /// <summary>
-        /// Invokes the middleware.
+        /// Invokes the asynchronous.
         /// </summary>
-        /// <param name="context">HTTP context.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        /// <param name="context">The context.</param>
+        /// <returns>Task.</returns>
         public async Task InvokeAsync(HttpContext context)
         {
             try
@@ -44,64 +45,127 @@ namespace Winfocus.LMS.API.Middleware
             }
         }
 
-        /// <summary>
-        /// Handles the exception and writes a standardized response.
-        /// </summary>
-        private async Task HandleExceptionAsync(HttpContext context, Exception exception)
+        private async Task HandleExceptionAsync(
+            HttpContext context,
+            Exception exception)
         {
             var correlationId = context.TraceIdentifier;
 
             _logger.LogError(
                 exception,
-                "Unhandled exception occurred. CorrelationId: {CorrelationId}, Path: {Path}, User: {User}",
+                "Unhandled exception. CorrelationId: {CorrelationId}, Path: {Path}, User: {User}",
                 correlationId,
                 context.Request.Path,
                 context.User?.Identity?.Name ?? "Anonymous");
 
-            var response = context.Response;
-            response.ContentType = "application/json";
+            context.Response.ContentType = "application/json";
 
-            var statusCode = exception switch
+            int statusCode = StatusCodes.Status500InternalServerError;
+            string message = "An unexpected error occurred.";
+            string errorCode = "INTERNAL_SERVER_ERROR";
+            object? errors = null;
+
+            if (exception is AppException appException)
             {
-                ArgumentException => HttpStatusCode.BadRequest,
-                UnauthorizedAccessException => HttpStatusCode.Unauthorized,
-                KeyNotFoundException => HttpStatusCode.NotFound,
-                _ => HttpStatusCode.InternalServerError
-            };
+                statusCode = appException.StatusCode;
+                message = appException.Message;
+                errorCode = appException.ErrorCode;
+                errors = appException.Errors;
+            }
+            else if (exception is UnauthorizedAccessException)
+            {
+                statusCode = StatusCodes.Status401Unauthorized;
+                message = exception.Message;
+                errorCode = "UNAUTHORIZED";
+            }
+            else if (exception is KeyNotFoundException)
+            {
+                statusCode = StatusCodes.Status404NotFound;
+                message = exception.Message;
+                errorCode = "NOT_FOUND";
+            }
+            else if (exception is ArgumentException)
+            {
+                statusCode = StatusCodes.Status400BadRequest;
+                message = exception.Message;
+                errorCode = "BAD_REQUEST";
+            }
 
-            response.StatusCode = (int)statusCode;
+            context.Response.StatusCode = statusCode;
 
-            var errorResponse = new ErrorResponse
+            var response = new ErrorResponse
             {
                 CorrelationId = correlationId,
-                StatusCode = response.StatusCode,
-                Message = statusCode == HttpStatusCode.InternalServerError
+                StatusCode = statusCode,
+                ErrorCode = errorCode,
+                Message = statusCode == 500 && !_environment.IsDevelopment()
                     ? "An unexpected error occurred. Please contact support."
-                    : exception.Message,
+                    : message,
+                Errors = errors,
+                Timestamp = DateTime.UtcNow,
             };
 
-            await response.WriteAsync(JsonSerializer.Serialize(errorResponse));
+            var options = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            };
+
+            await context.Response.WriteAsync(
+                JsonSerializer.Serialize(response, options));
         }
     }
 
     /// <summary>
-    /// Standard API error response model.
+    /// ErrorResponse.
     /// </summary>
     public sealed class ErrorResponse
     {
         /// <summary>
-        /// Gets or sets the correlation identifier for tracing logs.
+        /// Gets or sets the correlation identifier.
         /// </summary>
+        /// <value>
+        /// The correlation identifier.
+        /// </value>
         public string CorrelationId { get; set; } = string.Empty;
 
         /// <summary>
-        /// Gets or sets the HTTP status code.
+        /// Gets or sets the status code.
         /// </summary>
+        /// <value>
+        /// The status code.
+        /// </value>
         public int StatusCode { get; set; }
 
         /// <summary>
-        /// Gets or sets the error message.
+        /// Gets or sets the error code.
         /// </summary>
+        /// <value>
+        /// The error code.
+        /// </value>
+        public string ErrorCode { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the message.
+        /// </summary>
+        /// <value>
+        /// The message.
+        /// </value>
         public string Message { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the errors.
+        /// </summary>
+        /// <value>
+        /// The errors.
+        /// </value>
+        public object? Errors { get; set; }
+
+        /// <summary>
+        /// Gets or sets the timestamp.
+        /// </summary>
+        /// <value>
+        /// The timestamp.
+        /// </value>
+        public DateTime Timestamp { get; set; }
     }
 }

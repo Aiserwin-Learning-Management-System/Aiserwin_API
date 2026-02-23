@@ -33,6 +33,7 @@
         {
             return await _context.Students
                 .Include(x => x.StudentAcademicCouses)
+                .Include(x => x.AcademicDetails)
                 .FirstOrDefaultAsync(x => x.Id == studentId);
         }
 

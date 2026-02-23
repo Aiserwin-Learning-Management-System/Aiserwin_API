@@ -17,6 +17,8 @@
         private readonly Mock<IUserRepository> _userRepositoryMock;
         private readonly Mock<IRoleRepository> _roleRepositoryMock;
         private readonly Mock<ITokenService> _tokenServiceMock;
+        private readonly Mock<IEmailService> _emailServiceMock;
+        private readonly Mock<IUserActivationTokenRepository> _userActivationTokenRepositoryMock;
         private readonly IPasswordHasher<User> _passwordHasher;
         private readonly AuthService _authService;
 
@@ -28,6 +30,8 @@
             _userRepositoryMock = new Mock<IUserRepository>();
             _roleRepositoryMock = new Mock<IRoleRepository>();
             _tokenServiceMock = new Mock<ITokenService>();
+            _emailServiceMock = new Mock<IEmailService>();
+            _userActivationTokenRepositoryMock = new Mock<IUserActivationTokenRepository>();
             _passwordHasher = new PasswordHasher<User>();
 
             _authService = new AuthService(
@@ -35,7 +39,9 @@
                 _roleRepositoryMock.Object,
                 _tokenServiceMock.Object,
                 _passwordHasher,
-                NullLogger<AuthService>.Instance);
+                NullLogger<AuthService>.Instance,
+                _userActivationTokenRepositoryMock.Object,
+                _emailServiceMock.Object);
         }
 
         /// <summary>
@@ -49,7 +55,6 @@
             var request = new RegisterRequestDto(
                 username: "testuser",
                 email: "test@winfocus.com",
-                password: "Password@123",
                 roleNames: new List<string> { "Student" }
             );
 
@@ -143,7 +148,6 @@
             var request = new RegisterRequestDto(
                 username: "testuser",
                 email: "test@winfocus.com",
-                password: "Password@123",
                 roleNames: new List<string> { "InvalidRole" }
             );
 
@@ -246,7 +250,6 @@
             var request = new RegisterRequestDto(
                 username: "testuser",
                 email: "test@winfocus.com",
-                password: "Password@123",
                 roleNames: null
             );
 
@@ -275,7 +278,6 @@
             var request = new RegisterRequestDto(
                 username: "student1",
                 email: "student@winfocus.com",
-                password: "Password@123",
                 roleNames: null
             );
 
@@ -310,7 +312,6 @@
             var request = new RegisterRequestDto(
                 "adminuser",
                 "admin@winfocus.com",
-                "Password@123",
                 new List<string> { "Admin", "Teacher" }
             );
 
