@@ -58,15 +58,6 @@
         /// <exception cref="InvalidOperationException">mode of study already exists.</exception>
         public async Task<ModeOfStudyDto> CreateAsync(ModeOfStudyRequest request)
         {
-            _logger.LogInformation("Creating mode of study with Code: {ModeCode}", request.code);
-            if (await _repository.ExistsByCodeAsync(request.code))
-            {
-                _logger.LogWarning(
-                "Mode of study creation failed. Code already exists: {ModeCode}",
-                request.code);
-                throw new InvalidOperationException("Mode of study code already exists");
-            }
-
             var modeOfStudy = new ModeOfStudy
             {
                 StateId = request.stateid,

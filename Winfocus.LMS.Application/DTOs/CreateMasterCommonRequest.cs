@@ -4,6 +4,5 @@
     /// Request for creating or updating a country.
     /// </summary>
     public sealed record class CreateMasterStateRequest
-    (string name,
-        string code, Guid countryid, Guid userId);
+    (string name, Guid countryid, Guid userId);
 }

@@ -60,8 +60,6 @@
             var country = new Country
             {
                 Name = request.name,
-                IsoAlpha3 = request.isoaplha,
-                IsoNumeric = int.Parse(request.isonumberic),
                 CreatedAt = DateTime.UtcNow,
             };
 
