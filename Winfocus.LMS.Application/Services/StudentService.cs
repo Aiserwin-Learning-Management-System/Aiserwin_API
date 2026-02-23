@@ -34,8 +34,18 @@
         /// <returns>StateDto.</returns>
         public async Task<IReadOnlyList<StudentDto>> GetAllAsync()
         {
+            _logger.LogInformation("Fetching all students.");
+
             var students = await _repository.GetAllAsync();
-            return students.Select(Map).ToList();
+
+            var result = students.Select(Map).ToList();
+
+            _logger.LogInformation(
+                "Fetched {Count} students successfully.",
+                result.Count);
+
+            return result;
+
         }
 
         /// <summary>
@@ -45,8 +55,23 @@
         /// <returns>StudentDto.</returns>
         public async Task<StudentDto?> GetByIdAsync(Guid id)
         {
+            _logger.LogInformation(
+                "Fetching student by Id: {Id}", id);
+
             var student = await _repository.GetByIdAsync(id);
-            return student == null ? null : Map(student);
+
+            if (student == null)
+            {
+                _logger.LogWarning(
+                    "Student not found. Id: {Id}", id);
+
+                return null;
+            }
+
+            _logger.LogInformation(
+                "Student fetched successfully. Id: {Id}", id);
+
+            return Map(student);
         }
 
         /// <summary>
@@ -57,6 +82,10 @@
         /// <exception cref="InvalidOperationException">State code already exists. </exception>
         public async Task<StudentDto> CreateAsync(StudentDto request)
         {
+            _logger.LogInformation(
+                "Creating student record. AcademicId: {AcademicId}, UserId: {UserId}",
+                request.StudentAcademicId,
+                request.Userid);
             var student = new Student
             {
                 StudentAcademicDetailsId = request.StudentAcademicId,
@@ -69,6 +98,9 @@
             };
 
             var created = await _repository.AddAsync(student);
+            _logger.LogInformation(
+               "Student created successfully. StudentId: {StudentId}",
+               created.Id);
             return MapCreate(created);
         }
 
@@ -81,6 +113,9 @@
         /// <returns>task.</returns>
         public async Task UpdateAsync(Guid id, StudentDto request)
         {
+            _logger.LogInformation(
+              "Updating student. StudentId: {StudentId}", id);
+
             var student = await _repository.GetByIdAsync(id)
                 ?? throw new KeyNotFoundException("Student not found");
 
@@ -90,6 +125,9 @@
             student.UpdatedBy = request.Userid;
             student.UpdatedAt = DateTime.UtcNow;
             await _repository.UpdateAsync(student);
+
+            _logger.LogInformation(
+                "Student updated successfully. StudentId: {StudentId}", id);
         }
 
         /// <summary>
@@ -215,6 +253,8 @@
         /// <returns>task.</returns>
         public async Task<CommonResponse<bool>> StudentApprove(Guid id)
         {
+            _logger.LogInformation(
+             "approve student. StudentId: {StudentId}", id);
             return await _repository.StudentApprove(id);
         }
 

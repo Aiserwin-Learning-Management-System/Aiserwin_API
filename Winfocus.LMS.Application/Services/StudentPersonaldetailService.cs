@@ -1,17 +1,17 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Net.Mail;
-using System.Text;
-using Winfocus.LMS.Application.DTOs;
-using Winfocus.LMS.Application.DTOs.Masters;
-using Winfocus.LMS.Application.DTOs.Students;
-using Winfocus.LMS.Application.Interfaces;
-using Winfocus.LMS.Domain.Entities;
-
-namespace Winfocus.LMS.Application.Services
+﻿namespace Winfocus.LMS.Application.Services
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Net.Mail;
+    using System.Text;
+    using Microsoft.AspNetCore.Http.HttpResults;
+    using Microsoft.Extensions.Logging;
+    using Winfocus.LMS.Application.DTOs;
+    using Winfocus.LMS.Application.DTOs.Masters;
+    using Winfocus.LMS.Application.DTOs.Students;
+    using Winfocus.LMS.Application.Interfaces;
+    using Winfocus.LMS.Domain.Entities;
+
     /// <summary>
     /// Provides business operations for <see cref="StudentPersonaldetails"/> entities.
     /// </summary>
@@ -39,7 +39,7 @@ namespace Winfocus.LMS.Application.Services
         {
             _logger.LogInformation("Fetching all Student personal details");
             var studentPersonalDetails = await _repository.GetAllAsync();
-            _logger.LogInformation("Fetched {Count} states", studentPersonalDetails.Count());
+            _logger.LogInformation("Fetched {Count} Student personal details", studentPersonalDetails.Count());
             return studentPersonalDetails.Select(Map).ToList();
         }
 
@@ -78,7 +78,7 @@ namespace Winfocus.LMS.Application.Services
 
             var created = await _repository.AddAsync(studentPersonalDetails);
             _logger.LogInformation(
-           "State created successfully. StateId: {StateId}",
+           "Student personal details created successfully. Id: {Id}",
            created.Id);
 
             var dto = Map(created);
@@ -96,7 +96,7 @@ namespace Winfocus.LMS.Application.Services
         /// <returns>task.</returns>
         public async Task<CommonResponse<StudentPersonaldetailsdto>> UpdateAsync(Guid id, StudentPersonaldetailsRequest request)
         {
-            _logger.LogInformation("Updating StudentPersonaldetails Id: {StudentPersonaldetails}", id);
+            _logger.LogInformation("Updating StudentPersonaldetails Id: {Id}", id);
             var studentPersonal = await _repository.GetByIdAsync(id);
             if (studentPersonal == null)
             {
