@@ -32,7 +32,6 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         public async Task<IReadOnlyList<Syllabus>> GetAllAsync()
         {
             return await _db.Syllabuses
-                .Include(x => x.Center)
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -45,7 +44,6 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         public async Task<Syllabus?> GetByIdAsync(Guid id)
         {
             return await _db.Syllabuses
-                .Include(x => x.Center)
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
 
@@ -109,8 +107,6 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         public async Task<List<Syllabus>> GetByCenterIdAsync(Guid centerid)
         {
             return await _db.Syllabuses
-                .Include(x => x.Center)
-                .Where(x => x.CenterId == centerid)
                 .ToListAsync();
         }
     }
