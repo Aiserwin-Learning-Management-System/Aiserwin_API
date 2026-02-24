@@ -55,3 +55,5 @@ node_modules/
 # Ignore logs folder and all log files
 logs/
 *.log
+repomix-output.txt
+repomix-output.xml
