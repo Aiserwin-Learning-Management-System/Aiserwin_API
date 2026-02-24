@@ -1,9 +1,10 @@
 ﻿namespace Winfocus.LMS.Api.Tests.Controllers
 {
+    using FluentAssertions;
     using System.Net;
     using System.Net.Http.Json;
-    using FluentAssertions;
     using Winfocus.LMS.Api.Tests.Common;
+    using Winfocus.LMS.Application.DTOs;
     using Winfocus.LMS.Application.DTOs.Auth;
 
     /// <summary>
@@ -13,6 +14,7 @@
         : IClassFixture<TestWebApplicationFactory>
     {
         private readonly HttpClient _client;
+        private readonly TestWebApplicationFactory _factory;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthControllerTests"/> class.
@@ -20,6 +22,7 @@
         /// <param name="factory">The factory.</param>
         public AuthControllerTests(TestWebApplicationFactory factory)
         {
+            _factory = factory;
             _client = factory.CreateClient();
         }
 
@@ -37,7 +40,7 @@
             );
 
             var response = await _client.PostAsJsonAsync(
-                "/api/Auth/register",
+                "/api/v1/Auth/register",
                 request);
 
             response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -50,22 +53,29 @@
         [Fact]
         public async Task Login_ReturnsOk_ForValidCredentials()
         {
-            // Register first
-            await _client.PostAsJsonAsync(
-                "/api/Auth/register",
-                new RegisterRequestDto(
-                    "loginuser",
-                    "login@winfocus.com",
-                    null));
+            // Register user
+            var registerResponse = await _client.PostAsJsonAsync(
+                "/api/v1/Auth/register",
+                new RegisterRequestDto("loginuser", "login@winfocus.com", null));
+
+            var registeredUser = await registerResponse.Content.ReadFromJsonAsync<AuthResponseDto>();
+
+            // Use captured token from factory
+            string activationToken = _factory.CapturedActivationToken!;
+
+            // Set password with token
+            var setPasswordResponse = await _client.PostAsJsonAsync(
+                "/api/v1/Auth/set-password",
+                new SetPasswordDto(activationToken, "Password@123"));
+
+            setPasswordResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
             // Login
-            var response = await _client.PostAsJsonAsync(
-                "/api/Auth/login",
-                new LoginRequestDto(
-                    "loginuser",
-                    "Password@123"));
+            var loginResponse = await _client.PostAsJsonAsync(
+                "/api/v1/Auth/login",
+                new LoginRequestDto(registeredUser.username, "Password@123"));
 
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            loginResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         }
 
         /// <summary>
@@ -81,7 +91,7 @@
                 null);
 
             var response = await _client.PostAsJsonAsync(
-                "/api/Auth/register",
+                "/api/v1/Auth/register",
                 request);
 
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -99,7 +109,7 @@
                 string.Empty);
 
             var response = await _client.PostAsJsonAsync(
-                "/api/Auth/login",
+                "/api/v1/Auth/login",
                 request);
 
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
