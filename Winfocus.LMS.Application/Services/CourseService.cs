@@ -1,5 +1,6 @@
 ﻿namespace Winfocus.LMS.Application.Services
 {
+    using Org.BouncyCastle.Utilities.IO;
     using Winfocus.LMS.Application.DTOs;
     using Winfocus.LMS.Application.DTOs.Masters;
     using Winfocus.LMS.Application.Interfaces;
@@ -27,8 +28,11 @@
         /// <returns>
         /// CourseDto.
         /// </returns>
-        public async Task<IReadOnlyList<CourseDto>> GetAllAsync()
-            => (await _repo.GetAllAsync()).Select(Map).ToList();
+        public async Task<CommonResponse<List<CourseDto>>> GetAllAsync()
+        {
+            var courses = (await _repo.GetAllAsync()).Select(Map).ToList();
+            return CommonResponse<List<CourseDto>>.SuccessResponse("Courses retrieved successfully", courses);
+        }
 
         /// <summary>
         /// Gets course by identifier.
@@ -37,8 +41,21 @@
         /// <returns>
         /// CourseDto.
         /// </returns>
-        public async Task<CourseDto?> GetByIdAsync(Guid id)
-            => (await _repo.GetByIdAsync(id)) is { } c ? Map(c) : null;
+        public async Task<CommonResponse<CourseDto>> GetByIdAsync(Guid id)
+        {
+            var courses = (await _repo.GetByIdAsync(id)) is { } c ? Map(c) : null;
+            if (courses == null)
+            {
+                return CommonResponse<CourseDto>.FailureResponse("Course not found");
+
+            }
+            else
+            {
+                return CommonResponse<CourseDto>.SuccessResponse("Courses retrieved successfully", courses);
+            }
+        }
+
+           // => (await _repo.GetByIdAsync(id)) is { } c ? Map(c) : null;
 
         /// <summary>
         /// Gets courses by stream identifier.
@@ -47,8 +64,21 @@
         /// <returns>
         /// List of CourseDto.
         /// </returns>
-        public async Task<IReadOnlyList<CourseDto>> GetByStreamAsync(Guid streamId)
-            => (await _repo.GetByStreamAsync(streamId)).Select(Map).ToList();
+        public async Task<CommonResponse<List<CourseDto>>> GetByStreamAsync(Guid streamId)
+        {
+            var courses = (await _repo.GetByStreamAsync(streamId)).Select(Map).ToList();
+            if (courses == null)
+            {
+                return CommonResponse<List<CourseDto>>.FailureResponse("No courses found for the given stream");
+            }
+            else
+            {
+                return CommonResponse<List<CourseDto>>.SuccessResponse("Courses retrieved successfully", courses);
+            }
+
+        }
+
+        //=> (await _repo.GetByStreamAsync(streamId)).Select(Map).ToList();
 
         /// <summary>
         /// Gets courses by subject identifier.
@@ -57,8 +87,20 @@
         /// <returns>
         /// List of CourseDto.
         /// </returns>
-        public async Task<IReadOnlyList<CourseDto>> GetBySubjectAsync(Guid subjectId)
-            => (await _repo.GetBySubjectAsync(subjectId)).Select(Map).ToList();
+        public async Task<CommonResponse<List<CourseDto>>> GetBySubjectAsync(Guid subjectId)
+        {
+            var courses = (await _repo.GetBySubjectAsync(subjectId)).Select(Map).ToList();
+            if (courses == null)
+            {
+                return CommonResponse<List<CourseDto>>.FailureResponse("No courses found for the given subject");
+            }
+            else
+            {
+                return CommonResponse<List<CourseDto>>.SuccessResponse("Courses retrieved successfully", courses);
+            }
+        }
+
+        // => (await _repo.GetBySubjectAsync(subjectId)).Select(Map).ToList();
 
         /// <summary>
         /// Creates a new course.
@@ -67,7 +109,7 @@
         /// <returns>
         /// Created CourseDto.
         /// </returns>
-        public async Task<CourseDto> CreateAsync(CourseRequest request)
+        public async Task<CommonResponse<CourseDto>> CreateAsync(CourseRequest request)
         {
             var course = new Course
             {
@@ -81,8 +123,10 @@
                 CreatedAt = DateTime.UtcNow,
                 Status = request.status,
             };
+            var created = Map(await _repo.AddAsync(course));
+            return CommonResponse<CourseDto>.SuccessResponse("Course created successfully", created);
 
-            return Map(await _repo.AddAsync(course));
+            // return Map(await _repo.AddAsync(course));
         }
 
         /// <summary>
@@ -94,7 +138,7 @@
         /// <returns>
         /// Updated CourseDto.
         /// </returns>
-        public async Task UpdateAsync(Guid id, CourseRequest request)
+        public async Task<CommonResponse<CourseDto>> UpdateAsync(Guid id, CourseRequest request)
         {
             var course = await _repo.GetByIdAsync(id)
                 ?? throw new KeyNotFoundException("Course not found");
@@ -108,7 +152,8 @@
             course.AcademicYear = request.academicyear;
             course.UpdatedAt = DateTime.UtcNow;
 
-            await _repo.UpdateAsync(course);
+            var updated = Map(await _repo.UpdateAsync(course));
+            return CommonResponse<CourseDto>.SuccessResponse("Course updated successfully", updated);
         }
 
         /// <summary>
@@ -118,8 +163,21 @@
         /// <returns>
         /// Task.
         /// </returns>
-        public async Task DeleteAsync(Guid id)
-            => await _repo.SoftDeleteAsync(id);
+        public async Task<CommonResponse<bool>> DeleteAsync(Guid id)
+        {
+            bool res = await _repo.SoftDeleteAsync(id);
+            if (res)
+            {
+                return CommonResponse<bool>.SuccessResponse("Course deleted successfully", res);
+            }
+            else
+            {
+                 return CommonResponse<bool>.FailureResponse("Course not found or could not be deleted");
+
+            }
+        }
+
+          //  => await _repo.SoftDeleteAsync(id);
 
         private static CourseDto Map(Course c) => new ()
         {
