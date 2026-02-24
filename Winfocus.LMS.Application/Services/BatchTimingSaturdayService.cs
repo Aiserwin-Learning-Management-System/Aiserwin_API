@@ -32,12 +32,20 @@ namespace Winfocus.LMS.Application.Services
         /// Gets all asynchronous.
         /// </summary>
         /// <returns>BatchTimingSaturdayDto.</returns>
-        public async Task<IReadOnlyList<BatchTimingSaturdayDto>> GetAllAsync()
+        public async Task<CommonResponse<List<BatchTimingSaturdayDto>>> GetAllAsync()
         {
             _logger.LogInformation("Fetching all Batches");
             var batchtiming = await _repository.GetAllAsync();
             _logger.LogInformation("Fetched {Count} batches", batchtiming.Count());
-            return batchtiming.Select(Map).ToList();
+            var nappedbatchtiming = batchtiming.Select(Map).ToList();
+            if (nappedbatchtiming.Any())
+            {
+                return CommonResponse<List<BatchTimingSaturdayDto>>.SuccessResponse("batch timing saturday", nappedbatchtiming);
+            }
+            else
+            {
+                return CommonResponse<List<BatchTimingSaturdayDto>>.FailureResponse("no batch timing found");
+            }
         }
 
         /// <summary>

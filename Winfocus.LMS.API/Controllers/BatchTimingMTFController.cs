@@ -1,8 +1,10 @@
 ﻿using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Winfocus.LMS.Application.DTOs;
 using Winfocus.LMS.Application.DTOs.Masters;
+using Winfocus.LMS.Application.DTOs.Students;
 using Winfocus.LMS.Application.Interfaces;
 using Winfocus.LMS.Application.Services;
 
@@ -42,7 +44,7 @@ namespace Winfocus.LMS.API.Controllers
         /// <returns>BatchTimingMTFDto.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPost]
-        public async Task<ActionResult<BatchTimingMTFDto>> Create(
+        public async Task<CommonResponse<BatchTimingMTFDto>> Create(
             BatchTimingRequest request)
         {
             var updatedRequest = request with
@@ -50,7 +52,16 @@ namespace Winfocus.LMS.API.Controllers
                 userId = UserId
             };
             var created = await _batchtimingmtfService.CreateAsync(updatedRequest);
-            return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
+            // return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
+
+            if (created == null)
+            {
+                return CommonResponse<BatchTimingMTFDto>.FailureResponse("Failed to create batchtiming for monday to friday.");
+            }
+            else
+            {
+                return CommonResponse<BatchTimingMTFDto>.SuccessResponse("Batchtiming for monday to friday created successfully.", created);
+            }
         }
 
         /// <summary>
@@ -59,10 +70,11 @@ namespace Winfocus.LMS.API.Controllers
         /// <param name="id">The identifier.</param>
         /// <returns>BatchTimingMTFDto by id.</returns>
         [HttpGet("{id:guid}")]
-        public async Task<ActionResult<BatchTimingMTFDto>> Get(Guid id)
+        public async Task<CommonResponse<BatchTimingMTFDto>> Get(Guid id)
         {
             var result = await _batchtimingmtfService.GetByIdAsync(id);
-            return result == null ? NotFound() : Ok(result);
+            return result;
+            // return result == null ? NotFound() : Ok(result);
         }
 
         /// <summary>
@@ -73,16 +85,23 @@ namespace Winfocus.LMS.API.Controllers
         /// <returns>result.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPut("{id:guid}")]
-        public async Task<IActionResult> Update(
+        public async Task<CommonResponse<BatchTimingMTFDto>> Update(
             Guid id,
             BatchTimingRequest request)
         {
             var updatedRequest = request with
             {
                 userId = UserId
-            };
-            await _batchtimingmtfService.UpdateAsync(id, updatedRequest);
-            return NoContent();
+            }; 
+            var updated = await _batchtimingmtfService.UpdateAsync(id, updatedRequest);
+            if (updated == null)
+            {
+                return CommonResponse<BatchTimingMTFDto>.FailureResponse("Failed to create batchtiming for monday to friday.");
+            }
+            else
+            {
+                return CommonResponse<BatchTimingMTFDto>.SuccessResponse("Batchtiming for monday to friday created successfully.", updated);
+            }
         }
 
         /// <summary>
@@ -92,10 +111,17 @@ namespace Winfocus.LMS.API.Controllers
         /// <returns>result.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpDelete("{id:guid}")]
-        public async Task<IActionResult> Delete(Guid id)
+        public async Task<CommonResponse<bool>> Delete(Guid id)
         {
-            await _batchtimingmtfService.DeleteAsync(id);
-            return NoContent();
+           var result = await _batchtimingmtfService.DeleteAsync(id);
+           if (result)
+            {
+                return CommonResponse<bool>.SuccessResponse("Batchtiming for monday to friday deleted successfully.", true);
+            }
+            else
+            {
+                return CommonResponse<bool>.FailureResponse("Failed to delete batchtiming for monday to friday.");
+            }
         }
 
         /// <summary>
@@ -104,10 +130,18 @@ namespace Winfocus.LMS.API.Controllers
         /// <param name="subjectid">The identifier.</param>
         /// <returns>BatchTimingMTFDto by id.</returns>
         [HttpGet("by-subject/{subjectid:guid}")]
-        public async Task<ActionResult<BatchTimingMTFDto>> GetBySubjectId(Guid subjectid)
+        public async Task<CommonResponse<List<BatchTimingMTFDto>>> GetBySubjectId(Guid subjectid)
         {
             var result = await _batchtimingmtfService.GetBySubjectIdAsync(subjectid);
-            return result == null ? NotFound() : Ok(result);
+           // return result == null ? NotFound() : Ok(result);
+            if (result == null)
+            {
+                return CommonResponse<List<BatchTimingMTFDto>>.FailureResponse("Batchtiming for monday to friday not found for the given subject.");
+            }
+            else
+            {
+                return CommonResponse<List<BatchTimingMTFDto>>.SuccessResponse("fetching Batchtiming for monday to friday for the given subject.", result);
+            }
         }
 
         /// <summary>

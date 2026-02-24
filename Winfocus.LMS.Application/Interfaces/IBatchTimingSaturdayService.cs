@@ -12,7 +12,7 @@
         /// Gets all asynchronous.
         /// </summary>
         /// <returns>BatchTimingSaturdayDto.</returns>
-        Task<IReadOnlyList<BatchTimingSaturdayDto>> GetAllAsync();
+        Task<CommonResponse<List<BatchTimingSaturdayDto>>> GetAllAsync();
 
         /// <summary>
         /// Gets the by identifier asynchronous.
