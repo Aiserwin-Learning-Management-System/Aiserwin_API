@@ -65,7 +65,6 @@ namespace Winfocus.LMS.Application.Services
                 Name = request.name,
                 CreatedAt = DateTime.UtcNow,
                 CreatedBy = request.userId,
-                CenterId = request.centerid,
             };
 
             var created = await _repository.AddAsync(syllabus);
@@ -122,19 +121,10 @@ namespace Winfocus.LMS.Application.Services
      {
          Id = c.Id,
          Name = c.Name,
-         CenterId = c.CenterId,
          CreatedBy = c.CreatedBy,
          CreatedAt = c.CreatedAt,
          UpdatedBy = c.UpdatedBy,
          UpdatedAt = c.UpdatedAt,
-         Center = c.Center == null ? null : new CenterDto1
-         {
-             Id = c.Center.Id,
-             Name = c.Center.Name,
-             Type = c.Center.CenterType,
-             CountryId = c.Center.CountryId,
-             Country =  null
-         }
      };
 
     }

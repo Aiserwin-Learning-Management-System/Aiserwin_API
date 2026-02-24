@@ -61,12 +61,6 @@
         /// <exception cref="InvalidOperationException">State code already exists. </exception>
         public async Task<StateDto> CreateAsync(CreateMasterStateRequest request)
         {
-            _logger.LogInformation("Creating state with Code: {StateCode}", request.code);
-            if (await _repository.ExistsByCodeAsync(request.code))
-            {
-                throw new InvalidOperationException("state code already exists");
-            }
-
             var country = await _countryRepository.GetByIdAsync(request.countryid);
 
             if (country == null)

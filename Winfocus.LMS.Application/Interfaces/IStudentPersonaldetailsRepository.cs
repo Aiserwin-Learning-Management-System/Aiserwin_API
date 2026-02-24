@@ -43,5 +43,12 @@ namespace Winfocus.LMS.Application.Interfaces
         /// <param name="id">The identifier.</param>
         /// <returns>task.</returns>
         Task DeleteAsync(Guid id);
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="email">The identifier.</param>
+        /// <returns>StudentPersonalDetails.</returns>
+        Task<StudentPersonalDetails?> GetByEmailAsync(string email);
     }
 }

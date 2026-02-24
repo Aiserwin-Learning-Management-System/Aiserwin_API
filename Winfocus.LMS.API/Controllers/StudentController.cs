@@ -57,16 +57,15 @@
         [HttpPost]
         public async Task<CommonResponse<StudentDto>> Create([FromForm] StudentRequest request)
         {
-            var academicDetails = await _studentAcademicdetailsService.CreateAsync(request.academicdetails);
-            if (!academicDetails.Success || academicDetails.Data == null)
-            {
-                return CommonResponse<StudentDto>.FailureResponse(academicDetails.Message);
-            }
-
             var personalDetails = await _studentPersonaldetailsService.CreateAsync(request.personaldetails);
             if (!personalDetails.Success || personalDetails.Data == null)
             {
                 return CommonResponse<StudentDto>.FailureResponse(personalDetails.Message);
+            }
+            var academicDetails = await _studentAcademicdetailsService.CreateAsync(request.academicdetails);
+            if (!academicDetails.Success || academicDetails.Data == null)
+            {
+                return CommonResponse<StudentDto>.FailureResponse(academicDetails.Message);
             }
 
             var uploaddocDetails = await _studentAcademicdetailsService.AddUploadedDocuments(request.docdetails);
@@ -231,16 +230,17 @@
                 {
                 return NotFound("Student not found.");
              }
-            var academicDetails = await _studentAcademicdetailsService.UpdateAsync(student.StudentAcademicId, request.academicdetails);
-            if (!academicDetails.Success || academicDetails.Data == null)
-            {
-                return BadRequest(academicDetails.Message);
-            }
 
             var personalDetails = await _studentPersonaldetailsService.UpdateAsync(student.StudentPersonalId, request.personaldetails);
             if (!personalDetails.Success || personalDetails.Data == null)
             {
                 return BadRequest(personalDetails.Message);
+            }
+
+            var academicDetails = await _studentAcademicdetailsService.UpdateAsync(student.StudentAcademicId, request.academicdetails);
+            if (!academicDetails.Success || academicDetails.Data == null)
+            {
+                return BadRequest(academicDetails.Message);
             }
 
             var uploaddocDetails = await _studentAcademicdetailsService.UpdateUploadedDocuments(student.StudentDocumentsId, request.docdetails);

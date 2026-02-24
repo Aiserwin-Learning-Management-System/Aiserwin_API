@@ -128,7 +128,6 @@
          {
              Id = c.Syllabus.Id,
              Name = c.Syllabus.Name,
-             CenterId = c.Syllabus.CenterId,
          },
      };
 }
