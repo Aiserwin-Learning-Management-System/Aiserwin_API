@@ -2,6 +2,7 @@
 {
     using Microsoft.Extensions.Logging;
     using Winfocus.LMS.Application.DTOs;
+    using Winfocus.LMS.Application.DTOs.Masters;
     using Winfocus.LMS.Application.Interfaces;
     using Winfocus.LMS.Domain.Entities;
 
@@ -31,11 +32,19 @@
         /// Gets all asynchronous.
         /// </summary>
         /// <returns>CountryDto.</returns>
-        public async Task<IReadOnlyList<CountryDto>> GetAllAsync()
+        public async Task<CommonResponse<List<CountryDto>>> GetAllAsync()
         {
             _logger.LogInformation("Fetching all countries");
             var countries = await _repository.GetAllAsync();
-            return countries.Select(Map).ToList();
+            var mapped = countries.Select(Map).ToList();
+            if (mapped.Any())
+            {
+                return CommonResponse<List<CountryDto>>.SuccessResponse("fetching all countries", mapped);
+            }
+            else
+            {
+                return CommonResponse<List<CountryDto>>.FailureResponse("no countries found");
+            }
         }
 
         /// <summary>
@@ -43,10 +52,18 @@
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>CountryDto.</returns>
-        public async Task<CountryDto?> GetByIdAsync(Guid id)
+        public async Task<CommonResponse<CountryDto>> GetByIdAsync(Guid id)
         {
             var country = await _repository.GetByIdAsync(id);
-            return country == null ? null : Map(country);
+            var mappeddata = country == null ? null : Map(country);
+            if (mappeddata != null)
+            {
+                return CommonResponse<CountryDto>.SuccessResponse("fetching country by id", mappeddata);
+            }
+            else
+            {
+                return CommonResponse<CountryDto>.FailureResponse("country not found");
+            }
         }
 
         /// <summary>
@@ -74,7 +91,7 @@
         /// <param name="request">The request.</param>
         /// <exception cref="KeyNotFoundException">Country not found.</exception>
         /// <returns>task.</returns>
-        public async Task UpdateAsync(Guid id, CreateCountryRequest request)
+        public async Task<CountryDto> UpdateAsync(Guid id, CreateCountryRequest request)
         {
             var country = await _repository.GetByIdAsync(id)
                 ?? throw new KeyNotFoundException("Country not found");
@@ -82,7 +99,7 @@
             country.Name = request.name;
             country.UpdatedAt = DateTime.UtcNow;
 
-            await _repository.UpdateAsync(country);
+            return Map(await _repository.UpdateAsync(country));
         }
 
         /// <summary>
@@ -90,9 +107,9 @@
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>task.</returns>
-        public async Task DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
-            await _repository.DeleteAsync(id);
+             return await _repository.DeleteAsync(id);
         }
 
         private static CountryDto Map(Country c) =>

@@ -29,12 +29,20 @@
         /// Gets all asynchronous.
         /// </summary>
         /// <returns>ModeOfStudyDto.</returns>
-        public async Task<IReadOnlyList<ModeOfStudyDto>> GetAllAsync()
+        public async Task<CommonResponse<List<ModeOfStudyDto>>> GetAllAsync()
         {
             _logger.LogInformation("Fetching all mode of studies");
             var modeOfStudies = await _repository.GetAllAsync();
             _logger.LogInformation("Fetched {Count} mode of studies", modeOfStudies.Count());
-            return modeOfStudies.Select(Map).ToList();
+            var mapped = modeOfStudies.Select(Map).ToList();
+            if (mapped.Any())
+            {
+                return CommonResponse<List<ModeOfStudyDto>>.SuccessResponse("Fetching all mode of studies", mapped);
+            }
+            else
+            {
+                return CommonResponse<List<ModeOfStudyDto>>.FailureResponse("no mode of studies");
+            }
         }
 
         /// <summary>
@@ -42,12 +50,20 @@
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>ModeOfStudyDto.</returns>
-        public async Task<ModeOfStudyDto?> GetByIdAsync(Guid id)
+        public async Task<CommonResponse<ModeOfStudyDto>> GetByIdAsync(Guid id)
         {
             _logger.LogInformation("Fetching mode of study by Id: {ModeOfStudyId}", id);
             var modeOfStudies = await _repository.GetByIdAsync(id);
             _logger.LogInformation("Mode of study fetched successfully for Id: {ModeOfStudyId}", id);
-            return modeOfStudies == null ? null : Map(modeOfStudies);
+            var mapped = modeOfStudies == null ? null : Map(modeOfStudies);
+            if (mapped != null)
+            {
+                return CommonResponse<ModeOfStudyDto>.SuccessResponse("Mode of study by id", mapped);
+            }
+            else
+            {
+                return CommonResponse<ModeOfStudyDto>.FailureResponse("mode of study not found");
+            }
         }
 
         /// <summary>
@@ -81,7 +97,7 @@
         /// <param name="request">The request.</param>
         /// <exception cref="KeyNotFoundException">mode of study not found.</exception>
         /// <returns>task.</returns>
-        public async Task UpdateAsync(Guid id, ModeOfStudyRequest request)
+        public async Task<ModeOfStudyDto> UpdateAsync(Guid id, ModeOfStudyRequest request)
         {
             _logger.LogInformation("Updating mode of study Id: {ModeOfStudyId}", id);
             var modeOfStudy = await _repository.GetByIdAsync(id)
@@ -91,10 +107,7 @@
             modeOfStudy.UpdatedAt = DateTime.UtcNow;
             modeOfStudy.UpdatedBy = request.userId;
 
-            await _repository.UpdateAsync(modeOfStudy);
-            _logger.LogInformation(
-           "Mode of study updated successfully. ModeOfStudyId: {ModeOfStudyId}",
-           id);
+            return Map(await _repository.UpdateAsync(modeOfStudy));
         }
 
         /// <summary>
@@ -102,13 +115,10 @@
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>task.</returns>
-        public async Task DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
             _logger.LogInformation("Deleting mode of study Id: {ModeOfStudyId}", id);
-            await _repository.DeleteAsync(id);
-            _logger.LogInformation(
-           "Mode of study deleted successfully. ModeOfStudyId: {ModeOfStudyId}",
-           id);
+            return await _repository.DeleteAsync(id);
         }
 
         /// <summary>
@@ -116,7 +126,7 @@
         /// </summary>
         /// <param name="stateid">The identifier.</param>
         /// <returns>ModeOfStudyDto.</returns>
-        public async Task<IReadOnlyList<ModeOfStudyDto>> GetByStateIdAsync(Guid stateid)
+        public async Task<List<ModeOfStudyDto>> GetByStateIdAsync(Guid stateid)
         {
             _logger.LogInformation("Fetching Modeof study for StateId: {StateId}", stateid);
 

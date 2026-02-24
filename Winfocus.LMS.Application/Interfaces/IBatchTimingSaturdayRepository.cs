@@ -32,14 +32,14 @@
         /// </summary>
         /// <param name="batchtiming">The state.</param>
         /// <returns>BatchTimingSaturday.</returns>
-        Task UpdateAsync(BatchTimingSaturday batchtiming);
+        Task<BatchTimingSaturday> UpdateAsync(BatchTimingSaturday batchtiming);
 
         /// <summary>
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>task.</returns>
-        Task DeleteAsync(Guid id);
+        Task<bool> DeleteAsync(Guid id);
 
         /// <summary>
         /// Gets the by identifier asynchronous.

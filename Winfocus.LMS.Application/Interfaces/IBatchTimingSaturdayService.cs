@@ -19,7 +19,7 @@
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>BatchTimingSaturdayDto.</returns>
-        Task<BatchTimingSaturdayDto?> GetByIdAsync(Guid id);
+        Task<CommonResponse<BatchTimingSaturdayDto>> GetByIdAsync(Guid id);
 
         /// <summary>
         /// Creates the asynchronous.
@@ -34,14 +34,14 @@
         /// <param name="id">The identifier.</param>
         /// <param name="request">The request.</param>
         /// <returns>id.</returns>
-        Task UpdateAsync(Guid id, BatchTimingRequest request);
+        Task<BatchTimingSaturdayDto> UpdateAsync(Guid id, BatchTimingRequest request);
 
         /// <summary>
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>id.</returns>
-        Task DeleteAsync(Guid id);
+        Task<bool> DeleteAsync(Guid id);
 
         /// <summary>
         /// Gets the by identifier asynchronous.

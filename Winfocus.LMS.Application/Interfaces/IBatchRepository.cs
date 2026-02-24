@@ -36,14 +36,14 @@ namespace Winfocus.LMS.Application.Interfaces
         /// </summary>
         /// <param name="batch">The batch.</param>
         /// <returns>Batch.</returns>
-        Task UpdateAsync(Batch batch);
+        Task<Batch> UpdateAsync(Batch batch);
 
         /// <summary>
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>task.</returns>
-        Task DeleteAsync(Guid id);
+        Task<bool> DeleteAsync(Guid id);
 
     }
 }

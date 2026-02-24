@@ -33,11 +33,19 @@
         /// Gets all asynchronous.
         /// </summary>
         /// <returns>StreamDto.</returns>
-        public async Task<IReadOnlyList<StreamDto>> GetAllAsync()
+        public async Task<CommonResponse<List<StreamDto>>> GetAllAsync()
         {
-            _logger.LogInformation("Fetching all syllabuses");
+            _logger.LogInformation("Fetching all streams");
             var streams = await _repository.GetAllAsync();
-            return streams.Select(Map).ToList();
+            var mappeddata = streams.Select(Map).ToList();
+            if (mappeddata.Any())
+            {
+                return CommonResponse<List<StreamDto>>.SuccessResponse("Fetched all streams", mappeddata);
+            }
+            else
+            {
+                return CommonResponse<List<StreamDto>>.FailureResponse("Streams not found");
+            }
         }
 
         /// <summary>
@@ -45,10 +53,18 @@
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>StreamDto.</returns>
-        public async Task<StreamDto?> GetByIdAsync(Guid id)
+        public async Task<CommonResponse<StreamDto>> GetByIdAsync(Guid id)
         {
             var streams = await _repository.GetByIdAsync(id);
-            return streams == null ? null : Map(streams);
+            var mappeddata = streams == null ? null : Map(streams);
+            if (mappeddata != null)
+            {
+                return CommonResponse<StreamDto>.SuccessResponse("Get Stream by id ", mappeddata);
+            }
+            else
+            {
+                return CommonResponse<StreamDto>.FailureResponse("Stream not found");
+            }
         }
 
         /// <summary>
@@ -82,7 +98,7 @@
         /// <param name="request">The request.</param>
         /// <exception cref="KeyNotFoundException">Stream not found.</exception>
         /// <returns>task.</returns>
-        public async Task UpdateAsync(Guid id, StreamRequest request)
+        public async Task<StreamDto> UpdateAsync(Guid id, StreamRequest request)
         {
             var stream = await _repository.GetByIdAsync(id)
                 ?? throw new KeyNotFoundException("Stream not found");
@@ -92,7 +108,7 @@
             stream.UpdatedBy = request.userId;
             stream.UpdatedAt = DateTime.UtcNow;
 
-            await _repository.UpdateAsync(stream);
+            return Map(await _repository.UpdateAsync(stream));
         }
 
         /// <summary>
@@ -100,9 +116,9 @@
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>task.</returns>
-        public async Task DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
-            await _repository.DeleteAsync(id);
+           return await _repository.DeleteAsync(id);
         }
 
         /// <summary>

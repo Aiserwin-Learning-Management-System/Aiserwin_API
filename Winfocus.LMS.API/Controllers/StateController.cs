@@ -1,5 +1,6 @@
 ﻿using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Winfocus.LMS.Application.DTOs;
 using Winfocus.LMS.Application.DTOs.Masters;
@@ -42,7 +43,7 @@ namespace Winfocus.LMS.API.Controllers
         /// <returns>StateDto.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPost]
-        public async Task<ActionResult<StateDto>> Create(
+        public async Task<CommonResponse<StateDto>> Create(
             CreateMasterStateRequest request)
         {
             var updatedRequest = request with
@@ -50,7 +51,14 @@ namespace Winfocus.LMS.API.Controllers
                 userId = UserId
             };
             var created = await _stateService.CreateAsync(updatedRequest);
-            return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
+            if (created == null)
+            {
+                return CommonResponse<StateDto>.FailureResponse("Failed to create State.");
+            }
+            else
+            {
+                return CommonResponse<StateDto>.SuccessResponse("State created successfully.", created);
+            }
         }
 
         /// <summary>
@@ -59,10 +67,10 @@ namespace Winfocus.LMS.API.Controllers
         /// <param name="id">The identifier.</param>
         /// <returns>StateDto by id.</returns>
         [HttpGet("{id:guid}")]
-        public async Task<ActionResult<StateDto>> Get(Guid id)
+        public async Task<CommonResponse<StateDto>> Get(Guid id)
         {
             var result = await _stateService.GetByIdAsync(id);
-            return result == null ? NotFound() : Ok(result);
+            return result;
         }
 
         /// <summary>
@@ -73,7 +81,7 @@ namespace Winfocus.LMS.API.Controllers
         /// <returns>result.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPut("{id:guid}")]
-        public async Task<IActionResult> Update(
+        public async Task<CommonResponse<StateDto>> Update(
             Guid id,
             CreateMasterStateRequest request)
         {
@@ -81,8 +89,15 @@ namespace Winfocus.LMS.API.Controllers
             {
                 userId = UserId
             };
-            await _stateService.UpdateAsync(id, updatedRequest);
-            return NoContent();
+            var updated = await _stateService.UpdateAsync(id, updatedRequest);
+            if (updated == null)
+            {
+                return CommonResponse<StateDto>.FailureResponse("Failed to update State.");
+            }
+            else
+            {
+                return CommonResponse<StateDto>.SuccessResponse("State updated successfully.", updated);
+            }
         }
 
         /// <summary>
@@ -91,10 +106,10 @@ namespace Winfocus.LMS.API.Controllers
         /// <param name="countryid">The identifier.</param>
         /// <returns>StateDto by id.</returns>
         [HttpGet("by-country/{countryid:guid}")]
-        public async Task<ActionResult<StateDto>> GetByCountryId(Guid countryid)
+        public async Task<CommonResponse<List<StateDto>>> GetByCountryId(Guid countryid)
         {
             var result = await _stateService.GetByCountryIdAsync(countryid);
-            return result == null ? NotFound() : Ok(result);
+            return result;
         }
 
         /// <summary>
@@ -104,10 +119,18 @@ namespace Winfocus.LMS.API.Controllers
         /// <returns>result.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpDelete("{id:guid}")]
-        public async Task<IActionResult> Delete(Guid id)
+        public async Task<CommonResponse<bool>> Delete(Guid id)
         {
-            await _stateService.DeleteAsync(id);
-            return NoContent();
+            bool result = await _stateService.DeleteAsync(id);
+
+            if (result)
+            {
+                return CommonResponse<bool>.SuccessResponse("State deleted successfully.", true);
+            }
+            else
+            {
+                return CommonResponse<bool>.FailureResponse("Failed to delete State.");
+            }
         }
     }
 }

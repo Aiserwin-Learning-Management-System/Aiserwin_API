@@ -11,14 +11,14 @@
         /// Gets all asynchronous.
         /// </summary>
         /// <returns>CountryDto.</returns>
-        Task<IReadOnlyList<CountryDto>> GetAllAsync();
+        Task<CommonResponse<List<CountryDto>>> GetAllAsync();
 
         /// <summary>
         /// Gets the by identifier asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>CountryDto.</returns>
-        Task<CountryDto?> GetByIdAsync(Guid id);
+        Task<CommonResponse<CountryDto>> GetByIdAsync(Guid id);
 
         /// <summary>
         /// Creates the asynchronous.
@@ -33,13 +33,13 @@
         /// <param name="id">The identifier.</param>
         /// <param name="request">The request.</param>
         /// <returns>id.</returns>
-        Task UpdateAsync(Guid id, CreateCountryRequest request);
+        Task<CountryDto> UpdateAsync(Guid id, CreateCountryRequest request);
 
         /// <summary>
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>id.</returns>
-        Task DeleteAsync(Guid id);
+        Task<bool> DeleteAsync(Guid id);
     }
 }

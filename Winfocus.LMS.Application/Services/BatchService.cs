@@ -32,12 +32,20 @@ namespace Winfocus.LMS.Application.Services
         /// Gets all asynchronous.
         /// </summary>
         /// <returns>BatchDto.</returns>
-        public async Task<IReadOnlyList<BatchDto>> GetAllAsync()
+        public async Task<CommonResponse<List<BatchDto>>> GetAllAsync()
         {
             _logger.LogInformation("Fetching all Batches");
             var batch = await _repository.GetAllAsync();
             _logger.LogInformation("Fetched {Count} Batches", batch.Count());
-            return batch.Select(Map).ToList();
+            var data = batch.Select(Map).ToList();
+            if (data.Any())
+            {
+                return CommonResponse<List<BatchDto>>.SuccessResponse("Fetching all Batches", data);
+            }
+            else
+            {
+                return CommonResponse<List<BatchDto>>.FailureResponse("no batches found");
+            }
         }
 
         /// <summary>
@@ -45,12 +53,20 @@ namespace Winfocus.LMS.Application.Services
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>BatchTimingMTFDto.</returns>
-        public async Task<BatchDto?> GetByIdAsync(Guid id)
+        public async Task<CommonResponse<BatchDto>> GetByIdAsync(Guid id)
         {
             _logger.LogInformation("Fetching batch by Id: {Id}", id);
             var batch = await _repository.GetByIdAsync(id);
             _logger.LogInformation("batch fetched successfully for Id: {Id}", id);
-            return batch == null ? null : Map(batch);
+            var mappeddata = batch == null ? null : Map(batch);
+            if (mappeddata != null)
+            {
+                return CommonResponse<BatchDto>.SuccessResponse("fetching batch by id", mappeddata);
+            }
+            else
+            {
+                return CommonResponse<BatchDto>.FailureResponse("batch not found");
+            }
         }
 
         /// <summary>
@@ -82,7 +98,7 @@ namespace Winfocus.LMS.Application.Services
         /// <param name="request">The request.</param>
         /// <exception cref="KeyNotFoundException">Batch not found.</exception>
         /// <returns>task.</returns>
-        public async Task UpdateAsync(Guid id, BatchRequest request)
+        public async Task<BatchDto> UpdateAsync(Guid id, BatchRequest request)
         {
             _logger.LogInformation("Updating batch Id: {BatchId}", id);
             var batchtiming = await _repository.GetByIdAsync(id)
@@ -93,10 +109,7 @@ namespace Winfocus.LMS.Application.Services
             batchtiming.UpdatedBy = request.userId;
             batchtiming.UpdatedAt = DateTime.UtcNow;
 
-            await _repository.UpdateAsync(batchtiming);
-            _logger.LogInformation(
-           "Batch updated successfully. BatchId: {BatchId}",
-           id);
+            return Map(await _repository.UpdateAsync(batchtiming));
         }
 
         /// <summary>
@@ -104,13 +117,10 @@ namespace Winfocus.LMS.Application.Services
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>task.</returns>
-        public async Task DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
             _logger.LogInformation("Deleting Batch Id: {Id}", id);
-            await _repository.DeleteAsync(id);
-            _logger.LogInformation(
-           "Batch deleted successfully. BatchId: {BatchId}",
-           id);
+            return await _repository.DeleteAsync(id);
         }
 
         private static BatchDto Map(Batch c) =>

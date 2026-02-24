@@ -12,14 +12,14 @@
         /// Gets all asynchronous.
         /// </summary>
         /// <returns>StreamDto.</returns>
-        Task<IReadOnlyList<StreamDto>> GetAllAsync();
+        Task<CommonResponse<List<StreamDto>>> GetAllAsync();
 
         /// <summary>
         /// Gets the by identifier asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>StreamDto.</returns>
-        Task<StreamDto?> GetByIdAsync(Guid id);
+        Task<CommonResponse<StreamDto>> GetByIdAsync(Guid id);
 
         /// <summary>
         /// Creates the asynchronous.
@@ -34,14 +34,14 @@
         /// <param name="id">The identifier.</param>
         /// <param name="request">The request.</param>
         /// <returns>id.</returns>
-        Task UpdateAsync(Guid id, StreamRequest request);
+        Task<StreamDto> UpdateAsync(Guid id, StreamRequest request);
 
         /// <summary>
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>id.</returns>
-        Task DeleteAsync(Guid id);
+        Task<bool> DeleteAsync(Guid id);
 
         /// <summary>
         /// Gets the by identifier asynchronous.

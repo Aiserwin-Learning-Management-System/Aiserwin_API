@@ -2,8 +2,10 @@
 {
     using Asp.Versioning;
     using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Http.HttpResults;
     using Microsoft.AspNetCore.Mvc;
     using Winfocus.LMS.Application.DTOs;
+    using Winfocus.LMS.Application.DTOs.Masters;
     using Winfocus.LMS.Application.Interfaces;
 
     /// <summary>
@@ -53,11 +55,18 @@
         /// <returns>CountryDto.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPost]
-        public async Task<ActionResult<CountryDto>> Create(
+        public async Task<CommonResponse<CountryDto>> Create(
             CreateCountryRequest request)
         {
             var created = await _service.CreateAsync(request);
-            return CreatedAtAction(nameof(Get), new { id = created.id }, created);
+            if (created == null)
+            {
+                return CommonResponse<CountryDto>.FailureResponse("Failed to create country.");
+            }
+            else
+            {
+                return CommonResponse<CountryDto>.SuccessResponse("Country created successfully.", created);
+            }
         }
 
         /// <summary>
@@ -68,12 +77,19 @@
         /// <returns>result.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPut("{id:guid}")]
-        public async Task<IActionResult> Update(
+        public async Task<CommonResponse<CountryDto>> Update(
             Guid id,
             CreateCountryRequest request)
         {
-            await _service.UpdateAsync(id, request);
-            return NoContent();
+            var result = await _service.UpdateAsync(id, request);
+            if (result == null)
+            {
+                return CommonResponse<CountryDto>.FailureResponse("Failed to update country.");
+            }
+            else
+            {
+                return CommonResponse<CountryDto>.SuccessResponse("Country updated successfully.", result);
+            }
         }
 
         /// <summary>
@@ -83,10 +99,17 @@
         /// <returns>result.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpDelete("{id:guid}")]
-        public async Task<IActionResult> Delete(Guid id)
+        public async Task<CommonResponse<bool>> Delete(Guid id)
         {
-            await _service.DeleteAsync(id);
-            return NoContent();
+            bool res = await _service.DeleteAsync(id);
+            if (res)
+            {
+                return CommonResponse<bool>.SuccessResponse("Batchtiming for monday to friday deleted successfully.", true);
+            }
+            else
+            {
+                return CommonResponse<bool>.FailureResponse("Failed to delete batchtiming for monday to friday.");
+            }
         }
     }
 }

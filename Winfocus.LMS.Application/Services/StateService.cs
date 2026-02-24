@@ -32,12 +32,20 @@
         /// Gets all asynchronous.
         /// </summary>
         /// <returns>StateDto.</returns>
-        public async Task<IReadOnlyList<StateDto>> GetAllAsync()
+        public async Task<CommonResponse<List<StateDto>>> GetAllAsync()
         {
             _logger.LogInformation("Fetching all states");
             var states = await _repository.GetAllAsync();
             _logger.LogInformation("Fetched {Count} states", states.Count());
-            return states.Select(Map).ToList();
+            var mappeddata = states.Select(Map).ToList();
+            if (mappeddata.Any())
+            {
+                return CommonResponse<List<StateDto>>.SuccessResponse("Fetched all states", mappeddata);
+            }
+            else
+            {
+                return CommonResponse<List<StateDto>>.FailureResponse("States not found");
+            }
         }
 
         /// <summary>
@@ -45,12 +53,20 @@
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>StateDto.</returns>
-        public async Task<StateDto?> GetByIdAsync(Guid id)
+        public async Task<CommonResponse<StateDto>> GetByIdAsync(Guid id)
         {
             _logger.LogInformation("Fetching state by Id: {StateId}", id);
             var state = await _repository.GetByIdAsync(id);
             _logger.LogInformation("State fetched successfully for Id: {StateId}", id);
-            return state == null ? null : Map(state);
+            var mappeddata = state == null ? null : Map(state);
+            if (mappeddata != null)
+            {
+                return CommonResponse<StateDto>.SuccessResponse("Fetched state by Id", mappeddata);
+            }
+            else
+            {
+                return CommonResponse<StateDto>.FailureResponse("State not found");
+            }
         }
 
         /// <summary>
@@ -95,7 +111,7 @@
         /// <param name="request">The request.</param>
         /// <exception cref="KeyNotFoundException">State not found.</exception>
         /// <returns>task.</returns>
-        public async Task UpdateAsync(Guid id, CreateMasterStateRequest request)
+        public async Task<StateDto> UpdateAsync(Guid id, CreateMasterStateRequest request)
         {
             _logger.LogInformation("Updating state Id: {StateId}", id);
             var state = await _repository.GetByIdAsync(id)
@@ -105,10 +121,7 @@
             state.UpdatedBy = request.userId;
             state.UpdatedAt = DateTime.UtcNow;
 
-            await _repository.UpdateAsync(state);
-            _logger.LogInformation(
-           "State updated successfully. StateId: {StateId}",
-           id);
+            return Map(await _repository.UpdateAsync(state));
         }
 
         /// <summary>
@@ -116,13 +129,10 @@
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>task.</returns>
-        public async Task DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
             _logger.LogInformation("Deleting state Id: {StateId}", id);
-            await _repository.DeleteAsync(id);
-            _logger.LogInformation(
-           "State deleted successfully. StateId: {StateId}",
-           id);
+            return await _repository.DeleteAsync(id);
         }
 
         /// <summary>
@@ -130,23 +140,29 @@
         /// </summary>
         /// <param name="countryid">The identifier.</param>
         /// <returns>StateDto.</returns>
-        public async Task<IReadOnlyList<StateDto>> GetByCountryIdAsync(Guid countryid)
+        public async Task<CommonResponse<List<StateDto>>> GetByCountryIdAsync(Guid countryid)
         {
             _logger.LogInformation("Fetching states for CountryId: {CountryId}", countryid);
 
             var states = await _repository.GetByCountryIdAsync(countryid);
 
-            if (!states.Any())
-                _logger.LogWarning("No states found for CountryId: {CountryId}", countryid);
+            var mappeddata = Map(states);
 
-            return Map(states);
+            if (mappeddata != null)
+            {
+                return CommonResponse<List<StateDto>>.SuccessResponse("Fetched state by country Id", mappeddata);
+            }
+            else
+            {
+                _logger.LogWarning("No states found for CountryId: {CountryId}", countryid);
+                return CommonResponse<List<StateDto>>.FailureResponse("State not found");
+            }
         }
 
         private static List<StateDto> Map(IEnumerable<State> states)
         {
             return states.Select(Map).ToList();
         }
-
 
         private static StateDto Map(State c) =>
       new StateDto

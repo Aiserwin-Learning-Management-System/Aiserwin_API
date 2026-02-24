@@ -32,14 +32,14 @@
         /// </summary>
         /// <param name="syllabus">The syllabus.</param>
         /// <returns>Syllabus.</returns>
-        Task UpdateAsync(Syllabus syllabus);
+        Task<Syllabus> UpdateAsync(Syllabus syllabus);
 
         /// <summary>
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>task.</returns>
-        Task DeleteAsync(Guid id);
+        Task<bool> DeleteAsync(Guid id);
 
         /// <summary>
         /// Existses the by code asynchronous.
