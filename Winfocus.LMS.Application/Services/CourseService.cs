@@ -67,7 +67,7 @@
         public async Task<CommonResponse<List<CourseDto>>> GetByStreamAsync(Guid streamId)
         {
             var courses = (await _repo.GetByStreamAsync(streamId)).Select(Map).ToList();
-            if (courses == null)
+            if (courses == null || courses.Count() == 0)
             {
                 return CommonResponse<List<CourseDto>>.FailureResponse("No courses found for the given stream");
             }
@@ -90,7 +90,7 @@
         public async Task<CommonResponse<List<CourseDto>>> GetBySubjectAsync(Guid subjectId)
         {
             var courses = (await _repo.GetBySubjectAsync(subjectId)).Select(Map).ToList();
-            if (courses == null)
+            if (courses == null || courses.Count() == 0)
             {
                 return CommonResponse<List<CourseDto>>.FailureResponse("No courses found for the given subject");
             }
@@ -173,11 +173,8 @@
             else
             {
                  return CommonResponse<bool>.FailureResponse("Course not found or could not be deleted");
-
             }
         }
-
-          //  => await _repo.SoftDeleteAsync(id);
 
         private static CourseDto Map(Course c) => new ()
         {

@@ -125,7 +125,7 @@
         public async Task<bool> SoftDeleteAsync(Guid id)
         {
             var entity = await _db.Courses.FindAsync(id);
-            if (entity == null)
+            if (entity == null || entity.IsActive == false)
             {
                 return false;
             }

@@ -1,7 +1,7 @@
-﻿using Winfocus.LMS.Domain.Entities;
-
-namespace Winfocus.LMS.Application.DTOs.Masters
+﻿namespace Winfocus.LMS.Application.DTOs.Masters
 {
+    using Winfocus.LMS.Domain.Entities;
+
     /// <summary>
     /// Represents an educational course.
     /// </summary>
