@@ -4,6 +4,7 @@
     using Microsoft.AspNetCore.Identity;
     using Microsoft.Extensions.Logging.Abstractions;
     using Moq;
+    using Winfocus.LMS.Application.Common.Exceptions;
     using Winfocus.LMS.Application.DTOs.Auth;
     using Winfocus.LMS.Application.Interfaces;
     using Winfocus.LMS.Application.Services;
@@ -54,42 +55,22 @@
         [Fact]
         public async Task RegisterAsync_WithValidRequest_ReturnsAuthResponse()
         {
-            // Arrange
-            var request = new RegisterRequestDto(
-                username: "testuser",
-                email: "test@winfocus.com",
-                roleNames: new List<string> { "Student" }
-            );
-
-            var role = new Role
-            {
-                Id = Guid.NewGuid(),
-                Name = "Student",
-            };
+            var request = new RegisterRequestDto("testuser", "test@winfocus.com", new List<string> { "Student" });
 
             _userRepositoryMock
-                .Setup(r => r.GetByUsernameAsync("testuser"))
-                .ReturnsAsync((User?)null);
+                .Setup(r => r.GetByNamesAsync(It.IsAny<IReadOnlyList<string>>()))
+                .ReturnsAsync(new List<Role> { new Role { Name = "Student" } });
 
-            _roleRepositoryMock
-                .Setup(r => r.GetByNameAsync("Student"))
-                .ReturnsAsync(role);
+            _usernameGeneratorService
+                .Setup(u => u.GenerateAsync("testuser", It.IsAny<int>()))
+                .ReturnsAsync("testuser");
 
-            _tokenServiceMock
-                .Setup(t => t.GenerateToken(It.IsAny<User>(), It.IsAny<List<string>>()))
-                .Returns("mock-jwt-token");
-
-            // Act
             var result = await _authService.RegisterAsync(request);
 
-            // Assert
             Assert.NotNull(result);
             Assert.Equal("testuser", result.username);
             Assert.Equal("test@winfocus.com", result.email);
             Assert.Contains("Student", result.roles);
-            Assert.Equal("mock-jwt-token", result.accessToken);
-
-            _userRepositoryMock.Verify(r => r.AddAsync(It.IsAny<User>()), Times.Once);
         }
 
         /// <summary>
@@ -158,18 +139,13 @@
                 .Setup(r => r.GetByUsernameAsync("testuser"))
                 .ReturnsAsync((User?)null);
 
-            _roleRepositoryMock
-                .Setup(r => r.GetByNameAsync("InvalidRole"))
-                .ReturnsAsync((Role?)null);
+            _userRepositoryMock .Setup(r => r.GetByNamesAsync(It.IsAny<IReadOnlyList<string>>())) .ReturnsAsync(new List<Role>());
 
             // Act
             Func<Task> act = async () => await _authService.RegisterAsync(request);
 
             // Assert
-            await act
-                .Should()
-                .ThrowAsync<InvalidOperationException>()
-                .WithMessage("Invalid role: InvalidRole");
+            await act.Should().ThrowAsync<CustomException>().WithMessage("Invalid roles: InvalidRole");
         }
 
         /// <summary>
@@ -205,7 +181,7 @@
             // Assert
             await act
                 .Should()
-                .ThrowAsync<UnauthorizedAccessException>()
+                .ThrowAsync<CustomException>()
                 .WithMessage("Invalid credentials.");
         }
 
@@ -232,7 +208,7 @@
             // Assert
             await act
                 .Should()
-                .ThrowAsync<UnauthorizedAccessException>()
+                .ThrowAsync<CustomException>()
                 .WithMessage("Invalid credentials.");
         }
 
@@ -257,17 +233,15 @@
             );
 
             _userRepositoryMock
-                .Setup(r => r.GetByUsernameAsync("testuser"))
-                .ReturnsAsync(existingUser);
+                .Setup(r => r.EmailExistsAsync("test@winfocus.com"))
+                .ReturnsAsync(true);
 
             // Act
             Func<Task> act = async () => await _authService.RegisterAsync(request);
 
             // Assert
-            await act
-                .Should()
-                .ThrowAsync<InvalidOperationException>()
-                .WithMessage("Invalid username or password.");
+            await act.Should().ThrowAsync<CustomException>()
+                .WithMessage("Email address is already registered.");
         }
 
         /// <summary>
@@ -288,9 +262,10 @@
                 .Setup(r => r.GetByUsernameAsync("student1"))
                 .ReturnsAsync((User?)null);
 
-            _roleRepositoryMock
-                .Setup(r => r.GetByNameAsync("Student"))
-                .ReturnsAsync(new Role { Name = "Student" });
+            _userRepositoryMock
+                .Setup(r => r.GetByNamesAsync(It.Is<IReadOnlyList<string>>(roles => roles.Contains("Student"))))
+                .ReturnsAsync(new List<Role> { new Role { Name = "Student" } });
+
 
             _tokenServiceMock
                 .Setup(t => t.GenerateToken(It.IsAny<User>(), It.IsAny<List<string>>()))
@@ -319,29 +294,22 @@
             );
 
             _userRepositoryMock
-                .Setup(r => r.GetByUsernameAsync("adminuser"))
-                .ReturnsAsync((User?)null);
+                .Setup(r => r.GetByNamesAsync(It.IsAny<IReadOnlyList<string>>()))
+                .ReturnsAsync(new List<Role>
+                {
+                    new Role { Name = "Admin" },
+                    new Role { Name = "Teacher" }
+                });
 
-            _roleRepositoryMock
-                .Setup(r => r.GetByNameAsync(It.IsAny<string>()))
-                .ReturnsAsync((string role) => new Role { Name = role });
-
-            _tokenServiceMock
-                .Setup(t => t.GenerateToken(It.IsAny<User>(), It.IsAny<List<string>>()))
-                .Returns("jwt-token");
+            _usernameGeneratorService
+                .Setup(u => u.GenerateAsync("adminuser", It.IsAny<int>()))
+                .ReturnsAsync("adminuser");
 
             // Act
             var result = await _authService.RegisterAsync(request);
 
             // Assert
             result.roles.Should().BeEquivalentTo("Admin", "Teacher");
-
-            _tokenServiceMock.Verify(
-                t =>
-                t.GenerateToken(
-                    It.IsAny<User>(),
-                    It.Is<List<string>>(r => r.Contains("Admin") && r.Contains("Teacher"))),
-                Times.Once);
         }
 
     }

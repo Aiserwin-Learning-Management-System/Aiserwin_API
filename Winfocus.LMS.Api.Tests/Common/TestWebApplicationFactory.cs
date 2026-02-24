@@ -4,6 +4,8 @@
     using Microsoft.AspNetCore.Mvc.Testing;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.DependencyInjection;
+    using Moq;
+    using Winfocus.LMS.Application.Interfaces;
     using Winfocus.LMS.Domain.Entities;
     using Winfocus.LMS.Infrastructure.Data;
 
@@ -11,15 +13,12 @@
     /// Custom web application factory for integration testing.
     /// </summary>
     /// <seealso cref="Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory&lt;Program&gt;" />
-    public sealed class TestWebApplicationFactory
-    : WebApplicationFactory<Program>
+    public sealed class TestWebApplicationFactory : WebApplicationFactory<Program>
     {
         private const string _databaseName = "AuthControllerTestsDb";
 
-        /// <summary>
-        /// Gives a fixture an opportunity to configure the application before it gets built.
-        /// </summary>
-        /// <param name="builder">The <see cref="T:Microsoft.AspNetCore.Hosting.IWebHostBuilder" /> for the application.</param>
+        public string? CapturedActivationToken { get; private set; }
+
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             builder.UseEnvironment("Testing");
@@ -41,6 +40,28 @@
                 // SINGLE SHARED DATABASE
                 services.AddDbContext<AppDbContext>(options =>
                     options.UseInMemoryDatabase(_databaseName));
+
+                // Replace IEmailService with mock
+                var emailDescriptor = services.SingleOrDefault(
+                    d => d.ServiceType == typeof(IEmailService));
+                if (emailDescriptor != null)
+                {
+                    services.Remove(emailDescriptor);
+                }
+
+                var emailServiceMock = new Mock<IEmailService>();
+                emailServiceMock
+                    .Setup(e => e.SendActivationEmailAsync(
+                        It.IsAny<string>(),
+                        It.IsAny<string>(),
+                        It.IsAny<string>()))
+                    .Callback<string, string, string>((email, username, token) =>
+                    {
+                        CapturedActivationToken = token;
+                    })
+                    .Returns(Task.CompletedTask);
+
+                services.AddSingleton(emailServiceMock.Object);
 
                 // Build provider ONCE
                 var sp = services.BuildServiceProvider();
