@@ -63,6 +63,14 @@
         /// <returns>StudentPersonaldetailsdto.</returns>
         public async Task<CommonResponse<StudentPersonaldetailsdto>> CreateAsync(StudentPersonaldetailsRequest request)
         {
+            var existuser = await _repository.GetByEmailAsync(request.emailaddress);
+
+            if (existuser != null)
+            {
+                return CommonResponse<StudentPersonaldetailsdto>
+              .FailureResponse("Student email id already exist");
+            }
+
             var studentPersonalDetails = new StudentPersonalDetails
             {
                 FullName = request.fullname,
@@ -102,6 +110,16 @@
             {
                 return CommonResponse<StudentPersonaldetailsdto>
                     .FailureResponse("Student personal details not found");
+            }
+
+            var userexist = await _repository.GetByEmailAsync(request.emailaddress);
+            if (userexist != null)
+            {
+                if (studentPersonal.Id != userexist.Id)
+                {
+                    return CommonResponse<StudentPersonaldetailsdto>
+                   .FailureResponse("Student email id already exist");
+                }
             }
 
             studentPersonal.FullName = request.fullname;

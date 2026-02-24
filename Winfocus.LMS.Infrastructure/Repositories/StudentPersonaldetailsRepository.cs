@@ -93,5 +93,16 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             _dbContext.StudentPersonalDetails.Update(entity);
             await _dbContext.SaveChangesAsync();
         }
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="email">The identifier.</param>
+        /// <returns>StudentPersonalDetails.</returns>
+        public async Task<StudentPersonalDetails?> GetByEmailAsync(string email)
+        {
+            return await _dbContext.StudentPersonalDetails
+                .FirstOrDefaultAsync(x => x.EmailAddress == email);
+        }
     }
 }
