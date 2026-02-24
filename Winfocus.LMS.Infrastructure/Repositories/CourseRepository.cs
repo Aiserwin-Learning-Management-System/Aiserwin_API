@@ -108,10 +108,11 @@
         /// <returns>
         /// Course.
         /// </returns>
-        public async Task UpdateAsync(Course course)
+        public async Task<Course> UpdateAsync(Course course)
         {
             _db.Courses.Update(course);
             await _db.SaveChangesAsync();
+            return course;
         }
 
         /// <summary>
@@ -121,12 +122,12 @@
         /// <returns>
         /// Task.
         /// </returns>
-        public async Task SoftDeleteAsync(Guid id)
+        public async Task<bool> SoftDeleteAsync(Guid id)
         {
             var entity = await _db.Courses.FindAsync(id);
             if (entity == null)
             {
-                return;
+                return false;
             }
 
             entity.IsActive = false;
@@ -134,6 +135,7 @@
 
             _db.Courses.Update(entity);
             await _db.SaveChangesAsync();
+            return true;
         }
     }
 }
