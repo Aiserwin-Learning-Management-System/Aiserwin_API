@@ -55,13 +55,13 @@
         /// </summary>
         /// <param name="course">The course.</param>
         /// <returns>Course.</returns>
-        Task UpdateAsync(Course course);
+        Task<Course> UpdateAsync(Course course);
 
         /// <summary>
         /// Softs the delete asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>Course.</returns>
-        Task SoftDeleteAsync(Guid id);
+        Task<bool> SoftDeleteAsync(Guid id);
     }
 }
