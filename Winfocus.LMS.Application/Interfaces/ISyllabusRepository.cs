@@ -54,5 +54,11 @@
         /// <param name="centerid">The identifier.</param>
         /// <returns>Syllabus.</returns>
         Task<List<Syllabus>> GetByCenterIdAsync(Guid centerid);
+
+        /// <summary>
+        /// Gets all asynchronous.
+        /// </summary>
+        /// <returns>syllabuses.</returns>
+        IQueryable<Syllabus> Query();
     }
 }

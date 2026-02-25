@@ -3,9 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Winfocus.LMS.Application.DTOs;
+using Winfocus.LMS.Application.DTOs.Common;
 using Winfocus.LMS.Application.DTOs.Masters;
 using Winfocus.LMS.Application.Interfaces;
 using Winfocus.LMS.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Winfocus.LMS.Application.Services
 {
@@ -127,6 +129,93 @@ namespace Winfocus.LMS.Application.Services
         {
             var syllabuses = await _repository.GetByCenterIdAsync(centerid);
             return Map(syllabuses);
+        }
+
+        /// <summary>
+        /// Retrieves syllabuses based on multiple filter criteria with pagination support.
+        /// </summary>
+        /// <param name="startDate">Filters syllabuses created on or after this date.</param>
+        /// <param name="endDate">Filters syllabuses created on or before this date.</param>
+        /// <param name="active">Indicates whether to filter active or inactive syllabuses.</param>
+        /// <param name="searchText">Search keyword applied to syllabus name.</param>
+        /// <param name="limit">Number of records to return (page size).</param>
+        /// <param name="offset">Number of records to skip.</param>
+        /// <param name="sortOrder">Sorting order ("asc" or "desc").</param>
+        /// <returns>
+        /// A <see cref="CommonResponse{T}"/> containing a paginated list of
+        /// <see cref="syllbusDto"/> objects.
+        /// </returns>
+        public async Task<CommonResponse<PagedResult<SyllabusDto>>> GetFilteredAsync(
+       DateTime? startDate,
+       DateTime? endDate,
+       bool? active,
+       string? searchText,
+       int limit,
+       int offset,
+       string sortOrder)
+        {
+            try
+            {
+                _logger.LogInformation(
+                             "Fetching filtered syllabus. Filters => Active:{Active}, Search:{SearchText}, Limit:{Limit}, Offset:{Offset}, SortOrder:{SortOrder}",
+                             active, searchText, limit, offset, sortOrder);
+                var query = _repository.Query();
+                if (active.HasValue)
+                    query = query.Where(x => x.IsActive == active);
+
+                if (startDate.HasValue)
+                    query = query.Where(x => x.CreatedAt >= startDate.Value);
+
+                if (endDate.HasValue)
+                    query = query.Where(x => x.CreatedAt <= endDate.Value);
+
+                if (!string.IsNullOrWhiteSpace(searchText))
+                {
+                    query = query.Where(x =>
+                        x.Name.Contains(searchText));
+                }
+
+                var totalCount = await query.CountAsync();
+
+                _logger.LogInformation(
+                "Filtered syllabuses count: {TotalCount}",
+                totalCount);
+
+                query = sortOrder.ToLower() == "desc"
+                    ? query.OrderByDescending(x => x.CreatedAt)
+                    : query.OrderBy(x => x.CreatedAt);
+
+                var syllbuses = await query
+                    .Skip(offset)
+                    .Take(limit)
+                    .ToListAsync();
+
+                var dtoList = syllbuses.Select(c => new SyllabusDto
+                {
+                    Id = c.Id,
+                    Name = c.Name,
+                    IsActive = c.IsActive,
+                }).ToList();
+
+                _logger.LogInformation(
+               "Returning {ReturnedCount} syllabuses (Offset:{Offset}, Limit:{Limit})",
+               dtoList.Count, offset, limit);
+                return CommonResponse<PagedResult<SyllabusDto>>.SuccessResponse(
+                "Syllabuses fetched successfully",
+                new PagedResult<SyllabusDto>(
+                    dtoList,
+                    totalCount,
+                    limit,
+                    offset));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                   ex,
+                   "Error occurred while fetching filtered syllabuses. Filters =>  Active:{Active}, Search:{SearchText}, Limit:{Limit}, Offset:{Offset}, SortOrder:{SortOrder}",
+                   active, searchText, limit, offset, sortOrder);
+                return CommonResponse<PagedResult<SyllabusDto>>.FailureResponse($"An error occurred while fetching syllabuses: {ex.Message}");
+            }
         }
 
         private static List<SyllabusDto> Map(IEnumerable<Syllabus> syllabuses)

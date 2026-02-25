@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Winfocus.LMS.Application.DTOs;
+using Winfocus.LMS.Application.DTOs.Common;
 using Winfocus.LMS.Application.DTOs.Masters;
 using Winfocus.LMS.Application.Interfaces;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
@@ -132,5 +133,38 @@ namespace Winfocus.LMS.API.Controllers
             }
         }
 
+        /// <summary>
+        /// Retrieves filtered syllabuses with pagination.
+        /// </summary>
+        /// <param name="startDate">Filter syllabuses created after this date.</param>
+        /// <param name="endDate">Filter syllabuses created before this date.</param>
+        /// <param name="active">Filter by active status.</param>
+        /// <param name="searchText">Search keyword.</param>
+        /// <param name="limit">Number of records to return.</param>
+        /// <param name="offset">Number of records to skip.</param>
+        /// <param name="sortOrder">Sorting order (asc/desc).</param>
+        /// <returns>Paginated list of syllabuses.</returns>
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        [HttpGet("filter")]
+        public async Task<ActionResult<CommonResponse<PagedResult<SyllabusDto>>>> GetFiltered(
+    DateTime? startDate,
+    DateTime? endDate,
+    bool active,
+    string? searchText,
+    int limit = 20,
+    int offset = 0,
+    string sortOrder = "asc")
+        {
+            var result = await _syllabusService.GetFilteredAsync(
+                startDate,
+                endDate,
+                active,
+                searchText,
+                limit,
+                offset,
+                sortOrder);
+
+            return Ok(result);
+        }
     }
 }

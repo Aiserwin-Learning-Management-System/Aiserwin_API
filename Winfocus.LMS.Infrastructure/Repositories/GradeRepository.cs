@@ -113,5 +113,16 @@
                 .ToListAsync();
         }
 
+        /// <summary>
+        /// Gets all asynchronous.
+        /// </summary>
+        /// <returns>
+        /// grade.
+        /// </returns>
+        public IQueryable<Grade> Query()
+        {
+            return _db.Grades.Include(x => x.Syllabus)
+                .AsNoTracking();
+        }
     }
 }

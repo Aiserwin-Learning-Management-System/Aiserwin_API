@@ -54,5 +54,11 @@
         /// <param name="syllabusid">The identifier.</param>
         /// <returns>Grade.</returns>
         Task<List<Grade>> GetBySyllabusIdAsync(Guid syllabusid);
+
+        /// <summary>
+        /// Gets all asynchronous.
+        /// </summary>
+        /// <returns>grdaes.</returns>
+        IQueryable<Grade> Query();
     }
 }

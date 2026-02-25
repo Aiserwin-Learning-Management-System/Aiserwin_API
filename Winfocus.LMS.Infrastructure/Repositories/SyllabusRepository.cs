@@ -111,5 +111,17 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             return await _db.Syllabuses
                 .ToListAsync();
         }
+
+        /// <summary>
+        /// Gets all asynchronous.
+        /// </summary>
+        /// <returns>
+        /// syllabuses.
+        /// </returns>
+        public IQueryable<Syllabus> Query()
+        {
+            return _db.Syllabuses
+                .AsNoTracking();
+        }
     }
 }
