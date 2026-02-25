@@ -2,8 +2,10 @@
 {
     using Asp.Versioning;
     using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Http.HttpResults;
     using Microsoft.AspNetCore.Mvc;
     using Winfocus.LMS.Application.DTOs;
+    using Winfocus.LMS.Application.DTOs.Masters;
     using Winfocus.LMS.Application.Interfaces;
 
     /// <summary>
@@ -13,7 +15,7 @@
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
-    public sealed class CountriesController : ControllerBase
+    public sealed class CountriesController : BaseController
     {
         private readonly ICountryService _service;
 
@@ -53,11 +55,11 @@
         /// <returns>CountryDto.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPost]
-        public async Task<ActionResult<CountryDto>> Create(
+        public async Task<CommonResponse<CountryDto>> Create(
             CreateCountryRequest request)
         {
-            var created = await _service.CreateAsync(request);
-            return CreatedAtAction(nameof(Get), new { id = created.id }, created);
+            Guid userid = UserId;
+            return await _service.CreateAsync(request, userid);
         }
 
         /// <summary>
@@ -68,12 +70,12 @@
         /// <returns>result.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPut("{id:guid}")]
-        public async Task<IActionResult> Update(
+        public async Task<CommonResponse<CountryDto>> Update(
             Guid id,
             CreateCountryRequest request)
         {
-            await _service.UpdateAsync(id, request);
-            return NoContent();
+            Guid userid = UserId;
+            return await _service.UpdateAsync(id, request, userid);
         }
 
         /// <summary>
@@ -83,10 +85,9 @@
         /// <returns>result.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpDelete("{id:guid}")]
-        public async Task<IActionResult> Delete(Guid id)
+        public async Task<CommonResponse<bool>> Delete(Guid id)
         {
-            await _service.DeleteAsync(id);
-            return NoContent();
+            return await _service.DeleteAsync(id);
         }
     }
 }

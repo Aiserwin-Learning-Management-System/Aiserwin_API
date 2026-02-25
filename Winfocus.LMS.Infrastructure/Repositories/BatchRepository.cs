@@ -9,9 +9,9 @@ using Winfocus.LMS.Infrastructure.Data;
 namespace Winfocus.LMS.Infrastructure.Repositories
 {
     /// <summary>
-    /// Provides data access operations for <see cref="BatchTimingSunday"/> entities.
+    /// Provides data access operations for <see cref="Batch"/> entities.
     /// </summary>
-    public class BatchTimingSundayRepository : IBatchTimingSundayRepository
+    public class BatchRepository : IBatchRepository
     {
         /// <summary>
         /// The application database context used to access persistence.
@@ -19,10 +19,10 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         private readonly AppDbContext _dbContext;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BatchTimingSundayRepository"/> class.
+        /// Initializes a new instance of the <see cref="BatchRepository"/> class.
         /// </summary>
         /// <param name="dbContext">The database context.</param>
-        public BatchTimingSundayRepository(AppDbContext dbContext)
+        public BatchRepository(AppDbContext dbContext)
         {
             _dbContext = dbContext;
         }
@@ -30,10 +30,10 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// <summary>
         /// Gets all asynchronous.
         /// </summary>
-        /// <returns>BatchTimingSunday list.</returns>
-        public async Task<IReadOnlyList<BatchTimingSunday>> GetAllAsync()
+        /// <returns>Batch list.</returns>
+        public async Task<IReadOnlyList<Batch>> GetAllAsync()
         {
-            return await _dbContext.BatchTimingSundays
+            return await _dbContext.Batches
                 .Include(x => x.Subject)
                 .AsNoTracking()
                 .ToListAsync();
@@ -43,10 +43,10 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// Gets the by identifier asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
-        /// <returns>BatchTiming.</returns>
-        public async Task<BatchTimingSunday?> GetByIdAsync(Guid id)
+        /// <returns>Batch.</returns>
+        public async Task<Batch?> GetByIdAsync(Guid id)
         {
-            return await _dbContext.BatchTimingSundays
+            return await _dbContext.Batches
                 .Include(x => x.Subject)
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
@@ -54,29 +54,27 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// <summary>
         /// Adds the asynchronous.
         /// </summary>
-        /// <param name="batchtiming">The country.</param>
-        /// <returns>country.</returns>
-        public async Task<BatchTimingSunday> AddAsync(BatchTimingSunday batchtiming)
+        /// <param name="batch">The country.</param>
+        /// <returns>BatchTimingSaturday.</returns>
+        public async Task<Batch> AddAsync(Batch batch)
         {
-            batchtiming.CreatedAt = DateTime.UtcNow;
-            _dbContext.BatchTimingSundays.Add(batchtiming);
+            _dbContext.Batches.Add(batch);
             await _dbContext.SaveChangesAsync();
-            return batchtiming;
+            return batch;
         }
 
         /// <summary>
         /// Updates the asynchronous.
         /// </summary>
-        /// <param name="batchtiming">The batchtiming.</param>
+        /// <param name="batch">The batchtiming.</param>
         /// <returns>task.</returns>
-        public async Task<BatchTimingSunday> UpdateAsync(BatchTimingSunday batchtiming)
+        public async Task<Batch> UpdateAsync(Batch batch)
         {
-            batchtiming.UpdatedAt = DateTime.UtcNow;
-            _dbContext.BatchTimingSundays.Update(batchtiming);
+            batch.UpdatedAt = DateTime.UtcNow;
+            _dbContext.Batches.Update(batch);
             await _dbContext.SaveChangesAsync();
-            return batchtiming;
+            return batch;
         }
-
 
         /// <summary>
         /// Deletes the asynchronous.
@@ -85,7 +83,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// <returns>task.</returns>
         public async Task<bool> DeleteAsync(Guid id)
         {
-            var entity = await _dbContext.BatchTimingSundays.FindAsync(id);
+            var entity = await _dbContext.Batches.FindAsync(id);
             if (entity == null)
             {
                 return false;
@@ -93,7 +91,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
 
             entity.IsActive = false;
 
-            _dbContext.BatchTimingSundays.Update(entity);
+            _dbContext.Batches.Update(entity);
             await _dbContext.SaveChangesAsync();
             return true;
         }
@@ -103,24 +101,12 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// </summary>
         /// <param name="subjectid">The identifier.</param>
         /// <returns>BatchTimings.</returns>
-        public async Task<List<BatchTimingSunday>> GetBySubjectIdAsync(Guid subjectid)
+        public async Task<List<Batch>> GetBySubjectIdAsync(Guid subjectid)
         {
-            return await _dbContext.BatchTimingSundays
+            return await _dbContext.Batches
                 .Include(x => x.Subject)
                 .Where(x => x.SubjectId == subjectid)
                 .ToListAsync();
-        }
-
-        /// <summary>
-        /// Adds the asynchronous.
-        /// </summary>
-        /// <param name="batchtiming">The batchtiming.</param>
-        /// <returns>.</returns>
-        public async Task<SubjectBatchTimingSunday> BatchTimingSubjectCreate(SubjectBatchTimingSunday batchtiming)
-        {
-            _dbContext.SubjectBatchTimingSundays.Add(batchtiming);
-            await _dbContext.SaveChangesAsync();
-            return batchtiming;
         }
     }
 }

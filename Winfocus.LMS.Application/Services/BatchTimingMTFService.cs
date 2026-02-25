@@ -1,8 +1,10 @@
 ﻿namespace Winfocus.LMS.Application.Services
 {
+    using Microsoft.AspNetCore.Http.HttpResults;
     using Microsoft.Extensions.Logging;
     using Winfocus.LMS.Application.DTOs;
     using Winfocus.LMS.Application.DTOs.Masters;
+    using Winfocus.LMS.Application.DTOs.Students;
     using Winfocus.LMS.Application.Interfaces;
     using Winfocus.LMS.Domain.Entities;
 
@@ -29,12 +31,20 @@
         /// Gets all asynchronous.
         /// </summary>
         /// <returns>BatchTimingMTFDto.</returns>
-        public async Task<IReadOnlyList<BatchTimingMTFDto>> GetAllAsync()
+        public async Task<CommonResponse<List<BatchTimingMTFDto>>> GetAllAsync()
         {
-            _logger.LogInformation("Fetching all Batches");
+            _logger.LogInformation("Fetching all Batches monday to friday");
             var batchtiming = await _repository.GetAllAsync();
-            _logger.LogInformation("Fetched {Count} Batches", batchtiming.Count());
-            return batchtiming.Select(Map).ToList();
+            _logger.LogInformation("Fetched {Count} Batches monday to friday", batchtiming.Count());
+            var mappeddata = batchtiming.Select(Map).ToList();
+            if (mappeddata.Any())
+            {
+                return CommonResponse<List<BatchTimingMTFDto>>.SuccessResponse("batch timing monday to friday", mappeddata);
+            }
+            else
+            {
+                return CommonResponse<List<BatchTimingMTFDto>>.FailureResponse("no batch timing found");
+            }
         }
 
         /// <summary>
@@ -42,12 +52,20 @@
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>BatchTimingMTFDto.</returns>
-        public async Task<BatchTimingMTFDto?> GetByIdAsync(Guid id)
+        public async Task<CommonResponse<BatchTimingMTFDto>> GetByIdAsync(Guid id)
         {
             _logger.LogInformation("Fetching batchtiming by Id: {Id}", id);
             var batchtiming = await _repository.GetByIdAsync(id);
             _logger.LogInformation("batch fetched successfully for Id: {Id}", id);
-            return batchtiming == null ? null : Map(batchtiming);
+            var mappeddata = batchtiming == null ? null : Map(batchtiming);
+            if (mappeddata != null)
+            {
+                return CommonResponse<BatchTimingMTFDto>.SuccessResponse("batch timing monday to friday", mappeddata);
+            }
+             else
+            {
+                return CommonResponse<BatchTimingMTFDto>.FailureResponse("batch timing not found");
+            }
         }
 
         /// <summary>
@@ -80,7 +98,7 @@
         /// <param name="request">The request.</param>
         /// <exception cref="KeyNotFoundException">Batch Timing not found.</exception>
         /// <returns>task.</returns>
-        public async Task UpdateAsync(Guid id, BatchTimingRequest request)
+        public async Task<BatchTimingMTFDto> UpdateAsync(Guid id, BatchTimingRequest request)
         {
             _logger.LogInformation("Updating batch Id: {BatchTimingId}", id);
             var batchtiming = await _repository.GetByIdAsync(id)
@@ -91,10 +109,11 @@
             batchtiming.UpdatedBy = request.userId;
             batchtiming.UpdatedAt = DateTime.UtcNow;
 
-            await _repository.UpdateAsync(batchtiming);
+            var updated = await _repository.UpdateAsync(batchtiming);
             _logger.LogInformation(
            "BatchTiming updated successfully. BatchTimingId: {BatchTimingId}",
            id);
+            return Map(updated);
         }
 
         /// <summary>
@@ -102,13 +121,20 @@
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>task.</returns>
-        public async Task DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
             _logger.LogInformation("Deleting BatchTiming Id: {Id}", id);
-            await _repository.DeleteAsync(id);
-            _logger.LogInformation(
-           "BatchTiming deleted successfully. BatchTimingId: {BatchTimingId}",
-           id);
+            bool res = await _repository.DeleteAsync(id);
+            if (res)
+            {
+                _logger.LogInformation("BatchTiming deleted successfully. BatchTimingId: {BatchTimingId}", id);
+                return res;
+            }
+            else
+            {
+                _logger.LogWarning("BatchTiming deletion failed. BatchTimingId: {BatchTimingId}", id);
+                return res;
+            }
         }
 
         /// <summary>

@@ -1,7 +1,9 @@
 ﻿using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Winfocus.LMS.Application.DTOs;
+using Winfocus.LMS.Application.DTOs.Common;
 using Winfocus.LMS.Application.DTOs.Masters;
 using Winfocus.LMS.Application.Interfaces;
 using Winfocus.LMS.Application.Services;
@@ -42,7 +44,7 @@ namespace Winfocus.LMS.API.Controllers
         /// <returns>GradeDto.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPost]
-        public async Task<ActionResult<GradeDto>> Create(
+        public async Task<CommonResponse<GradeDto>> Create(
             GradeRequest request)
         {
             var updatedRequest = request with
@@ -50,7 +52,14 @@ namespace Winfocus.LMS.API.Controllers
                 userId = UserId
             };
             var created = await _gradeService.CreateAsync(updatedRequest);
-            return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
+            if (created == null)
+            {
+                return CommonResponse<GradeDto>.FailureResponse("Failed to create Grade.");
+            }
+            else
+            {
+                return CommonResponse<GradeDto>.SuccessResponse("Grade created successfully.", created);
+            }
         }
 
         /// <summary>
@@ -59,10 +68,10 @@ namespace Winfocus.LMS.API.Controllers
         /// <param name="id">The identifier.</param>
         /// <returns>GradeDto by id.</returns>
         [HttpGet("{id:guid}")]
-        public async Task<ActionResult<GradeDto>> Get(Guid id)
+        public async Task<CommonResponse<GradeDto>> Get(Guid id)
         {
             var result = await _gradeService.GetByIdAsync(id);
-            return result == null ? NotFound() : Ok(result);
+            return result;
         }
 
         /// <summary>
@@ -73,7 +82,7 @@ namespace Winfocus.LMS.API.Controllers
         /// <returns>result.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPut("{id:guid}")]
-        public async Task<IActionResult> Update(
+        public async Task<CommonResponse<GradeDto>> Update(
             Guid id,
             GradeRequest request)
         {
@@ -81,8 +90,15 @@ namespace Winfocus.LMS.API.Controllers
             {
                 userId = UserId
             };
-            await _gradeService.UpdateAsync(id, updatedRequest);
-            return NoContent();
+            var updated = await _gradeService.UpdateAsync(id, updatedRequest);
+            if (updated == null)
+            {
+                return CommonResponse<GradeDto>.FailureResponse("Failed to update Grade.");
+            }
+            else
+            {
+                return CommonResponse<GradeDto>.SuccessResponse("Grade updated successfully.", updated);
+            }
         }
 
         /// <summary>
@@ -91,10 +107,10 @@ namespace Winfocus.LMS.API.Controllers
         /// <param name="syllabusid">The identifier.</param>
         /// <returns>GradeDto by id.</returns>
         [HttpGet("by-syllabus/{syllabusid:guid}")]
-        public async Task<ActionResult<GradeDto>> GetBySyllabusId(Guid syllabusid)
+        public async Task<CommonResponse<List<GradeDto>>> GetBySyllabusId(Guid syllabusid)
         {
             var result = await _gradeService.GetBySyllabusIdAsync(syllabusid);
-            return result == null ? NotFound() : Ok(result);
+            return result;
         }
 
         /// <summary>
@@ -104,10 +120,54 @@ namespace Winfocus.LMS.API.Controllers
         /// <returns>result.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpDelete("{id:guid}")]
-        public async Task<IActionResult> Delete(Guid id)
+        public async Task<CommonResponse<bool>> Delete(Guid id)
         {
-            await _gradeService.DeleteAsync(id);
-            return NoContent();
+            var result = await _gradeService.DeleteAsync(id);
+            if (result)
+            {
+                return CommonResponse<bool>.SuccessResponse("Grade deleted successfully.", true);
+            }
+            else
+            {
+                return CommonResponse<bool>.FailureResponse("Failed to delete Grade.");
+            }
+        }
+
+        /// <summary>
+        /// Retrieves filtered grades with pagination.
+        /// </summary>
+        /// <param name="syllabusid">Filter by syllabus identifier.</param>
+        /// <param name="startDate">Filter grades created after this date.</param>
+        /// <param name="endDate">Filter grades created before this date.</param>
+        /// <param name="active">Filter by active status.</param>
+        /// <param name="searchText">Search keyword.</param>
+        /// <param name="limit">Number of records to return.</param>
+        /// <param name="offset">Number of records to skip.</param>
+        /// <param name="sortOrder">Sorting order (asc/desc).</param>
+        /// <returns>Paginated list of grades.</returns>
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        [HttpGet("filter")]
+        public async Task<ActionResult<CommonResponse<PagedResult<GradeDto>>>> GetFiltered(
+    Guid? syllabusid,
+    DateTime? startDate,
+    DateTime? endDate,
+    bool active,
+    string? searchText,
+    int limit = 20,
+    int offset = 0,
+    string sortOrder = "asc")
+        {
+            var result = await _gradeService.GetFilteredAsync(
+                syllabusid,
+                startDate,
+                endDate,
+                active,
+                searchText,
+                limit,
+                offset,
+                sortOrder);
+
+            return Ok(result);
         }
     }
 }

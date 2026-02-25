@@ -15,14 +15,14 @@ namespace Winfocus.LMS.Application.Interfaces
         /// Gets all asynchronous.
         /// </summary>
         /// <returns>BatchDto.</returns>
-        Task<IReadOnlyList<BatchDto>> GetAllAsync();
+        Task<CommonResponse<List<BatchDto>>> GetAllAsync();
 
         /// <summary>
         /// Gets the by identifier asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>BatchDto.</returns>
-        Task<BatchDto?> GetByIdAsync(Guid id);
+        Task<CommonResponse<BatchDto>> GetByIdAsync(Guid id);
 
         /// <summary>
         /// Creates the asynchronous.
@@ -37,14 +37,13 @@ namespace Winfocus.LMS.Application.Interfaces
         /// <param name="id">The identifier.</param>
         /// <param name="request">The request.</param>
         /// <returns>id.</returns>
-        Task UpdateAsync(Guid id, BatchRequest request);
+        Task<BatchDto> UpdateAsync(Guid id, BatchRequest request);
 
         /// <summary>
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>id.</returns>
-        Task DeleteAsync(Guid id);
-
+        Task<bool> DeleteAsync(Guid id);
     }
 }

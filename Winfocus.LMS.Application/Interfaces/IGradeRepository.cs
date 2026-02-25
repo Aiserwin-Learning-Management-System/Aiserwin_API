@@ -32,14 +32,14 @@
         /// </summary>
         /// <param name="grade">The Grade.</param>
         /// <returns>Grade.</returns>
-        Task UpdateAsync(Grade grade);
+        Task<Grade> UpdateAsync(Grade grade);
 
         /// <summary>
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>task.</returns>
-        Task DeleteAsync(Guid id);
+        Task<bool> DeleteAsync(Guid id);
 
         /// <summary>
         /// Existses the by code asynchronous.
@@ -54,5 +54,11 @@
         /// <param name="syllabusid">The identifier.</param>
         /// <returns>Grade.</returns>
         Task<List<Grade>> GetBySyllabusIdAsync(Guid syllabusid);
+
+        /// <summary>
+        /// Gets all asynchronous.
+        /// </summary>
+        /// <returns>grdaes.</returns>
+        IQueryable<Grade> Query();
     }
 }

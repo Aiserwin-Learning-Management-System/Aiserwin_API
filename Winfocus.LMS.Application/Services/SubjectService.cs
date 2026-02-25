@@ -28,8 +28,13 @@
         /// <returns>
         /// A list of subject DTOs.
         /// </returns>
-        public async Task<IReadOnlyList<SubjectDto>> GetAllAsync()
-            => (await _repo.GetAllAsync()).Select(Map).ToList();
+        public async Task<CommonResponse<List<SubjectDto>>> GetAllAsync()
+        {
+            var subjects = (await _repo.GetAllAsync()).Select(Map).ToList();
+            return CommonResponse<List<SubjectDto>>.SuccessResponse("subjects retrieved successfully", subjects);
+        }
+
+            //=> (await _repo.GetAllAsync()).Select(Map).ToList();
 
         /// <summary>
         /// Gets a subject by identifier.
@@ -38,8 +43,21 @@
         /// <returns>
         /// The subject DTO if found; otherwise, null.
         /// </returns>
-        public async Task<SubjectDto?> GetByIdAsync(Guid id)
-            => (await _repo.GetByIdAsync(id)) is { } s ? Map(s) : null;
+        public async Task<CommonResponse<SubjectDto>> GetByIdAsync(Guid id)
+        {
+            var subject = (await _repo.GetByIdAsync(id)) is { } c ? Map(c) : null;
+            if (subject == null)
+            {
+                return CommonResponse<SubjectDto>.FailureResponse("subject not found");
+
+            }
+            else
+            {
+                return CommonResponse<SubjectDto>.SuccessResponse("Subject retrieved successfully", subject);
+            }
+        }
+            
+            //=> (await _repo.GetByIdAsync(id)) is { } s ? Map(s) : null;
 
         /// <summary>
         /// Gets subjects by stream identifier.
@@ -49,7 +67,20 @@
         /// A list of subject DTOs associated with the specified stream.
         /// </returns>
         public async Task<IReadOnlyList<SubjectDto>> GetByStreamAsync(Guid streamId)
-            => (await _repo.GetByStreamAsync(streamId)).Select(Map).ToList();
+        {
+            return (await _repo.GetByStreamAsync(streamId)).Select(Map).ToList();
+            //if (subjects == null)
+            //{
+            //    return IReadOnlyList<SubjectDto>.FailureResponse("subjects not found");
+
+            //}
+            //else
+            //{
+            //    return CommonResponse<SubjectDto>.SuccessResponse("subject retrieved successfully", subjects);
+            //}
+        }
+
+        //=> (await _repo.GetByStreamAsync(streamId)).Select(Map).ToList();
 
         /// <summary>
         /// Gets the by course ids asynchronous.
@@ -93,15 +124,14 @@
         /// <returns>
         /// A task that represents the asynchronous update operation.
         /// </returns>
-        public async Task UpdateAsync(Guid id, SubjectRequest request)
+        public async Task<SubjectDto> UpdateAsync(Guid id, SubjectRequest request)
         {
             var subject = await _repo.GetByIdAsync(id)
                 ?? throw new KeyNotFoundException("Subject not found");
 
             subject.Name = request.name;
             subject.UpdatedAt = DateTime.UtcNow;
-
-            await _repo.UpdateAsync(subject);
+            return Map(await _repo.UpdateAsync(subject));
         }
 
         /// <summary>
@@ -111,8 +141,11 @@
         /// <returns>
         /// A task that represents the asynchronous delete operation.
         /// </returns>
-        public async Task DeleteAsync(Guid id)
-            => await _repo.SoftDeleteAsync(id);
+        public async Task<bool> DeleteAsync(Guid id)
+        {
+             return await _repo.SoftDeleteAsync(id);
+        }
+          //  =>  await _repo.SoftDeleteAsync(id);
 
         private static SubjectDto Map(Subject s) => new ()
         {

@@ -1,11 +1,13 @@
 ﻿using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Winfocus.LMS.Application.DTOs;
 using Winfocus.LMS.Application.DTOs.Masters;
 using Winfocus.LMS.Application.Interfaces;
 using Winfocus.LMS.Application.Services;
 using Winfocus.LMS.Domain.Entities;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Winfocus.LMS.API.Controllers
 {
@@ -43,7 +45,7 @@ namespace Winfocus.LMS.API.Controllers
         /// <returns>BatchTimingSundayDto.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPost]
-        public async Task<ActionResult<BatchTimingSundayDto>> Create(
+        public async Task<CommonResponse<BatchTimingSundayDto>> Create(
             BatchTimingRequest request)
         {
             var updatedRequest = request with
@@ -51,7 +53,14 @@ namespace Winfocus.LMS.API.Controllers
                 userId = UserId
             };
             var created = await _batchtimingsundayService.CreateAsync(updatedRequest);
-            return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
+            if (created == null)
+            {
+                return CommonResponse<BatchTimingSundayDto>.FailureResponse("Failed to create batchtiming for sunday.");
+            }
+            else
+            {
+                return CommonResponse<BatchTimingSundayDto>.SuccessResponse("Batchtiming for sunday created successfully.", created);
+            }
         }
 
         /// <summary>
@@ -60,10 +69,10 @@ namespace Winfocus.LMS.API.Controllers
         /// <param name="id">The identifier.</param>
         /// <returns>BatchTimingSundayDto by id.</returns>
         [HttpGet("{id:guid}")]
-        public async Task<ActionResult<BatchTimingSundayDto>> Get(Guid id)
+        public async Task<CommonResponse<BatchTimingSundayDto>> Get(Guid id)
         {
             var result = await _batchtimingsundayService.GetByIdAsync(id);
-            return result == null ? NotFound() : Ok(result);
+            return result;
         }
 
         /// <summary>
@@ -74,7 +83,7 @@ namespace Winfocus.LMS.API.Controllers
         /// <returns>result.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPut("{id:guid}")]
-        public async Task<IActionResult> Update(
+        public async Task<CommonResponse<BatchTimingSundayDto>> Update(
             Guid id,
             BatchTimingRequest request)
         {
@@ -82,8 +91,15 @@ namespace Winfocus.LMS.API.Controllers
             {
                 userId = UserId
             };
-            await _batchtimingsundayService.UpdateAsync(id, updatedRequest);
-            return NoContent();
+            var updated = await _batchtimingsundayService.UpdateAsync(id, updatedRequest);
+            if (updated == null)
+            {
+                return CommonResponse<BatchTimingSundayDto>.FailureResponse("Failed to create batchtiming for saturday.");
+            }
+            else
+            {
+                return CommonResponse<BatchTimingSundayDto>.SuccessResponse("Batchtiming for saturday created successfully.", updated);
+            }
         }
 
         /// <summary>
@@ -93,10 +109,17 @@ namespace Winfocus.LMS.API.Controllers
         /// <returns>result.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpDelete("{id:guid}")]
-        public async Task<IActionResult> Delete(Guid id)
+        public async Task<CommonResponse<bool>> Delete(Guid id)
         {
-            await _batchtimingsundayService.DeleteAsync(id);
-            return NoContent();
+            var res = await _batchtimingsundayService.DeleteAsync(id);
+            if (res)
+            {
+                return CommonResponse<bool>.SuccessResponse("Batchtiming for sunday deleted successfully.", true);
+            }
+            else
+            {
+                return CommonResponse<bool>.FailureResponse("Failed to delete batchtiming for sunday.");
+            }
         }
 
         /// <summary>
@@ -105,10 +128,17 @@ namespace Winfocus.LMS.API.Controllers
         /// <param name="subjectid">The identifier.</param>
         /// <returns>BatchTimingSundayDto by id.</returns>
         [HttpGet("by-subject/{subjectid:guid}")]
-        public async Task<ActionResult<BatchTimingSundayDto>> GetBySubjectId(Guid subjectid)
+        public async Task<CommonResponse<List<BatchTimingSundayDto>>> GetBySubjectId(Guid subjectid)
         {
             var result = await _batchtimingsundayService.GetBySubjectIdAsync(subjectid);
-            return result == null ? NotFound() : Ok(result);
+            if (result == null)
+            {
+                return CommonResponse<List<BatchTimingSundayDto>>.FailureResponse("Failed to get batchtiming for sunday.");
+            }
+            else
+            {
+                return CommonResponse<List<BatchTimingSundayDto>>.SuccessResponse("Batchtiming for sunday.", result);
+            }
         }
 
         /// <summary>

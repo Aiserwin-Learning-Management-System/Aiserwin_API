@@ -1,8 +1,11 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Winfocus.LMS.Application.DTOs;
 using Winfocus.LMS.Application.DTOs.Masters;
+using Winfocus.LMS.Application.DTOs.Students;
 using Winfocus.LMS.Application.Interfaces;
 using Winfocus.LMS.Domain.Entities;
 
@@ -31,11 +34,12 @@ namespace Winfocus.LMS.Application.Services
         /// Gets all asynchronous.
         /// </summary>
         /// <returns>AcademicYearDto.</returns>
-        public async Task<IReadOnlyList<AcademicYearDto>> GetAllAsync()
+        public async Task<CommonResponse<List<AcademicYearDto>>> GetAllAsync()
         {
             _logger.LogInformation("Fetching all academic years.");
             var academicyear = await _repository.GetAllAsync();
-            return academicyear.Select(Map).ToList();
+            var data = academicyear.Select(Map).ToList();
+            return CommonResponse<List<AcademicYearDto>>.SuccessResponse("Academic years", data);
         }
 
         /// <summary>

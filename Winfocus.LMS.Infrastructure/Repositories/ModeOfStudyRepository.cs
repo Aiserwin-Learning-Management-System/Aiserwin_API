@@ -69,10 +69,11 @@
         /// </summary>
         /// <param name="modeofstudy">The modeofstudy.</param>
         /// <returns>task.</returns>
-        public async Task UpdateAsync(ModeOfStudy modeofstudy)
+        public async Task<ModeOfStudy> UpdateAsync(ModeOfStudy modeofstudy)
         {
             _dbContext.ModeOfStudies.Update(modeofstudy);
             await _dbContext.SaveChangesAsync();
+            return modeofstudy;
         }
 
         /// <summary>
@@ -80,18 +81,19 @@
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>task.</returns>
-        public async Task DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
             var entity = await _dbContext.ModeOfStudies.FindAsync(id);
             if (entity == null)
             {
-                return;
+                return false;
             }
 
             entity.IsActive = false;
 
             _dbContext.ModeOfStudies.Update(entity);
             await _dbContext.SaveChangesAsync();
+            return true;
         }
 
         /// <summary>

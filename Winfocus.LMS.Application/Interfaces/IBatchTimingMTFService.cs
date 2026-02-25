@@ -12,14 +12,14 @@
         /// Gets all asynchronous.
         /// </summary>
         /// <returns>BatchTimingMTFDto.</returns>
-        Task<IReadOnlyList<BatchTimingMTFDto>> GetAllAsync();
+        Task<CommonResponse<List<BatchTimingMTFDto>>> GetAllAsync();
 
         /// <summary>
         /// Gets the by identifier asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>BatchTimingMTFDto.</returns>
-        Task<BatchTimingMTFDto?> GetByIdAsync(Guid id);
+        Task<CommonResponse<BatchTimingMTFDto>> GetByIdAsync(Guid id);
 
         /// <summary>
         /// Creates the asynchronous.
@@ -34,14 +34,14 @@
         /// <param name="id">The identifier.</param>
         /// <param name="request">The request.</param>
         /// <returns>id.</returns>
-        Task UpdateAsync(Guid id, BatchTimingRequest request);
+        Task<BatchTimingMTFDto> UpdateAsync(Guid id, BatchTimingRequest request);
 
         /// <summary>
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>id.</returns>
-        Task DeleteAsync(Guid id);
+        Task<bool> DeleteAsync(Guid id);
 
         /// <summary>
         /// Gets the by identifier asynchronous.

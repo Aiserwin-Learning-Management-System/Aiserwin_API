@@ -1,7 +1,9 @@
 ﻿namespace Winfocus.LMS.Application.Services
 {
+    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
     using Winfocus.LMS.Application.DTOs;
+    using Winfocus.LMS.Application.DTOs.Common;
     using Winfocus.LMS.Application.DTOs.Masters;
     using Winfocus.LMS.Application.Interfaces;
     using Winfocus.LMS.Domain.Entities;
@@ -31,11 +33,19 @@
         /// Gets all asynchronous.
         /// </summary>
         /// <returns>GradeDto.</returns>
-        public async Task<IReadOnlyList<GradeDto>> GetAllAsync()
+        public async Task<CommonResponse<List<GradeDto>>> GetAllAsync()
         {
-            _logger.LogInformation("Fetching all syllabuses");
+            _logger.LogInformation("Fetching all Grdaes");
             var grades = await _repository.GetAllAsync();
-            return grades.Select(Map).ToList();
+            var mapped = grades.Select(Map).ToList();
+            if (mapped.Any())
+            {
+                return CommonResponse<List<GradeDto>>.SuccessResponse("Fetching all Grades", mapped);
+            }
+            else
+            {
+                return CommonResponse<List<GradeDto>>.FailureResponse("Grades not found");
+            }
         }
 
         /// <summary>
@@ -43,10 +53,18 @@
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>GradeDto.</returns>
-        public async Task<GradeDto?> GetByIdAsync(Guid id)
+        public async Task<CommonResponse<GradeDto>> GetByIdAsync(Guid id)
         {
             var grades = await _repository.GetByIdAsync(id);
-            return grades == null ? null : Map(grades);
+            var mapped = grades == null ? null : Map(grades);
+            if (mapped != null)
+            {
+                return CommonResponse<GradeDto>.SuccessResponse("Fetching the grade", mapped);
+            }
+            else
+            {
+                return CommonResponse<GradeDto>.FailureResponse("batch timing not found");
+            }
         }
 
         /// <summary>
@@ -76,7 +94,7 @@
         /// <param name="request">The request.</param>
         /// <exception cref="KeyNotFoundException">Grade not found.</exception>
         /// <returns>task.</returns>
-        public async Task UpdateAsync(Guid id, GradeRequest request)
+        public async Task<GradeDto> UpdateAsync(Guid id, GradeRequest request)
         {
             var grade = await _repository.GetByIdAsync(id)
                 ?? throw new KeyNotFoundException("Grade not found");
@@ -85,7 +103,7 @@
             grade.UpdatedBy = request.userId;
             grade.UpdatedAt = DateTime.UtcNow;
 
-            await _repository.UpdateAsync(grade);
+            return Map(await _repository.UpdateAsync(grade));
         }
 
         /// <summary>
@@ -93,9 +111,9 @@
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>task.</returns>
-        public async Task DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
-            await _repository.DeleteAsync(id);
+           return await _repository.DeleteAsync(id);
         }
 
         /// <summary>
@@ -103,10 +121,114 @@
         /// </summary>
         /// <param name="syllabusid">The identifier.</param>
         /// <returns>GradeDto.</returns>
-        public async Task<List<GradeDto>> GetBySyllabusIdAsync(Guid syllabusid)
+        public async Task<CommonResponse<List<GradeDto>>> GetBySyllabusIdAsync(Guid syllabusid)
         {
             var grades = await _repository.GetBySyllabusIdAsync(syllabusid);
-            return Map(grades);
+            var mapped = Map(grades);
+            if (mapped != null)
+            {
+                return CommonResponse<List<GradeDto>>.SuccessResponse("Fetching the grade by syllabus", mapped);
+            }
+            else
+            {
+                return CommonResponse<List<GradeDto>>.FailureResponse("grade not found");
+            }
+        }
+
+        /// <summary>
+        /// Retrieves grades based on multiple filter criteria with pagination support.
+        /// </summary>
+        /// <param name="syllabusId">Syllabus identifier used to filter grades.</param>
+        /// <param name="startDate">Filters grades created on or after this date.</param>
+        /// <param name="endDate">Filters grades created on or before this date.</param>
+        /// <param name="active">Indicates whether to filter active or inactive grades.</param>
+        /// <param name="searchText">Search keyword applied to grades name.</param>
+        /// <param name="limit">Number of records to return (page size).</param>
+        /// <param name="offset">Number of records to skip.</param>
+        /// <param name="sortOrder">Sorting order ("asc" or "desc").</param>
+        /// <returns>
+        /// A <see cref="CommonResponse{T}"/> containing a paginated list of
+        /// <see cref="GradeDto"/> objects.
+        /// </returns>
+        public async Task<CommonResponse<PagedResult<GradeDto>>> GetFilteredAsync(
+       Guid? syllabusId,
+       DateTime? startDate,
+       DateTime? endDate,
+       bool? active,
+       string? searchText,
+       int limit,
+       int offset,
+       string sortOrder)
+        {
+            try
+            {
+                _logger.LogInformation(
+                             "Fetching filtered grades. Filters =>  SyllabusId:{SyllabusId}, Active:{Active}, Search:{SearchText}, Limit:{Limit}, Offset:{Offset}, SortOrder:{SortOrder}",
+                             syllabusId, active, searchText, limit, offset, sortOrder);
+                var query = _repository.Query();
+
+                if (syllabusId.HasValue)
+                {
+                    query = query.Where(c =>
+                        c.Stream.Grade.SyllabusId == syllabusId);
+                }
+
+                if (active.HasValue)
+                    query = query.Where(x => x.IsActive == active);
+
+                if (startDate.HasValue)
+                    query = query.Where(x => x.CreatedAt >= startDate.Value);
+
+                if (endDate.HasValue)
+                    query = query.Where(x => x.CreatedAt <= endDate.Value);
+
+                if (!string.IsNullOrWhiteSpace(searchText))
+                {
+                    query = query.Where(x =>
+                        x.Name.Contains(searchText));
+                }
+
+                var totalCount = await query.CountAsync();
+
+                _logger.LogInformation(
+                "Filtered grades count: {TotalCount}",
+                totalCount);
+
+                query = sortOrder.ToLower() == "desc"
+                    ? query.OrderByDescending(x => x.CreatedAt)
+                    : query.OrderBy(x => x.CreatedAt);
+
+                var grades = await query
+                    .Skip(offset)
+                    .Take(limit)
+                    .ToListAsync();
+
+                var dtoList = grades.Select(c => new GradeDto
+                {
+                    Id = c.Id,
+                    Name = c.Name,
+                    IsActive = c.IsActive,
+                }).ToList();
+
+                _logger.LogInformation(
+               "Returning {ReturnedCount} grades (Offset:{Offset}, Limit:{Limit})",
+               dtoList.Count, offset, limit);
+                return CommonResponse<PagedResult<GradeDto>>.SuccessResponse(
+                "Grades fetched successfully",
+                new PagedResult<GradeDto>(
+                    dtoList,
+                    totalCount,
+                    limit,
+                    offset));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                   ex,
+                   "Error occurred while fetching filtered grades. Filters => SyllabusId:{SyllabusId}, Active:{Active}, Search:{SearchText}, Limit:{Limit}, Offset:{Offset}, SortOrder:{SortOrder}",
+                   syllabusId, active, searchText, limit, offset, sortOrder);
+                return CommonResponse<PagedResult<GradeDto>>.FailureResponse($"An error occurred while fetching grades: {ex.Message}");
+            }
         }
 
         private static List<GradeDto> Map(IEnumerable<Grade> grades)

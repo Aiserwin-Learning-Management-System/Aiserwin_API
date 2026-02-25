@@ -35,14 +35,14 @@
         /// </summary>
         /// <param name="batchtiming">The state.</param>
         /// <returns>BatchTimingMTF.</returns>
-        Task UpdateAsync(BatchTimingMTF batchtiming);
+        Task<BatchTimingMTF> UpdateAsync(BatchTimingMTF batchtiming);
 
         /// <summary>
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>task.</returns>
-        Task DeleteAsync(Guid id);
+        Task<bool> DeleteAsync(Guid id);
 
         /// <summary>
         /// Gets the by identifier asynchronous.

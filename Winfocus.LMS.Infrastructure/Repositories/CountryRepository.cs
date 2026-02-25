@@ -43,7 +43,7 @@
         {
             return await _db.Countries
                 .Include(x => x.Centres)
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .FirstOrDefaultAsync(x => x.Id == id && x.IsActive);
         }
 
         /// <summary>
@@ -63,10 +63,11 @@
         /// </summary>
         /// <param name="country">The country.</param>
         /// <returns>task.</returns>
-        public async Task UpdateAsync(Country country)
+        public async Task<Country> UpdateAsync(Country country)
         {
             _db.Countries.Update(country);
             await _db.SaveChangesAsync();
+            return country;
         }
 
         /// <summary>
@@ -74,12 +75,12 @@
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>task.</returns>
-        public async Task DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
             var entity = await _db.Countries.FindAsync(id);
             if (entity == null)
             {
-                return;
+                return false;
             }
 
             entity.UpdatedAt = DateTime.UtcNow;
@@ -87,16 +88,17 @@
 
             _db.Countries.Update(entity);
             await _db.SaveChangesAsync();
+            return true;
         }
 
         /// <summary>
         /// Existses the by code asynchronous.
         /// </summary>
-        /// <param name="code">The code.</param>
+        /// <param name="name">The code.</param>
         /// <returns>bool.</returns>
-        public async Task<bool> ExistsByCodeAsync(string code)
+        public async Task<bool> ExistsByNameAsync(string name)
         {
-            return await _db.Countries.AnyAsync(x => x.Name == code);
+            return await _db.Countries.AnyAsync(x => x.Name == name);
         }
     }
 }

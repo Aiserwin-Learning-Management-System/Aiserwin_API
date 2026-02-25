@@ -34,14 +34,14 @@
         /// </summary>
         /// <param name="modeofstudy">The modeofstudy.</param>
         /// <returns>modeofstudy.</returns>
-        Task UpdateAsync(ModeOfStudy modeofstudy);
+        Task<ModeOfStudy> UpdateAsync(ModeOfStudy modeofstudy);
 
         /// <summary>
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>task.</returns>
-        Task DeleteAsync(Guid id);
+        Task<bool> DeleteAsync(Guid id);
 
         /// <summary>
         /// Existses the by code asynchronous.

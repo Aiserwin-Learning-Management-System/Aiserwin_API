@@ -13,20 +13,12 @@
         public string Name { get; set; } = null!;
 
         /// <summary>
-        /// Gets or sets the iso alpha3.
+        /// Gets or sets the code.
         /// </summary>
         /// <value>
-        /// The iso alpha3.
+        /// The code.
         /// </value>
-        public string IsoAlpha3 { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets the iso numeric.
-        /// </summary>
-        /// <value>
-        /// The iso numeric.
-        /// </value>
-        public int IsoNumeric { get; set; }
+        public string Code { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the collection of centres associated with the country.

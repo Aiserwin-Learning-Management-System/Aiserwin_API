@@ -65,10 +65,11 @@
         /// </summary>
         /// <param name="streams">The Streams.</param>
         /// <returns>task.</returns>
-        public async Task UpdateAsync(Streams streams)
+        public async Task<Streams> UpdateAsync(Streams streams)
         {
             _db.Streams.Update(streams);
             await _db.SaveChangesAsync();
+            return streams;
         }
 
         /// <summary>
@@ -76,18 +77,19 @@
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>task.</returns>
-        public async Task DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
             var entity = await _db.Streams.FindAsync(id);
             if (entity == null)
             {
-                return;
+                return false;
             }
 
             entity.IsActive = false;
 
             _db.Streams.Update(entity);
             await _db.SaveChangesAsync();
+            return true;
         }
 
         /// <summary>
@@ -126,6 +128,18 @@
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
 
-
+        /// <summary>
+        /// Gets all asynchronous.
+        /// </summary>
+        /// <returns>
+        /// Streams.
+        /// </returns>
+        public IQueryable<Streams> Query()
+        {
+            return _db.Streams
+                    .Include(s => s.Grade)
+                        .ThenInclude(g => g.Syllabus)
+                .AsNoTracking();
+        }
     }
 }

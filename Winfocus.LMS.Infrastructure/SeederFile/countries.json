@@ -1,44 +1,30 @@
 [
   {
     "Name": "Bahrain",
-    "Code": "BH",
-    "IsoAlpha3": "BHR",
-    "IsoNumeric": 48
+    "Code": "BH"
   },
   {
     "Name": "India",
-    "Code": "IN",
-    "IsoAlpha3": "IND",
-    "IsoNumeric": 356
+    "Code": "IN"
   },
   {
     "Name": "Kuwait",
-    "Code": "KW",
-    "IsoAlpha3": "KWT",
-    "IsoNumeric": 414
+    "Code": "KW"
   },
   {
     "Name": "Oman",
-    "Code": "OM",
-    "IsoAlpha3": "OMN",
-    "IsoNumeric": 512
+    "Code": "OM"
   },
   {
     "Name": "Qatar",
-    "Code": "QA",
-    "IsoAlpha3": "QAT",
-    "IsoNumeric": 634
+    "Code": "QA"
   },
   {
     "Name": "Saudi Arabia",
-    "Code": "SA",
-    "IsoAlpha3": "SAU",
-    "IsoNumeric": 682
+    "Code": "SA"
   },
   {
     "Name": "United Arab Emirates",
-    "Code": "AE",
-    "IsoAlpha3": "ARE",
-    "IsoNumeric": 784
+    "Code": "AE"
   } 
 ]

@@ -5,6 +5,7 @@
     using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.EntityFrameworkCore;
+    using Winfocus.LMS.Application.DTOs.Masters;
     using Winfocus.LMS.Application.Interfaces;
     using Winfocus.LMS.Domain.Entities;
     using Winfocus.LMS.Infrastructure.Data;
@@ -86,10 +87,11 @@
         /// </summary>
         /// <param name="center">The center.</param>
         /// <returns>task.</returns>
-        public async Task UpdateAsync(Centre center)
+        public async Task<Centre> UpdateAsync(Centre center)
         {
             _dbContext.Centres.Update(center);
             await _dbContext.SaveChangesAsync();
+            return center;
         }
 
         /// <summary>
@@ -97,18 +99,19 @@
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>task.</returns>
-        public async Task DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
             var entity = await _dbContext.Centres.FindAsync(id);
             if (entity == null)
             {
-                return;
+                return false;
             }
 
             entity.IsActive = false;
 
             _dbContext.Centres.Update(entity);
             await _dbContext.SaveChangesAsync();
+            return true;
         }
 
         /// <summary>

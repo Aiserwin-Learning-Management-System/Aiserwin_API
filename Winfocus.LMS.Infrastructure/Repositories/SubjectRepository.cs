@@ -97,10 +97,11 @@
         /// <returns>
         /// Task.
         /// </returns>
-        public async Task UpdateAsync(Subject subject)
+        public async Task<Subject> UpdateAsync(Subject subject)
         {
             _db.Subjects.Update(subject);
             await _db.SaveChangesAsync();
+            return subject;
         }
 
         /// <summary>
@@ -110,12 +111,12 @@
         /// <returns>
         /// Task.
         /// </returns>
-        public async Task SoftDeleteAsync(Guid id)
+        public async Task<bool> SoftDeleteAsync(Guid id)
         {
             var entity = await _db.Subjects.FindAsync(id);
             if (entity == null)
             {
-                return;
+                return false;
             }
 
             entity.IsActive = false;
@@ -123,6 +124,7 @@
 
             _db.Subjects.Update(entity);
             await _db.SaveChangesAsync();
+            return true;
         }
     }
 }

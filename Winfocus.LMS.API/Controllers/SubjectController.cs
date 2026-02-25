@@ -2,10 +2,13 @@
 {
     using Asp.Versioning;
     using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Http.HttpResults;
     using Microsoft.AspNetCore.Mvc;
     using Winfocus.LMS.Application.DTOs;
     using Winfocus.LMS.Application.DTOs.Masters;
     using Winfocus.LMS.Application.Interfaces;
+    using Winfocus.LMS.Application.Services;
+    using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
     /// <summary>
     /// SubjectController.
@@ -41,8 +44,13 @@
         /// <param name="id">The identifier.</param>
         /// <returns>SubjectDto.</returns>
         [HttpGet("{id:guid}")]
-        public async Task<ActionResult<SubjectDto>> Get(Guid id)
-                        => Ok(await _service.GetByIdAsync(id));
+        public async Task<CommonResponse<SubjectDto>> Get(Guid id)
+        {
+            var result = await _service.GetByIdAsync(id);
+            return result;
+        }
+
+                //        => Ok(await _service.GetByIdAsync(id));
 
         /// <summary>
         /// Gets the subjects by courses.
@@ -62,8 +70,12 @@
         /// <param name="streamId">The stream identifier.</param>
         /// <returns>SubjectDto list.</returns>
         [HttpGet("stream/{streamId:guid}")]
-        public async Task<ActionResult<IReadOnlyList<SubjectDto>>> GetByStream(Guid streamId)
-            => Ok(await _service.GetByStreamAsync(streamId));
+        public async Task<IReadOnlyList<SubjectDto>> GetByStream(Guid streamId)
+        {
+            return await _service.GetByStreamAsync(streamId);
+        }
+
+           // => Ok(await _service.GetByStreamAsync(streamId));
 
         /// <summary>
         /// Creates the specified request.
@@ -72,8 +84,20 @@
         /// <returns>SubjectDto.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPost]
-        public async Task<ActionResult<SubjectDto>> Create(SubjectRequest request)
-            => Ok(await _service.CreateAsync(request));
+        public async Task<CommonResponse<SubjectDto>> Create(SubjectRequest request)
+        {
+            var created = await _service.CreateAsync(request);
+            if (created == null)
+            {
+                return CommonResponse<SubjectDto>.FailureResponse("Failed to create Subject.");
+            }
+            else
+            {
+                return CommonResponse<SubjectDto>.SuccessResponse("Subject created successfully.", created);
+            }
+        }
+
+         //   => Ok(await _service.CreateAsync(request));
 
         /// <summary>
         /// Updates the specified identifier.
@@ -83,10 +107,17 @@
         /// <returns>result.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPut("{id:guid}")]
-        public async Task<IActionResult> Update(Guid id, SubjectRequest request)
+        public async Task<CommonResponse<SubjectDto>> Update(Guid id, SubjectRequest request)
         {
-            await _service.UpdateAsync(id, request);
-            return NoContent();
+            var updated = await _service.UpdateAsync(id, request);
+            if (updated == null)
+            {
+                return CommonResponse<SubjectDto>.FailureResponse("Failed to update Subject.");
+            }
+            else
+            {
+                return CommonResponse<SubjectDto>.SuccessResponse("Batchtiming for subject updated successfully.", updated);
+            }
         }
 
         /// <summary>
@@ -96,10 +127,17 @@
         /// <returns>result.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpDelete("{id:guid}")]
-        public async Task<IActionResult> Delete(Guid id)
+        public async Task<CommonResponse<bool>> Delete(Guid id)
         {
-            await _service.DeleteAsync(id);
-            return NoContent();
+            bool result = await _service.DeleteAsync(id);
+            if (result)
+            {
+                return CommonResponse<bool>.SuccessResponse("Subject deleted successfully.", true);
+            }
+            else
+            {
+                return CommonResponse<bool>.FailureResponse("Failed to delete Subject.");
+            }
         }
     }
 }

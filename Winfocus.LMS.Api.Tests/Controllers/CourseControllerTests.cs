@@ -97,10 +97,10 @@
                 var result = await _controller.GetAll();
 
                 // Assert
-                var okResult = Assert.IsType<OkObjectResult>(result.Result);
-                Assert.Equal(200, okResult.StatusCode);
+                var okResult = Assert.IsType<CommonResponse<List<CourseDto>>>(result);
+                Assert.Equal(true, okResult.Success);
 
-                var returnedResponse = Assert.IsType<CommonResponse<List<CourseDto>>>(okResult.Value);
+                var returnedResponse = Assert.IsType<CommonResponse<List<CourseDto>>>(okResult.Data);
                 Assert.True(returnedResponse.Success);
                 Assert.Single(returnedResponse.Data);
                 Assert.Equal("Mathematics 101", returnedResponse.Data[0].Name);
@@ -136,10 +136,10 @@
                 var result = await _controller.GetAll();
 
                 // Assert
-                var okResult = Assert.IsType<OkObjectResult>(result.Result);
-                Assert.Equal(200, okResult.StatusCode);
+                var okResult = Assert.IsType<CommonResponse<List<CourseDto>>>(result);
+                //Assert.Equal(200, okResult.StatusCode);
 
-                var returnedResponse = Assert.IsType<CommonResponse<List<CourseDto>>>(okResult.Value);
+                var returnedResponse = Assert.IsType<CommonResponse<List<CourseDto>>>(okResult.Data);
                 Assert.True(returnedResponse.Success);
                 Assert.Empty(returnedResponse.Data);
 
@@ -222,10 +222,10 @@
                 var result = await _controller.Get(courseId);
 
                 // Assert
-                var okResult = Assert.IsType<OkObjectResult>(result.Result);
-                Assert.Equal(200, okResult.StatusCode);
+                var okResult = Assert.IsType<CommonResponse<CourseDto>>(result);
+                Assert.Equal(true, okResult.Success);
 
-                var returnedResponse = Assert.IsType<CommonResponse<CourseDto>>(okResult.Value);
+                var returnedResponse = Assert.IsType<CommonResponse<CourseDto>>(okResult.Data);
                 Assert.True(returnedResponse.Success);
                 Assert.Equal(courseId, returnedResponse.Data.Id);
                 Assert.Equal("Physics 101", returnedResponse.Data.Name);
@@ -260,8 +260,8 @@
                 var result = await _controller.Get(courseId);
 
                 // Assert
-                var okResult = Assert.IsType<OkObjectResult>(result.Result);
-                var returnedResponse = Assert.IsType<CommonResponse<CourseDto>>(okResult.Value);
+                var okResult = Assert.IsType<CommonResponse<CourseDto>>(result);
+                var returnedResponse = Assert.IsType<CommonResponse<CourseDto>>(okResult.Data);
                 Assert.False(returnedResponse.Success);
                 Assert.Equal("Course not found", returnedResponse.Message);
 
@@ -295,7 +295,7 @@
                 var result = await _controller.Get(invalidId);
 
                 // Assert
-                var okResult = Assert.IsType<OkObjectResult>(result.Result);
+                var okResult = Assert.IsType<CommonResponse<CourseDto>>(result);
                 Assert.NotNull(okResult);
 
                 _mockService.Verify(s => s.GetByIdAsync(invalidId), Times.Once);
@@ -345,10 +345,10 @@
                 var result = await _controller.GetByStream(streamId);
 
                 // Assert
-                var okResult = Assert.IsType<OkObjectResult>(result.Result);
-                Assert.Equal(200, okResult.StatusCode);
+                var okResult = Assert.IsType<CommonResponse<List<CourseDto>>>(result);
+                Assert.Equal(true, okResult.Success);
 
-                var returnedResponse = Assert.IsType<CommonResponse<List<CourseDto>>>(okResult.Value);
+                var returnedResponse = Assert.IsType<CommonResponse<List<CourseDto>>>(okResult.Data);
                 Assert.True(returnedResponse.Success);
                 Assert.Single(returnedResponse.Data);
 
@@ -383,8 +383,8 @@
                 var result = await _controller.GetByStream(streamId);
 
                 // Assert
-                var okResult = Assert.IsType<OkObjectResult>(result.Result);
-                var returnedResponse = Assert.IsType<CommonResponse<List<CourseDto>>>(okResult.Value);
+                var okResult = Assert.IsType<CommonResponse<List<CourseDto>>>(result);
+                var returnedResponse = Assert.IsType<CommonResponse<List<CourseDto>>>(okResult.Data);
                 Assert.False(returnedResponse.Success);
 
                 _mockService.Verify(s => s.GetByStreamAsync(streamId), Times.Once);
@@ -433,10 +433,10 @@
                 var result = await _controller.GetBySubject(subjectId);
 
                 // Assert
-                var okResult = Assert.IsType<OkObjectResult>(result.Result);
-                Assert.Equal(200, okResult.StatusCode);
+                var okResult = Assert.IsType<CommonResponse<List<CourseDto>>>(result);
+                Assert.Equal(true, okResult.Success);
 
-                var returnedResponse = Assert.IsType<CommonResponse<List<CourseDto>>>(okResult.Value);
+                var returnedResponse = Assert.IsType<CommonResponse<List<CourseDto>>>(okResult.Data);
                 Assert.True(returnedResponse.Success);
                 Assert.Single(returnedResponse.Data);
 
@@ -471,8 +471,8 @@
                 var result = await _controller.GetBySubject(subjectId);
 
                 // Assert
-                var okResult = Assert.IsType<OkObjectResult>(result.Result);
-                var returnedResponse = Assert.IsType<CommonResponse<List<CourseDto>>>(okResult.Value);
+                var okResult = Assert.IsType<CommonResponse<List<CourseDto>>>(result);
+                var returnedResponse = Assert.IsType<CommonResponse<List<CourseDto>>>(okResult.Data);
                 Assert.False(returnedResponse.Success);
 
                 _mockService.Verify(s => s.GetBySubjectAsync(subjectId), Times.Once);
@@ -528,10 +528,10 @@
                 var result = await _controller.Create(request);
 
                 // Assert
-                var okResult = Assert.IsType<OkObjectResult>(result.Result);
-                Assert.Equal(200, okResult.StatusCode);
+                var okResult = Assert.IsType<CommonResponse<CourseDto>>(result);
+                Assert.Equal(true, okResult.Success);
 
-                var returnedResponse = Assert.IsType<CommonResponse<CourseDto>>(okResult.Value);
+                var returnedResponse = Assert.IsType<CommonResponse<CourseDto>>(okResult.Data);
                 Assert.True(returnedResponse.Success);
                 Assert.Equal(request.coursename, returnedResponse.Data.Name);
 

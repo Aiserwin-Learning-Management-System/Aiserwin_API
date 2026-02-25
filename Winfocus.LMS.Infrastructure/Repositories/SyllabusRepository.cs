@@ -64,10 +64,11 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// </summary>
         /// <param name="syllabus">The syllabus.</param>
         /// <returns>task.</returns>
-        public async Task UpdateAsync(Syllabus syllabus)
+        public async Task<Syllabus> UpdateAsync(Syllabus syllabus)
         {
             _db.Syllabuses.Update(syllabus);
             await _db.SaveChangesAsync();
+            return syllabus;
         }
 
         /// <summary>
@@ -75,18 +76,19 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>task.</returns>
-        public async Task DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
             var entity = await _db.Syllabuses.FindAsync(id);
             if (entity == null)
             {
-                return;
+                return false;
             }
 
             entity.IsActive = false;
 
             _db.Syllabuses.Update(entity);
             await _db.SaveChangesAsync();
+            return true;
         }
 
         /// <summary>
@@ -108,6 +110,18 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         {
             return await _db.Syllabuses
                 .ToListAsync();
+        }
+
+        /// <summary>
+        /// Gets all asynchronous.
+        /// </summary>
+        /// <returns>
+        /// syllabuses.
+        /// </returns>
+        public IQueryable<Syllabus> Query()
+        {
+            return _db.Syllabuses
+                .AsNoTracking();
         }
     }
 }

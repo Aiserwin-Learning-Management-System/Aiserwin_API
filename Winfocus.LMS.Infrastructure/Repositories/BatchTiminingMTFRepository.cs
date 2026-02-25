@@ -68,11 +68,12 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// </summary>
         /// <param name="batchtiming">The batchtiming.</param>
         /// <returns>task.</returns>
-        public async Task UpdateAsync(BatchTimingMTF batchtiming)
+        public async Task<BatchTimingMTF> UpdateAsync(BatchTimingMTF batchtiming)
         {
             batchtiming.UpdatedAt = DateTime.UtcNow;
             _dbContext.BatchTimingMTFs.Update(batchtiming);
             await _dbContext.SaveChangesAsync();
+            return batchtiming;
         }
 
         /// <summary>
@@ -80,18 +81,20 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>task.</returns>
-        public async Task DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
             var entity = await _dbContext.BatchTimingMTFs.FindAsync(id);
+
             if (entity == null)
             {
-                return;
+                return false;
             }
 
             entity.IsActive = false;
 
             _dbContext.BatchTimingMTFs.Update(entity);
             await _dbContext.SaveChangesAsync();
+            return true;
         }
 
         /// <summary>
