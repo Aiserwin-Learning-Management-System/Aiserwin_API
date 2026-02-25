@@ -32,14 +32,14 @@
         /// </summary>
         /// <param name="streams">The Streams.</param>
         /// <returns>Streams.</returns>
-        Task UpdateAsync(Streams streams);
+        Task<Streams> UpdateAsync(Streams streams);
 
         /// <summary>
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>task.</returns>
-        Task DeleteAsync(Guid id);
+        Task<bool> DeleteAsync(Guid id);
 
         /// <summary>
         /// Existses the by code asynchronous.

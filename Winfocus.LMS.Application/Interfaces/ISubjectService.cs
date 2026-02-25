@@ -12,14 +12,14 @@
         /// Gets all active subjects.
         /// </summary>
         /// <returns>A list of subject DTOs.</returns>
-        Task<IReadOnlyList<SubjectDto>> GetAllAsync();
+        Task<CommonResponse<List<SubjectDto>>> GetAllAsync();
 
         /// <summary>
         /// Gets a subject by identifier.
         /// </summary>
         /// <param name="id">The subject identifier.</param>
         /// <returns>The subject DTO if found; otherwise, null.</returns>
-        Task<SubjectDto?> GetByIdAsync(Guid id);
+        Task<CommonResponse<SubjectDto>> GetByIdAsync(Guid id);
 
         /// <summary>
         /// Gets subjects by stream identifier.
@@ -48,13 +48,13 @@
         /// <param name="id">The subject identifier.</param>
         /// <param name="request">The subject update request.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        Task UpdateAsync(Guid id, SubjectRequest request);
+        Task<SubjectDto> UpdateAsync(Guid id, SubjectRequest request);
 
         /// <summary>
         /// Soft deletes a subject.
         /// </summary>
         /// <param name="id">The subject identifier.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        Task DeleteAsync(Guid id);
+        Task<bool> DeleteAsync(Guid id);
     }
 }

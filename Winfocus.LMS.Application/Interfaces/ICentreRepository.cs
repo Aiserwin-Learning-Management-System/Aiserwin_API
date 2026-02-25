@@ -35,14 +35,14 @@ namespace Winfocus.LMS.Application.Interfaces
         /// </summary>
         /// <param name="center">The center.</param>
         /// <returns>Center.</returns>
-        Task UpdateAsync(Centre center);
+        Task<Centre> UpdateAsync(Centre center);
 
         /// <summary>
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>task.</returns>
-        Task DeleteAsync(Guid id);
+        Task<bool> DeleteAsync(Guid id);
 
         /// <summary>
         /// Existses the by code asynchronous.

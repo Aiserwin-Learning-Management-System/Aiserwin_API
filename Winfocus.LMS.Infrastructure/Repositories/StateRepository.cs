@@ -68,11 +68,12 @@
         /// </summary>
         /// <param name="state">The state.</param>
         /// <returns>task.</returns>
-        public async Task UpdateAsync(State state)
+        public async Task<State> UpdateAsync(State state)
         {
             state.UpdatedAt = DateTime.UtcNow;
             _dbContext.States.Update(state);
             await _dbContext.SaveChangesAsync();
+            return state;
         }
 
         /// <summary>
@@ -80,18 +81,19 @@
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>task.</returns>
-        public async Task DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
             var entity = await _dbContext.States.FindAsync(id);
             if (entity == null)
             {
-                return;
+                return false;
             }
 
             entity.IsActive = false;
 
             _dbContext.States.Update(entity);
             await _dbContext.SaveChangesAsync();
+            return true;
         }
 
         /// <summary>

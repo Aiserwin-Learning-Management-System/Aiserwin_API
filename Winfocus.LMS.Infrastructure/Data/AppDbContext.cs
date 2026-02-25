@@ -269,12 +269,6 @@
                 e.Property(x => x.Name)
                     .IsRequired()
                     .HasMaxLength(100);
-                e.Property(x => x.IsoAlpha3)
-                    .HasMaxLength(3);
-                e.Property(x => x.IsoNumeric);
-
-                e.HasIndex(x => x.IsoAlpha3).IsUnique();
-                e.HasIndex(x => x.IsoNumeric).IsUnique();
             });
 
             modelBuilder.Entity<Centre>(e =>

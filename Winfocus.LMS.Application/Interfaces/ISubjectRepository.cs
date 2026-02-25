@@ -46,13 +46,13 @@
         /// </summary>
         /// <param name="subject">The subject.</param>
         /// <returns>Task.</returns>
-        Task UpdateAsync(Subject subject);
+        Task<Subject> UpdateAsync(Subject subject);
 
         /// <summary>
         /// Soft deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>Task.</returns>
-        Task SoftDeleteAsync(Guid id);
+        Task<bool> SoftDeleteAsync(Guid id);
     }
 }

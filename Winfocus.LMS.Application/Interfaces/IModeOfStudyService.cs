@@ -13,14 +13,14 @@
         /// Gets all asynchronous.
         /// </summary>
         /// <returns>ModeOfStudyDto.</returns>
-        Task<IReadOnlyList<ModeOfStudyDto>> GetAllAsync();
+        Task<CommonResponse<List<ModeOfStudyDto>>> GetAllAsync();
 
         /// <summary>
         /// Gets the by identifier asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>ModeOfStudyDto.</returns>
-        Task<ModeOfStudyDto?> GetByIdAsync(Guid id);
+        Task<CommonResponse<ModeOfStudyDto>> GetByIdAsync(Guid id);
 
         /// <summary>
         /// Creates the asynchronous.
@@ -35,20 +35,20 @@
         /// <param name="id">The identifier.</param>
         /// <param name="request">The request.</param>
         /// <returns>id.</returns>
-        Task UpdateAsync(Guid id, ModeOfStudyRequest request);
+        Task<ModeOfStudyDto> UpdateAsync(Guid id, ModeOfStudyRequest request);
 
         /// <summary>
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>id.</returns>
-        Task DeleteAsync(Guid id);
+        Task<bool> DeleteAsync(Guid id);
 
         /// <summary>
         /// Gets the by identifier asynchronous.
         /// </summary>
         /// <param name="stateid">The identifier.</param>
         /// <returns>ModeOfStudyDto.</returns>
-        Task<IReadOnlyList<ModeOfStudyDto>> GetByStateIdAsync(Guid stateid);
+        Task<List<ModeOfStudyDto>> GetByStateIdAsync(Guid stateid);
     }
 }

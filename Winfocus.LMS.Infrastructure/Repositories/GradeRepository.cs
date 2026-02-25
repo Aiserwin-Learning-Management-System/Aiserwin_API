@@ -63,10 +63,11 @@
         /// </summary>
         /// <param name="grade">The Grade.</param>
         /// <returns>task.</returns>
-        public async Task UpdateAsync(Grade grade)
+        public async Task<Grade> UpdateAsync(Grade grade)
         {
             _db.Grades.Update(grade);
             await _db.SaveChangesAsync();
+            return grade;
         }
 
         /// <summary>
@@ -74,18 +75,19 @@
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>task.</returns>
-        public async Task DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
             var entity = await _db.Grades.FindAsync(id);
             if (entity == null)
             {
-                return;
+                return false;
             }
 
             entity.IsActive = false;
 
             _db.Grades.Update(entity);
             await _db.SaveChangesAsync();
+            return true;
         }
 
         /// <summary>

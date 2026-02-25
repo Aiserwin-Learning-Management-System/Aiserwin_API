@@ -37,14 +37,14 @@
         /// </summary>
         /// <param name="state">The state.</param>
         /// <returns>State.</returns>
-        Task UpdateAsync(State state);
+        Task<State> UpdateAsync(State state);
 
         /// <summary>
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>task.</returns>
-        Task DeleteAsync(Guid id);
+        Task<bool> DeleteAsync(Guid id);
 
         /// <summary>
         /// Existses the by code asynchronous.

@@ -1,9 +1,11 @@
 ﻿using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Winfocus.LMS.Application.DTOs;
 using Winfocus.LMS.Application.DTOs.Masters;
 using Winfocus.LMS.Application.Interfaces;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Winfocus.LMS.API.Controllers
 {
@@ -41,7 +43,7 @@ namespace Winfocus.LMS.API.Controllers
         /// <returns>SyllabusDto.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPost]
-        public async Task<ActionResult<SyllabusDto>> Create(
+        public async Task<CommonResponse<SyllabusDto>> Create(
             SyllabusRequest request)
         {
             var updatedRequest = request with
@@ -49,7 +51,14 @@ namespace Winfocus.LMS.API.Controllers
                 userId = UserId
             };
             var created = await _syllabusService.CreateAsync(updatedRequest);
-            return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
+            if (created == null)
+            {
+                return CommonResponse<SyllabusDto>.FailureResponse("Failed to create syllabus.");
+            }
+            else
+            {
+                return CommonResponse<SyllabusDto>.SuccessResponse("Syllabus created successfully.", created);
+            }
         }
 
         /// <summary>
@@ -58,10 +67,10 @@ namespace Winfocus.LMS.API.Controllers
         /// <param name="id">The identifier.</param>
         /// <returns>SyllabusDto by id.</returns>
         [HttpGet("{id:guid}")]
-        public async Task<ActionResult<SyllabusDto>> Get(Guid id)
+        public async Task<CommonResponse<SyllabusDto>> Get(Guid id)
         {
             var result = await _syllabusService.GetByIdAsync(id);
-            return result == null ? NotFound() : Ok(result);
+            return result;
         }
 
         /// <summary>
@@ -72,7 +81,7 @@ namespace Winfocus.LMS.API.Controllers
         /// <returns>result.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPut("{id:guid}")]
-        public async Task<IActionResult> Update(
+        public async Task<CommonResponse<SyllabusDto>> Update(
             Guid id,
             SyllabusRequest request)
         {
@@ -80,8 +89,15 @@ namespace Winfocus.LMS.API.Controllers
             {
                 userId = UserId
             };
-            await _syllabusService.UpdateAsync(id, updatedRequest);
-            return NoContent();
+            var updated = await _syllabusService.UpdateAsync(id, updatedRequest);
+            if (updated == null)
+            {
+                return CommonResponse<SyllabusDto>.FailureResponse("Failed to update Syllabus.");
+            }
+            else
+            {
+                return CommonResponse<SyllabusDto>.SuccessResponse("Syllabus updated successfully.", updated);
+            }
         }
 
         /// <summary>
@@ -103,10 +119,17 @@ namespace Winfocus.LMS.API.Controllers
         /// <returns>result.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpDelete("{id:guid}")]
-        public async Task<IActionResult> Delete(Guid id)
+        public async Task<CommonResponse<bool>> Delete(Guid id)
         {
-            await _syllabusService.DeleteAsync(id);
-            return NoContent();
+            bool response = await _syllabusService.DeleteAsync(id);
+            if (response)
+            {
+                return CommonResponse<bool>.SuccessResponse("Syllabus deleted successfully.", true);
+            }
+            else
+            {
+                return CommonResponse<bool>.FailureResponse("Failed to delete syllabus.");
+            }
         }
 
     }

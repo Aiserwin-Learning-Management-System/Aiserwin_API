@@ -31,11 +31,19 @@
         /// Gets all asynchronous.
         /// </summary>
         /// <returns>GradeDto.</returns>
-        public async Task<IReadOnlyList<GradeDto>> GetAllAsync()
+        public async Task<CommonResponse<List<GradeDto>>> GetAllAsync()
         {
-            _logger.LogInformation("Fetching all syllabuses");
+            _logger.LogInformation("Fetching all Grdaes");
             var grades = await _repository.GetAllAsync();
-            return grades.Select(Map).ToList();
+            var mapped = grades.Select(Map).ToList();
+            if (mapped.Any())
+            {
+                return CommonResponse<List<GradeDto>>.SuccessResponse("Fetching all Grades", mapped);
+            }
+            else
+            {
+                return CommonResponse<List<GradeDto>>.FailureResponse("Grades not found");
+            }
         }
 
         /// <summary>
@@ -43,10 +51,18 @@
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>GradeDto.</returns>
-        public async Task<GradeDto?> GetByIdAsync(Guid id)
+        public async Task<CommonResponse<GradeDto>> GetByIdAsync(Guid id)
         {
             var grades = await _repository.GetByIdAsync(id);
-            return grades == null ? null : Map(grades);
+            var mapped = grades == null ? null : Map(grades);
+            if (mapped != null)
+            {
+                return CommonResponse<GradeDto>.SuccessResponse("Fetching the grade", mapped);
+            }
+            else
+            {
+                return CommonResponse<GradeDto>.FailureResponse("batch timing not found");
+            }
         }
 
         /// <summary>
@@ -76,7 +92,7 @@
         /// <param name="request">The request.</param>
         /// <exception cref="KeyNotFoundException">Grade not found.</exception>
         /// <returns>task.</returns>
-        public async Task UpdateAsync(Guid id, GradeRequest request)
+        public async Task<GradeDto> UpdateAsync(Guid id, GradeRequest request)
         {
             var grade = await _repository.GetByIdAsync(id)
                 ?? throw new KeyNotFoundException("Grade not found");
@@ -85,7 +101,7 @@
             grade.UpdatedBy = request.userId;
             grade.UpdatedAt = DateTime.UtcNow;
 
-            await _repository.UpdateAsync(grade);
+            return Map(await _repository.UpdateAsync(grade));
         }
 
         /// <summary>
@@ -93,9 +109,9 @@
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>task.</returns>
-        public async Task DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
-            await _repository.DeleteAsync(id);
+           return await _repository.DeleteAsync(id);
         }
 
         /// <summary>
@@ -103,10 +119,18 @@
         /// </summary>
         /// <param name="syllabusid">The identifier.</param>
         /// <returns>GradeDto.</returns>
-        public async Task<List<GradeDto>> GetBySyllabusIdAsync(Guid syllabusid)
+        public async Task<CommonResponse<List<GradeDto>>> GetBySyllabusIdAsync(Guid syllabusid)
         {
             var grades = await _repository.GetBySyllabusIdAsync(syllabusid);
-            return Map(grades);
+            var mapped = Map(grades);
+            if (mapped != null)
+            {
+                return CommonResponse<List<GradeDto>>.SuccessResponse("Fetching the grade by syllabus", mapped);
+            }
+            else
+            {
+                return CommonResponse<List<GradeDto>>.FailureResponse("grade not found");
+            }
         }
 
         private static List<GradeDto> Map(IEnumerable<Grade> grades)

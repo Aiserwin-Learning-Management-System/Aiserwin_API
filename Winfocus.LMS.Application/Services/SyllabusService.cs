@@ -34,11 +34,19 @@ namespace Winfocus.LMS.Application.Services
         /// Gets all asynchronous.
         /// </summary>
         /// <returns>CountryDto.</returns>
-        public async Task<IReadOnlyList<SyllabusDto>> GetAllAsync()
+        public async Task<CommonResponse<List<SyllabusDto>>> GetAllAsync()
         {
             _logger.LogInformation("Fetching all syllabuses");
             var syllabuses = await _repository.GetAllAsync();
-            return syllabuses.Select(Map).ToList();
+            var mappeddata = syllabuses.Select(Map).ToList();
+            if (mappeddata.Any())
+            {
+                return CommonResponse<List<SyllabusDto>>.SuccessResponse("Fetched all syllabuses", mappeddata);
+            }
+            else
+            {
+                return CommonResponse<List<SyllabusDto>>.FailureResponse("syllabuses not found");
+            }
         }
 
         /// <summary>
@@ -46,10 +54,20 @@ namespace Winfocus.LMS.Application.Services
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>SyllabusDto.</returns>
-        public async Task<SyllabusDto?> GetByIdAsync(Guid id)
+        public async Task<CommonResponse<SyllabusDto>> GetByIdAsync(Guid id)
         {
+            _logger.LogInformation("Fetching syllabuses by Id: {Id}", id);
             var syllabus = await _repository.GetByIdAsync(id);
-            return syllabus == null ? null : Map(syllabus);
+            _logger.LogInformation("syllabuses fetched successfully for Id: {Id}", id);
+            var mappeddata = syllabus == null ? null : Map(syllabus);
+            if (mappeddata != null)
+            {
+                return CommonResponse<SyllabusDto>.SuccessResponse("fetched syllabus for this id", mappeddata);
+            }
+            else
+            {
+                return CommonResponse<SyllabusDto>.FailureResponse("syllabus not found");
+            }
         }
 
         /// <summary>
@@ -78,7 +96,7 @@ namespace Winfocus.LMS.Application.Services
         /// <param name="request">The request.</param>
         /// <exception cref="KeyNotFoundException">syllabus not found.</exception>
         /// <returns>task.</returns>
-        public async Task UpdateAsync(Guid id, SyllabusRequest request)
+        public async Task<SyllabusDto> UpdateAsync(Guid id, SyllabusRequest request)
         {
             var syllabus = await _repository.GetByIdAsync(id)
                 ?? throw new KeyNotFoundException("syllabus not found");
@@ -87,7 +105,7 @@ namespace Winfocus.LMS.Application.Services
             syllabus.UpdatedBy = request.userId;
             syllabus.UpdatedAt = DateTime.UtcNow;
 
-            await _repository.UpdateAsync(syllabus);
+            return Map(await _repository.UpdateAsync(syllabus));
         }
 
         /// <summary>
@@ -95,9 +113,9 @@ namespace Winfocus.LMS.Application.Services
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>task.</returns>
-        public async Task DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
-            await _repository.DeleteAsync(id);
+           return await _repository.DeleteAsync(id);
         }
 
         /// <summary>

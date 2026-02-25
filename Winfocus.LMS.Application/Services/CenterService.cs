@@ -33,12 +33,20 @@ namespace Winfocus.LMS.Application.Services
         /// Gets all asynchronous.
         /// </summary>
         /// <returns>CeneterDto.</returns>
-        public async Task<IReadOnlyList<CentreDto>> GetAllAsync()
+        public async Task<CommonResponse<List<CentreDto>>> GetAllAsync()
         {
             _logger.LogInformation("Fetching all Ceneters");
             var centres = await _repository.GetAllAsync();
             _logger.LogInformation("Fetched {Count} centres", centres.Count());
-            return centres.Select(Map).ToList();
+            var res = centres.Select(Map).ToList();
+            if (res.Any())
+            {
+                return CommonResponse<List<CentreDto>>.SuccessResponse("fetching all centers", res);
+            }
+            else
+            {
+                return CommonResponse<List<CentreDto>>.FailureResponse("no centers found");
+            }
         }
 
         /// <summary>
@@ -46,19 +54,20 @@ namespace Winfocus.LMS.Application.Services
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>CenterDto.</returns>
-        public async Task<CentreDto?> GetByIdAsync(Guid id)
+        public async Task<CommonResponse<CentreDto>> GetByIdAsync(Guid id)
         {
             _logger.LogInformation("Fetching centre by Id: {CentreId}", id);
-            var centre = await _repository.GetByIdAsync(id);
-            if (centre != null)
+            var centre = Map(await _repository.GetByIdAsync(id));
+            if (centre == null)
             {
                 _logger.LogWarning("Centre not found for Id: {CentreId}", id);
+                return CommonResponse<CentreDto>.FailureResponse("no centers found");
             }
             else
             {
                 _logger.LogInformation("Centre fetched successfully for Id: {CentreId}", id);
+                return CommonResponse<CentreDto>.SuccessResponse("fetching all centers", centre);
             }
-            return centre == null ? null : Map(centre);
         }
 
         /// <summary>
@@ -67,7 +76,7 @@ namespace Winfocus.LMS.Application.Services
         /// <param name="request">The request.</param>
         /// <returns>CenterDto.</returns>
         /// <exception cref="InvalidOperationException">Center code already exists.</exception>
-        public async Task<CentreDto> CreateAsync(CenterRequestDto request)
+        public async Task<CommonResponse<CentreDto>> CreateAsync(CenterRequestDto request)
         {
             var centre = new Centre
             {
@@ -79,7 +88,15 @@ namespace Winfocus.LMS.Application.Services
 
             var created = await _repository.AddAsync(centre);
             _logger.LogInformation("Centre created successfully. CentreId: {CentreId}", created.Id);
-            return Map(created);
+            var mapped = Map(created);
+            if (mapped == null)
+            {
+                return CommonResponse<CentreDto>.FailureResponse("Failed to create center");
+            }
+            else
+            {
+                return CommonResponse<CentreDto>.SuccessResponse("center created successfully", mapped);
+            }
         }
 
         /// <summary>
@@ -89,7 +106,7 @@ namespace Winfocus.LMS.Application.Services
         /// <param name="request">The request.</param>
         /// <exception cref="KeyNotFoundException">Center not found.</exception>
         /// <returns>task.</returns>
-        public async Task UpdateAsync(Guid id, CenterRequestDto request)
+        public async Task<CommonResponse<CentreDto>> UpdateAsync(Guid id, CenterRequestDto request)
         {
             _logger.LogInformation("Updating centre Id: {CentreId}", id);
             var center = await _repository.GetByIdAsync(id)
@@ -99,8 +116,17 @@ namespace Winfocus.LMS.Application.Services
             center.UpdatedAt = DateTime.UtcNow;
             center.UpdatedBy = request.userId;
 
-            await _repository.UpdateAsync(center);
+            var data = await _repository.UpdateAsync(center);
             _logger.LogInformation("Centre updated successfully. CentreId: {CentreId}", id);
+            var mapped = Map(data);
+            if (mapped == null)
+            {
+                return CommonResponse<CentreDto>.FailureResponse("Failed to create center");
+            }
+            else
+            {
+                return CommonResponse<CentreDto>.SuccessResponse("center created successfully", mapped);
+            }
         }
 
         /// <summary>
@@ -108,13 +134,11 @@ namespace Winfocus.LMS.Application.Services
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>task.</returns>
-        public async Task DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
             _logger.LogInformation("Deleting centre Id: {CentreId}", id);
-            await _repository.DeleteAsync(id);
-            _logger.LogInformation("Centre deleted successfully. CentreId: {CentreId}", id);
+            return await _repository.DeleteAsync(id);
         }
-
 
         /// <summary>
         /// Gets centre by mode of study and state.
@@ -122,7 +146,7 @@ namespace Winfocus.LMS.Application.Services
         /// <param name="modeofid">Mode of study identifier.</param>
         /// <param name="stateid">State identifier.</param>
         /// <returns>CentreDto if found; otherwise null.</returns>
-        public async Task<CentreDto?> GetByFilterAsync(Guid modeofid, Guid stateid)
+        public async Task<CommonResponse<CentreDto>> GetByFilterAsync(Guid modeofid, Guid stateid)
         {
             _logger.LogInformation(
                 "Fetching centre for ModeOfStudyId: {ModeOfStudyId}, StateId: {StateId}",
@@ -136,16 +160,16 @@ namespace Winfocus.LMS.Application.Services
                     "Centre not found for ModeOfStudyId: {ModeOfStudyId}, StateId: {StateId}",
                     modeofid, stateid);
 
-                return null;
+                return CommonResponse<CentreDto>.FailureResponse("Not data found");
             }
 
             _logger.LogInformation(
                 "Centre fetched successfully for ModeOfStudyId: {ModeOfStudyId}, StateId: {StateId}",
                 modeofid, stateid);
 
-            return Map(centre);
+            var mapped = Map(centre);
+            return CommonResponse<CentreDto>.SuccessResponse("Centre fetched successfully", mapped);
         }
-
 
         private static CentreDto Map(Centre c)
         {

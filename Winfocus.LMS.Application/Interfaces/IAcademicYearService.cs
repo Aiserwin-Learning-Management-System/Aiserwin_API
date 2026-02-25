@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Winfocus.LMS.Application.DTOs;
 using Winfocus.LMS.Application.DTOs.Masters;
 using Winfocus.LMS.Domain.Entities;
 
@@ -15,7 +16,7 @@ namespace Winfocus.LMS.Application.Interfaces
         /// Gets all asynchronous.
         /// </summary>
         /// <returns>AcademicYearDto.</returns>
-        Task<IReadOnlyList<AcademicYearDto>> GetAllAsync();
+        Task<CommonResponse<List<AcademicYearDto>>> GetAllAsync();
 
         /// <summary>
         /// Gets the currently active academic year.
