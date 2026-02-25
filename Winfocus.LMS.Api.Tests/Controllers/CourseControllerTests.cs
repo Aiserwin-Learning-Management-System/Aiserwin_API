@@ -1,4 +1,4 @@
-﻿namespace Winfocus.LMS.API.Tests.Controllers
+﻿namespace Winfocus.LMS.Api.Tests.Controllers
 {
     using System;
     using System.Collections.Generic;

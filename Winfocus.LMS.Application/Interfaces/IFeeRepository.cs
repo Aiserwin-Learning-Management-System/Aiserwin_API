@@ -3,7 +3,7 @@
     using Winfocus.LMS.Domain.Entities;
 
     /// <summary>
-    /// IFeeRepository.
+    /// IFeeRepository – contract for fee-related data access.
     /// </summary>
     public interface IFeeRepository
     {
@@ -27,6 +27,27 @@
         /// <param name="entity">The entity.</param>
         /// <returns>Task.</returns>
         Task AddStudentFeeSelectionAsync(StudentFeeSelection entity);
+
+        /// <summary>
+        /// Gets the student fee selection by identifier asynchronous.
+        /// </summary>
+        /// <param name="selectionId">The selection identifier.</param>
+        /// <returns>Task&lt;StudentFeeSelection?&gt;.</returns>
+        Task<StudentFeeSelection?> GetStudentFeeSelectionByIdAsync(Guid selectionId);
+
+        /// <summary>
+        /// Gets all student fee selections for a student.
+        /// </summary>
+        /// <param name="studentId">The student identifier.</param>
+        /// <returns>Task&lt;List&lt;StudentFeeSelection&gt;&gt;.</returns>
+        Task<List<StudentFeeSelection>> GetStudentFeeSelectionsByStudentAsync(Guid studentId);
+
+        /// <summary>
+        /// Gets the fee plan by identifier asynchronous.
+        /// </summary>
+        /// <param name="feePlanId">The fee plan identifier.</param>
+        /// <returns>Task&lt;FeePlan?&gt;.</returns>
+        Task<FeePlan?> GetFeePlanByIdAsync(Guid feePlanId);
 
         /// <summary>
         /// Saves the changes asynchronous.

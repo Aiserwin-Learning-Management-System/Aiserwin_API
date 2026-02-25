@@ -1,9 +1,10 @@
 ﻿namespace Winfocus.LMS.Application.Interfaces
 {
     using Winfocus.LMS.Application.DTOs.Fees;
+    using Winfocus.LMS.Domain.Enums;
 
     /// <summary>
-    /// IFeeService.
+    /// IFeeService – contract for fee-related business operations.
     /// </summary>
     public interface IFeeService
     {
@@ -20,5 +21,55 @@
         /// <param name="request">The request.</param>
         /// <returns>Task&lt;FeeSummaryDto&gt;.</returns>
         Task<FeeSummaryDto> SelectFeeAsync(SelectFeeRequestDto request);
+
+        /// <summary>
+        /// Gets all discount details for a student's fee selections.
+        /// </summary>
+        /// <param name="studentId">The student identifier.</param>
+        /// <returns>Task&lt;IReadOnlyList&lt;DiscountDetailDto&gt;&gt;.</returns>
+        Task<IReadOnlyList<DiscountDetailDto>> GetDiscountsByStudentAsync(Guid studentId);
+
+        /// <summary>
+        /// Gets discount details for a specific student fee selection.
+        /// </summary>
+        /// <param name="selectionId">The student fee selection identifier.</param>
+        /// <returns>Task&lt;IReadOnlyList&lt;DiscountDetailDto&gt;&gt;.</returns>
+        Task<IReadOnlyList<DiscountDetailDto>> GetDiscountsBySelectionAsync(Guid selectionId);
+
+        /// <summary>
+        /// Updates a specific discount on a student fee selection.
+        /// </summary>
+        /// <param name="request">The update discount request.</param>
+        /// <returns>Task&lt;FeeSummaryDto&gt;.</returns>
+        Task<FeeSummaryDto> UpdateDiscountAsync(UpdateDiscountRequestDto request);
+
+        /// <summary>
+        /// Removes (deactivates and zeroes) a specific discount from a student fee selection.
+        /// </summary>
+        /// <param name="selectionId">The student fee selection identifier.</param>
+        /// <param name="discountType">The discount type (Scholarship, Seasonal, Manual).</param>
+        /// <returns>Task&lt;FeeSummaryDto&gt;.</returns>
+        Task<FeeSummaryDto> RemoveDiscountAsync(Guid selectionId, DiscountType discountType);
+
+        /// <summary>
+        /// Updates the seasonal discount on a fee plan (plan-level).
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <returns>Task.</returns>
+        Task UpdateSeasonalDiscountOnPlanAsync(UpdateSeasonalDiscountRequestDto request);
+
+        /// <summary>
+        /// Gets the seasonal discount for a fee plan.
+        /// </summary>
+        /// <param name="feePlanId">The fee plan identifier.</param>
+        /// <returns>Task&lt;DiscountDetailDto&gt;.</returns>
+        Task<DiscountDetailDto> GetSeasonalDiscountOnPlanAsync(Guid feePlanId);
+
+        /// <summary>
+        /// Removes the seasonal discount from a fee plan.
+        /// </summary>
+        /// <param name="feePlanId">The fee plan identifier.</param>
+        /// <returns>Task.</returns>
+        Task RemoveSeasonalDiscountOnPlanAsync(Guid feePlanId);
     }
 }
