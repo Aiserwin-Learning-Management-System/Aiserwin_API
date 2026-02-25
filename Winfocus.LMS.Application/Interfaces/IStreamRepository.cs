@@ -61,5 +61,11 @@
         /// <param name="id">The identifier.</param>
         /// <returns>Stream.</returns>
         Task<Streams?> GetByIdWithCoursesAsync(Guid id);
+
+        /// <summary>
+        /// Gets all asynchronous.
+        /// </summary>
+        /// <returns>Streams.</returns>
+        IQueryable<Streams> Query();
     }
 }

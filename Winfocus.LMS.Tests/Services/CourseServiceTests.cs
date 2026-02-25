@@ -42,7 +42,7 @@
             {
                 _mockRepository = new Mock<ICourseRepository>();
                 _mockLogger = new Mock<ILogger<CourseService>>();
-                _service = new CourseService(_mockRepository.Object);
+                _service = new CourseService(_mockRepository.Object, _mockLogger.Object);
             }
             catch (Exception ex)
             {

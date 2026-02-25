@@ -137,5 +137,20 @@
             await _db.SaveChangesAsync();
             return true;
         }
+
+        /// <summary>
+        /// Gets all asynchronous.
+        /// </summary>
+        /// <returns>
+        /// Course.
+        /// </returns>
+        public IQueryable<Course> Query()
+        {
+            return _db.Courses
+                .Include(c => c.Stream)
+                    .ThenInclude(s => s.Grade)
+                        .ThenInclude(g => g.Syllabus)
+                .AsNoTracking();
+        }
     }
 }

@@ -128,6 +128,18 @@
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
 
-
+        /// <summary>
+        /// Gets all asynchronous.
+        /// </summary>
+        /// <returns>
+        /// Streams.
+        /// </returns>
+        public IQueryable<Streams> Query()
+        {
+            return _db.Streams
+                    .Include(s => s.Grade)
+                        .ThenInclude(g => g.Syllabus)
+                .AsNoTracking();
+        }
     }
 }

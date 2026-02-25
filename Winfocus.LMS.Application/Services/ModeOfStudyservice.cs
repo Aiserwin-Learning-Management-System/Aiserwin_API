@@ -72,22 +72,41 @@
         /// <param name="request">The request.</param>
         /// <returns>ModeOfStudyDto.</returns>
         /// <exception cref="InvalidOperationException">mode of study already exists.</exception>
-        public async Task<ModeOfStudyDto> CreateAsync(ModeOfStudyRequest request)
+        public async Task<CommonResponse<ModeOfStudyDto>> CreateAsync(ModeOfStudyRequest request)
         {
-            var modeOfStudy = new ModeOfStudy
+            try
             {
-                StateId = request.stateid,
-                Name = request.name,
-                CreatedAt = DateTime.UtcNow,
-                CreatedBy = request.userId,
-            };
+                var modeOfStudy = new ModeOfStudy
+                {
+                    StateId = request.stateid,
+                    Name = request.name,
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = request.userId,
+                };
 
-            var created = await _repository.AddAsync(modeOfStudy);
-            _logger.LogInformation(
-           "Mode of study created successfully. ModeOfStudyId: {ModeOfStudyId}",
-           created.Id);
+                var created = await _repository.AddAsync(modeOfStudy);
+                _logger.LogInformation(
+               "Mode of study created successfully. ModeOfStudyId: {ModeOfStudyId}",
+               created.Id);
 
-            return Map(created);
+                var mapped = Map(created);
+                if (mapped != null)
+                {
+                    _logger.LogInformation(
+                      "Course created successfully with Id: {CourseId}",
+                      created.Id);
+                    return CommonResponse<ModeOfStudyDto>.SuccessResponse("Course created successfully", mapped);
+                }
+                else
+                {
+                    return CommonResponse<ModeOfStudyDto>.FailureResponse("Failed to create mode of study");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while creating mode of study");
+                return CommonResponse<ModeOfStudyDto>.FailureResponse("An error occurred while creating mode of study");
+            }
         }
 
         /// <summary>
@@ -97,7 +116,7 @@
         /// <param name="request">The request.</param>
         /// <exception cref="KeyNotFoundException">mode of study not found.</exception>
         /// <returns>task.</returns>
-        public async Task<ModeOfStudyDto> UpdateAsync(Guid id, ModeOfStudyRequest request)
+        public async Task<CommonResponse<ModeOfStudyDto>> UpdateAsync(Guid id, ModeOfStudyRequest request)
         {
             _logger.LogInformation("Updating mode of study Id: {ModeOfStudyId}", id);
             var modeOfStudy = await _repository.GetByIdAsync(id)
@@ -107,7 +126,15 @@
             modeOfStudy.UpdatedAt = DateTime.UtcNow;
             modeOfStudy.UpdatedBy = request.userId;
 
-            return Map(await _repository.UpdateAsync(modeOfStudy));
+            var mapped = Map(await _repository.UpdateAsync(modeOfStudy));
+            if (mapped == null)
+            {
+                return CommonResponse<ModeOfStudyDto>.FailureResponse("Failed to update mode of study.");
+            }
+            else
+            {
+                return CommonResponse<ModeOfStudyDto>.SuccessResponse("Mode of study updated successfully.", mapped);
+            }
         }
 
         /// <summary>

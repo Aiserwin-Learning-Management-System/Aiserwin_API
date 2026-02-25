@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Winfocus.LMS.Application.DTOs;
+using Winfocus.LMS.Application.DTOs.Common;
 using Winfocus.LMS.Application.DTOs.Masters;
 using Winfocus.LMS.Application.Interfaces;
 using Winfocus.LMS.Application.Services;
@@ -139,6 +140,46 @@ namespace Winfocus.LMS.API.Controllers
             {
                 return CommonResponse<bool>.FailureResponse("Failed to delete Stream.");
             }
+        }
+
+        /// <summary>
+        /// Retrieves filtered streams with pagination.
+        /// </summary>
+        /// <param name="syllabusid">Filter by syllabus identifier.</param>
+        /// <param name="gradeId">Filter by streams identifier.</param>
+        /// <param name="startDate">Filter streams created after this date.</param>
+        /// <param name="endDate">Filter stream created before this date.</param>
+        /// <param name="active">Filter by active status.</param>
+        /// <param name="searchText">Search keyword.</param>
+        /// <param name="limit">Number of records to return.</param>
+        /// <param name="offset">Number of records to skip.</param>
+        /// <param name="sortOrder">Sorting order (asc/desc).</param>
+        /// <returns>Paginated list of streams.</returns>
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        [HttpGet("filter")]
+        public async Task<ActionResult<CommonResponse<PagedResult<StreamDto>>>> GetFiltered(
+    Guid? syllabusid,
+    Guid? gradeId,
+    DateTime? startDate,
+    DateTime? endDate,
+    bool active,
+    string? searchText,
+    int limit = 20,
+    int offset = 0,
+    string sortOrder = "asc")
+        {
+            var result = await _streamService.GetFilteredAsync(
+                syllabusid,
+                gradeId,
+                startDate,
+                endDate,
+                active,
+                searchText,
+                limit,
+                offset,
+                sortOrder);
+
+            return Ok(result);
         }
     }
 }

@@ -1,7 +1,9 @@
 ﻿namespace Winfocus.LMS.Application.Services
 {
+    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
     using Winfocus.LMS.Application.DTOs;
+    using Winfocus.LMS.Application.DTOs.Common;
     using Winfocus.LMS.Application.DTOs.Masters;
     using Winfocus.LMS.Application.Interfaces;
     using Winfocus.LMS.Domain.Entities;
@@ -130,6 +132,102 @@
             else
             {
                 return CommonResponse<List<GradeDto>>.FailureResponse("grade not found");
+            }
+        }
+
+        /// <summary>
+        /// Retrieves grades based on multiple filter criteria with pagination support.
+        /// </summary>
+        /// <param name="syllabusId">Syllabus identifier used to filter grades.</param>
+        /// <param name="startDate">Filters grades created on or after this date.</param>
+        /// <param name="endDate">Filters grades created on or before this date.</param>
+        /// <param name="active">Indicates whether to filter active or inactive grades.</param>
+        /// <param name="searchText">Search keyword applied to grades name.</param>
+        /// <param name="limit">Number of records to return (page size).</param>
+        /// <param name="offset">Number of records to skip.</param>
+        /// <param name="sortOrder">Sorting order ("asc" or "desc").</param>
+        /// <returns>
+        /// A <see cref="CommonResponse{T}"/> containing a paginated list of
+        /// <see cref="GradeDto"/> objects.
+        /// </returns>
+        public async Task<CommonResponse<PagedResult<GradeDto>>> GetFilteredAsync(
+       Guid? syllabusId,
+       DateTime? startDate,
+       DateTime? endDate,
+       bool? active,
+       string? searchText,
+       int limit,
+       int offset,
+       string sortOrder)
+        {
+            try
+            {
+                _logger.LogInformation(
+                             "Fetching filtered grades. Filters =>  SyllabusId:{SyllabusId}, Active:{Active}, Search:{SearchText}, Limit:{Limit}, Offset:{Offset}, SortOrder:{SortOrder}",
+                             syllabusId, active, searchText, limit, offset, sortOrder);
+                var query = _repository.Query();
+
+                if (syllabusId.HasValue)
+                {
+                    query = query.Where(c =>
+                        c.Stream.Grade.SyllabusId == syllabusId);
+                }
+
+                if (active.HasValue)
+                    query = query.Where(x => x.IsActive == active);
+
+                if (startDate.HasValue)
+                    query = query.Where(x => x.CreatedAt >= startDate.Value);
+
+                if (endDate.HasValue)
+                    query = query.Where(x => x.CreatedAt <= endDate.Value);
+
+                if (!string.IsNullOrWhiteSpace(searchText))
+                {
+                    query = query.Where(x =>
+                        x.Name.Contains(searchText));
+                }
+
+                var totalCount = await query.CountAsync();
+
+                _logger.LogInformation(
+                "Filtered grades count: {TotalCount}",
+                totalCount);
+
+                query = sortOrder.ToLower() == "desc"
+                    ? query.OrderByDescending(x => x.CreatedAt)
+                    : query.OrderBy(x => x.CreatedAt);
+
+                var grades = await query
+                    .Skip(offset)
+                    .Take(limit)
+                    .ToListAsync();
+
+                var dtoList = grades.Select(c => new GradeDto
+                {
+                    Id = c.Id,
+                    Name = c.Name,
+                    IsActive = c.IsActive,
+                }).ToList();
+
+                _logger.LogInformation(
+               "Returning {ReturnedCount} grades (Offset:{Offset}, Limit:{Limit})",
+               dtoList.Count, offset, limit);
+                return CommonResponse<PagedResult<GradeDto>>.SuccessResponse(
+                "Grades fetched successfully",
+                new PagedResult<GradeDto>(
+                    dtoList,
+                    totalCount,
+                    limit,
+                    offset));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                   ex,
+                   "Error occurred while fetching filtered grades. Filters => SyllabusId:{SyllabusId}, Active:{Active}, Search:{SearchText}, Limit:{Limit}, Offset:{Offset}, SortOrder:{SortOrder}",
+                   syllabusId, active, searchText, limit, offset, sortOrder);
+                return CommonResponse<PagedResult<GradeDto>>.FailureResponse($"An error occurred while fetching grades: {ex.Message}");
             }
         }
 

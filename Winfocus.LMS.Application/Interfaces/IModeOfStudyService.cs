@@ -27,7 +27,7 @@
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>ModeOfStudyDto.</returns>
-        Task<ModeOfStudyDto> CreateAsync(ModeOfStudyRequest request);
+        Task<CommonResponse<ModeOfStudyDto>> CreateAsync(ModeOfStudyRequest request);
 
         /// <summary>
         /// Updates the asynchronous.
@@ -35,7 +35,7 @@
         /// <param name="id">The identifier.</param>
         /// <param name="request">The request.</param>
         /// <returns>id.</returns>
-        Task<ModeOfStudyDto> UpdateAsync(Guid id, ModeOfStudyRequest request);
+        Task<CommonResponse<ModeOfStudyDto>> UpdateAsync(Guid id, ModeOfStudyRequest request);
 
         /// <summary>
         /// Deletes the asynchronous.

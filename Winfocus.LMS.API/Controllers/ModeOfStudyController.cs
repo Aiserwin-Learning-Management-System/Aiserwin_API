@@ -33,8 +33,12 @@ namespace Winfocus.LMS.API.Controllers
         /// </summary>
         /// <returns>ModeOfStudyDto list.</returns>
         [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<ModeOfStudyDto>>> GetAll()
-            => Ok(await _modeofstudyService.GetAllAsync());
+        public async Task<CommonResponse<List<ModeOfStudyDto>>> GetAll()
+        {
+            return await _modeofstudyService.GetAllAsync();
+        }
+
+           // => Ok(await _modeofstudyService.GetAllAsync());
 
         /// <summary>
         /// Creates the specified request.
@@ -50,15 +54,7 @@ namespace Winfocus.LMS.API.Controllers
             {
                 userId = UserId
             };
-            var created = await _modeofstudyService.CreateAsync(updatedRequest);
-            if (created == null)
-            {
-                return CommonResponse<ModeOfStudyDto>.FailureResponse("Failed to create mode of study.");
-            }
-            else
-            {
-                return CommonResponse<ModeOfStudyDto>.SuccessResponse("Mode of study created successfully.", created);
-            }
+            return await _modeofstudyService.CreateAsync(updatedRequest);
         }
 
         /// <summary>
@@ -89,15 +85,7 @@ namespace Winfocus.LMS.API.Controllers
             {
                 userId = UserId
             };
-            var result = await _modeofstudyService.UpdateAsync(id, updatedRequest);
-            if (result == null)
-            {
-                return CommonResponse<ModeOfStudyDto>.FailureResponse("Failed to update mode of study.");
-            }
-            else
-            {
-                return CommonResponse<ModeOfStudyDto>.SuccessResponse("Mode of study updated successfully.", result);
-            }
+            return await _modeofstudyService.UpdateAsync(id, updatedRequest);
         }
 
         /// <summary>

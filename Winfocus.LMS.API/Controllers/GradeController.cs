@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Winfocus.LMS.Application.DTOs;
+using Winfocus.LMS.Application.DTOs.Common;
 using Winfocus.LMS.Application.DTOs.Masters;
 using Winfocus.LMS.Application.Interfaces;
 using Winfocus.LMS.Application.Services;
@@ -130,6 +131,43 @@ namespace Winfocus.LMS.API.Controllers
             {
                 return CommonResponse<bool>.FailureResponse("Failed to delete Grade.");
             }
+        }
+
+        /// <summary>
+        /// Retrieves filtered grades with pagination.
+        /// </summary>
+        /// <param name="syllabusid">Filter by syllabus identifier.</param>
+        /// <param name="startDate">Filter grades created after this date.</param>
+        /// <param name="endDate">Filter grades created before this date.</param>
+        /// <param name="active">Filter by active status.</param>
+        /// <param name="searchText">Search keyword.</param>
+        /// <param name="limit">Number of records to return.</param>
+        /// <param name="offset">Number of records to skip.</param>
+        /// <param name="sortOrder">Sorting order (asc/desc).</param>
+        /// <returns>Paginated list of grades.</returns>
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        [HttpGet("filter")]
+        public async Task<ActionResult<CommonResponse<PagedResult<GradeDto>>>> GetFiltered(
+    Guid? syllabusid,
+    DateTime? startDate,
+    DateTime? endDate,
+    bool active,
+    string? searchText,
+    int limit = 20,
+    int offset = 0,
+    string sortOrder = "asc")
+        {
+            var result = await _gradeService.GetFilteredAsync(
+                syllabusid,
+                startDate,
+                endDate,
+                active,
+                searchText,
+                limit,
+                offset,
+                sortOrder);
+
+            return Ok(result);
         }
     }
 }
