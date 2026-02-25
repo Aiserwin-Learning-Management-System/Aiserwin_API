@@ -1,6 +1,7 @@
 ﻿namespace Winfocus.LMS.API.Controllers
 {
     using Asp.Versioning;
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Winfocus.LMS.Application.DTOs.Fees;
     using Winfocus.LMS.Application.Interfaces;
@@ -91,6 +92,7 @@
         /// </summary>
         /// <param name="request">The update discount request.</param>
         /// <returns>Task&lt;ActionResult&lt;FeeSummaryDto&gt;&gt;.</returns>
+        [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPut("discounts")]
         public async Task<ActionResult<FeeSummaryDto>> UpdateDiscount(
             UpdateDiscountRequestDto request)
@@ -105,6 +107,7 @@
         /// <param name="selectionId">The student fee selection identifier.</param>
         /// <param name="discountType">The discount type (Scholarship, Seasonal, Manual).</param>
         /// <returns>Task&lt;ActionResult&lt;FeeSummaryDto&gt;&gt;.</returns>
+        [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpDelete("discounts/{selectionId}/{discountType}")]
         public async Task<ActionResult<FeeSummaryDto>> RemoveDiscount(
             Guid selectionId,
@@ -132,6 +135,7 @@
         /// </summary>
         /// <param name="request">The update seasonal discount request.</param>
         /// <returns>Task&lt;IActionResult&gt;.</returns>
+        [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPut("discounts/plan/seasonal")]
         public async Task<IActionResult> UpdateSeasonalDiscountOnPlan(
             UpdateSeasonalDiscountRequestDto request)
@@ -145,6 +149,7 @@
         /// </summary>
         /// <param name="feePlanId">The fee plan identifier.</param>
         /// <returns>Task&lt;IActionResult&gt;.</returns>
+        [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpDelete("discounts/plan/seasonal/{feePlanId}")]
         public async Task<IActionResult> RemoveSeasonalDiscountOnPlan(Guid feePlanId)
         {
