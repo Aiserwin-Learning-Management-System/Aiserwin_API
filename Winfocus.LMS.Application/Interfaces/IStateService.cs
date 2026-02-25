@@ -30,7 +30,7 @@
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>StateDto.</returns>
-        Task<StateDto> CreateAsync(CreateMasterStateRequest request);
+        Task<CommonResponse<StateDto>> CreateAsync(CreateMasterStateRequest request);
 
         /// <summary>
         /// Updates the asynchronous.
@@ -38,7 +38,7 @@
         /// <param name="id">The identifier.</param>
         /// <param name="request">The request.</param>
         /// <returns>id.</returns>
-        Task<StateDto> UpdateAsync(Guid id, CreateMasterStateRequest request);
+        Task<CommonResponse<StateDto>> UpdateAsync(Guid id, CreateMasterStateRequest request);
 
         /// <summary>
         /// Deletes the asynchronous.

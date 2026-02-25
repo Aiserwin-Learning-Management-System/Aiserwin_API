@@ -15,7 +15,7 @@
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
-    public sealed class CountriesController : ControllerBase
+    public sealed class CountriesController : BaseController
     {
         private readonly ICountryService _service;
 
@@ -58,15 +58,8 @@
         public async Task<CommonResponse<CountryDto>> Create(
             CreateCountryRequest request)
         {
-            var created = await _service.CreateAsync(request);
-            if (created == null)
-            {
-                return CommonResponse<CountryDto>.FailureResponse("Failed to create country.");
-            }
-            else
-            {
-                return CommonResponse<CountryDto>.SuccessResponse("Country created successfully.", created);
-            }
+            Guid userid = UserId;
+            return await _service.CreateAsync(request, userid);
         }
 
         /// <summary>
@@ -81,15 +74,8 @@
             Guid id,
             CreateCountryRequest request)
         {
-            var result = await _service.UpdateAsync(id, request);
-            if (result == null)
-            {
-                return CommonResponse<CountryDto>.FailureResponse("Failed to update country.");
-            }
-            else
-            {
-                return CommonResponse<CountryDto>.SuccessResponse("Country updated successfully.", result);
-            }
+            Guid userid = UserId;
+            return await _service.UpdateAsync(id, request, userid);
         }
 
         /// <summary>
@@ -101,15 +87,7 @@
         [HttpDelete("{id:guid}")]
         public async Task<CommonResponse<bool>> Delete(Guid id)
         {
-            bool res = await _service.DeleteAsync(id);
-            if (res)
-            {
-                return CommonResponse<bool>.SuccessResponse("Batchtiming for monday to friday deleted successfully.", true);
-            }
-            else
-            {
-                return CommonResponse<bool>.FailureResponse("Failed to delete batchtiming for monday to friday.");
-            }
+            return await _service.DeleteAsync(id);
         }
     }
 }

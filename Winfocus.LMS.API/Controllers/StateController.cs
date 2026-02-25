@@ -50,15 +50,7 @@ namespace Winfocus.LMS.API.Controllers
             {
                 userId = UserId
             };
-            var created = await _stateService.CreateAsync(updatedRequest);
-            if (created == null)
-            {
-                return CommonResponse<StateDto>.FailureResponse("Failed to create State.");
-            }
-            else
-            {
-                return CommonResponse<StateDto>.SuccessResponse("State created successfully.", created);
-            }
+            return await _stateService.CreateAsync(updatedRequest);
         }
 
         /// <summary>
@@ -89,15 +81,7 @@ namespace Winfocus.LMS.API.Controllers
             {
                 userId = UserId
             };
-            var updated = await _stateService.UpdateAsync(id, updatedRequest);
-            if (updated == null)
-            {
-                return CommonResponse<StateDto>.FailureResponse("Failed to update State.");
-            }
-            else
-            {
-                return CommonResponse<StateDto>.SuccessResponse("State updated successfully.", updated);
-            }
+            return await _stateService.UpdateAsync(id, updatedRequest);
         }
 
         /// <summary>

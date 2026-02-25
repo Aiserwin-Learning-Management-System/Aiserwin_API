@@ -43,7 +43,7 @@
         {
             return await _db.Countries
                 .Include(x => x.Centres)
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .FirstOrDefaultAsync(x => x.Id == id && x.IsActive);
         }
 
         /// <summary>
@@ -94,11 +94,11 @@
         /// <summary>
         /// Existses the by code asynchronous.
         /// </summary>
-        /// <param name="code">The code.</param>
+        /// <param name="name">The code.</param>
         /// <returns>bool.</returns>
-        public async Task<bool> ExistsByCodeAsync(string code)
+        public async Task<bool> ExistsByNameAsync(string name)
         {
-            return await _db.Countries.AnyAsync(x => x.Name == code);
+            return await _db.Countries.AnyAsync(x => x.Name == name);
         }
     }
 }
