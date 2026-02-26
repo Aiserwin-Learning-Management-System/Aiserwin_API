@@ -1,8 +1,25 @@
 ﻿namespace Winfocus.LMS.Application.DTOs
 {
-    /// <summary>
-    /// Request for creating or updating a syllabus.
-    /// </summary>
-    public sealed record SyllabusRequest(
-        string name, Guid centerid, Guid userId);
+    using System.ComponentModel.DataAnnotations;
+
+    public sealed record SyllabusRequest
+    {
+        /// <summary>
+        /// Gets the name.
+        /// </summary>
+        /// <value>
+        /// The name.
+        /// </value>
+        [Required]
+        [StringLength(200, MinimumLength = 1)]
+        public string Name { get; init; } = null!;
+
+        /// <summary>
+        /// Gets the user identifier.
+        /// </summary>
+        /// <value>
+        /// The user identifier.
+        /// </value>
+        public Guid UserId { get; init; }
+    }
 }

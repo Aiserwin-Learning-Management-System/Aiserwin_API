@@ -92,24 +92,13 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         }
 
         /// <summary>
-        /// Existses the by code asynchronous.
+        /// Existses the by name asynchronous.
         /// </summary>
-        /// <param name="code">The code.</param>
+        /// <param name="name">The name.</param>
         /// <returns>bool.</returns>
-        public async Task<bool> ExistsByCodeAsync(string code)
+        public async Task<bool> ExistsByNameAsync(string name)
         {
-            return await _db.Syllabuses.AnyAsync(x => x.Name == code);
-        }
-
-        /// <summary>
-        /// Gets the by identifier asynchronous.
-        /// </summary>
-        /// <param name="centerid">The identifier.</param>
-        /// <returns>Syllabus.</returns>
-        public async Task<List<Syllabus>> GetByCenterIdAsync(Guid centerid)
-        {
-            return await _db.Syllabuses
-                .ToListAsync();
+            return await _db.Syllabuses.AnyAsync(x => x.Name == name);
         }
 
         /// <summary>
