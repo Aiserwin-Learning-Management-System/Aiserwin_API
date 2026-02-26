@@ -124,11 +124,6 @@
                         StreamId = streamId,
                         SubjectId = subjectId1,
                         GradeId = gradeId,
-                        CourseDescription = "Introduction to Mathematics",
-                        CourseUrl = "https://example.com/math101",
-                        MaxStudent = 30,
-                        AcademicYear = Guid.NewGuid(),
-                        Status = "Active",
                         IsActive = true,
                         CreatedAt = DateTime.UtcNow,
                         CreatedBy = Guid.NewGuid()
@@ -140,11 +135,6 @@
                         StreamId = streamId,
                         SubjectId = subjectId2,
                         GradeId = gradeId,
-                        CourseDescription = "Introduction to Physics",
-                        CourseUrl = "https://example.com/physics101",
-                        MaxStudent = 25,
-                        AcademicYear = Guid.NewGuid(),
-                        Status = "Active",
                         IsActive = true,
                         CreatedAt = DateTime.UtcNow,
                         CreatedBy = Guid.NewGuid()
@@ -156,11 +146,6 @@
                         StreamId = streamId,
                         SubjectId = subjectId1,
                         GradeId = gradeId,
-                        CourseDescription = "This is inactive",
-                        CourseUrl = "https://example.com/inactive",
-                        MaxStudent = 20,
-                        AcademicYear = Guid.NewGuid(),
-                        Status = "Inactive",
                         IsActive = false,
                         CreatedAt = DateTime.UtcNow,
                         CreatedBy = Guid.NewGuid()
@@ -651,11 +636,6 @@
                     StreamId = streamId,
                     SubjectId = subjectId,
                     GradeId = gradeId,
-                    CourseDescription = "Introduction to Chemistry",
-                    CourseUrl = "https://example.com/chem101",
-                    MaxStudent = 28,
-                    AcademicYear = Guid.NewGuid(),
-                    Status = "Active",
                     IsActive = true,
                     CreatedAt = DateTime.UtcNow,
                     CreatedBy = Guid.NewGuid()
@@ -701,14 +681,9 @@
                     StreamId = streamId,
                     SubjectId = subjectId,
                     GradeId = gradeId,
-                    CourseDescription = "Introduction to Biology",
-                    CourseUrl = "https://example.com/bio101",
-                    MaxStudent = 32,
-                    AcademicYear = Guid.NewGuid(),
-                    Status = "Active",
                     IsActive = true,
                     CreatedAt = DateTime.UtcNow,
-                    CreatedBy = Guid.NewGuid()
+                    CreatedBy = Guid.NewGuid(),
                 };
 
                 // Act
@@ -746,14 +721,9 @@
                 StreamId = streamId,
                 SubjectId = subjectId,
                 GradeId = gradeId,
-                CourseDescription = "Introduction to CS",
-                CourseUrl = "https://example.com/cs101",
-                MaxStudent = 40,
-                AcademicYear = Guid.NewGuid(),
-                Status = "Active",
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow,
-                CreatedBy = Guid.NewGuid()
+                CreatedBy = Guid.NewGuid(),
             };
 
             // Act
@@ -784,7 +754,6 @@
                     .FirstAsync(c => c.IsActive);
 
                 existingCourse.Name = "Updated Course Name";
-                existingCourse.MaxStudent = 50;
                 existingCourse.UpdatedAt = DateTime.UtcNow;
                 existingCourse.UpdatedBy = Guid.NewGuid();
 
@@ -794,13 +763,11 @@
                 // Assert
                 Assert.NotNull(result);
                 Assert.Equal("Updated Course Name", result.Name);
-                Assert.Equal(50, result.MaxStudent);
 
                 // Verify in database
                 var dbCourse = await _context.Courses.FindAsync(existingCourse.Id);
                 Assert.NotNull(dbCourse);
                 Assert.Equal("Updated Course Name", dbCourse.Name);
-                Assert.Equal(50, dbCourse.MaxStudent);
             }
             catch (Exception ex)
             {

@@ -29,12 +29,14 @@
         /// Course.
         /// </returns>
         public async Task<IReadOnlyList<Course>> GetAllAsync()
-        => await _db.Courses
-            .Where(x => x.IsActive)
-            .Include(c => c.Subject)
-            .Include(c => c.Stream)
-            .AsNoTracking()
-            .ToListAsync();
+            => await _db.Courses
+                .Include(c => c.Stream)
+                    .ThenInclude(s => s.Grade)
+                        .ThenInclude(g => g.Syllabus)
+                .Include(c => c.Grade)
+                    .ThenInclude(g => g.Syllabus)
+                .AsNoTracking()
+                .ToListAsync();
 
         /// <summary>
         /// Gets the by identifier asynchronous.
@@ -44,10 +46,13 @@
         /// Course.
         /// </returns>
         public async Task<Course?> GetByIdAsync(Guid id)
-        => await _db.Courses
-            .Include(c => c.Subject)
+    => await _db.Courses
             .Include(c => c.Stream)
-            .FirstOrDefaultAsync(x => x.Id == id && x.IsActive);
+            .ThenInclude(s => s.Grade)
+                .ThenInclude(g => g.Syllabus)
+            .Include(c => c.Grade)
+                .ThenInclude(g => g.Syllabus)
+        .FirstOrDefaultAsync(x => x.Id == id && x.IsActive);
 
         /// <summary>
         /// Gets the by identifier with subjects asynchronous.
@@ -67,11 +72,14 @@
         /// Course.
         /// </returns>
         public async Task<IReadOnlyList<Course>> GetByStreamAsync(Guid streamId)
-        => await _db.Courses
-            .Where(c => c.StreamId == streamId && c.IsActive)
-            .Include(c => c.Subject)
-            .AsNoTracking()
-            .ToListAsync();
+    => await _db.Courses
+        .Where(c => c.StreamId == streamId && c.IsActive)
+        .Include(c => c.Subject)
+        .Include(c => c.Grade)
+            .ThenInclude(g => g.Syllabus)
+        .Include(c => c.Stream)
+        .AsNoTracking()
+        .ToListAsync();
 
         /// <summary>
         /// Gets the by subject asynchronous.
@@ -81,11 +89,14 @@
         /// Course.
         /// </returns>
         public async Task<IReadOnlyList<Course>> GetBySubjectAsync(Guid subjectId)
-        => await _db.Courses
-            .Where(c => c.SubjectId == subjectId && c.IsActive)
-            .Include(c => c.Stream)
-            .AsNoTracking()
-            .ToListAsync();
+    => await _db.Courses
+        .Where(c => c.SubjectId == subjectId && c.IsActive)
+        .Include(c => c.Subject)
+        .Include(c => c.Grade)
+            .ThenInclude(g => g.Syllabus)
+        .Include(c => c.Stream)
+        .AsNoTracking()
+        .ToListAsync();
 
         /// <summary>
         /// Adds the asynchronous.
@@ -139,14 +150,15 @@
         }
 
         /// <summary>
-        /// Gets all asynchronous.
+        /// Gets queryable for filtering with full hierarchy.
         /// </summary>
-        /// <returns>
-        /// Course.
-        /// </returns>
+        /// <returns>Queryable courses.</returns>
         public IQueryable<Course> Query()
         {
             return _db.Courses
+                .Include(c => c.Subject)
+                .Include(c => c.Grade)
+                    .ThenInclude(g => g.Syllabus)
                 .Include(c => c.Stream)
                     .ThenInclude(s => s.Grade)
                         .ThenInclude(g => g.Syllabus)
