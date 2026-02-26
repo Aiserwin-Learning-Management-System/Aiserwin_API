@@ -6,9 +6,8 @@
     using Winfocus.LMS.Infrastructure.Data;
 
     /// <summary>
-    /// GradeRepository.
+    /// StreamRepository.
     /// </summary>
-    /// <seealso cref="Winfocus.LMS.Application.Interfaces.IStreamRepository" />
     public sealed class StreamRepository : IStreamRepository
     {
         private readonly AppDbContext _db;
@@ -23,14 +22,16 @@
         }
 
         /// <summary>
-        /// Gets all asynchronous.
+        /// Gets all active streams.
         /// </summary>
         /// <returns>Stream list.</returns>
         public async Task<IReadOnlyList<Streams>> GetAllAsync()
         {
             return await _db.Streams
                 .Include(x => x.Grade)
+                    .ThenInclude(g => g.Syllabus)
                 .Include(x => x.Courses)
+                .Where(x => x.IsActive)
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -44,6 +45,7 @@
         {
             return await _db.Streams
                 .Include(x => x.Grade)
+                    .ThenInclude(g => g.Syllabus)
                 .Include(x => x.Courses)
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
@@ -64,7 +66,7 @@
         /// Updates the asynchronous.
         /// </summary>
         /// <param name="streams">The Streams.</param>
-        /// <returns>task.</returns>
+        /// <returns>Streams.</returns>
         public async Task<Streams> UpdateAsync(Streams streams)
         {
             _db.Streams.Update(streams);
@@ -73,10 +75,10 @@
         }
 
         /// <summary>
-        /// Deletes the asynchronous.
+        /// Soft deletes the stream.
         /// </summary>
         /// <param name="id">The identifier.</param>
-        /// <returns>task.</returns>
+        /// <returns>bool.</returns>
         public async Task<bool> DeleteAsync(Guid id)
         {
             var entity = await _db.Streams.FindAsync(id);
@@ -86,16 +88,15 @@
             }
 
             entity.IsActive = false;
-
             _db.Streams.Update(entity);
             await _db.SaveChangesAsync();
             return true;
         }
 
         /// <summary>
-        /// Existses the by code asynchronous.
+        /// Checks if stream exists by name.
         /// </summary>
-        /// <param name="code">The code.</param>
+        /// <param name="code">The name.</param>
         /// <returns>bool.</returns>
         public async Task<bool> ExistsByCodeAsync(string code)
         {
@@ -103,21 +104,23 @@
         }
 
         /// <summary>
-        /// Gets the by identifier asynchronous.
+        /// Gets streams by grade identifier.
         /// </summary>
-        /// <param name="gradeid">The identifier.</param>
-        /// <returns>Streams.</returns>
+        /// <param name="gradeid">The grade identifier.</param>
+        /// <returns>Stream list.</returns>
         public async Task<List<Streams>> GetByGradeIdAsync(Guid gradeid)
         {
             return await _db.Streams
                 .Include(x => x.Grade)
+                    .ThenInclude(g => g.Syllabus)
                 .Include(x => x.Courses)
-                .Where(x => x.GradeId == gradeid)
+                .Where(x => x.GradeId == gradeid && x.IsActive)
+                .AsNoTracking()
                 .ToListAsync();
         }
 
         /// <summary>
-        /// Gets the by identifier asynchronous.
+        /// Gets stream with courses by identifier.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>Streams.</returns>
@@ -129,16 +132,14 @@
         }
 
         /// <summary>
-        /// Gets all asynchronous.
+        /// Gets queryable for filtering with Grade and Syllabus included.
         /// </summary>
-        /// <returns>
-        /// Streams.
-        /// </returns>
+        /// <returns>Queryable streams.</returns>
         public IQueryable<Streams> Query()
         {
             return _db.Streams
-                    .Include(s => s.Grade)
-                        .ThenInclude(g => g.Syllabus)
+                .Include(s => s.Grade)
+                    .ThenInclude(g => g.Syllabus)
                 .AsNoTracking();
         }
     }

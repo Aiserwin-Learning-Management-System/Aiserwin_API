@@ -22,6 +22,16 @@
                 .IsRequired()
                 .HasMaxLength(200);
 
+            // Composite unique — same name can't repeat under same grade
+            builder.HasIndex(s => new { s.GradeId, s.Name })
+                .IsUnique();
+
+            // One grade → many streams (linked properly)
+            builder.HasOne(s => s.Grade)
+                .WithMany(g => g.Streams)
+                .HasForeignKey(s => s.GradeId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             // One stream → many courses
             builder.HasMany(s => s.Courses)
                 .WithOne(c => c.Stream)

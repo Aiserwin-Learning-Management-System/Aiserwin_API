@@ -9,7 +9,7 @@
     public class Grade : BaseEntity
     {
         /// <summary>
-        /// Gets or sets the optional name for the grade.
+        /// Gets or sets the display name of the grade.
         /// </summary>
         public string Name { get; set; } = null!;
 
@@ -19,16 +19,13 @@
         public Guid SyllabusId { get; set; }
 
         /// <summary>
-        /// Gets or sets the identifier of the associated syllabus.
+        /// Gets or sets the associated syllabus.
         /// </summary>
         public Syllabus Syllabus { get; set; } = null!;
 
         /// <summary>
-        /// Gets or sets the stream.
+        /// Gets or sets the streams under this grade.
         /// </summary>
-        /// <value>
-        /// The stream.
-        /// </value>
-        public Streams Stream { get; set; } = null!;
+        public ICollection<Streams> Streams { get; set; } = new List<Streams>();
     }
 }

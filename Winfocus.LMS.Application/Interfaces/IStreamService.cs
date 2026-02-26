@@ -12,7 +12,7 @@
         /// <summary>
         /// Gets all asynchronous.
         /// </summary>
-        /// <returns>StreamDto.</returns>
+        /// <returns>StreamDto list.</returns>
         Task<CommonResponse<List<StreamDto>>> GetAllAsync();
 
         /// <summary>
@@ -34,45 +34,28 @@
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <param name="request">The request.</param>
-        /// <returns>id.</returns>
+        /// <returns>StreamDto.</returns>
         Task<StreamDto> UpdateAsync(Guid id, StreamRequest request);
 
         /// <summary>
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
-        /// <returns>id.</returns>
+        /// <returns>bool.</returns>
         Task<bool> DeleteAsync(Guid id);
 
         /// <summary>
-        /// Gets the by identifier asynchronous.
+        /// Gets streams by grade identifier.
         /// </summary>
-        /// <param name="gradeid">The identifier.</param>
-        /// <returns>StreamDto.</returns>
-        Task<List<StreamDto>> GetByGradeIdAsync(Guid gradeid);
+        /// <param name="gradeid">The grade identifier.</param>
+        /// <returns>StreamDto list.</returns>
+        Task<CommonResponse<List<StreamDto>>> GetByGradeIdAsync(Guid gradeid);
 
         /// <summary>
         /// Gets filtered streams with pagination support.
         /// </summary>
-        /// <param name="syllabusId">Syllabus identifier.</param>
-        /// <param name="gradeId">Grade identifier.</param>
-        /// <param name="startDate">Filter sttreams created after this date.</param>
-        /// <param name="endDate">Filter streams created before this date.</param>
-        /// <param name="active">Filter by active status.</param>
-        /// <param name="searchText">Search keyword.</param>
-        /// <param name="limit">Number of records to return.</param>
-        /// <param name="offset">Number of records to skip.</param>
-        /// <param name="sortOrder">Sorting order (asc or desc).</param>
-        /// <returns>Paginated streams result.</returns>
-        Task<CommonResponse<PagedResult<StreamDto>>> GetFilteredAsync(
-            Guid? syllabusId,
-            Guid? gradeId,
-            DateTime? startDate,
-            DateTime? endDate,
-            bool? active,
-            string? searchText,
-            int limit,
-            int offset,
-            string sortOrder);
+        /// <param name="request">The paged request.</param>
+        /// <returns>Paginated stream result.</returns>
+        Task<CommonResponse<PagedResult<StreamDto>>> GetFilteredAsync(PagedRequest request);
     }
 }

@@ -1,7 +1,7 @@
 ﻿namespace Winfocus.LMS.Application.DTOs.Masters
 {
     /// <summary>
-    /// Represents an academic stream within a grade (for example, Science or Arts).
+    /// Represents an academic stream within a grade.
     /// </summary>
     public class StreamDto : BaseClassDTO
     {
@@ -15,14 +15,14 @@
         /// </summary>
         public Guid GradeId { get; set; }
 
-        // One stream → many courses
+        /// <summary>
+        /// Gets or sets the associated grade.
+        /// </summary>
+        public GradeDto? Grade { get; set; }
 
         /// <summary>
         /// Gets or sets the courses.
         /// </summary>
-        /// <value>
-        /// The courses.
-        /// </value>
         public IReadOnlyList<CourseDto> Courses { get; set; } = new List<CourseDto>();
     }
 }
