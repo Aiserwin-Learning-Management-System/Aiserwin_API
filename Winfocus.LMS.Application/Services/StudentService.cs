@@ -143,68 +143,6 @@
         /// <summary>
         /// Gets the filtered asynchronous.
         /// </summary>
-        /// <param name="countryId">The country identifier.</param>
-        /// <param name="stateId">The state identifier.</param>
-        /// <param name="modeId">The mode identifier.</param>
-        /// <param name="centreId">The centre identifier.</param>
-        /// <param name="batchId">The batch identifier.</param>
-        /// <param name="gradeId">The grade identifier.</param>
-        /// <param name="courseId">The course identifier.</param>
-        /// <param name="startDate">The start date.</param>
-        /// <param name="endDate">The end date.</param>
-        /// <param name="registrationStatus">The registration status.</param>
-        /// <param name="searchText">The search text.</param>
-        /// <param name="limit">The limit.</param>
-        /// <param name="offset">The offset.</param>
-        /// <param name="sortBy">The sort by.</param>
-        /// <param name="sortOrder">The sort order.</param>
-        /// <returns>StudentDto.</returns>
-        public async Task<IReadOnlyList<StudentDto>> GetFilteredAsync(
-        Guid? countryId,
-        Guid? stateId,
-        Guid? modeId,
-        Guid? centreId,
-        Guid? batchId,
-        Guid? gradeId,
-        Guid? courseId,
-        DateTime? startDate,
-        DateTime? endDate,
-        RegistrationStatus? registrationStatus,
-        string? searchText,
-        int limit,
-        int offset,
-        string sortBy,
-        string sortOrder)
-        {
-            _logger.LogInformation("Calling repository for student filter with SortBy={SortBy}, SortOrder={SortOrder}", sortBy, sortOrder);
-
-            var students = await _repository.GetFilteredAsync(
-                countryId,
-                stateId,
-                modeId,
-                centreId,
-                batchId,
-                gradeId,
-                courseId,
-                startDate,
-                endDate,
-                registrationStatus,
-                searchText,
-                limit,
-                offset,
-                sortBy,
-                sortOrder);
-
-            var dtos = students.Select(MapToDto).ToList();
-
-            _logger.LogInformation("Mapped {Count} student entities to DTOs", dtos.Count);
-
-            return dtos;
-        }
-
-        /// <summary>
-        /// Gets the filtered asynchronous.
-        /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>StudentDto.</returns>
         public async Task<PagedResult<StudentDto>> GetFilteredAsync(StudentFilterRequest request)

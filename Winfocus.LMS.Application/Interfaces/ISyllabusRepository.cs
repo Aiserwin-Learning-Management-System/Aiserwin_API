@@ -42,18 +42,11 @@
         Task<bool> DeleteAsync(Guid id);
 
         /// <summary>
-        /// Existses the by code asynchronous.
+        /// Existses the by name asynchronous.
         /// </summary>
-        /// <param name="code">The code.</param>
+        /// <param name="name">The name.</param>
         /// <returns>bool.</returns>
-        Task<bool> ExistsByCodeAsync(string code);
-
-        /// <summary>
-        /// Gets the by identifier asynchronous.
-        /// </summary>
-        /// <param name="centerid">The identifier.</param>
-        /// <returns>Syllabus.</returns>
-        Task<List<Syllabus>> GetByCenterIdAsync(Guid centerid);
+        Task<bool> ExistsByNameAsync(string name);
 
         /// <summary>
         /// Gets all asynchronous.

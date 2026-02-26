@@ -1,15 +1,13 @@
-﻿using Asp.Versioning;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
-using Winfocus.LMS.Application.DTOs;
-using Winfocus.LMS.Application.DTOs.Common;
-using Winfocus.LMS.Application.DTOs.Masters;
-using Winfocus.LMS.Application.Interfaces;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
-
-namespace Winfocus.LMS.API.Controllers
+﻿namespace Winfocus.LMS.API.Controllers
 {
+    using Asp.Versioning;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+    using Winfocus.LMS.Application.DTOs;
+    using Winfocus.LMS.Application.DTOs.Common;
+    using Winfocus.LMS.Application.DTOs.Masters;
+    using Winfocus.LMS.Application.Interfaces;
+
     /// <summary>
     /// Handles authentication endpoints.
     /// </summary>
@@ -44,12 +42,12 @@ namespace Winfocus.LMS.API.Controllers
         /// <returns>SyllabusDto.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPost]
-        public async Task<CommonResponse<SyllabusDto>> Create(
+        public async Task<ActionResult<CommonResponse<SyllabusDto>>> Create(
             SyllabusRequest request)
         {
             var updatedRequest = request with
             {
-                userId = UserId
+                UserId = UserId
             };
             var created = await _syllabusService.CreateAsync(updatedRequest);
             if (created == null)
@@ -68,7 +66,7 @@ namespace Winfocus.LMS.API.Controllers
         /// <param name="id">The identifier.</param>
         /// <returns>SyllabusDto by id.</returns>
         [HttpGet("{id:guid}")]
-        public async Task<CommonResponse<SyllabusDto>> Get(Guid id)
+        public async Task<ActionResult<CommonResponse<SyllabusDto>>> Get(Guid id)
         {
             var result = await _syllabusService.GetByIdAsync(id);
             return result;
@@ -82,13 +80,13 @@ namespace Winfocus.LMS.API.Controllers
         /// <returns>result.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPut("{id:guid}")]
-        public async Task<CommonResponse<SyllabusDto>> Update(
+        public async Task<ActionResult<CommonResponse<SyllabusDto>>> Update(
             Guid id,
             SyllabusRequest request)
         {
             var updatedRequest = request with
             {
-                userId = UserId
+                UserId = UserId
             };
             var updated = await _syllabusService.UpdateAsync(id, updatedRequest);
             if (updated == null)
@@ -99,18 +97,6 @@ namespace Winfocus.LMS.API.Controllers
             {
                 return CommonResponse<SyllabusDto>.SuccessResponse("Syllabus updated successfully.", updated);
             }
-        }
-
-        /// <summary>
-        /// Gets the specified identifier.
-        /// </summary>
-        /// <param name="centerid">The identifier.</param>
-        /// <returns>SyllabusDto by id.</returns>
-        [HttpGet("by-center/{centerid:guid}")]
-        public async Task<ActionResult<SyllabusDto>> GetByCenterId(Guid centerid)
-        {
-            var result = await _syllabusService.GetByCenterIdAsync(centerid);
-            return result == null ? NotFound() : Ok(result);
         }
 
         /// <summary>
@@ -136,34 +122,14 @@ namespace Winfocus.LMS.API.Controllers
         /// <summary>
         /// Retrieves filtered syllabuses with pagination.
         /// </summary>
-        /// <param name="startDate">Filter syllabuses created after this date.</param>
-        /// <param name="endDate">Filter syllabuses created before this date.</param>
-        /// <param name="active">Filter by active status.</param>
-        /// <param name="searchText">Search keyword.</param>
-        /// <param name="limit">Number of records to return.</param>
-        /// <param name="offset">Number of records to skip.</param>
-        /// <param name="sortOrder">Sorting order (asc/desc).</param>
+        /// <param name="request">The paged request.</param>
         /// <returns>Paginated list of syllabuses.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpGet("filter")]
         public async Task<ActionResult<CommonResponse<PagedResult<SyllabusDto>>>> GetFiltered(
-    DateTime? startDate,
-    DateTime? endDate,
-    bool active,
-    string? searchText,
-    int limit = 20,
-    int offset = 0,
-    string sortOrder = "asc")
+            [FromQuery] PagedRequest request)
         {
-            var result = await _syllabusService.GetFilteredAsync(
-                startDate,
-                endDate,
-                active,
-                searchText,
-                limit,
-                offset,
-                sortOrder);
-
+            var result = await _syllabusService.GetFilteredAsync(request);
             return Ok(result);
         }
     }

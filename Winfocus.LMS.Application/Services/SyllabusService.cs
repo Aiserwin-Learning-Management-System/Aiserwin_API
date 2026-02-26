@@ -80,11 +80,16 @@ namespace Winfocus.LMS.Application.Services
         /// <exception cref="InvalidOperationException">syllabus code already exists.</exception>
         public async Task<SyllabusDto> CreateAsync(SyllabusRequest request)
         {
+            if (await _repository.ExistsByNameAsync(request.Name))
+            {
+                throw new InvalidOperationException("Syllabus name already exists.");
+            }
+
             var syllabus = new Syllabus
             {
-                Name = request.name,
+                Name = request.Name,
                 CreatedAt = DateTime.UtcNow,
-                CreatedBy = request.userId,
+                CreatedBy = request.UserId,
             };
 
             var created = await _repository.AddAsync(syllabus);
@@ -103,8 +108,8 @@ namespace Winfocus.LMS.Application.Services
             var syllabus = await _repository.GetByIdAsync(id)
                 ?? throw new KeyNotFoundException("syllabus not found");
 
-            syllabus.Name = request.name;
-            syllabus.UpdatedBy = request.userId;
+            syllabus.Name = request.Name;
+            syllabus.UpdatedBy = request.UserId;
             syllabus.UpdatedAt = DateTime.UtcNow;
 
             return Map(await _repository.UpdateAsync(syllabus));
@@ -121,106 +126,88 @@ namespace Winfocus.LMS.Application.Services
         }
 
         /// <summary>
-        /// Gets the by identifier asynchronous.
+        /// Retrieves syllabuses based on filter criteria with pagination.
         /// </summary>
-        /// <param name="centerid">The identifier.</param>
-        /// <returns>SyllabusDto.</returns>
-        public async Task<List<SyllabusDto>> GetByCenterIdAsync(Guid centerid)
-        {
-            var syllabuses = await _repository.GetByCenterIdAsync(centerid);
-            return Map(syllabuses);
-        }
-
-        /// <summary>
-        /// Retrieves syllabuses based on multiple filter criteria with pagination support.
-        /// </summary>
-        /// <param name="startDate">Filters syllabuses created on or after this date.</param>
-        /// <param name="endDate">Filters syllabuses created on or before this date.</param>
-        /// <param name="active">Indicates whether to filter active or inactive syllabuses.</param>
-        /// <param name="searchText">Search keyword applied to syllabus name.</param>
-        /// <param name="limit">Number of records to return (page size).</param>
-        /// <param name="offset">Number of records to skip.</param>
-        /// <param name="sortOrder">Sorting order ("asc" or "desc").</param>
-        /// <returns>
-        /// A <see cref="CommonResponse{T}"/> containing a paginated list of
-        /// <see cref="syllbusDto"/> objects.
-        /// </returns>
+        /// <param name="request">The paged request.</param>
+        /// <returns>Paginated syllabus result.</returns>
         public async Task<CommonResponse<PagedResult<SyllabusDto>>> GetFilteredAsync(
-       DateTime? startDate,
-       DateTime? endDate,
-       bool? active,
-       string? searchText,
-       int limit,
-       int offset,
-       string sortOrder)
+            PagedRequest request)
         {
             try
             {
                 _logger.LogInformation(
-                             "Fetching filtered syllabus. Filters => Active:{Active}, Search:{SearchText}, Limit:{Limit}, Offset:{Offset}, SortOrder:{SortOrder}",
-                             active, searchText, limit, offset, sortOrder);
+                    "Fetching filtered syllabuses. Filters => Active:{Active}, Search:{SearchText}, " +
+                    "SortBy:{SortBy}, SortOrder:{SortOrder}, Limit:{Limit}, Offset:{Offset}",
+                    request.Active, request.SearchText, request.SortBy,
+                    request.SortOrder, request.Limit, request.Offset);
+
                 var query = _repository.Query();
-                if (active.HasValue)
-                    query = query.Where(x => x.IsActive == active);
 
-                if (startDate.HasValue)
-                    query = query.Where(x => x.CreatedAt >= startDate.Value);
+                // ── Filters ──
+                if (request.Active.HasValue)
+                    query = query.Where(x => x.IsActive == request.Active.Value);
 
-                if (endDate.HasValue)
-                    query = query.Where(x => x.CreatedAt <= endDate.Value);
+                if (request.StartDate.HasValue)
+                    query = query.Where(x => x.CreatedAt >= request.StartDate.Value);
 
-                if (!string.IsNullOrWhiteSpace(searchText))
+                if (request.EndDate.HasValue)
+                    query = query.Where(x => x.CreatedAt <= request.EndDate.Value);
+
+                if (!string.IsNullOrWhiteSpace(request.SearchText))
                 {
-                    query = query.Where(x =>
-                        x.Name.Contains(searchText));
+                    var searchTerm = request.SearchText.Trim().ToLower();
+                    query = query.Where(x => x.Name.ToLower().Contains(searchTerm));
                 }
 
+                // ── Total Count ──
                 var totalCount = await query.CountAsync();
 
-                _logger.LogInformation(
-                "Filtered syllabuses count: {TotalCount}",
-                totalCount);
+                if (totalCount == 0)
+                {
+                    return CommonResponse<PagedResult<SyllabusDto>>.SuccessResponse(
+                        "No syllabuses found.",
+                        new PagedResult<SyllabusDto>(
+                            new List<SyllabusDto>(), 0, request.Limit, request.Offset));
+                }
 
-                query = sortOrder.ToLower() == "desc"
-                    ? query.OrderByDescending(x => x.CreatedAt)
-                    : query.OrderBy(x => x.CreatedAt);
+                // ── Sorting ──
+                var isDesc = request.SortOrder.Equals("desc", StringComparison.OrdinalIgnoreCase);
 
-                var syllbuses = await query
-                    .Skip(offset)
-                    .Take(limit)
+                query = request.SortBy.ToLower() switch
+                {
+                    "name" => isDesc ? query.OrderByDescending(x => x.Name)
+                                          : query.OrderBy(x => x.Name),
+                    "isactive" => isDesc ? query.OrderByDescending(x => x.IsActive)
+                                          : query.OrderBy(x => x.IsActive),
+                    "createdat" => isDesc ? query.OrderByDescending(x => x.CreatedAt)
+                                          : query.OrderBy(x => x.CreatedAt),
+                    _ => isDesc ? query.OrderByDescending(x => x.CreatedAt)
+                                          : query.OrderBy(x => x.CreatedAt),
+                };
+
+                // ── Pagination ──
+                var syllabuses = await query
+                    .Skip(request.Offset)
+                    .Take(request.Limit)
                     .ToListAsync();
 
-                var dtoList = syllbuses.Select(c => new SyllabusDto
-                {
-                    Id = c.Id,
-                    Name = c.Name,
-                    IsActive = c.IsActive,
-                }).ToList();
+                var dtoList = syllabuses.Select(Map).ToList();
 
                 _logger.LogInformation(
-               "Returning {ReturnedCount} syllabuses (Offset:{Offset}, Limit:{Limit})",
-               dtoList.Count, offset, limit);
+                    "Returning {Count} of {Total} syllabuses",
+                    dtoList.Count, totalCount);
+
                 return CommonResponse<PagedResult<SyllabusDto>>.SuccessResponse(
-                "Syllabuses fetched successfully",
-                new PagedResult<SyllabusDto>(
-                    dtoList,
-                    totalCount,
-                    limit,
-                    offset));
+                    "Syllabuses fetched successfully.",
+                    new PagedResult<SyllabusDto>(
+                        dtoList, totalCount, request.Limit, request.Offset));
             }
             catch (Exception ex)
             {
-                _logger.LogError(
-                   ex,
-                   "Error occurred while fetching filtered syllabuses. Filters =>  Active:{Active}, Search:{SearchText}, Limit:{Limit}, Offset:{Offset}, SortOrder:{SortOrder}",
-                   active, searchText, limit, offset, sortOrder);
-                return CommonResponse<PagedResult<SyllabusDto>>.FailureResponse($"An error occurred while fetching syllabuses: {ex.Message}");
+                _logger.LogError(ex, "Error fetching filtered syllabuses.");
+                return CommonResponse<PagedResult<SyllabusDto>>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
             }
-        }
-
-        private static List<SyllabusDto> Map(IEnumerable<Syllabus> syllabuses)
-        {
-            return syllabuses.Select(Map).ToList();
         }
 
         private static SyllabusDto Map(Syllabus c) =>
@@ -228,6 +215,7 @@ namespace Winfocus.LMS.Application.Services
      {
          Id = c.Id,
          Name = c.Name,
+         IsActive = c.IsActive,
          CreatedBy = c.CreatedBy,
          CreatedAt = c.CreatedAt,
          UpdatedBy = c.UpdatedBy,
