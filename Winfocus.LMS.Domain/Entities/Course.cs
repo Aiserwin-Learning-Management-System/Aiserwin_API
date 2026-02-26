@@ -31,7 +31,7 @@
         /// <value>
         /// The subject identifier.
         /// </value>
-        public Guid SubjectId { get; set; }
+        public Guid? SubjectId { get; set; }
 
         /// <summary>
         /// Gets or sets the subject.
@@ -39,7 +39,7 @@
         /// <value>
         /// The subject.
         /// </value>
-        public Subject Subject { get; set; } = null!;
+        public Subject? Subject { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the fee plans.
@@ -65,45 +65,5 @@
         /// The grade.
         /// </value>
         public Grade Grade { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets the course description.
-        /// </summary>
-        /// <value>
-        /// The course description.
-        /// </value>
-        public string CourseDescription { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets the course page url.
-        /// </summary>
-        /// <value>
-        /// The course page url.
-        /// </value>
-        public string CourseUrl { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets the count of the max student.
-        /// </summary>
-        /// <value>
-        /// The count of the max student.
-        /// </value>
-        public int MaxStudent { get; set; }
-
-        /// <summary>
-        /// Gets or sets the academic year.
-        /// </summary>
-        /// <value>
-        /// The academic year.
-        /// </value>
-        public Guid AcademicYear { get; set; }
-
-        /// <summary>
-        /// Gets or sets the status.
-        /// </summary>
-        /// <value>
-        /// The status.
-        /// </value>
-        public string Status { get; set; } = null!;
     }
 }

@@ -72,11 +72,6 @@
                         Name = "Mathematics 101",
                         SubjectId = subjectId,
                         GradeId = Guid.NewGuid(),
-                        CourseDescription = "Introduction to Mathematics",
-                        CourseUrl = "https://example.com/math101",
-                        MaxStudent = 30,
-                        AcademicYear = Guid.NewGuid(),
-                        Status = "Active",
                         IsActive = true,
                         CreatedAt = DateTime.UtcNow,
                         Subject = new Subject
@@ -92,11 +87,6 @@
                         Name = "Physics 101",
                         SubjectId = subjectId,
                         GradeId = Guid.NewGuid(),
-                        CourseDescription = "Introduction to Physics",
-                        CourseUrl = "https://example.com/physics101",
-                        MaxStudent = 25,
-                        AcademicYear = Guid.NewGuid(),
-                        Status = "Active",
                         IsActive = true,
                         CreatedAt = DateTime.UtcNow,
                         Subject = new Subject
@@ -191,11 +181,6 @@
                         Name = "Chemistry 101",
                         SubjectId = subjectId,
                         GradeId = gradeId,
-                        CourseDescription = "Introduction to Chemistry",
-                        CourseUrl = "https://example.com/chem101",
-                        MaxStudent = 28,
-                        AcademicYear = academicYear,
-                        Status = "Active",
                         IsActive = true,
                         Subject = new Subject
                         {
@@ -221,11 +206,6 @@
                 Assert.Equal(courseId, dto.Id);
                 Assert.Equal("Chemistry 101", dto.Name);
                 Assert.Equal(gradeId, dto.GradeId);
-                Assert.Equal("Introduction to Chemistry", dto.CourseDescription);
-                Assert.Equal("https://example.com/chem101", dto.CourseUrl);
-                Assert.Equal(28, dto.MaxStudent);
-                Assert.Equal(academicYear, dto.AcademicYear);
-                Assert.Equal("Active", dto.Status);
                 Assert.NotNull(dto.Subject);
                 Assert.Equal(subjectId, dto.Subject.Id);
                 Assert.Equal("Chemistry", dto.Subject.Name);
@@ -288,11 +268,6 @@
                     Name = "Biology 101",
                     SubjectId = subjectId,
                     GradeId = Guid.NewGuid(),
-                    CourseDescription = "Introduction to Biology",
-                    CourseUrl = "https://example.com/bio101",
-                    MaxStudent = 32,
-                    AcademicYear = Guid.NewGuid(),
-                    Status = "Active",
                     IsActive = true,
                     Subject = new Subject
                     {
@@ -567,31 +542,18 @@
             {
                 // Arrange
                 var request = new CourseRequest(
-                    coursename: "Computer Science 101",
-                    subjectid: Guid.NewGuid(),
-                    gradeid: Guid.NewGuid(),
-                    cousedescription: "Introduction to Computer Science",
-                    courseurl: "https://example.com/cs101",
-                    maxstudent: 40,
-                    academicyear: Guid.NewGuid(),
-                    status: "Active");
+                    coursename: "Test Course",
+                    streamid: Guid.NewGuid(),
+                    userId: Guid.NewGuid());
 
                 var createdCourse = new Course
                 {
                     Id = Guid.NewGuid(),
                     Name = request.coursename,
-                    SubjectId = request.subjectid,
-                    GradeId = request.gradeid,
-                    CourseDescription = request.cousedescription,
-                    CourseUrl = request.courseurl,
-                    MaxStudent = request.maxstudent,
-                    AcademicYear = request.academicyear,
-                    Status = request.status,
                     CreatedAt = DateTime.UtcNow,
                     IsActive = true,
                     Subject = new Subject
                     {
-                        Id = request.subjectid,
                         Name = "Computer Science",
                     },
                 };
@@ -609,14 +571,10 @@
                 Assert.Equal("Course created successfully", result.Message);
                 Assert.NotNull(result.Data);
                 Assert.Equal(request.coursename, result.Data.Name);
-                Assert.Equal(request.cousedescription, result.Data.CourseDescription);
 
                 _mockRepository.Verify(
                     r => r.AddAsync(It.Is<Course>(c =>
-                    c.Name == request.coursename &&
-                    c.SubjectId == request.subjectid &&
-                    c.GradeId == request.gradeid &&
-                    c.Status == request.status
+                    c.Name == request.coursename
                 )), Times.Once);
             }
             catch (Exception ex)
@@ -638,13 +596,8 @@
                 // Arrange
                 var request = new CourseRequest(
                     coursename: "Test Course",
-                    subjectid: Guid.NewGuid(),
-                    gradeid: Guid.NewGuid(),
-                    cousedescription: "Test",
-                    courseurl: "https://test.com",
-                    maxstudent: 20,
-                    academicyear: Guid.NewGuid(),
-                    status: "Active");
+                    streamid: Guid.NewGuid(),
+                    userId: Guid.NewGuid());
 
                 var beforeCreate = DateTime.UtcNow;
 
@@ -653,7 +606,7 @@
                     .ReturnsAsync((Course c) =>
                     {
                         c.Id = Guid.NewGuid();
-                        c.Subject = new Subject { Id = c.SubjectId, Name = "Test Subject" };
+                        c.Subject = new Subject { Name = "Test Subject" };
                         return c;
                     });
 
@@ -687,13 +640,8 @@
                 // Arrange
                 var request = new CourseRequest(
                     coursename: "Test Course",
-                    subjectid: Guid.NewGuid(),
-                    gradeid: Guid.NewGuid(),
-                    cousedescription: "Test",
-                    courseurl: "https://test.com",
-                    maxstudent: 20,
-                    academicyear: Guid.NewGuid(),
-                    status: "Active");
+                    streamid: Guid.NewGuid(),
+                    userId: Guid.NewGuid());
 
                 _mockRepository
                     .Setup(r => r.AddAsync(It.IsAny<Course>()))
@@ -738,14 +686,9 @@
                 };
 
                 var request = new CourseRequest(
-                    coursename: "Updated Name",
-                    subjectid: Guid.NewGuid(),
-                    gradeid: Guid.NewGuid(),
-                    cousedescription: "Updated description",
-                    courseurl: "https://updated.com",
-                    maxstudent: 35,
-                    academicyear: Guid.NewGuid(),
-                    status: "Active");
+                    coursename: "Test Course",
+                    streamid: Guid.NewGuid(),
+                    userId: Guid.NewGuid());
 
                 _mockRepository
                     .Setup(r => r.GetByIdAsync(courseId))
@@ -755,7 +698,7 @@
                     .Setup(r => r.UpdateAsync(It.IsAny<Course>()))
                     .ReturnsAsync((Course c) =>
                     {
-                        c.Subject = new Subject { Id = c.SubjectId, Name = "Updated Subject" };
+                        c.Subject = new Subject { Name = "Updated Subject" };
                         return c;
                     });
 
@@ -773,7 +716,6 @@
                 _mockRepository.Verify(
                     r => r.UpdateAsync(It.Is<Course>(c =>
                     c.Name == request.coursename &&
-                    c.SubjectId == request.subjectid &&
                     c.UpdatedAt != null
                 )), Times.Once);
             }
@@ -796,14 +738,9 @@
                 // Arrange
                 var courseId = Guid.NewGuid();
                 var request = new CourseRequest(
-                    coursename: "Test",
-                    subjectid: Guid.NewGuid(),
-                    gradeid: Guid.NewGuid(),
-                    cousedescription: "Test",
-                    courseurl: "https://test.com",
-                    maxstudent: 20,
-                    academicyear: Guid.NewGuid(),
-                    status: "Active");
+                    coursename: "Test Course",
+                    streamid: Guid.NewGuid(),
+                    userId: Guid.NewGuid());
 
                 _mockRepository
                     .Setup(r => r.GetByIdAsync(courseId))
@@ -845,14 +782,9 @@
                 };
 
                 var request = new CourseRequest(
-                    coursename: "Updated",
-                    subjectid: Guid.NewGuid(),
-                    gradeid: Guid.NewGuid(),
-                    cousedescription: "Updated",
-                    courseurl: "https://updated.com",
-                    maxstudent: 30,
-                    academicyear: Guid.NewGuid(),
-                    status: "Active");
+                     coursename: "Test Course",
+                     streamid: Guid.NewGuid(),
+                     userId: Guid.NewGuid());
 
                 var beforeUpdate = DateTime.UtcNow;
 
@@ -864,7 +796,7 @@
                     .Setup(r => r.UpdateAsync(It.IsAny<Course>()))
                     .ReturnsAsync((Course c) =>
                     {
-                        c.Subject = new Subject { Id = c.SubjectId, Name = "Updated" };
+                        c.Subject = new Subject { Name = "Updated" };
                         return c;
                     });
 

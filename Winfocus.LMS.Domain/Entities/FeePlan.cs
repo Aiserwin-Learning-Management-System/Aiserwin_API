@@ -28,12 +28,6 @@
         public decimal TuitionFee { get; private set; }
 
         /// <summary>
-        /// Gets the registration fee. Kept for historical data but excluded from calculations.
-        /// </summary>
-        /// <value>The registration fee.</value>
-        public decimal RegistrationFee { get; private set; }
-
-        /// <summary>
         /// Gets the scholarship percent (plan-level default; overridden at student level).
         /// </summary>
         /// <value>The scholarship percent.</value>

@@ -2,14 +2,11 @@
 {
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
-    using Org.BouncyCastle.Utilities.IO;
     using Winfocus.LMS.Application.DTOs;
     using Winfocus.LMS.Application.DTOs.Common;
     using Winfocus.LMS.Application.DTOs.Masters;
-    using Winfocus.LMS.Application.DTOs.Students;
     using Winfocus.LMS.Application.Interfaces;
     using Winfocus.LMS.Domain.Entities;
-    using Winfocus.LMS.Domain.Enums;
 
     /// <summary>
     /// CourseService.
@@ -33,25 +30,23 @@
         /// <summary>
         /// Gets all asynchronous.
         /// </summary>
-        /// <returns>
-        /// CourseDto.
-        /// </returns>
+        /// <returns>CourseDto list.</returns>
         public async Task<CommonResponse<List<CourseDto>>> GetAllAsync()
         {
             try
             {
-                _logger.LogInformation("Fetching all courses started.");
+                _logger.LogInformation("Fetching all courses.");
                 var courses = (await _repo.GetAllAsync()).Select(Map).ToList();
-                _logger.LogInformation(
-                  "Successfully retrieved {CourseCount} courses.",
-                  courses.Count);
 
-                return CommonResponse<List<CourseDto>>.SuccessResponse("Courses retrieved successfully", courses);
+                return CommonResponse<List<CourseDto>>.SuccessResponse(
+                    courses.Any() ? "Courses retrieved successfully" : "No courses found",
+                    courses);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while fetching courses.");
-                return CommonResponse<List<CourseDto>>.FailureResponse($"An error occurred while fetching courses: {ex.Message}");
+                _logger.LogError(ex, "Error fetching courses.");
+                return CommonResponse<List<CourseDto>>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
             }
         }
 
@@ -59,150 +54,114 @@
         /// Gets course by identifier.
         /// </summary>
         /// <param name="id">The course identifier.</param>
-        /// <returns>
-        /// CourseDto.
-        /// </returns>
+        /// <returns>CourseDto.</returns>
         public async Task<CommonResponse<CourseDto>> GetByIdAsync(Guid id)
         {
             try
             {
                 _logger.LogInformation("Fetching course with Id: {CourseId}", id);
-                var courses = (await _repo.GetByIdAsync(id)) is { } c ? Map(c) : null;
-                if (courses == null)
+                var course = await _repo.GetByIdAsync(id);
+
+                if (course == null)
                 {
-                    _logger.LogWarning("Course not found for Id: {CourseId}", id);
                     return CommonResponse<CourseDto>.FailureResponse("Course not found");
                 }
 
-                _logger.LogInformation("Course retrieved successfully for Id: {CourseId}", id);
-
-                return CommonResponse<CourseDto>.SuccessResponse("Courses retrieved successfully", courses);
+                return CommonResponse<CourseDto>.SuccessResponse(
+                    "Course retrieved successfully", Map(course));
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while fetching course with Id: {CourseId}", id);
-                return CommonResponse<CourseDto>.FailureResponse($"An error occurred while fetching the course: {ex.Message}");
+                _logger.LogError(ex, "Error fetching course Id: {CourseId}", id);
+                return CommonResponse<CourseDto>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
             }
         }
-
-           // => (await _repo.GetByIdAsync(id)) is { } c ? Map(c) : null;
 
         /// <summary>
         /// Gets courses by stream identifier.
         /// </summary>
         /// <param name="streamId">The stream identifier.</param>
-        /// <returns>
-        /// List of CourseDto.
-        /// </returns>
+        /// <returns>CourseDto list.</returns>
         public async Task<CommonResponse<List<CourseDto>>> GetByStreamAsync(Guid streamId)
         {
             try
             {
                 _logger.LogInformation("Fetching courses for StreamId: {StreamId}", streamId);
                 var courses = (await _repo.GetByStreamAsync(streamId)).Select(Map).ToList();
-                if (courses == null || courses.Count() == 0)
-                {
-                    _logger.LogWarning("No courses found for StreamId: {StreamId}", streamId);
 
-                    return CommonResponse<List<CourseDto>>.FailureResponse("No courses found for the given stream");
-                }
-                else
-                {
-                    _logger.LogInformation("Successfully retrieved {CourseCount} courses for StreamId: {StreamId}",
-                      courses.Count,
-                      streamId);
-                    return CommonResponse<List<CourseDto>>.SuccessResponse("Courses retrieved successfully", courses);
-                }
+                return CommonResponse<List<CourseDto>>.SuccessResponse(
+                    courses.Any()
+                        ? "Courses retrieved successfully"
+                        : "No courses found for this stream",
+                    courses);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex,
-                   "Error occurred while fetching courses for StreamId: {StreamId}",
-                   streamId);
-                return CommonResponse<List<CourseDto>>.FailureResponse($"An error occurred while fetching courses: {ex.Message}");
+                _logger.LogError(ex, "Error fetching courses for StreamId: {StreamId}", streamId);
+                return CommonResponse<List<CourseDto>>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
             }
         }
-
-        //=> (await _repo.GetByStreamAsync(streamId)).Select(Map).ToList();
 
         /// <summary>
         /// Gets courses by subject identifier.
         /// </summary>
         /// <param name="subjectId">The subject identifier.</param>
-        /// <returns>
-        /// List of CourseDto.
-        /// </returns>
+        /// <returns>CourseDto list.</returns>
         public async Task<CommonResponse<List<CourseDto>>> GetBySubjectAsync(Guid subjectId)
         {
             try
             {
                 _logger.LogInformation("Fetching courses for SubjectId: {SubjectId}", subjectId);
                 var courses = (await _repo.GetBySubjectAsync(subjectId)).Select(Map).ToList();
-                if (courses == null || courses.Count() == 0)
-                {
-                    _logger.LogWarning("No courses found for SubjectId: {SubjectId}", subjectId);
-                    return CommonResponse<List<CourseDto>>.FailureResponse("No courses found for the given subject");
-                }
 
-                _logger.LogInformation(
-                      "Successfully retrieved {CourseCount} courses for SubjectId: {SubjectId}",
-                      courses.Count,
-                      subjectId);
-                return CommonResponse<List<CourseDto>>.SuccessResponse("Courses retrieved successfully", courses);
+                return CommonResponse<List<CourseDto>>.SuccessResponse(
+                    courses.Any()
+                        ? "Courses retrieved successfully"
+                        : "No courses found for this subject",
+                    courses);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex,
-                  "Error occurred while fetching courses for SubjectId: {SubjectId}",
-                  subjectId);
-                return CommonResponse<List<CourseDto>>.FailureResponse($"An error occurred while fetching courses: {ex.Message}");
+                _logger.LogError(ex, "Error fetching courses for SubjectId: {SubjectId}", subjectId);
+                return CommonResponse<List<CourseDto>>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
             }
         }
-
-        // => (await _repo.GetBySubjectAsync(subjectId)).Select(Map).ToList();
 
         /// <summary>
         /// Creates a new course.
         /// </summary>
         /// <param name="request">The course request.</param>
-        /// <returns>
-        /// Created CourseDto.
-        /// </returns>
+        /// <returns>Created CourseDto.</returns>
         public async Task<CommonResponse<CourseDto>> CreateAsync(CourseRequest request)
         {
             try
             {
                 _logger.LogInformation(
-                  "Creating course with Name: {CourseName}, SubjectId: {SubjectId}, GradeId: {GradeId}",
-                  request.coursename,
-                  request.subjectid,
-                  request.gradeid);
+                    "Creating course: {CourseName}, StreamId: {StreamId}",
+                    request.coursename, request.streamid);
+
                 var course = new Course
                 {
                     Name = request.coursename,
-                    SubjectId = request.subjectid,
-                    GradeId = request.gradeid,
-                    CourseDescription = request.cousedescription,
-                    CourseUrl = request.courseurl,
-                    MaxStudent = request.maxstudent,
-                    AcademicYear = request.academicyear,
+                    StreamId = request.streamid,
                     CreatedAt = DateTime.UtcNow,
-                    Status = request.status,
+                    CreatedBy = request.userId,
                 };
-                var createdEntity = await _repo.AddAsync(course);
-                var created = Map(createdEntity);
 
-                _logger.LogInformation(
-                   "Course created successfully with Id: {CourseId}",
-                   created.Id);
-                return CommonResponse<CourseDto>.SuccessResponse("Course created successfully", created);
+                var created = await _repo.AddAsync(course);
+
+                _logger.LogInformation("Course created with Id: {CourseId}", created.Id);
+                return CommonResponse<CourseDto>.SuccessResponse(
+                    "Course created successfully", Map(created));
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex,
-                   "Error occurred while creating course with Name: {CourseName}",
-                   request.coursename);
-                return CommonResponse<CourseDto>.FailureResponse($"An error occurred while creating the course: {ex.Message}");
+                _logger.LogError(ex, "Error creating course: {CourseName}", request.coursename);
+                return CommonResponse<CourseDto>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
             }
         }
 
@@ -211,54 +170,35 @@
         /// </summary>
         /// <param name="id">The course identifier.</param>
         /// <param name="request">The course request.</param>
-        /// <exception cref="KeyNotFoundException">Course not found.</exception>
-        /// <returns>
-        /// Updated CourseDto.
-        /// </returns>
+        /// <returns>Updated CourseDto.</returns>
         public async Task<CommonResponse<CourseDto>> UpdateAsync(Guid id, CourseRequest request)
         {
             try
             {
-                _logger.LogInformation(
-            "Updating course. CourseId: {CourseId}",
-            id);
+                _logger.LogInformation("Updating course Id: {CourseId}", id);
 
                 var course = await _repo.GetByIdAsync(id);
                 if (course == null)
                 {
-                    _logger.LogWarning(
-                        "Update failed. Course not found. CourseId: {CourseId}",
-                        id);
-
-                    return CommonResponse<CourseDto>
-                        .FailureResponse("Course not found");
+                    return CommonResponse<CourseDto>.FailureResponse("Course not found");
                 }
 
                 course.Name = request.coursename;
-                course.SubjectId = request.subjectid;
-                course.GradeId = request.gradeid;
-                course.CourseDescription = request.cousedescription;
-                course.CourseUrl = request.courseurl;
-                course.MaxStudent = request.maxstudent;
-                course.AcademicYear = request.academicyear;
+                course.StreamId = request.streamid;
                 course.UpdatedAt = DateTime.UtcNow;
+                course.UpdatedBy = request.userId;
 
-                var updatedEntity = await _repo.UpdateAsync(course);
-                var updated = Map(updatedEntity);
+                var updated = await _repo.UpdateAsync(course);
 
-                _logger.LogInformation(
-                    "Course updated successfully. CourseId: {CourseId}",
-                    updated.Id);
-
-                return CommonResponse<CourseDto>.SuccessResponse("Course updated successfully", updated);
+                _logger.LogInformation("Course updated Id: {CourseId}", id);
+                return CommonResponse<CourseDto>.SuccessResponse(
+                    "Course updated successfully", Map(updated));
             }
             catch (Exception ex)
             {
-                _logger.LogError(
-                   ex,
-                   "Error occurred while updating course. CourseId: {CourseId}",
-                   id);
-                return CommonResponse<CourseDto>.FailureResponse($"An error occurred while updating the course: {ex.Message}");
+                _logger.LogError(ex, "Error updating course Id: {CourseId}", id);
+                return CommonResponse<CourseDto>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
             }
         }
 
@@ -266,173 +206,167 @@
         /// Soft deletes a course.
         /// </summary>
         /// <param name="id">The course identifier.</param>
-        /// <returns>
-        /// Task.
-        /// </returns>
+        /// <returns>bool.</returns>
         public async Task<CommonResponse<bool>> DeleteAsync(Guid id)
         {
             try
             {
-                _logger.LogInformation(
-                   "Deleting course. CourseId: {CourseId}",
-                   id);
-                bool res = await _repo.SoftDeleteAsync(id);
-                if (res)
-                {
-                    _logger.LogInformation(
-              "Course deleted successfully. CourseId: {CourseId}",
-              id);
-                    return CommonResponse<bool>.SuccessResponse("Course deleted successfully", res);
-                }
-                else
-                {
-                    _logger.LogWarning(
-                "Delete failed. Course not found or already deleted. CourseId: {CourseId}",
-                id);
+                _logger.LogInformation("Deleting course Id: {CourseId}", id);
+                var result = await _repo.SoftDeleteAsync(id);
 
-                    return CommonResponse<bool>.FailureResponse("Course not found or could not be deleted");
+                if (result)
+                {
+                    return CommonResponse<bool>.SuccessResponse(
+                        "Course deleted successfully", true);
                 }
+
+                return CommonResponse<bool>.FailureResponse(
+                    "Course not found or already deleted");
             }
             catch (Exception ex)
             {
-                _logger.LogError(
-                  ex,
-                  "Error occurred while deleting course. CourseId: {CourseId}",
-                  id);
-                return CommonResponse<bool>.FailureResponse($"An error occurred while deleting the course: {ex.Message}");
+                _logger.LogError(ex, "Error deleting course Id: {CourseId}", id);
+                return CommonResponse<bool>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
             }
         }
 
         /// <summary>
-        /// Retrieves courses based on multiple filter criteria with pagination support.
+        /// Gets filtered courses with pagination support.
+        /// Search works on Course Name, Stream Name, Grade Name, and Syllabus Name.
         /// </summary>
-        /// <param name="centreId">Centre identifier used to filter courses.</param>
-        /// <param name="syllabusId">Syllabus identifier used to filter courses.</param>
-        /// <param name="gradeId">Grade identifier used to filter courses.</param>
-        /// <param name="streamId">Stream identifier used to filter courses.</param>
-        /// <param name="subjectsId">Subject identifier used to filter courses.</param>
-        /// <param name="startDate">Filters courses created on or after this date.</param>
-        /// <param name="endDate">Filters courses created on or before this date.</param>
-        /// <param name="active">Indicates whether to filter active or inactive courses.</param>
-        /// <param name="searchText">Search keyword applied to course name.</param>
-        /// <param name="limit">Number of records to return (page size).</param>
-        /// <param name="offset">Number of records to skip.</param>
-        /// <param name="sortOrder">Sorting order ("asc" or "desc").</param>
-        /// <returns>
-        /// A <see cref="CommonResponse{T}"/> containing a paginated list of
-        /// <see cref="CourseDto"/> objects.
-        /// </returns>
+        /// <param name="request">The paged request.</param>
+        /// <returns>Paginated course result.</returns>
         public async Task<CommonResponse<PagedResult<CourseDto>>> GetFilteredAsync(
-       Guid? centreId,
-       Guid? syllabusId,
-       Guid? gradeId,
-       Guid? streamId,
-       Guid? subjectsId,
-       DateTime? startDate,
-       DateTime? endDate,
-       bool? active,
-       string? searchText,
-       int limit,
-       int offset,
-       string sortOrder)
+            PagedRequest request)
         {
             try
             {
                 _logger.LogInformation(
-                             "Fetching filtered courses. Filters => CentreId:{CentreId}, SyllabusId:{SyllabusId}, GradeId:{GradeId}, StreamId:{StreamId}, Active:{Active}, Search:{SearchText}, Limit:{Limit}, Offset:{Offset}, SortOrder:{SortOrder}",
-                             centreId, syllabusId, gradeId, streamId, active, searchText, limit, offset, sortOrder);
+                    "Fetching filtered courses. Filters => Active:{Active}, " +
+                    "Search:{SearchText}, SortBy:{SortBy}, SortOrder:{SortOrder}, " +
+                    "Limit:{Limit}, Offset:{Offset}",
+                    request.Active, request.SearchText, request.SortBy,
+                    request.SortOrder, request.Limit, request.Offset);
+
                 var query = _repo.Query();
 
-                if (syllabusId.HasValue)
+                // ── Filters ──
+                if (request.Active.HasValue)
+                    query = query.Where(x => x.IsActive == request.Active.Value);
+
+                if (request.StartDate.HasValue)
+                    query = query.Where(x => x.CreatedAt >= request.StartDate.Value);
+
+                if (request.EndDate.HasValue)
+                    query = query.Where(x => x.CreatedAt <= request.EndDate.Value);
+
+                // ── Search on Course, Stream, Grade, AND Syllabus Name ──
+                if (!string.IsNullOrWhiteSpace(request.SearchText))
                 {
-                    query = query.Where(c =>
-                        c.Stream.Grade.SyllabusId == syllabusId);
-                }
-
-                if (gradeId.HasValue)
-                {
-                    query = query.Where(c =>
-                        c.Stream.GradeId == gradeId);
-                }
-
-                if (streamId.HasValue)
-                {
-                    query = query.Where(c =>
-                        c.StreamId == streamId);
-                }
-
-                if (active.HasValue)
-                    query = query.Where(x => x.IsActive == active);
-
-                if (startDate.HasValue)
-                    query = query.Where(x => x.CreatedAt >= startDate.Value);
-
-                if (endDate.HasValue)
-                    query = query.Where(x => x.CreatedAt <= endDate.Value);
-
-                if (!string.IsNullOrWhiteSpace(searchText))
-                {
+                    var searchTerm = request.SearchText.Trim().ToLower();
                     query = query.Where(x =>
-                        x.Name.Contains(searchText));
+                        x.Name.ToLower().Contains(searchTerm) ||
+                        x.Stream.Name.ToLower().Contains(searchTerm) ||
+                        x.Stream.Grade.Name.ToLower().Contains(searchTerm) ||
+                        x.Stream.Grade.Syllabus.Name.ToLower().Contains(searchTerm));
                 }
 
+                // ── Total Count ──
                 var totalCount = await query.CountAsync();
 
-                _logger.LogInformation(
-                "Filtered courses count: {TotalCount}",
-                totalCount);
+                if (totalCount == 0)
+                {
+                    return CommonResponse<PagedResult<CourseDto>>.SuccessResponse(
+                        "No courses found.",
+                        new PagedResult<CourseDto>(
+                            new List<CourseDto>(), 0, request.Limit, request.Offset));
+                }
 
-                query = sortOrder.ToLower() == "desc"
-                    ? query.OrderByDescending(x => x.CreatedAt)
-                    : query.OrderBy(x => x.CreatedAt);
+                // ── Dynamic Sorting ──
+                var isDesc = request.SortOrder.Equals("desc", StringComparison.OrdinalIgnoreCase);
 
+                query = request.SortBy.ToLower() switch
+                {
+                    "name" => isDesc ? query.OrderByDescending(x => x.Name)
+                                             : query.OrderBy(x => x.Name),
+
+                    "streamname" => isDesc ? query.OrderByDescending(x => x.Stream.Name)
+                                             : query.OrderBy(x => x.Stream.Name),
+
+                    "gradename" => isDesc ? query.OrderByDescending(x => x.Stream.Grade.Name)
+                                             : query.OrderBy(x => x.Stream.Grade.Name),
+
+                    "syllabusname" => isDesc ? query.OrderByDescending(x => x.Stream.Grade.Syllabus.Name)
+                                             : query.OrderBy(x => x.Stream.Grade.Syllabus.Name),
+
+                    "isactive" => isDesc ? query.OrderByDescending(x => x.IsActive)
+                                             : query.OrderBy(x => x.IsActive),
+
+                    "createdat" => isDesc ? query.OrderByDescending(x => x.CreatedAt)
+                                             : query.OrderBy(x => x.CreatedAt),
+
+                    _ => isDesc ? query.OrderByDescending(x => x.CreatedAt)
+                                             : query.OrderBy(x => x.CreatedAt),
+                };
+
+                // ── Pagination ──
                 var courses = await query
-                    .Skip(offset)
-                    .Take(limit)
+                    .Skip(request.Offset)
+                    .Take(request.Limit)
                     .ToListAsync();
 
-                var dtoList = courses.Select(c => new CourseDto
-                {
-                    Id = c.Id,
-                    Name = c.Name,
-                    IsActive = c.IsActive,
-                }).ToList();
+                var dtoList = courses.Select(Map).ToList();
 
                 _logger.LogInformation(
-               "Returning {ReturnedCount} courses (Offset:{Offset}, Limit:{Limit})",
-               dtoList.Count, offset, limit);
+                    "Returning {Count} of {Total} courses",
+                    dtoList.Count, totalCount);
+
                 return CommonResponse<PagedResult<CourseDto>>.SuccessResponse(
-                "Courses fetched successfully",
-                new PagedResult<CourseDto>(
-                    dtoList,
-                    totalCount,
-                    limit,
-                    offset));
+                    "Courses fetched successfully.",
+                    new PagedResult<CourseDto>(
+                        dtoList, totalCount, request.Limit, request.Offset));
             }
             catch (Exception ex)
             {
-                _logger.LogError(
-                   ex,
-                   "Error occurred while fetching filtered courses. Filters => CentreId:{CentreId}, SyllabusId:{SyllabusId}, GradeId:{GradeId}, StreamId:{StreamId}, Active:{Active}, Search:{SearchText}, Limit:{Limit}, Offset:{Offset}, SortOrder:{SortOrder}",
-                   centreId, syllabusId, gradeId, streamId, active, searchText, limit, offset, sortOrder);
-                return CommonResponse<PagedResult<CourseDto>>.FailureResponse($"An error occurred while fetching courses: {ex.Message}");
+                _logger.LogError(ex, "Error fetching filtered courses.");
+                return CommonResponse<PagedResult<CourseDto>>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
             }
         }
 
+        /// <summary>
+        /// Maps course entity to DTO with full hierarchy.
+        /// </summary>
         private static CourseDto Map(Course c) => new ()
         {
             Id = c.Id,
             Name = c.Name,
-            GradeId = c.GradeId,
-            CourseDescription = c.CourseDescription,
-            CourseUrl = c.CourseUrl,
-            MaxStudent = c.MaxStudent,
-            AcademicYear = c.AcademicYear,
-            Status = c.Status,
-            Subject = new SubjectDto
+            IsActive = c.IsActive,
+            StreamId = c.StreamId,
+            CreatedBy = c.CreatedBy,
+            CreatedAt = c.CreatedAt,
+            UpdatedBy = c.UpdatedBy,
+            UpdatedAt = c.UpdatedAt,
+            Stream = c.Stream == null ? null : new StreamDto
             {
-                Id = c.Subject.Id,
-                Name = c.Subject.Name,
+                Id = c.Stream.Id,
+                Name = c.Stream.Name,
+                IsActive = c.Stream.IsActive,
+                GradeId = c.Stream.GradeId,
+                Grade = c.Grade == null ? null : new GradeDto
+                {
+                    Id = c.Grade.Id,
+                    Name = c.Grade.Name,
+                    IsActive = c.Grade.IsActive,
+                    SyllabusId = c.Grade.SyllabusId,
+                    Syllabus = c.Grade.Syllabus == null ? null : new SyllabusDto
+                    {
+                        Id = c.Grade.Syllabus.Id,
+                        Name = c.Grade.Syllabus.Name,
+                        IsActive = c.Grade.Syllabus.IsActive,
+                    },
+                },
             },
         };
     }

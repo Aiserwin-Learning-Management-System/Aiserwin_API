@@ -6,19 +6,15 @@
     using Winfocus.LMS.Application.DTOs;
     using Winfocus.LMS.Application.DTOs.Common;
     using Winfocus.LMS.Application.DTOs.Masters;
-    using Winfocus.LMS.Application.DTOs.Students;
     using Winfocus.LMS.Application.Interfaces;
-    using Winfocus.LMS.Application.Services;
-    using Winfocus.LMS.Domain.Enums;
 
     /// <summary>
-    /// CourseController.
+    /// Handles course endpoints.
     /// </summary>
-    /// <seealso cref="Microsoft.AspNetCore.Mvc.ControllerBase" />
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
-    public class CourseController : ControllerBase
+    public class CourseController : BaseController
     {
         private readonly ICourseService _service;
 
@@ -32,139 +28,95 @@
         }
 
         /// <summary>
-        /// Gets all.
+        /// Gets all courses.
         /// </summary>
         /// <returns>CourseDto list.</returns>
         [HttpGet]
-        public async Task<CommonResponse<List<CourseDto>>> GetAll()
-        {
-            return await _service.GetAllAsync();
-        }
+        public async Task<ActionResult<CommonResponse<List<CourseDto>>>> GetAll()
+            => Ok(await _service.GetAllAsync());
 
         /// <summary>
-        /// Gets the specified identifier.
+        /// Gets a course by identifier.
         /// </summary>
         /// <param name="id">The identifier.</param>
-        /// <returns>CourseDto list.</returns>
+        /// <returns>CourseDto.</returns>
         [HttpGet("{id:guid}")]
-        public async Task<CommonResponse<CourseDto>> Get(Guid id)
-        {
-            return await _service.GetByIdAsync(id);
-        }
-
-           // => Ok(await _service.GetByIdAsync(id));
+        public async Task<ActionResult<CommonResponse<CourseDto>>> Get(Guid id)
+            => Ok(await _service.GetByIdAsync(id));
 
         /// <summary>
-        /// Gets the by stream.
+        /// Gets courses by stream identifier.
         /// </summary>
         /// <param name="streamId">The stream identifier.</param>
         /// <returns>CourseDto list.</returns>
         [HttpGet("stream/{streamId:guid}")]
-        public async Task<CommonResponse<List<CourseDto>>> GetByStream(Guid streamId)
-        {
-            return await _service.GetByStreamAsync(streamId);
-        }
-
-        //  => Ok(await _service.GetByStreamAsync(streamId));
+        public async Task<ActionResult<CommonResponse<List<CourseDto>>>> GetByStream(
+            Guid streamId)
+            => Ok(await _service.GetByStreamAsync(streamId));
 
         /// <summary>
-        /// Gets the by subject.
+        /// Gets courses by subject identifier.
         /// </summary>
         /// <param name="subjectId">The subject identifier.</param>
         /// <returns>CourseDto list.</returns>
         [HttpGet("subject/{subjectId:guid}")]
-        public async Task<CommonResponse<List<CourseDto>>> GetBySubject(Guid subjectId)
-        {
-            return await _service.GetBySubjectAsync(subjectId);
-        }
-
-            //=> Ok(await _service.GetBySubjectAsync(subjectId));
+        public async Task<ActionResult<CommonResponse<List<CourseDto>>>> GetBySubject(
+            Guid subjectId)
+            => Ok(await _service.GetBySubjectAsync(subjectId));
 
         /// <summary>
-        /// Creates the specified request.
+        /// Creates a new course.
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>CourseDto.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPost]
-        public async Task<CommonResponse<CourseDto>> Create(CourseRequest request)
+        public async Task<ActionResult<CommonResponse<CourseDto>>> Create(
+            CourseRequest request)
         {
-           return await _service.CreateAsync(request);
+            var updatedRequest = request with { userId = UserId };
+            var result = await _service.CreateAsync(updatedRequest);
+            return Ok(result);
         }
 
-           // => Ok(await _service.CreateAsync(request));
-
         /// <summary>
-        /// Updates the specified identifier.
+        /// Updates a course.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <param name="request">The request.</param>
-        /// <returns>result.</returns>
+        /// <returns>CourseDto.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPut("{id:guid}")]
-        public async Task<CommonResponse<CourseDto>> Update(Guid id, CourseRequest request)
+        public async Task<ActionResult<CommonResponse<CourseDto>>> Update(
+            Guid id,
+            CourseRequest request)
         {
-           return await _service.UpdateAsync(id, request);
+            var updatedRequest = request with { userId = UserId };
+            var result = await _service.UpdateAsync(id, updatedRequest);
+            return Ok(result);
         }
 
         /// <summary>
-        /// Deletes the specified identifier.
+        /// Deletes a course.
         /// </summary>
         /// <param name="id">The identifier.</param>
-        /// <returns>result.</returns>
+        /// <returns>bool.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpDelete("{id:guid}")]
-        public async Task<CommonResponse<bool>> Delete(Guid id)
-        {
-           return await _service.DeleteAsync(id);
-        }
+        public async Task<ActionResult<CommonResponse<bool>>> Delete(Guid id)
+            => Ok(await _service.DeleteAsync(id));
 
         /// <summary>
         /// Retrieves filtered courses with pagination.
         /// </summary>
-        /// <param name="centreId">Filter by centre identifier.</param>
-        /// <param name="syllabusid">Filter by syllabus identifier.</param>
-        /// <param name="gradeId">Filter by grade identifier.</param>
-        /// <param name="streamId">Filter by stream identifier.</param>
-        /// <param name="subjectsId">Filter by subject identifier.</param>
-        /// <param name="startDate">Filter courses created after this date.</param>
-        /// <param name="endDate">Filter courses created before this date.</param>
-        /// <param name="active">Filter by active status.</param>
-        /// <param name="searchText">Search keyword.</param>
-        /// <param name="limit">Number of records to return.</param>
-        /// <param name="offset">Number of records to skip.</param>
-        /// <param name="sortOrder">Sorting order (asc/desc).</param>
+        /// <param name="request">The paged request.</param>
         /// <returns>Paginated list of courses.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpGet("filter")]
         public async Task<ActionResult<CommonResponse<PagedResult<CourseDto>>>> GetFiltered(
-    Guid? centreId,
-    Guid? syllabusid,
-    Guid? gradeId,
-    Guid? streamId,
-    Guid? subjectsId,
-    DateTime? startDate,
-    DateTime? endDate,
-    bool active,
-    string? searchText,
-    int limit = 20,
-    int offset = 0,
-    string sortOrder = "asc")
+            [FromQuery] PagedRequest request)
         {
-            var result = await _service.GetFilteredAsync(
-                centreId,
-                syllabusid,
-                gradeId,
-                streamId,
-                subjectsId,
-                startDate,
-                endDate,
-                active,
-                searchText,
-                limit,
-                offset,
-                sortOrder);
-
+            var result = await _service.GetFilteredAsync(request);
             return Ok(result);
         }
     }

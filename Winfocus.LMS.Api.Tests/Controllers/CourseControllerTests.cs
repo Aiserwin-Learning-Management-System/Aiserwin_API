@@ -72,11 +72,6 @@
                         Id = Guid.NewGuid(),
                         Name = "Mathematics 101",
                         GradeId = Guid.NewGuid(),
-                        CourseDescription = "Introduction to Mathematics",
-                        CourseUrl = "https://example.com/math101",
-                        MaxStudent = 30,
-                        AcademicYear = Guid.NewGuid(),
-                        Status = "Active",
                         Subject = new SubjectDto
                         {
                             Id = Guid.NewGuid(),
@@ -198,11 +193,6 @@
                     Id = courseId,
                     Name = "Physics 101",
                     GradeId = Guid.NewGuid(),
-                    CourseDescription = "Introduction to Physics",
-                    CourseUrl = "https://example.com/physics101",
-                    MaxStudent = 25,
-                    AcademicYear = Guid.NewGuid(),
-                    Status = "Active",
                     Subject = new SubjectDto
                     {
                         Id = Guid.NewGuid(),
@@ -499,21 +489,15 @@
             {
                 // Arrange
                 var request = new CourseRequest(
-                    coursename: "Computer Science 101",
-                    subjectid: Guid.NewGuid(),
-                    gradeid: Guid.NewGuid(),
-                    cousedescription: "Introduction to Computer Science",
-                    courseurl: "https://example.com/cs101",
-                    maxstudent: 40,
-                    academicyear: Guid.NewGuid(),
-                    status: "Active");
+                   coursename: "Test Course",
+                   streamid: Guid.NewGuid(),
+                   userId: Guid.NewGuid());
 
                 var createdCourse = new CourseDto
                 {
                     Id = Guid.NewGuid(),
                     Name = request.coursename,
-                    CourseDescription = request.cousedescription,
-                    Subject = new SubjectDto { Id = request.subjectid, Name = "Computer Science" },
+                    Subject = new SubjectDto { Name = "Computer Science" },
                 };
 
                 var response = CommonResponse<CourseDto>.SuccessResponse(
@@ -586,14 +570,9 @@
                 // Arrange
                 var courseId = Guid.NewGuid();
                 var request = new CourseRequest(
-                    coursename: "Updated Course Name",
-                    subjectid: Guid.NewGuid(),
-                    gradeid: Guid.NewGuid(),
-                    cousedescription: "Updated description",
-                    courseurl: "https://example.com/updated",
-                    maxstudent: 35,
-                    academicyear: Guid.NewGuid(),
-                    status: "Active");
+                   coursename: "Test Course",
+                   streamid: Guid.NewGuid(),
+                   userId: Guid.NewGuid());
 
                 var updatedCourse = new CourseDto
                 {
@@ -638,13 +617,8 @@
                 var courseId = Guid.NewGuid();
                 var request = new CourseRequest(
                     coursename: "Test Course",
-                    subjectid: Guid.NewGuid(),
-                    gradeid: Guid.NewGuid(),
-                    cousedescription: "Test",
-                    courseurl: "https://test.com",
-                    maxstudent: 30,
-                    academicyear: Guid.NewGuid(),
-                    status: "Active");
+                    streamid: Guid.NewGuid(),
+                    userId: Guid.NewGuid());
 
                 _mockService
                     .Setup(s => s.UpdateAsync(courseId, It.IsAny<CourseRequest>()))

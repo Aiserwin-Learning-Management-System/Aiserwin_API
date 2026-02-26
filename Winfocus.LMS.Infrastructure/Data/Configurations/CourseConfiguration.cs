@@ -22,10 +22,10 @@
                 .IsRequired()
                 .HasMaxLength(200);
 
-            // Many courses → one subject
             builder.HasOne(c => c.Subject)
                 .WithMany(s => s.Courses)
                 .HasForeignKey(c => c.SubjectId)
+                .IsRequired(false)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }
