@@ -63,7 +63,7 @@
             }
             else
             {
-                return CommonResponse<GradeDto>.FailureResponse("batch timing not found");
+                return CommonResponse<GradeDto>.FailureResponse("Grade not found");
             }
         }
 
@@ -100,6 +100,7 @@
                 ?? throw new KeyNotFoundException("Grade not found");
 
             grade.Name = request.name;
+            grade.SyllabusId = request.syllabusid;
             grade.UpdatedBy = request.userId;
             grade.UpdatedAt = DateTime.UtcNow;
 
@@ -136,121 +137,129 @@
         }
 
         /// <summary>
-        /// Retrieves grades based on multiple filter criteria with pagination support.
+        /// Gets filtered grades with pagination support.
+        /// Search works on both Grade Name and Syllabus Name.
         /// </summary>
-        /// <param name="syllabusId">Syllabus identifier used to filter grades.</param>
-        /// <param name="startDate">Filters grades created on or after this date.</param>
-        /// <param name="endDate">Filters grades created on or before this date.</param>
-        /// <param name="active">Indicates whether to filter active or inactive grades.</param>
-        /// <param name="searchText">Search keyword applied to grades name.</param>
-        /// <param name="limit">Number of records to return (page size).</param>
-        /// <param name="offset">Number of records to skip.</param>
-        /// <param name="sortOrder">Sorting order ("asc" or "desc").</param>
-        /// <returns>
-        /// A <see cref="CommonResponse{T}"/> containing a paginated list of
-        /// <see cref="GradeDto"/> objects.
-        /// </returns>
+        /// <param name="request">The paged request.</param>
+        /// <returns>Paginated grade result.</returns>
         public async Task<CommonResponse<PagedResult<GradeDto>>> GetFilteredAsync(
-       Guid? syllabusId,
-       DateTime? startDate,
-       DateTime? endDate,
-       bool? active,
-       string? searchText,
-       int limit,
-       int offset,
-       string sortOrder)
+            PagedRequest request)
         {
             try
             {
                 _logger.LogInformation(
-                             "Fetching filtered grades. Filters =>  SyllabusId:{SyllabusId}, Active:{Active}, Search:{SearchText}, Limit:{Limit}, Offset:{Offset}, SortOrder:{SortOrder}",
-                             syllabusId, active, searchText, limit, offset, sortOrder);
+                    "Fetching filtered grades. Filters => Active:{Active}, " +
+                    "Search:{SearchText}, SortBy:{SortBy}, SortOrder:{SortOrder}, " +
+                    "Limit:{Limit}, Offset:{Offset}",
+                    request.Active, request.SearchText, request.SortBy,
+                    request.SortOrder, request.Limit, request.Offset);
+
                 var query = _repository.Query();
 
-                if (syllabusId.HasValue)
+                // ── Filters ──
+                if (request.Active.HasValue)
+                    query = query.Where(x => x.IsActive == request.Active.Value);
+
+                if (request.StartDate.HasValue)
+                    query = query.Where(x => x.CreatedAt >= request.StartDate.Value);
+
+                if (request.EndDate.HasValue)
+                    query = query.Where(x => x.CreatedAt <= request.EndDate.Value);
+
+                // ── Search on BOTH Grade Name AND Syllabus Name ──
+                if (!string.IsNullOrWhiteSpace(request.SearchText))
                 {
-                    query = query.Where(c =>
-                        c.Stream.Grade.SyllabusId == syllabusId);
-                }
-
-                if (active.HasValue)
-                    query = query.Where(x => x.IsActive == active);
-
-                if (startDate.HasValue)
-                    query = query.Where(x => x.CreatedAt >= startDate.Value);
-
-                if (endDate.HasValue)
-                    query = query.Where(x => x.CreatedAt <= endDate.Value);
-
-                if (!string.IsNullOrWhiteSpace(searchText))
-                {
+                    var searchTerm = request.SearchText.Trim().ToLower();
                     query = query.Where(x =>
-                        x.Name.Contains(searchText));
+                        x.Name.ToLower().Contains(searchTerm) ||
+                        x.Syllabus.Name.ToLower().Contains(searchTerm));
                 }
 
+                // ── Total Count ──
                 var totalCount = await query.CountAsync();
 
-                _logger.LogInformation(
-                "Filtered grades count: {TotalCount}",
-                totalCount);
+                if (totalCount == 0)
+                {
+                    return CommonResponse<PagedResult<GradeDto>>.SuccessResponse(
+                        "No grades found.",
+                        new PagedResult<GradeDto>(
+                            new List<GradeDto>(), 0, request.Limit, request.Offset));
+                }
 
-                query = sortOrder.ToLower() == "desc"
-                    ? query.OrderByDescending(x => x.CreatedAt)
-                    : query.OrderBy(x => x.CreatedAt);
+                // ── Dynamic Sorting ──
+                var isDesc = request.SortOrder.Equals("desc", StringComparison.OrdinalIgnoreCase);
 
+                query = request.SortBy.ToLower() switch
+                {
+                    "name" => isDesc ? query.OrderByDescending(x => x.Name)
+                                             : query.OrderBy(x => x.Name),
+
+                    "syllabusname" => isDesc ? query.OrderByDescending(x => x.Syllabus.Name)
+                                             : query.OrderBy(x => x.Syllabus.Name),
+
+                    "isactive" => isDesc ? query.OrderByDescending(x => x.IsActive)
+                                             : query.OrderBy(x => x.IsActive),
+
+                    "createdat" => isDesc ? query.OrderByDescending(x => x.CreatedAt)
+                                             : query.OrderBy(x => x.CreatedAt),
+
+                    _ => isDesc ? query.OrderByDescending(x => x.CreatedAt)
+                                             : query.OrderBy(x => x.CreatedAt),
+                };
+
+                // ── Pagination ──
                 var grades = await query
-                    .Skip(offset)
-                    .Take(limit)
+                    .Skip(request.Offset)
+                    .Take(request.Limit)
                     .ToListAsync();
 
-                var dtoList = grades.Select(c => new GradeDto
-                {
-                    Id = c.Id,
-                    Name = c.Name,
-                    IsActive = c.IsActive,
-                }).ToList();
+                var dtoList = grades.Select(Map).ToList();
 
                 _logger.LogInformation(
-               "Returning {ReturnedCount} grades (Offset:{Offset}, Limit:{Limit})",
-               dtoList.Count, offset, limit);
+                    "Returning {Count} of {Total} grades",
+                    dtoList.Count, totalCount);
+
                 return CommonResponse<PagedResult<GradeDto>>.SuccessResponse(
-                "Grades fetched successfully",
-                new PagedResult<GradeDto>(
-                    dtoList,
-                    totalCount,
-                    limit,
-                    offset));
+                    "Grades fetched successfully.",
+                    new PagedResult<GradeDto>(
+                        dtoList, totalCount, request.Limit, request.Offset));
             }
             catch (Exception ex)
             {
-                _logger.LogError(
-                   ex,
-                   "Error occurred while fetching filtered grades. Filters => SyllabusId:{SyllabusId}, Active:{Active}, Search:{SearchText}, Limit:{Limit}, Offset:{Offset}, SortOrder:{SortOrder}",
-                   syllabusId, active, searchText, limit, offset, sortOrder);
-                return CommonResponse<PagedResult<GradeDto>>.FailureResponse($"An error occurred while fetching grades: {ex.Message}");
+                _logger.LogError(ex, "Error fetching filtered grades.");
+                return CommonResponse<PagedResult<GradeDto>>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
             }
         }
 
+        /// <summary>
+        /// Maps grade entity list to DTO list.
+        /// </summary>
         private static List<GradeDto> Map(IEnumerable<Grade> grades)
         {
             return grades.Select(Map).ToList();
         }
 
+        /// <summary>
+        /// Maps grade entity to DTO.
+        /// </summary>
         private static GradeDto Map(Grade c) =>
-     new GradeDto
-     {
-         Id = c.Id,
-         Name = c.Name,
-         SyllabusId = c.SyllabusId,
-         UpdatedBy = c.UpdatedBy,
-         UpdatedAt = c.UpdatedAt,
-         CreatedBy = c.CreatedBy,
-         CreatedAt = c.CreatedAt,
-         Syllabus = c.Syllabus == null ? null : new SyllabusDto
-         {
-             Id = c.Syllabus.Id,
-             Name = c.Syllabus.Name,
-         },
-     };
-}
+            new GradeDto
+            {
+                Id = c.Id,
+                Name = c.Name,
+                IsActive = c.IsActive,
+                SyllabusId = c.SyllabusId,
+                CreatedBy = c.CreatedBy,
+                CreatedAt = c.CreatedAt,
+                UpdatedBy = c.UpdatedBy,
+                UpdatedAt = c.UpdatedAt,
+                Syllabus = c.Syllabus == null ? null : new SyllabusDto
+                {
+                    Id = c.Syllabus.Id,
+                    Name = c.Syllabus.Name,
+                    IsActive = c.Syllabus.IsActive,
+                },
+            };
+    }
 }

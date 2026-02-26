@@ -54,23 +54,8 @@
         /// <summary>
         /// Gets filtered grades with pagination support.
         /// </summary>
-        /// <param name="syllabusId">Syllabus identifier.</param>
-        /// <param name="startDate">Filter grades created after this date.</param>
-        /// <param name="endDate">Filter grades created before this date.</param>
-        /// <param name="active">Filter by active status.</param>
-        /// <param name="searchText">Search keyword.</param>
-        /// <param name="limit">Number of records to return.</param>
-        /// <param name="offset">Number of records to skip.</param>
-        /// <param name="sortOrder">Sorting order (asc or desc).</param>
+        /// <param name="request">The paged request.</param>
         /// <returns>Paginated grade result.</returns>
-        Task<CommonResponse<PagedResult<GradeDto>>> GetFilteredAsync(
-            Guid? syllabusId,
-            DateTime? startDate,
-            DateTime? endDate,
-            bool? active,
-            string? searchText,
-            int limit,
-            int offset,
-            string sortOrder);
+        Task<CommonResponse<PagedResult<GradeDto>>> GetFilteredAsync(PagedRequest request);
     }
 }
