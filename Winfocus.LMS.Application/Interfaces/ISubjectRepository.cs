@@ -54,5 +54,11 @@
         /// <param name="id">The identifier.</param>
         /// <returns>Task.</returns>
         Task<bool> SoftDeleteAsync(Guid id);
+
+        /// <summary>
+        /// Gets all asynchronous.
+        /// </summary>
+        /// <returns>subject.</returns>
+        IQueryable<Subject> Query();
     }
 }

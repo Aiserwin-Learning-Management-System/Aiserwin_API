@@ -21,12 +21,6 @@
             builder.Property(c => c.Name)
                 .IsRequired()
                 .HasMaxLength(200);
-
-            builder.HasOne(c => c.Subject)
-                .WithMany(s => s.Courses)
-                .HasForeignKey(c => c.SubjectId)
-                .IsRequired(false)
-                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

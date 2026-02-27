@@ -44,7 +44,6 @@
         {
             return await _context.Courses
                 .Include(c => c.Stream)
-                .Include(c => c.Subject)
                 .Include(c => c.FeePlans)
                 .Where(c => c.Stream.GradeId == gradeId && c.IsActive)
                 .ToListAsync();

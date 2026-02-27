@@ -74,7 +74,6 @@
         public async Task<IReadOnlyList<Course>> GetByStreamAsync(Guid streamId)
     => await _db.Courses
         .Where(c => c.StreamId == streamId && c.IsActive)
-        .Include(c => c.Subject)
         .Include(c => c.Grade)
             .ThenInclude(g => g.Syllabus)
         .Include(c => c.Stream)
@@ -90,8 +89,6 @@
         /// </returns>
         public async Task<IReadOnlyList<Course>> GetBySubjectAsync(Guid subjectId)
     => await _db.Courses
-        .Where(c => c.SubjectId == subjectId && c.IsActive)
-        .Include(c => c.Subject)
         .Include(c => c.Grade)
             .ThenInclude(g => g.Syllabus)
         .Include(c => c.Stream)
@@ -156,7 +153,6 @@
         public IQueryable<Course> Query()
         {
             return _db.Courses
-                .Include(c => c.Subject)
                 .Include(c => c.Grade)
                     .ThenInclude(g => g.Syllabus)
                 .Include(c => c.Stream)

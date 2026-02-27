@@ -23,24 +23,6 @@
         /// </summary>
         public Streams Stream { get; set; } = null!;
 
-        // Many courses → one subject
-
-        /// <summary>
-        /// Gets or sets the subject identifier.
-        /// </summary>
-        /// <value>
-        /// The subject identifier.
-        /// </value>
-        public Guid? SubjectId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the subject.
-        /// </summary>
-        /// <value>
-        /// The subject.
-        /// </value>
-        public Subject? Subject { get; set; } = null!;
-
         /// <summary>
         /// Gets or sets the fee plans.
         /// </summary>
