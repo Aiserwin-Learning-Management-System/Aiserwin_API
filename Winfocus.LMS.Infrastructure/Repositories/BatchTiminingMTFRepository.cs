@@ -34,7 +34,11 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         public async Task<IReadOnlyList<BatchTimingMTF>> GetAllAsync()
         {
             return await _dbContext.BatchTimingMTFs
-                .Include(x => x.Subject)
+               .Include(x => x.Subject)
+                  .ThenInclude(s => s.Course)
+                     .ThenInclude(s => s.Stream)
+                      .ThenInclude(s => s.Grade)
+                       .ThenInclude(s => s.Syllabus)
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -48,6 +52,10 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         {
             return await _dbContext.BatchTimingMTFs
                 .Include(x => x.Subject)
+                  .ThenInclude(s => s.Course)
+                     .ThenInclude(s => s.Stream)
+                      .ThenInclude(s => s.Grade)
+                       .ThenInclude(s => s.Syllabus)
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
 
@@ -106,6 +114,10 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         {
             return await _dbContext.BatchTimingMTFs
                 .Include(x => x.Subject)
+                  .ThenInclude(s => s.Course)
+                     .ThenInclude(s => s.Stream)
+                      .ThenInclude(s => s.Grade)
+                       .ThenInclude(s => s.Syllabus)
                 .Where(x => x.SubjectId == subjectid)
                 .ToListAsync();
         }
@@ -120,6 +132,21 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             _dbContext.SubjectBatchTimingMTFs.Add(batchtiming);
             await _dbContext.SaveChangesAsync();
             return batchtiming;
+        }
+
+        /// <summary>
+        /// Gets queryable for filtering with full hierarchy.
+        /// </summary>
+        /// <returns>Queryable batches.</returns>
+        public IQueryable<BatchTimingMTF> Query()
+        {
+            return _dbContext.BatchTimingMTFs
+               .Include(x => x.Subject)
+                   .ThenInclude(s => s.Course)
+                      .ThenInclude(s => s.Stream)
+                       .ThenInclude(s => s.Grade)
+                        .ThenInclude(s => s.Syllabus)
+                .AsNoTracking();
         }
     }
 }

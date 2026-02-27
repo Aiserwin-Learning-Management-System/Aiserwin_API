@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Winfocus.LMS.Application.DTOs;
+using Winfocus.LMS.Application.DTOs.Common;
 using Winfocus.LMS.Application.DTOs.Masters;
 using Winfocus.LMS.Application.Interfaces;
 using Winfocus.LMS.Application.Services;
@@ -32,7 +33,7 @@ namespace Winfocus.LMS.API.Controllers
         /// </summary>
         /// <returns>BatchDto list.</returns>
         [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<BatchDto>>> GetAll()
+        public async Task<ActionResult<CommonResponse<BatchDto>>> GetAll()
             => Ok(await _batchService.GetAllAsync());
 
         /// <summary>
@@ -42,7 +43,7 @@ namespace Winfocus.LMS.API.Controllers
         /// <returns>BatchDto.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPost]
-        public async Task<ActionResult<BatchDto>> Create(
+        public async Task<ActionResult<CommonResponse<BatchDto>>> Create(
             BatchRequest request)
         {
             var updatedRequest = request with
@@ -50,7 +51,7 @@ namespace Winfocus.LMS.API.Controllers
                 userId = UserId
             };
             var created = await _batchService.CreateAsync(updatedRequest);
-            return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
+            return Ok(created);
         }
 
         /// <summary>
@@ -59,11 +60,8 @@ namespace Winfocus.LMS.API.Controllers
         /// <param name="id">The identifier.</param>
         /// <returns>BatchDto by id.</returns>
         [HttpGet("{id:guid}")]
-        public async Task<ActionResult<BatchDto>> Get(Guid id)
-        {
-            var result = await _batchService.GetByIdAsync(id);
-            return result == null ? NotFound() : Ok(result);
-        }
+        public async Task<ActionResult<CommonResponse<BatchDto>>> Get(Guid id)
+           => Ok(await _batchService.GetByIdAsync(id));
 
         /// <summary>
         /// Updates the specified identifier.
@@ -73,7 +71,7 @@ namespace Winfocus.LMS.API.Controllers
         /// <returns>result.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPut("{id:guid}")]
-        public async Task<IActionResult> Update(
+        public async Task<ActionResult<CommonResponse<BatchDto>>> Update(
             Guid id,
             BatchRequest request)
         {
@@ -81,8 +79,8 @@ namespace Winfocus.LMS.API.Controllers
             {
                 userId = UserId
             };
-            await _batchService.UpdateAsync(id, updatedRequest);
-            return NoContent();
+            var updated = await _batchService.UpdateAsync(id, updatedRequest);
+            return Ok(updated);
         }
 
         /// <summary>
@@ -92,10 +90,24 @@ namespace Winfocus.LMS.API.Controllers
         /// <returns>result.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpDelete("{id:guid}")]
-        public async Task<IActionResult> Delete(Guid id)
+        public async Task<ActionResult<CommonResponse<bool>>> Delete(Guid id)
         {
-            await _batchService.DeleteAsync(id);
-            return NoContent();
+           var result = await _batchService.DeleteAsync(id);
+           return Ok(result);
+        }
+
+        /// <summary>
+        /// Retrieves filtered batches with pagination.
+        /// </summary>
+        /// <param name="request">The paged request.</param>
+        /// <returns>Paginated list of batches.</returns>
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        [HttpGet("filter")]
+        public async Task<ActionResult<CommonResponse<PagedResult<BatchDto>>>> GetFiltered(
+            [FromQuery] PagedRequest request)
+        {
+            var result = await _batchService.GetFilteredAsync(request);
+            return Ok(result);
         }
     }
 }

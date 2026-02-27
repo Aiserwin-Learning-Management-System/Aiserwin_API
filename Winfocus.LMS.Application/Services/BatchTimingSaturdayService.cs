@@ -1,8 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using Winfocus.LMS.Application.DTOs;
+using Winfocus.LMS.Application.DTOs.Common;
 using Winfocus.LMS.Application.DTOs.Masters;
 using Winfocus.LMS.Application.Interfaces;
 using Winfocus.LMS.Domain.Entities;
@@ -34,17 +36,25 @@ namespace Winfocus.LMS.Application.Services
         /// <returns>BatchTimingSaturdayDto.</returns>
         public async Task<CommonResponse<List<BatchTimingSaturdayDto>>> GetAllAsync()
         {
-            _logger.LogInformation("Fetching all Batches");
-            var batchtiming = await _repository.GetAllAsync();
-            _logger.LogInformation("Fetched {Count} batches", batchtiming.Count());
-            var nappedbatchtiming = batchtiming.Select(Map).ToList();
-            if (nappedbatchtiming.Any())
+            try
             {
-                return CommonResponse<List<BatchTimingSaturdayDto>>.SuccessResponse("batch timing saturday", nappedbatchtiming);
+                _logger.LogInformation("Fetching all Batches");
+                var batchtiming = await _repository.GetAllAsync();
+                _logger.LogInformation("Fetched {Count} batches", batchtiming.Count());
+                var nappedbatchtiming = batchtiming.Select(Map).ToList();
+                if (nappedbatchtiming.Any())
+                {
+                    return CommonResponse<List<BatchTimingSaturdayDto>>.SuccessResponse("batch timing saturday", nappedbatchtiming);
+                }
+                else
+                {
+                    return CommonResponse<List<BatchTimingSaturdayDto>>.FailureResponse("no batch timing found");
+                }
             }
-            else
-            {
-                return CommonResponse<List<BatchTimingSaturdayDto>>.FailureResponse("no batch timing found");
+            catch (Exception ex) {
+                _logger.LogError(ex, "Error fetching batch timing.");
+                return CommonResponse<List<BatchTimingSaturdayDto>>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
             }
         }
 
@@ -55,17 +65,26 @@ namespace Winfocus.LMS.Application.Services
         /// <returns>BatchTimingSaturdayDto.</returns>
         public async Task<CommonResponse<BatchTimingSaturdayDto>> GetByIdAsync(Guid id)
         {
-            _logger.LogInformation("Fetching batchtiming by Id: {Id}", id);
-            var batchtiming = await _repository.GetByIdAsync(id);
-            _logger.LogInformation("batch fetched successfully for Id: {Id}", id);
-            var mappeddata = batchtiming == null ? null : Map(batchtiming);
-            if (mappeddata != null)
+            try
             {
-                return CommonResponse<BatchTimingSaturdayDto>.SuccessResponse("batch timing saturday", mappeddata);
+                _logger.LogInformation("Fetching batchtiming by Id: {Id}", id);
+                var batchtiming = await _repository.GetByIdAsync(id);
+                _logger.LogInformation("batch fetched successfully for Id: {Id}", id);
+                var mappeddata = batchtiming == null ? null : Map(batchtiming);
+                if (mappeddata != null)
+                {
+                    return CommonResponse<BatchTimingSaturdayDto>.SuccessResponse("batch timing saturday", mappeddata);
+                }
+                else
+                {
+                    return CommonResponse<BatchTimingSaturdayDto>.FailureResponse("batch timing not found");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return CommonResponse<BatchTimingSaturdayDto>.FailureResponse("batch timing not found");
+                _logger.LogError(ex, "Error fetching batch timing.");
+                return CommonResponse<BatchTimingSaturdayDto>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
             }
         }
 
@@ -74,21 +93,31 @@ namespace Winfocus.LMS.Application.Services
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>BatchTimingSaturdayDto.</returns>
-        public async Task<BatchTimingSaturdayDto> CreateAsync(BatchTimingRequest request)
+        public async Task<CommonResponse<BatchTimingSaturdayDto>> CreateAsync(BatchTimingRequest request)
         {
-            var batchtiming = new BatchTimingSaturday
+            try
             {
-                BatchTime = request.batchTime,
-                SubjectId = request.subjectId,
-                CreatedBy = request.userId,
-                CreatedAt = DateTime.UtcNow,
-            };
+                var batchtiming = new BatchTimingSaturday
+                {
+                    BatchTime = request.batchTime,
+                    SubjectId = request.subjectId,
+                    CreatedBy = request.userId,
+                    CreatedAt = DateTime.UtcNow,
+                };
 
-            var created = await _repository.AddAsync(batchtiming);
-            _logger.LogInformation(
-           "Batch Timing for saturday created successfully. Id: {BatchTimingId}",
-           created.Id);
-            return Map(created);
+                var created = await _repository.AddAsync(batchtiming);
+                _logger.LogInformation(
+              "Batch timing created successfully. Id: {Id}",
+              created.Id);
+                return CommonResponse<BatchTimingSaturdayDto>.SuccessResponse(
+                  "batch timing created successfully", Map(created));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating batch timing: {Batchtime}", request.batchTime);
+                return CommonResponse<BatchTimingSaturdayDto>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
+            }
         }
 
         /// <summary>
@@ -98,22 +127,35 @@ namespace Winfocus.LMS.Application.Services
         /// <param name="request">The request.</param>
         /// <exception cref="KeyNotFoundException">Batch Timing not found.</exception>
         /// <returns>task.</returns>
-        public async Task<BatchTimingSaturdayDto> UpdateAsync(Guid id, BatchTimingRequest request)
+        public async Task<CommonResponse<BatchTimingSaturdayDto>> UpdateAsync(Guid id, BatchTimingRequest request)
         {
-            _logger.LogInformation("Updating batch Id: {BatchTimingId}", id);
-            var batchtiming = await _repository.GetByIdAsync(id)
-                ?? throw new KeyNotFoundException("BatchTiming not found");
+            try
+            {
+                _logger.LogInformation("Updating batch time Id: {Id}", id);
 
-            batchtiming.BatchTime = request.batchTime;
-            batchtiming.SubjectId = request.subjectId;
-            batchtiming.UpdatedBy = request.userId;
-            batchtiming.UpdatedAt = DateTime.UtcNow;
+                var batch = await _repository.GetByIdAsync(id);
+                if (batch == null)
+                {
+                    return CommonResponse<BatchTimingSaturdayDto>.FailureResponse("batch time not found");
+                }
 
-            var updated = await _repository.UpdateAsync(batchtiming);
-            _logger.LogInformation(
-           "BatchTiming updated successfully. BatchTimingId: {BatchTimingId}",
-           id);
-            return Map(updated);
+                batch.BatchTime = request.batchTime;
+                batch.SubjectId = request.subjectId;
+                batch.UpdatedAt = DateTime.UtcNow;
+                batch.UpdatedBy = request.userId;
+
+                var updated = await _repository.UpdateAsync(batch);
+
+                _logger.LogInformation("batch updated Id: {Id}", id);
+                return CommonResponse<BatchTimingSaturdayDto>.SuccessResponse(
+                    "batch time updated successfully", Map(updated));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating batch time Id: {Id}", id);
+                return CommonResponse<BatchTimingSaturdayDto>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
+            }
         }
 
         /// <summary>
@@ -121,10 +163,28 @@ namespace Winfocus.LMS.Application.Services
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>task.</returns>
-        public async Task<bool> DeleteAsync(Guid id)
+        public async Task<CommonResponse<bool>> DeleteAsync(Guid id)
         {
-            _logger.LogInformation("Deleting BatchTiming Id: {Id}", id);
-            return await _repository.DeleteAsync(id);
+            try
+            {
+                _logger.LogInformation("Deleting batch time Id: {Id}", id);
+                var result = await _repository.DeleteAsync(id);
+
+                if (result)
+                {
+                    return CommonResponse<bool>.SuccessResponse(
+                        "Batch time deleted successfully", true);
+                }
+
+                return CommonResponse<bool>.FailureResponse(
+                    "Batch time not found or already deleted");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting Batch time Id: {Id}", id);
+                return CommonResponse<bool>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
+            }
         }
 
         /// <summary>
@@ -132,10 +192,29 @@ namespace Winfocus.LMS.Application.Services
         /// </summary>
         /// <param name="subjectid">The identifier.</param>
         /// <returns>BatchTimingSaturdayDto.</returns>
-        public async Task<List<BatchTimingSaturdayDto>> GetBySubjectIdAsync(Guid subjectid)
+        public async Task<CommonResponse<List<BatchTimingSaturdayDto>>> GetBySubjectIdAsync(Guid subjectid)
         {
-            var batchTimings = await _repository.GetBySubjectIdAsync(subjectid);
-            return Map(batchTimings);
+            try
+            {
+                _logger.LogInformation("Fetching all Batch time by subject");
+                var batchtiming = await _repository.GetBySubjectIdAsync(subjectid);
+                _logger.LogInformation("Fetched {Count} batch time", batchtiming.Count());
+                var nappedbatchtiming = batchtiming.Select(Map).ToList();
+                if (nappedbatchtiming.Any())
+                {
+                    return CommonResponse<List<BatchTimingSaturdayDto>>.SuccessResponse("batch timing saturday", nappedbatchtiming);
+                }
+                else
+                {
+                    return CommonResponse<List<BatchTimingSaturdayDto>>.FailureResponse("no batch timing found");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching batch timing.");
+                return CommonResponse<List<BatchTimingSaturdayDto>>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
+            }
         }
 
         /// <summary>
@@ -159,6 +238,117 @@ namespace Winfocus.LMS.Application.Services
            "Batch Timing for monaday to friday for subject created successfully.");
         }
 
+        /// <summary>
+        /// Gets filtered batch timing for saturday with pagination support.
+        /// Search works on Subject name, Course Name, Stream Name, Grade Name, and Syllabus Name.
+        /// </summary>
+        /// <param name="request">The paged request.</param>
+        /// <returns>Paginated batch timing for saturday result.</returns>
+        public async Task<CommonResponse<PagedResult<BatchTimingSaturdayDto>>> GetFilteredAsync(
+            PagedRequest request)
+        {
+            try
+            {
+                _logger.LogInformation(
+                    "Fetching filtered batch timings. Filters => Active:{Active}, " +
+                    "Search:{SearchText}, SortBy:{SortBy}, SortOrder:{SortOrder}, " +
+                    "Limit:{Limit}, Offset:{Offset}",
+                    request.Active, request.SearchText, request.SortBy,
+                    request.SortOrder, request.Limit, request.Offset);
+
+                var query = _repository.Query();
+
+                // ── Filters ──
+                if (request.Active.HasValue)
+                    query = query.Where(x => x.IsActive == request.Active.Value);
+
+                if (request.StartDate.HasValue)
+                    query = query.Where(x => x.CreatedAt >= request.StartDate.Value);
+
+                if (request.EndDate.HasValue)
+                    query = query.Where(x => x.CreatedAt <= request.EndDate.Value);
+
+                // ── Search on Subject, Course, Stream, Grade, AND Syllabus Name ──
+                if (!string.IsNullOrWhiteSpace(request.SearchText))
+                {
+                    var searchTerm = request.SearchText.Trim().ToLower();
+                    query = query.Where(x =>
+                        x.BatchTime.ToString().Contains(searchTerm) ||
+                        x.Subject.Name.ToLower().Contains(searchTerm) ||
+                        x.Subject.Course.Name.ToLower().Contains(searchTerm) ||
+                        x.Subject.Course.Stream.Name.ToLower().Contains(searchTerm) ||
+                        x.Subject.Course.Stream.Grade.Name.ToLower().Contains(searchTerm) ||
+                        x.Subject.Course.Stream.Grade.Syllabus.Name.ToLower().Contains(searchTerm));
+                }
+
+                // ── Total Count ──
+                var totalCount = await query.CountAsync();
+
+                if (totalCount == 0)
+                {
+                    return CommonResponse<PagedResult<BatchTimingSaturdayDto>>.SuccessResponse(
+                        "No batch timings found.",
+                        new PagedResult<BatchTimingSaturdayDto>(
+                            new List<BatchTimingSaturdayDto>(), 0, request.Limit, request.Offset));
+                }
+
+                // ── Dynamic Sorting ──
+                var isDesc = request.SortOrder.Equals("desc", StringComparison.OrdinalIgnoreCase);
+
+                query = request.SortBy.ToLower() switch
+                {
+                    "name" => isDesc ? query.OrderByDescending(x => x.BatchTime)
+                                             : query.OrderBy(x => x.BatchTime),
+                    "subjectname" => isDesc ? query.OrderByDescending(x => x.Subject.Name)
+                                             : query.OrderBy(x => x.Subject.Name),
+
+                    "coursename" => isDesc ? query.OrderByDescending(x => x.Subject.Course.Name)
+                                             : query.OrderBy(x => x.Subject.Course.Name),
+
+                    "streamname" => isDesc ? query.OrderByDescending(x => x.Subject.Course.Stream.Name)
+                                             : query.OrderBy(x => x.Subject.Course.Stream.Name),
+
+                    "gradename" => isDesc ? query.OrderByDescending(x => x.Subject.Course.Stream.Grade.Name)
+                                             : query.OrderBy(x => x.Subject.Course.Stream.Grade.Name),
+
+                    "syllabusname" => isDesc ? query.OrderByDescending(x => x.Subject.Course.Stream.Grade.Syllabus.Name)
+                                             : query.OrderBy(x => x.Subject.Course.Stream.Grade.Syllabus.Name),
+
+                    "isactive" => isDesc ? query.OrderByDescending(x => x.IsActive)
+                                             : query.OrderBy(x => x.IsActive),
+
+                    "createdat" => isDesc ? query.OrderByDescending(x => x.CreatedAt)
+                                             : query.OrderBy(x => x.CreatedAt),
+
+                    _ => isDesc ? query.OrderByDescending(x => x.CreatedAt)
+                                             : query.OrderBy(x => x.CreatedAt),
+                };
+
+                // ── Pagination ──
+                var subjects = await query
+                    .Skip(request.Offset)
+                    .Take(request.Limit)
+                    .ToListAsync();
+
+                var dtoList = subjects.Select(Map).ToList();
+
+                _logger.LogInformation(
+                    "Returning {Count} of {Total} batch timing for saturday",
+                    dtoList.Count, totalCount);
+
+                return CommonResponse<PagedResult<BatchTimingSaturdayDto>>.SuccessResponse(
+                    "batch timings fetched successfully.",
+                    new PagedResult<BatchTimingSaturdayDto>(
+                        dtoList, totalCount, request.Limit, request.Offset));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching filtered batch timings.");
+                return CommonResponse<PagedResult<BatchTimingSaturdayDto>>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
+            }
+        }
+
         private static List<BatchTimingSaturdayDto> Map(IEnumerable<BatchTimingSaturday> batchTimingMTFs)
         {
             return batchTimingMTFs.Select(Map).ToList();
@@ -170,15 +360,39 @@ namespace Winfocus.LMS.Application.Services
         Id = c.Id,
         BatchTime = c.BatchTime.ToString("dd/MM/yyyy hh:mm tt"),
         SubjectId = c.SubjectId,
-        CreatedBy = c.CreatedBy,
-        CreatedAt = c.CreatedAt,
-        UpdatedAt = c.UpdatedAt,
-        UpdatedBy = c.UpdatedBy,
         IsActive = c.IsActive,
         Subject = c.Subject == null ? null : new SubjectDto
         {
             Id = c.Subject.Id,
             Name = c.Subject.Name,
+            CourseId = c.Subject.CourseId,
+            Course = c.Subject.Course == null ? null : new CourseDto
+            {
+                Id = c.Subject.Course.Id,
+                Name = c.Subject.Course.Name,
+                IsActive = c.Subject.Course.IsActive,
+                StreamId = c.Subject.Course.StreamId,
+                Stream = c.Subject.Course.Stream == null ? null : new StreamDto
+                {
+                    Id = c.Subject.Course.Stream.Id,
+                    Name = c.Subject.Course.Stream.Name,
+                    IsActive = c.Subject.Course.Stream.IsActive,
+                    GradeId = c.Subject.Course.Stream.GradeId,
+                    Grade = c.Subject.Course.Stream.Grade == null ? null : new GradeDto
+                    {
+                        Id = c.Subject.Course.Stream.Grade.Id,
+                        Name = c.Subject.Course.Stream.Grade.Name,
+                        IsActive = c.Subject.Course.Stream.Grade.IsActive,
+                        SyllabusId = c.Subject.Course.Stream.Grade.SyllabusId,
+                        Syllabus = c.Subject.Course.Stream.Grade.Syllabus == null ? null : new SyllabusDto
+                        {
+                            Id = c.Subject.Course.Stream.Grade.Syllabus.Id,
+                            Name = c.Subject.Course.Stream.Grade.Syllabus.Name,
+                            IsActive = c.Subject.Course.Stream.Grade.Syllabus.IsActive
+                        }
+                    }
+                }
+            }
         }
     };
     }

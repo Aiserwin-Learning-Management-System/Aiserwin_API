@@ -116,6 +116,9 @@ builder.Services.AddScoped<IFeeService, FeeService>();
 builder.Services.AddScoped<IUsernameGeneratorService, UsernameGeneratorService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
+builder.Services.AddScoped<IBatchService, BatchService>();
+builder.Services.AddScoped<IBatchRepository, BatchRepository>();
+
 #endregion
 
 #region JWT Authentication

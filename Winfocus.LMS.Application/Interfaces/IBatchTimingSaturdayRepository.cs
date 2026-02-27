@@ -54,5 +54,11 @@
         /// <param name="batchTimingSaturday">The batchTimingMTF.</param>
         /// <returns>batchTimingsaturday.</returns>
         Task<SubjectBatchTimingSaturday> BatchTimingSubjectCreate(SubjectBatchTimingSaturday batchTimingSaturday);
+
+        /// <summary>
+        /// Gets all asynchronous.
+        /// </summary>
+        /// <returns>batch timing.</returns>
+        IQueryable<BatchTimingSaturday> Query();
     }
 }
