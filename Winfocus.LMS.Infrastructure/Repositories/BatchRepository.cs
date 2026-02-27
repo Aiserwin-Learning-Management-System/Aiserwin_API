@@ -64,7 +64,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// <summary>
         /// Adds the asynchronous.
         /// </summary>
-        /// <param name="batch">The country.</param>
+        /// <param name="batch">The AcademicYear.</param>
         /// <returns>BatchTimingSaturday.</returns>
         public async Task<Batch> AddAsync(Batch batch)
         {
