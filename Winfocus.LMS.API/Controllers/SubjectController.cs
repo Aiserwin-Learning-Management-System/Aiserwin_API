@@ -5,6 +5,7 @@
     using Microsoft.AspNetCore.Http.HttpResults;
     using Microsoft.AspNetCore.Mvc;
     using Winfocus.LMS.Application.DTOs;
+    using Winfocus.LMS.Application.DTOs.Common;
     using Winfocus.LMS.Application.DTOs.Masters;
     using Winfocus.LMS.Application.Interfaces;
     using Winfocus.LMS.Application.Services;
@@ -17,7 +18,7 @@
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
-    public class SubjectController : ControllerBase
+    public class SubjectController : BaseController
     {
         private readonly ISubjectService _service;
 
@@ -44,13 +45,8 @@
         /// <param name="id">The identifier.</param>
         /// <returns>SubjectDto.</returns>
         [HttpGet("{id:guid}")]
-        public async Task<CommonResponse<SubjectDto>> Get(Guid id)
-        {
-            var result = await _service.GetByIdAsync(id);
-            return result;
-        }
-
-                //        => Ok(await _service.GetByIdAsync(id));
+        public async Task<ActionResult<CommonResponse<SubjectDto>>> Get(Guid id)
+            => Ok(await _service.GetByIdAsync(id));
 
         /// <summary>
         /// Gets the subjects by courses.
@@ -58,11 +54,8 @@
         /// <param name="courseIds">The course ids.</param>
         /// <returns>SubjectDto list.</returns>
         [HttpPost("courses/subjects")]
-        public async Task<ActionResult<IReadOnlyList<SubjectDto>>> GetSubjectsByCourses([FromBody] List<Guid> courseIds)
-        {
-            var subjects = await _service.GetByCourseIdsAsync(courseIds);
-            return Ok(subjects);
-        }
+        public async Task<ActionResult<CommonResponse<SubjectDto>>> GetSubjectsByCourses([FromBody] List<Guid> courseIds)
+          => Ok(await _service.GetByCourseIdsAsync(courseIds));
 
         /// <summary>
         /// Gets the by stream.
@@ -70,12 +63,8 @@
         /// <param name="streamId">The stream identifier.</param>
         /// <returns>SubjectDto list.</returns>
         [HttpGet("stream/{streamId:guid}")]
-        public async Task<IReadOnlyList<SubjectDto>> GetByStream(Guid streamId)
-        {
-            return await _service.GetByStreamAsync(streamId);
-        }
-
-           // => Ok(await _service.GetByStreamAsync(streamId));
+        public async Task<ActionResult<CommonResponse<SubjectDto>>> GetByStream(Guid streamId)
+           => Ok(await _service.GetByStreamAsync(streamId));
 
         /// <summary>
         /// Creates the specified request.
@@ -84,20 +73,12 @@
         /// <returns>SubjectDto.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPost]
-        public async Task<CommonResponse<SubjectDto>> Create(SubjectRequest request)
+        public async Task<ActionResult<CommonResponse<SubjectDto>>> Create(SubjectRequest request)
         {
+            var updatedRequest = request with { userid = UserId };
             var created = await _service.CreateAsync(request);
-            if (created == null)
-            {
-                return CommonResponse<SubjectDto>.FailureResponse("Failed to create Subject.");
-            }
-            else
-            {
-                return CommonResponse<SubjectDto>.SuccessResponse("Subject created successfully.", created);
-            }
+            return Ok(created);
         }
-
-         //   => Ok(await _service.CreateAsync(request));
 
         /// <summary>
         /// Updates the specified identifier.
@@ -107,17 +88,11 @@
         /// <returns>result.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPut("{id:guid}")]
-        public async Task<CommonResponse<SubjectDto>> Update(Guid id, SubjectRequest request)
+        public async Task<ActionResult<CommonResponse<SubjectDto>>> Update(Guid id, SubjectRequest request)
         {
-            var updated = await _service.UpdateAsync(id, request);
-            if (updated == null)
-            {
-                return CommonResponse<SubjectDto>.FailureResponse("Failed to update Subject.");
-            }
-            else
-            {
-                return CommonResponse<SubjectDto>.SuccessResponse("Batchtiming for subject updated successfully.", updated);
-            }
+            var updatedRequest = request with { userid = UserId };
+            var result = await _service.UpdateAsync(id, updatedRequest);
+            return Ok(result);
         }
 
         /// <summary>
@@ -127,17 +102,21 @@
         /// <returns>result.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpDelete("{id:guid}")]
-        public async Task<CommonResponse<bool>> Delete(Guid id)
+        public async Task<ActionResult<CommonResponse<bool>>> Delete(Guid id)
+              => Ok(await _service.DeleteAsync(id));
+
+        /// <summary>
+        /// Retrieves filtered subjects with pagination.
+        /// </summary>
+        /// <param name="request">The paged request.</param>
+        /// <returns>Paginated list of subjects.</returns>
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        [HttpGet("filter")]
+        public async Task<ActionResult<CommonResponse<PagedResult<SubjectDto>>>> GetFiltered(
+            [FromQuery] PagedRequest request)
         {
-            bool result = await _service.DeleteAsync(id);
-            if (result)
-            {
-                return CommonResponse<bool>.SuccessResponse("Subject deleted successfully.", true);
-            }
-            else
-            {
-                return CommonResponse<bool>.FailureResponse("Failed to delete Subject.");
-            }
+            var result = await _service.GetFilteredAsync(request);
+            return Ok(result);
         }
     }
 }

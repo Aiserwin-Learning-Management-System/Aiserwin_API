@@ -1,4 +1,6 @@
-﻿namespace Winfocus.LMS.Application.DTOs.Masters
+﻿using Winfocus.LMS.Domain.Entities;
+
+namespace Winfocus.LMS.Application.DTOs.Masters
 {
     /// <summary>
     /// Represents an academic subject taught within a course.
@@ -10,14 +12,14 @@
         /// </summary>
         public string Name { get; set; } = null!;
 
-        // One subject → many courses
+        /// <summary>
+        /// Gets or sets the identifier of the associated courses.
+        /// </summary>
+        public Guid CourseId { get; set; }
 
         /// <summary>
-        /// Gets or sets the courses.
+        /// Gets or sets the associated courses.
         /// </summary>
-        /// <value>
-        /// The courses.
-        /// </value>
-        public IReadOnlyList<CourseDto> Courses { get; set; } = new List<CourseDto>();
+        public CourseDto Course { get; set; } = null!;
     }
 }

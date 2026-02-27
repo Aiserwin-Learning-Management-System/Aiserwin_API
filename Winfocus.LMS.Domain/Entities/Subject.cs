@@ -14,7 +14,15 @@
         /// </summary>
         public string Name { get; set; } = null!;
 
-        // One subject → many courses
+        /// <summary>
+        /// Gets or sets the identifier of the associated courses.
+        /// </summary>
+        public Guid CourseId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the associated courses.
+        /// </summary>
+        public Course Course { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the courses.
