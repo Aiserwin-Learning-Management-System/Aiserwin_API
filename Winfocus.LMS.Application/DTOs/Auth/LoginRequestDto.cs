@@ -7,6 +7,8 @@
     /// </summary>
     public sealed record LoginRequestDto(
         [Required] string username,
-        [Required] string password
+        [Required] string password,
+        string? ipAddress,
+        string? userAgent
     );
 }

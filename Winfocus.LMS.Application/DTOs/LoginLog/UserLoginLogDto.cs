@@ -13,7 +13,7 @@
         /// <value>
         /// The user identifier.
         /// </value>
-        public Guid UserId { get; set; }
+        public Guid? UserId { get; set; }
 
         /// <summary>
         /// Gets or sets the login timestamp.
