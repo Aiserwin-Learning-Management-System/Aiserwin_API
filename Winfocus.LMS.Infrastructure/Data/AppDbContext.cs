@@ -3,6 +3,7 @@
     using Microsoft.EntityFrameworkCore;
     using Winfocus.LMS.Domain.Entities;
     using Winfocus.LMS.Infrastructure.Data.Configurations;
+    using Winfocus.LMS.Infrastructure.Persistence.Configurations;
 
     /// <summary>
     /// Represents the application's database context for Entity Framework Core.
@@ -219,6 +220,14 @@
         public DbSet<UserActivationToken> UserActivationTokens { get; set; }
 
         /// <summary>
+        /// Gets the user login logs.
+        /// </summary>
+        /// <value>
+        /// The user login logs.
+        /// </value>
+        public DbSet<UserLoginLog> UserLoginLogs => Set<UserLoginLog>();
+
+        /// <summary>
         /// Configures the model for the context.
         /// </summary>
         /// <param name="modelBuilder">The builder being used to construct the model for this context.</param>
@@ -228,6 +237,7 @@
             modelBuilder.ApplyConfiguration(new CourseConfiguration());
             modelBuilder.ApplyConfiguration(new SubjectConfiguration());
             modelBuilder.ApplyConfiguration(new UserActivationTokenConfiguration());
+            modelBuilder.ApplyConfiguration(new UserLoginLogConfiguration());
 
             // User configuration
             modelBuilder.Entity<User>()

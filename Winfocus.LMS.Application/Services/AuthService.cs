@@ -1,12 +1,13 @@
 ﻿namespace Winfocus.LMS.Application.Services
 {
+    using System.Data;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.Extensions.Logging;
-    using System.Data;
     using Winfocus.LMS.Application.Common.Exceptions;
     using Winfocus.LMS.Application.DTOs;
     using Winfocus.LMS.Application.DTOs.Auth;
+    using Winfocus.LMS.Application.DTOs.LoginLog;
     using Winfocus.LMS.Application.Interfaces;
     using Winfocus.LMS.Domain.Entities;
     using Winfocus.LMS.Domain.Enums;
@@ -25,6 +26,7 @@
         private readonly IUsernameGeneratorService _usernameGeneratorService;
         private readonly IPasswordHasher<User> _passwordHasher;
         private readonly ILogger<AuthService> _logger;
+        private readonly IUserLoginLogService _loginLogService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthService"/> class.
@@ -37,6 +39,7 @@
         /// <param name="activationRepository">The user activation token repository.</param>
         /// <param name="emailService">The email service.</param>
         /// <param name="usernameGeneratorService">The username generator service.</param>
+        /// <param name="loginLogService">The user login log service.</param>
         public AuthService(
             IUserRepository userRepository,
             IRoleRepository roleRepository,
@@ -45,7 +48,8 @@
             ILogger<AuthService> logger,
             IUserActivationTokenRepository activationRepository,
             IEmailService emailService,
-            IUsernameGeneratorService usernameGeneratorService)
+            IUsernameGeneratorService usernameGeneratorService,
+            IUserLoginLogService loginLogService)
         {
             _userRepository = userRepository;
             _roleRepository = roleRepository;
@@ -55,6 +59,7 @@
             _activationRepository = activationRepository;
             _emailService = emailService;
             _usernameGeneratorService = usernameGeneratorService;
+            _loginLogService = loginLogService;
         }
 
         /// <summary>
@@ -219,6 +224,13 @@
 
             if (user == null)
             {
+                await SafeLogLoginAsync(
+                    userId: Guid.Empty,
+                    ipAddress: request.ipAddress,
+                    userAgent: request.userAgent,
+                    isSuccessful: false,
+                    failureReason: "INVALID_CREDENTIALS");
+
                 throw new CustomException(
                     "Invalid credentials.",
                     StatusCodes.Status401Unauthorized,
@@ -227,6 +239,13 @@
 
             if (!user.IsActive)
             {
+                await SafeLogLoginAsync(
+                    userId: user.Id,
+                    ipAddress: request.ipAddress,
+                    userAgent: request.userAgent,
+                    isSuccessful: false,
+                    failureReason: "ACCOUNT_NOT_ACTIVE");
+
                 throw new CustomException(
                     "Account not activated.",
                     StatusCodes.Status403Forbidden,
@@ -235,6 +254,13 @@
 
             if (user.PasswordHash == null)
             {
+                await SafeLogLoginAsync(
+                    userId: user.Id,
+                    ipAddress: request.ipAddress,
+                    userAgent: request.userAgent,
+                    isSuccessful: false,
+                    failureReason: "ACCOUNT_NOT_ACTIVE");
+
                 throw new CustomException(
                     "Account not activated.",
                     StatusCodes.Status403Forbidden,
@@ -242,12 +268,19 @@
             }
 
             var result = _passwordHasher.VerifyHashedPassword(
-                                                                user,
-                                                                user.PasswordHash,
-                                                                request.password);
+                user,
+                user.PasswordHash,
+                request.password);
 
             if (result == PasswordVerificationResult.Failed)
             {
+                await SafeLogLoginAsync(
+                    userId: user.Id,
+                    ipAddress: request.ipAddress,
+                    userAgent: request.userAgent,
+                    isSuccessful: false,
+                    failureReason: "INVALID_CREDENTIALS");
+
                 throw new CustomException(
                     "Invalid credentials.",
                     StatusCodes.Status401Unauthorized,
@@ -260,6 +293,13 @@
                             .ToList();
 
             var token = _tokenService.GenerateToken(user, roles);
+
+            await SafeLogLoginAsync(
+              userId: user.Id,
+              ipAddress: request.ipAddress,
+              userAgent: request.userAgent,
+              isSuccessful: true,
+              failureReason: null);
 
             _logger.LogInformation(
                 "Login successful for username {Username} (UserId: {UserId})",
@@ -443,7 +483,6 @@
             user.PasswordHash =
                 _passwordHasher.HashPassword(user, request.newPassword);
 
-
             if (tokenEntity.Purpose == TokenPurpose.SetPassword)
             {
                 user.IsActive = true;
@@ -453,6 +492,37 @@
 
             await _userRepository.UpdateAsync(user);
             await _activationRepository.UpdateAsync(tokenEntity);
+        }
+
+        /// <summary>
+        /// Safely logs a login attempt. Never throws — logging failure must not break authentication.
+        /// </summary>
+        private async Task SafeLogLoginAsync(
+            Guid userId,
+            string? ipAddress,
+            string? userAgent,
+            bool isSuccessful,
+            string? failureReason)
+        {
+            try
+            {
+                await _loginLogService.AddLogAsync(new CreateLoginLogDto
+                {
+                    UserId = userId.ToString(),
+                    IpAddress = ipAddress,
+                    UserAgent = userAgent,
+                    IsSuccessful = isSuccessful,
+                    FailureReason = failureReason,
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Failed to log login attempt for UserId: {UserId}, Successful: {IsSuccessful}",
+                    userId,
+                    isSuccessful);
+            }
         }
     }
 }
