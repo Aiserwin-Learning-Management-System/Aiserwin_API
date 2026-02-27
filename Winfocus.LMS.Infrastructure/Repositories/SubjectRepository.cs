@@ -42,7 +42,12 @@
         /// Subject.
         /// </returns>
         public async Task<Subject?> GetByIdAsync(Guid id)
-            => await _db.Subjects.FirstOrDefaultAsync(x => x.Id == id && x.IsActive);
+     => await _db.Subjects
+         .Include(s => s.Course)
+             .ThenInclude(c => c.Stream)
+                 .ThenInclude(st => st.Grade)
+                     .ThenInclude(g => g.Syllabus)
+         .FirstOrDefaultAsync(s => s.Id == id && s.IsActive);
 
         /// <summary>
         /// Gets the by stream asynchronous.
@@ -52,10 +57,9 @@
         /// Subject list.
         /// </returns>
         public async Task<IReadOnlyList<Subject>> GetByStreamAsync(Guid streamId)
-            => await _db.Courses
-                .Where(c => c.StreamId == streamId && c.Subject.IsActive && c.IsActive)
-                .Select(c => c.Subject)
-                .Distinct()
+            => await _db.Subjects
+                .Include(s => s.Course)
+                .Where(s => s.Course.StreamId == streamId && s.IsActive)
                 .AsNoTracking()
                 .ToListAsync();
 
@@ -68,9 +72,8 @@
         /// </returns>
         public async Task<IReadOnlyList<Subject>> GetByCourseIdsAsync(List<Guid> courseIds)
         {
-            return await _db.Courses
+            return await _db.Subjects
                 .Where(c => courseIds.Contains(c.Id) && c.IsActive)
-                .Select(c => c.Subject)
                 .Distinct()
                 .AsNoTracking()
                 .ToListAsync();
@@ -125,6 +128,20 @@
             _db.Subjects.Update(entity);
             await _db.SaveChangesAsync();
             return true;
+        }
+
+        /// <summary>
+        /// Gets queryable for filtering with full hierarchy.
+        /// </summary>
+        /// <returns>Queryable subjects.</returns>
+        public IQueryable<Subject> Query()
+        {
+            return _db.Subjects
+                .Include(c => c.Courses)
+                    .ThenInclude(g => g.Stream)
+                     .ThenInclude(s => s.Grade)
+                       .ThenInclude(g => g.Syllabus)
+                .AsNoTracking();
         }
     }
 }

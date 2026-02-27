@@ -1,6 +1,7 @@
 ﻿namespace Winfocus.LMS.Application.Interfaces
 {
     using Winfocus.LMS.Application.DTOs;
+    using Winfocus.LMS.Application.DTOs.Common;
     using Winfocus.LMS.Application.DTOs.Masters;
 
     /// <summary>
@@ -26,21 +27,21 @@
         /// </summary>
         /// <param name="streamId">The stream identifier.</param>
         /// <returns>A list of subject DTOs associated with the specified stream.</returns>
-        Task<IReadOnlyList<SubjectDto>> GetByStreamAsync(Guid streamId);
+        Task<CommonResponse<List<SubjectDto>>> GetByStreamAsync(Guid streamId);
 
         /// <summary>
         /// Gets the by course ids asynchronous.
         /// </summary>
         /// <param name="courseIds">The course ids.</param>
         /// <returns>list.</returns>
-        Task<IReadOnlyList<SubjectDto>> GetByCourseIdsAsync(List<Guid> courseIds);
+        Task<CommonResponse<List<SubjectDto>>> GetByCourseIdsAsync(List<Guid> courseIds);
 
         /// <summary>
         /// Creates a new subject.
         /// </summary>
         /// <param name="request">The subject creation request.</param>
         /// <returns>The created subject DTO.</returns>
-        Task<SubjectDto> CreateAsync(SubjectRequest request);
+        Task<CommonResponse<SubjectDto>> CreateAsync(SubjectRequest request);
 
         /// <summary>
         /// Updates an existing subject.
@@ -48,13 +49,20 @@
         /// <param name="id">The subject identifier.</param>
         /// <param name="request">The subject update request.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        Task<SubjectDto> UpdateAsync(Guid id, SubjectRequest request);
+        Task<CommonResponse<SubjectDto>> UpdateAsync(Guid id, SubjectRequest request);
 
         /// <summary>
         /// Soft deletes a subject.
         /// </summary>
         /// <param name="id">The subject identifier.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        Task<bool> DeleteAsync(Guid id);
+        Task<CommonResponse<bool>> DeleteAsync(Guid id);
+
+        /// <summary>
+        /// Gets filtered subjects with pagination support.
+        /// </summary>
+        /// <param name="request">The paged request.</param>
+        /// <returns>Paginated subjects result.</returns>
+        Task<CommonResponse<PagedResult<SubjectDto>>> GetFilteredAsync(PagedRequest request);
     }
 }

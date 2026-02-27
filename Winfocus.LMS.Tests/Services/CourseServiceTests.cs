@@ -70,31 +70,17 @@
                     {
                         Id = Guid.NewGuid(),
                         Name = "Mathematics 101",
-                        SubjectId = subjectId,
                         GradeId = Guid.NewGuid(),
                         IsActive = true,
                         CreatedAt = DateTime.UtcNow,
-                        Subject = new Subject
-                        {
-                            Id = subjectId,
-                            Name = "Mathematics",
-                            IsActive = true,
-                        },
                     },
                     new Course
                     {
                         Id = Guid.NewGuid(),
                         Name = "Physics 101",
-                        SubjectId = subjectId,
                         GradeId = Guid.NewGuid(),
                         IsActive = true,
                         CreatedAt = DateTime.UtcNow,
-                        Subject = new Subject
-                        {
-                            Id = subjectId,
-                            Name = "Physics",
-                            IsActive = true,
-                        },
                     },
                 };
 
@@ -179,14 +165,8 @@
                     {
                         Id = courseId,
                         Name = "Chemistry 101",
-                        SubjectId = subjectId,
                         GradeId = gradeId,
                         IsActive = true,
-                        Subject = new Subject
-                        {
-                            Id = subjectId,
-                            Name = "Chemistry",
-                        },
                     },
                 };
 
@@ -266,14 +246,8 @@
                 {
                     Id = courseId,
                     Name = "Biology 101",
-                    SubjectId = subjectId,
                     GradeId = Guid.NewGuid(),
                     IsActive = true,
-                    Subject = new Subject
-                    {
-                        Id = subjectId,
-                        Name = "Biology",
-                    },
                 };
 
                 _mockRepository
@@ -385,7 +359,6 @@
                         Id = Guid.NewGuid(),
                         Name = "Course 1",
                         StreamId = streamId,
-                        Subject = new Subject { Id = Guid.NewGuid(), Name = "Subject 1" },
                     },
                 };
 
@@ -466,8 +439,6 @@
                     {
                         Id = Guid.NewGuid(),
                         Name = "Course 1",
-                        SubjectId = subjectId,
-                        Subject = new Subject { Id = subjectId, Name = "Subject 1" },
                     },
                 };
 
@@ -552,10 +523,6 @@
                     Name = request.coursename,
                     CreatedAt = DateTime.UtcNow,
                     IsActive = true,
-                    Subject = new Subject
-                    {
-                        Name = "Computer Science",
-                    },
                 };
 
                 _mockRepository
@@ -606,7 +573,6 @@
                     .ReturnsAsync((Course c) =>
                     {
                         c.Id = Guid.NewGuid();
-                        c.Subject = new Subject { Name = "Test Subject" };
                         return c;
                     });
 
@@ -679,10 +645,8 @@
                 {
                     Id = courseId,
                     Name = "Old Name",
-                    SubjectId = Guid.NewGuid(),
                     GradeId = Guid.NewGuid(),
                     IsActive = true,
-                    Subject = new Subject { Id = Guid.NewGuid(), Name = "Old Subject" },
                 };
 
                 var request = new CourseRequest(
@@ -698,7 +662,6 @@
                     .Setup(r => r.UpdateAsync(It.IsAny<Course>()))
                     .ReturnsAsync((Course c) =>
                     {
-                        c.Subject = new Subject { Name = "Updated Subject" };
                         return c;
                     });
 
@@ -778,7 +741,6 @@
                     Id = courseId,
                     Name = "Test",
                     IsActive = true,
-                    Subject = new Subject { Id = Guid.NewGuid(), Name = "Test" },
                 };
 
                 var request = new CourseRequest(
@@ -791,14 +753,6 @@
                 _mockRepository
                     .Setup(r => r.GetByIdAsync(courseId))
                     .ReturnsAsync(existingCourse);
-
-                _mockRepository
-                    .Setup(r => r.UpdateAsync(It.IsAny<Course>()))
-                    .ReturnsAsync((Course c) =>
-                    {
-                        c.Subject = new Subject { Name = "Updated" };
-                        return c;
-                    });
 
                 // Act
                 await _service.UpdateAsync(courseId, request);

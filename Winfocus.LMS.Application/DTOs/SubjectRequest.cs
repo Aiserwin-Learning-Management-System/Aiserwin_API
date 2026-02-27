@@ -4,5 +4,5 @@
     /// Request model for creating or updating a subject.
     /// </summary>
     public sealed record SubjectRequest(
-        string name);
+        string name, Guid courseid, Guid userid);
 }

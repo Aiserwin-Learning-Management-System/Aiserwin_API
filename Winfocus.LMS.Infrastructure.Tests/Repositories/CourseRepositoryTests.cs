@@ -122,7 +122,6 @@
                         Id = Guid.NewGuid(),
                         Name = "Mathematics 101",
                         StreamId = streamId,
-                        SubjectId = subjectId1,
                         GradeId = gradeId,
                         IsActive = true,
                         CreatedAt = DateTime.UtcNow,
@@ -133,7 +132,6 @@
                         Id = Guid.NewGuid(),
                         Name = "Physics 101",
                         StreamId = streamId,
-                        SubjectId = subjectId2,
                         GradeId = gradeId,
                         IsActive = true,
                         CreatedAt = DateTime.UtcNow,
@@ -144,7 +142,6 @@
                         Id = Guid.NewGuid(),
                         Name = "Inactive Course",
                         StreamId = streamId,
-                        SubjectId = subjectId1,
                         GradeId = gradeId,
                         IsActive = false,
                         CreatedAt = DateTime.UtcNow,
@@ -205,7 +202,6 @@
                 Assert.NotNull(result);
                 Assert.All(result, course =>
                 {
-                    Assert.NotNull(course.Subject);
                     Assert.NotNull(course.Stream);
                 });
             }
@@ -298,7 +294,6 @@
                 Assert.NotNull(result);
                 Assert.Equal(activeCourse.Id, result.Id);
                 Assert.Equal("Mathematics 101", result.Name);
-                Assert.NotNull(result.Subject);
                 Assert.NotNull(result.Stream);
             }
             catch (Exception ex)
@@ -377,9 +372,7 @@
 
                 // Assert
                 Assert.NotNull(result);
-                Assert.NotNull(result.Subject);
                 Assert.NotNull(result.Stream);
-                Assert.NotEmpty(result.Subject.Name);
                 Assert.NotEmpty(result.Stream.Name);
             }
             catch (Exception ex)
@@ -474,7 +467,6 @@
                 Assert.NotNull(result);
                 Assert.All(result, course =>
                 {
-                    Assert.NotNull(course.Subject);
                 });
             }
             catch (Exception ex)
@@ -543,7 +535,6 @@
                 Assert.NotEmpty(result);
                 Assert.All(result, course =>
                 {
-                    Assert.Equal(subjectId, course.SubjectId);
                     Assert.True(course.IsActive);
                 });
             }
@@ -634,7 +625,6 @@
                     Id = Guid.NewGuid(),
                     Name = "Chemistry 101",
                     StreamId = streamId,
-                    SubjectId = subjectId,
                     GradeId = gradeId,
                     IsActive = true,
                     CreatedAt = DateTime.UtcNow,
@@ -679,7 +669,6 @@
                 {
                     Name = "Biology 101",
                     StreamId = streamId,
-                    SubjectId = subjectId,
                     GradeId = gradeId,
                     IsActive = true,
                     CreatedAt = DateTime.UtcNow,
@@ -719,7 +708,6 @@
                 Id = courseId,
                 Name = "Computer Science 101",
                 StreamId = streamId,
-                SubjectId = subjectId,
                 GradeId = gradeId,
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow,
@@ -1021,7 +1009,6 @@
 
                 // Assert
                 Assert.NotNull(result);
-                Assert.NotNull(result.Subject);
                 Assert.Equal(activeCourse.Id, result.Id);
             }
             catch (Exception ex)
