@@ -22,5 +22,39 @@ namespace Winfocus.LMS.Application.Interfaces
         /// <param name="date">The date used to determine the academic year.</param>
         /// <returns>The matching academic year if found; otherwise null.</returns>
         Task<AcademicYear?> GetByDateAsync(DateTime date);
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>Academic year.</returns>
+        Task<AcademicYear?> GetByIdAsync(Guid id);
+
+        /// <summary>
+        /// Adds the asynchronous.
+        /// </summary>
+        /// <param name="batch">The AcademicYear.</param>
+        /// <returns>AcademicYear.</returns>
+        Task<AcademicYear> AddAsync(AcademicYear batch);
+
+        /// <summary>
+        /// Updates the asynchronous.
+        /// </summary>
+        /// <param name="academicyear">The academicyear.</param>
+        /// <returns>AcademicYear.</returns>
+        Task<AcademicYear> UpdateAsync(AcademicYear academicyear);
+
+        /// <summary>
+        /// Deletes the asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>task.</returns>
+        Task<bool> DeleteAsync(Guid id);
+
+        /// <summary>
+        /// Gets all asynchronous.
+        /// </summary>
+        /// <returns>academic year.</returns>
+        IQueryable<AcademicYear> Query();
     }
 }
