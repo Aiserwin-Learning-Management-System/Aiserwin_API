@@ -36,7 +36,7 @@
         /// </summary>
         /// <returns>SubjectDto list.</returns>
         [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<SubjectDto>>> GetAll()
+        public async Task<ActionResult<CommonResponse<SubjectDto>>> GetAll()
             => Ok(await _service.GetAllAsync());
 
         /// <summary>

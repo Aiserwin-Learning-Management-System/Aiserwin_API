@@ -27,7 +27,7 @@
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>GradeDto.</returns>
-        Task<GradeDto> CreateAsync(GradeRequest request);
+        Task<CommonResponse<GradeDto>> CreateAsync(GradeRequest request);
 
         /// <summary>
         /// Updates the asynchronous.
@@ -35,14 +35,14 @@
         /// <param name="id">The identifier.</param>
         /// <param name="request">The request.</param>
         /// <returns>id.</returns>
-        Task<GradeDto> UpdateAsync(Guid id, GradeRequest request);
+        Task<CommonResponse<GradeDto>> UpdateAsync(Guid id, GradeRequest request);
 
         /// <summary>
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>id.</returns>
-        Task<bool> DeleteAsync(Guid id);
+        Task<CommonResponse<bool>> DeleteAsync(Guid id);
 
         /// <summary>
         /// Gets the by identifier asynchronous.

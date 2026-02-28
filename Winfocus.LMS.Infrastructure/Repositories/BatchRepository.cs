@@ -52,7 +52,6 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         public async Task<Batch?> GetByIdAsync(Guid id)
         {
             return await _dbContext.Batches
-                 .Where(x => x.IsActive)
                 .Include(x => x.Subject)
                   .ThenInclude(s => s.Course)
                      .ThenInclude(s => s.Stream)

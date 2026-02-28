@@ -3,6 +3,7 @@ namespace Winfocus.LMS.Application.Interfaces
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using Winfocus.LMS.Application.DTOs;
     using Winfocus.LMS.Domain.Entities; 
 
     /// <summary>
@@ -58,5 +59,11 @@ namespace Winfocus.LMS.Application.Interfaces
         /// <param name="stateid">State identifier.</param>
         /// <returns>Centre entity if found; otherwise null.</returns>
         Task<Centre?> GetByFilterAsync(Guid modeofid, Guid stateid);
+
+        /// <summary>
+        /// Gets all asynchronous.
+        /// </summary>
+        /// <returns>centers.</returns>
+        IQueryable<Centre> Query();
     }
 }

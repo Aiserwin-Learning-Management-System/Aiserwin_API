@@ -35,13 +35,22 @@
         /// <returns>StreamDto list.</returns>
         public async Task<CommonResponse<List<StreamDto>>> GetAllAsync()
         {
-            _logger.LogInformation("Fetching all streams");
-            var streams = await _repository.GetAllAsync();
-            var mapped = streams.Select(Map).ToList();
+            try
+            {
+                _logger.LogInformation("Fetching all streams");
+                var streams = await _repository.GetAllAsync();
+                var mapped = streams.Select(Map).ToList();
 
-            return CommonResponse<List<StreamDto>>.SuccessResponse(
-                mapped.Any() ? "Fetched all streams" : "No streams found",
-                mapped);
+                return CommonResponse<List<StreamDto>>.SuccessResponse(
+                    mapped.Any() ? "Fetched all streams" : "No streams found",
+                    mapped);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching all streams");
+                return CommonResponse<List<StreamDto>>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
+            }
         }
 
         /// <summary>
@@ -51,16 +60,25 @@
         /// <returns>StreamDto.</returns>
         public async Task<CommonResponse<StreamDto>> GetByIdAsync(Guid id)
         {
-            _logger.LogInformation("Fetching stream by Id: {Id}", id);
-            var stream = await _repository.GetByIdAsync(id);
-
-            if (stream == null)
+            try
             {
-                return CommonResponse<StreamDto>.FailureResponse("Stream not found");
-            }
+                _logger.LogInformation("Fetching stream by Id: {Id}", id);
+                var stream = await _repository.GetByIdAsync(id);
 
-            return CommonResponse<StreamDto>.SuccessResponse(
-                "Stream fetched successfully", Map(stream));
+                if (stream == null)
+                {
+                    return CommonResponse<StreamDto>.FailureResponse("Stream not found");
+                }
+
+                return CommonResponse<StreamDto>.SuccessResponse(
+                    "Stream fetched successfully", Map(stream));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching stream by Id: {Id}", id);
+                return CommonResponse<StreamDto>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
+            }
         }
 
         /// <summary>
@@ -68,29 +86,38 @@
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>StreamDto.</returns>
-        public async Task<StreamDto> CreateAsync(StreamRequest request)
+        public async Task<CommonResponse<StreamDto>> CreateAsync(StreamRequest request)
         {
-            var existingStreams = await _repository.GetByGradeIdAsync(request.gradeid);
-            var isDuplicate = existingStreams.Any(s =>
-                s.Name.Equals(request.name, StringComparison.OrdinalIgnoreCase));
-
-            if (isDuplicate)
+            try
             {
-                throw new InvalidOperationException(
-                    $"Stream '{request.name}' already exists under this grade.");
+                var existingStreams = await _repository.GetByGradeIdAsync(request.gradeid);
+                var isDuplicate = existingStreams.Any(s =>
+                    s.Name.Equals(request.name, StringComparison.OrdinalIgnoreCase));
+
+                if (isDuplicate)
+                {
+                    return CommonResponse<StreamDto>.FailureResponse($"Stream '{request.name}' already exists under this grade.");
+                }
+
+                var stream = new Streams
+                {
+                    Name = request.name,
+                    GradeId = request.gradeid,
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = request.userId,
+                    Courses = new List<Course>(),
+                };
+
+                var created = await _repository.AddAsync(stream);
+                return CommonResponse<StreamDto>.SuccessResponse(
+                     "Stream created successfully", Map(created));
             }
-
-            var stream = new Streams
+            catch (Exception ex)
             {
-                Name = request.name,
-                GradeId = request.gradeid,
-                CreatedAt = DateTime.UtcNow,
-                CreatedBy = request.userId,
-                Courses = new List<Course>(),
-            };
-
-            var created = await _repository.AddAsync(stream);
-            return Map(created);
+                _logger.LogError(ex, "Error creating stream with name: {Name}", request.name);
+                return CommonResponse<StreamDto>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
+            }
         }
 
         /// <summary>
@@ -99,17 +126,35 @@
         /// <param name="id">The identifier.</param>
         /// <param name="request">The request.</param>
         /// <returns>StreamDto.</returns>
-        public async Task<StreamDto> UpdateAsync(Guid id, StreamRequest request)
+        public async Task<CommonResponse<StreamDto>> UpdateAsync(Guid id, StreamRequest request)
         {
-            var stream = await _repository.GetByIdAsync(id)
-                ?? throw new KeyNotFoundException("Stream not found");
+            try
+            {
+                _logger.LogInformation("Updating stream Id: {Id}", id);
 
-            stream.Name = request.name;
-            stream.GradeId = request.gradeid;
-            stream.UpdatedBy = request.userId;
-            stream.UpdatedAt = DateTime.UtcNow;
+                var batch = await _repository.GetByIdAsync(id);
+                if (batch == null)
+                {
+                    return CommonResponse<StreamDto>.FailureResponse("Stream not found");
+                }
 
-            return Map(await _repository.UpdateAsync(stream));
+                batch.Name = request.name;
+                batch.GradeId = request.gradeid;
+                batch.UpdatedAt = DateTime.UtcNow;
+                batch.UpdatedBy = request.userId;
+
+                var updated = await _repository.UpdateAsync(batch);
+
+                _logger.LogInformation("Stream updated Id: {Id}", id);
+                return CommonResponse<StreamDto>.SuccessResponse(
+                    "Stream updated successfully", Map(updated));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating Stream Id: {Id}", id);
+                return CommonResponse<StreamDto>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
+            }
         }
 
         /// <summary>
@@ -117,9 +162,28 @@
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>bool.</returns>
-        public async Task<bool> DeleteAsync(Guid id)
+        public async Task<CommonResponse<bool>> DeleteAsync(Guid id)
         {
-            return await _repository.DeleteAsync(id);
+            try
+            {
+                _logger.LogInformation("Deleting Stream Id: {Id}", id);
+                var result = await _repository.DeleteAsync(id);
+
+                if (result)
+                {
+                    return CommonResponse<bool>.SuccessResponse(
+                        "Stream deleted successfully", true);
+                }
+
+                return CommonResponse<bool>.FailureResponse(
+                    "Stream not found or already deleted");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting Stream Id: {Id}", id);
+                return CommonResponse<bool>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
+            }
         }
 
         /// <summary>

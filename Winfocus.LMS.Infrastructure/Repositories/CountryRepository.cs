@@ -43,7 +43,7 @@
         {
             return await _db.Countries
                 .Include(x => x.Centres)
-                .FirstOrDefaultAsync(x => x.Id == id && x.IsActive);
+                .FirstOrDefaultAsync(x => x.Id == id);
         }
 
         /// <summary>
@@ -99,6 +99,16 @@
         public async Task<bool> ExistsByNameAsync(string name)
         {
             return await _db.Countries.AnyAsync(x => x.Name == name);
+        }
+
+        /// <summary>
+        /// Gets queryable for filtering with full hierarchy.
+        /// </summary>
+        /// <returns>Queryable Countries.</returns>
+        public IQueryable<Country> Query()
+        {
+            return _db.Countries
+                .AsNoTracking();
         }
     }
 }

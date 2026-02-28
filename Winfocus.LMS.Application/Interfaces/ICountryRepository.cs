@@ -47,5 +47,11 @@
         /// <param name="name">The code.</param>
         /// <returns>bool.</returns>
         Task<bool> ExistsByNameAsync(string name);
+
+        /// <summary>
+        /// Gets all asynchronous.
+        /// </summary>
+        /// <returns>countries.</returns>
+        IQueryable<Country> Query();
     }
 }

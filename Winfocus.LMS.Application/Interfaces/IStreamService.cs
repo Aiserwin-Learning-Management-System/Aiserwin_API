@@ -27,7 +27,7 @@
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>StreamDto.</returns>
-        Task<StreamDto> CreateAsync(StreamRequest request);
+        Task<CommonResponse<StreamDto>> CreateAsync(StreamRequest request);
 
         /// <summary>
         /// Updates the asynchronous.
@@ -35,14 +35,14 @@
         /// <param name="id">The identifier.</param>
         /// <param name="request">The request.</param>
         /// <returns>StreamDto.</returns>
-        Task<StreamDto> UpdateAsync(Guid id, StreamRequest request);
+        Task<CommonResponse<StreamDto>> UpdateAsync(Guid id, StreamRequest request);
 
         /// <summary>
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>bool.</returns>
-        Task<bool> DeleteAsync(Guid id);
+        Task<CommonResponse<bool>> DeleteAsync(Guid id);
 
         /// <summary>
         /// Gets streams by grade identifier.

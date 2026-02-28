@@ -34,7 +34,7 @@ namespace Winfocus.LMS.API.Controllers
         /// </summary>
         /// <returns>GradeDto list.</returns>
         [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<GradeDto>>> GetAll()
+        public async Task<ActionResult<CommonResponse<GradeDto>>> GetAll()
             => Ok(await _gradeService.GetAllAsync());
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace Winfocus.LMS.API.Controllers
         /// <returns>GradeDto.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPost]
-        public async Task<CommonResponse<GradeDto>> Create(
+        public async Task<ActionResult<CommonResponse<GradeDto>>> Create(
             GradeRequest request)
         {
             var updatedRequest = request with
@@ -52,14 +52,7 @@ namespace Winfocus.LMS.API.Controllers
                 userId = UserId
             };
             var created = await _gradeService.CreateAsync(updatedRequest);
-            if (created == null)
-            {
-                return CommonResponse<GradeDto>.FailureResponse("Failed to create Grade.");
-            }
-            else
-            {
-                return CommonResponse<GradeDto>.SuccessResponse("Grade created successfully.", created);
-            }
+            return Ok(created);
         }
 
         /// <summary>
@@ -68,11 +61,8 @@ namespace Winfocus.LMS.API.Controllers
         /// <param name="id">The identifier.</param>
         /// <returns>GradeDto by id.</returns>
         [HttpGet("{id:guid}")]
-        public async Task<CommonResponse<GradeDto>> Get(Guid id)
-        {
-            var result = await _gradeService.GetByIdAsync(id);
-            return result;
-        }
+        public async Task<ActionResult<CommonResponse<GradeDto>>> Get(Guid id)
+           => Ok(await _gradeService.GetByIdAsync(id));
 
         /// <summary>
         /// Updates the specified identifier.
@@ -82,7 +72,7 @@ namespace Winfocus.LMS.API.Controllers
         /// <returns>result.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPut("{id:guid}")]
-        public async Task<CommonResponse<GradeDto>> Update(
+        public async Task<ActionResult<CommonResponse<GradeDto>>> Update(
             Guid id,
             GradeRequest request)
         {
@@ -91,14 +81,7 @@ namespace Winfocus.LMS.API.Controllers
                 userId = UserId
             };
             var updated = await _gradeService.UpdateAsync(id, updatedRequest);
-            if (updated == null)
-            {
-                return CommonResponse<GradeDto>.FailureResponse("Failed to update Grade.");
-            }
-            else
-            {
-                return CommonResponse<GradeDto>.SuccessResponse("Grade updated successfully.", updated);
-            }
+            return Ok(updated);
         }
 
         /// <summary>
@@ -107,10 +90,10 @@ namespace Winfocus.LMS.API.Controllers
         /// <param name="syllabusid">The identifier.</param>
         /// <returns>GradeDto by id.</returns>
         [HttpGet("by-syllabus/{syllabusid:guid}")]
-        public async Task<CommonResponse<List<GradeDto>>> GetBySyllabusId(Guid syllabusid)
+        public async Task<ActionResult<CommonResponse<List<GradeDto>>>> GetBySyllabusId(Guid syllabusid)
         {
             var result = await _gradeService.GetBySyllabusIdAsync(syllabusid);
-            return result;
+            return Ok(result);
         }
 
         /// <summary>
@@ -120,17 +103,10 @@ namespace Winfocus.LMS.API.Controllers
         /// <returns>result.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpDelete("{id:guid}")]
-        public async Task<CommonResponse<bool>> Delete(Guid id)
+        public async Task<ActionResult<CommonResponse<bool>>> Delete(Guid id)
         {
             var result = await _gradeService.DeleteAsync(id);
-            if (result)
-            {
-                return CommonResponse<bool>.SuccessResponse("Grade deleted successfully.", true);
-            }
-            else
-            {
-                return CommonResponse<bool>.FailureResponse("Failed to delete Grade.");
-            }
+            return Ok(result);
         }
 
         /// <summary>

@@ -4,8 +4,10 @@
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Winfocus.LMS.Application.DTOs;
+    using Winfocus.LMS.Application.DTOs.Common;
     using Winfocus.LMS.Application.DTOs.Masters;
     using Winfocus.LMS.Application.Interfaces;
+    using Winfocus.LMS.Application.Services;
 
     /// <summary>
     /// Handles authentication endpoints.
@@ -31,12 +33,8 @@
         /// </summary>
         /// <returns>CenterDto list.</returns>
         [HttpGet]
-        public async Task<CommonResponse<List<CentreDto>>> GetAll()
-        {
-            return await _centerService.GetAllAsync();
-        }
-
-            //=> Ok(await _centerService.GetAllAsync());
+        public async Task<ActionResult<CommonResponse<List<CenterDto>>>> GetAll()
+           => Ok(await _centerService.GetAllAsync());
 
         /// <summary>
         /// Gets the specified identifier.
@@ -44,10 +42,8 @@
         /// <param name="id">The identifier.</param>
         /// <returns>CenterDto by id.</returns>
         [HttpGet("{id:guid}")]
-        public async Task<CommonResponse<CentreDto>> Get(Guid id)
-        {
-            return await _centerService.GetByIdAsync(id);
-        }
+        public async Task<ActionResult<CommonResponse<CenterDto>>> Get(Guid id)
+         => Ok(await _centerService.GetByIdAsync(id));
 
         /// <summary>
         /// Creates the specified request.
@@ -56,14 +52,15 @@
         /// <returns>CenterDto.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPost]
-        public async Task<CommonResponse<CentreDto>> Create(
+        public async Task<ActionResult<CommonResponse<CenterDto>>> Create(
             CenterRequestDto request)
         {
             var updatedRequest = request with
             {
                 userId = UserId
             };
-            return await _centerService.CreateAsync(updatedRequest);
+            var created = await _centerService.CreateAsync(updatedRequest);
+            return Ok(created);
         }
 
         /// <summary>
@@ -74,7 +71,7 @@
         /// <returns>result.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPut("{id:guid}")]
-        public async Task<CommonResponse<CentreDto>> Update(
+        public async Task<ActionResult<CommonResponse<CenterDto>>> Update(
             Guid id,
             CenterRequestDto request)
         {
@@ -82,7 +79,8 @@
             {
                 userId = UserId
             };
-            return await _centerService.UpdateAsync(id, updatedRequest);
+            var updated = await _centerService.UpdateAsync(id, updatedRequest);
+            return Ok(updated);
         }
 
         /// <summary>
@@ -92,17 +90,10 @@
         /// <returns>result.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpDelete("{id:guid}")]
-        public async Task<CommonResponse<bool>> Delete(Guid id)
+        public async Task<ActionResult<CommonResponse<bool>>> Delete(Guid id)
         {
             var result = await _centerService.DeleteAsync(id);
-            if (result)
-            {
-                return CommonResponse<bool>.SuccessResponse("Center deleted successfully.", true);
-            }
-            else
-            {
-                return CommonResponse<bool>.FailureResponse("Failed to delete Center.");
-            }
+            return Ok(result);
         }
 
         /// <summary>
@@ -112,9 +103,23 @@
         /// <param name="stateid">State identifier.</param>
         /// <returns>CentreDto.</returns>
         [HttpGet("{modeofid:guid}/{stateid:guid}")]
-        public async Task<CommonResponse<CentreDto>> Get(Guid modeofid, Guid stateid)
+        public async Task<CommonResponse<CenterDto>> Get(Guid modeofid, Guid stateid)
         {
             return await _centerService.GetByFilterAsync(modeofid, stateid);
+        }
+
+        /// <summary>
+        /// Retrieves filtered Center with pagination.
+        /// </summary>
+        /// <param name="request">The paged request.</param>
+        /// <returns>Paginated list of Center.</returns>
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        [HttpGet("filter")]
+        public async Task<ActionResult<CommonResponse<PagedResult<CenterDto>>>> GetFiltered(
+            [FromQuery] PagedRequest request)
+        {
+            var result = await _centerService.GetFilteredAsync(request);
+            return Ok(result);
         }
     }
 }

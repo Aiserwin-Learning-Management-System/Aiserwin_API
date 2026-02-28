@@ -1,6 +1,7 @@
 ﻿namespace Winfocus.LMS.Application.Interfaces
 {
     using Winfocus.LMS.Application.DTOs;
+    using Winfocus.LMS.Application.DTOs.Common;
     using Winfocus.LMS.Application.DTOs.Masters;
     using Winfocus.LMS.Domain.Entities;
 
@@ -42,7 +43,7 @@
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>id.</returns>
-        Task<bool> DeleteAsync(Guid id);
+        Task<CommonResponse<bool>> DeleteAsync(Guid id);
 
         /// <summary>
         /// Gets the by identifier asynchronous.
@@ -50,5 +51,12 @@
         /// <param name="stateid">The identifier.</param>
         /// <returns>ModeOfStudyDto.</returns>
         Task<List<ModeOfStudyDto>> GetByStateIdAsync(Guid stateid);
+
+        /// <summary>
+        /// Gets filtered mode of study with pagination support.
+        /// </summary>
+        /// <param name="request">The paged request.</param>
+        /// <returns>Paginated mode of study result.</returns>
+        Task<CommonResponse<PagedResult<ModeOfStudyDto>>> GetFilteredAsync(PagedRequest request);
     }
 }

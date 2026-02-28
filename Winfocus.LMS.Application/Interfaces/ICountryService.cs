@@ -1,6 +1,8 @@
 ﻿namespace Winfocus.LMS.Application.Interfaces
 {
     using Winfocus.LMS.Application.DTOs;
+    using Winfocus.LMS.Application.DTOs.Common;
+    using Winfocus.LMS.Application.DTOs.Masters;
 
     /// <summary>
     /// ICountryService.
@@ -50,5 +52,12 @@
         /// <param name="name">The identifier.</param>
         /// <returns>CountryDto.</returns>
         Task<bool> ExistsByNameAsync(string name);
+
+        /// <summary>
+        /// Gets filtered countries with pagination support.
+        /// </summary>
+        /// <param name="request">The paged request.</param>
+        /// <returns>Paginated countries result.</returns>
+        Task<CommonResponse<PagedResult<CountryDto>>> GetFilteredAsync(PagedRequest request);
     }
 }

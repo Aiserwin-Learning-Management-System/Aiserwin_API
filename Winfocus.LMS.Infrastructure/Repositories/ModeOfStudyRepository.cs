@@ -118,5 +118,17 @@
                 .Where(x => x.StateId == stateid && x.IsActive == true)
                 .ToListAsync();
         }
+
+        /// <summary>
+        /// Gets all asynchronous.
+        /// </summary>
+        /// <returns>
+        /// modeofstudy.
+        /// </returns>
+        public IQueryable<ModeOfStudy> Query()
+        {
+            return _dbContext.ModeOfStudies.Include(x => x.State)
+                .AsNoTracking();
+        }
     }
 }

@@ -27,7 +27,7 @@
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>SyllabusDto.</returns>
-        Task<SyllabusDto> CreateAsync(SyllabusRequest request);
+        Task<CommonResponse<SyllabusDto>> CreateAsync(SyllabusRequest request);
 
         /// <summary>
         /// Updates the asynchronous.
@@ -35,14 +35,14 @@
         /// <param name="id">The identifier.</param>
         /// <param name="request">The request.</param>
         /// <returns>id.</returns>
-        Task<SyllabusDto> UpdateAsync(Guid id, SyllabusRequest request);
+        Task<CommonResponse<SyllabusDto>> UpdateAsync(Guid id, SyllabusRequest request);
 
         /// <summary>
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>id.</returns>
-        Task<bool> DeleteAsync(Guid id);
+        Task<CommonResponse<bool>> DeleteAsync(Guid id);
 
         /// <summary>
         /// Gets filtered syllabuses with pagination support.

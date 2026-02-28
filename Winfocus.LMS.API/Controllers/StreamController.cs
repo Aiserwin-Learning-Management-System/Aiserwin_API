@@ -47,14 +47,7 @@
         {
             var updatedRequest = request with { userId = UserId };
             var created = await _streamService.CreateAsync(updatedRequest);
-
-            if (created == null)
-            {
-                return Ok(CommonResponse<StreamDto>.FailureResponse("Failed to create stream."));
-            }
-
-            return Ok(CommonResponse<StreamDto>.SuccessResponse(
-                "Stream created successfully.", created));
+            return Ok(created);
         }
 
         /// <summary>
@@ -83,14 +76,7 @@
         {
             var updatedRequest = request with { userId = UserId };
             var updated = await _streamService.UpdateAsync(id, updatedRequest);
-
-            if (updated == null)
-            {
-                return Ok(CommonResponse<StreamDto>.FailureResponse("Failed to update stream."));
-            }
-
-            return Ok(CommonResponse<StreamDto>.SuccessResponse(
-                "Stream updated successfully.", updated));
+            return Ok(updated);
         }
 
         /// <summary>
@@ -116,15 +102,7 @@
         public async Task<ActionResult<CommonResponse<bool>>> Delete(Guid id)
         {
             var result = await _streamService.DeleteAsync(id);
-
-            if (result)
-            {
-                return Ok(CommonResponse<bool>.SuccessResponse(
-                    "Stream deleted successfully.", true));
-            }
-
-            return Ok(CommonResponse<bool>.FailureResponse(
-                "Failed to delete stream."));
+            return Ok(result);
         }
 
         /// <summary>

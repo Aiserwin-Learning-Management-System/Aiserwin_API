@@ -52,7 +52,7 @@
                 .ThenInclude(g => g.Syllabus)
             .Include(c => c.Grade)
                 .ThenInclude(g => g.Syllabus)
-        .FirstOrDefaultAsync(x => x.Id == id && x.IsActive);
+        .FirstOrDefaultAsync(x => x.Id == id);
 
         /// <summary>
         /// Gets the by identifier with subjects asynchronous.

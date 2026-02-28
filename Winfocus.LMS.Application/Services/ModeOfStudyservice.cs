@@ -1,7 +1,9 @@
 ﻿namespace Winfocus.LMS.Application.Services
 {
     using Microsoft.Extensions.Logging;
+    using Microsoft.EntityFrameworkCore;
     using Winfocus.LMS.Application.DTOs;
+    using Winfocus.LMS.Application.DTOs.Common;
     using Winfocus.LMS.Application.DTOs.Masters;
     using Winfocus.LMS.Application.Interfaces;
     using Winfocus.LMS.Domain.Entities;
@@ -31,18 +33,28 @@
         /// <returns>ModeOfStudyDto.</returns>
         public async Task<CommonResponse<List<ModeOfStudyDto>>> GetAllAsync()
         {
-            _logger.LogInformation("Fetching all mode of studies");
-            var modeOfStudies = await _repository.GetAllAsync();
-            _logger.LogInformation("Fetched {Count} mode of studies", modeOfStudies.Count());
-            var mapped = modeOfStudies.Select(Map).ToList();
-            if (mapped.Any())
+            try
             {
-                return CommonResponse<List<ModeOfStudyDto>>.SuccessResponse("Fetching all mode of studies", mapped);
+                _logger.LogInformation("Fetching all mode of studies");
+                var modeOfStudies = await _repository.GetAllAsync();
+                _logger.LogInformation("Fetched {Count} mode of studies", modeOfStudies.Count());
+                var mapped = modeOfStudies.Select(Map).ToList();
+                if (mapped.Any())
+                {
+                    return CommonResponse<List<ModeOfStudyDto>>.SuccessResponse("Fetching all mode of studies", mapped);
+                }
+                else
+                {
+                    return CommonResponse<List<ModeOfStudyDto>>.FailureResponse("no mode of studies");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return CommonResponse<List<ModeOfStudyDto>>.FailureResponse("no mode of studies");
+                _logger.LogError(ex, "Error fetching mode of studies.");
+                return CommonResponse<List<ModeOfStudyDto>>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
             }
+
         }
 
         /// <summary>
@@ -52,17 +64,26 @@
         /// <returns>ModeOfStudyDto.</returns>
         public async Task<CommonResponse<ModeOfStudyDto>> GetByIdAsync(Guid id)
         {
-            _logger.LogInformation("Fetching mode of study by Id: {ModeOfStudyId}", id);
-            var modeOfStudies = await _repository.GetByIdAsync(id);
-            _logger.LogInformation("Mode of study fetched successfully for Id: {ModeOfStudyId}", id);
-            var mapped = modeOfStudies == null ? null : Map(modeOfStudies);
-            if (mapped != null)
+            try
             {
-                return CommonResponse<ModeOfStudyDto>.SuccessResponse("Mode of study by id", mapped);
+                _logger.LogInformation("Fetching mode of study by Id: {ModeOfStudyId}", id);
+                var modeOfStudies = await _repository.GetByIdAsync(id);
+                _logger.LogInformation("Mode of study fetched successfully for Id: {ModeOfStudyId}", id);
+                var mapped = modeOfStudies == null ? null : Map(modeOfStudies);
+                if (mapped != null)
+                {
+                    return CommonResponse<ModeOfStudyDto>.SuccessResponse("Mode of study by id", mapped);
+                }
+                else
+                {
+                    return CommonResponse<ModeOfStudyDto>.FailureResponse("mode of study not found");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return CommonResponse<ModeOfStudyDto>.FailureResponse("mode of study not found");
+                _logger.LogError(ex, "Error fetching mode of study.");
+                return CommonResponse<ModeOfStudyDto>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
             }
         }
 
@@ -118,22 +139,32 @@
         /// <returns>task.</returns>
         public async Task<CommonResponse<ModeOfStudyDto>> UpdateAsync(Guid id, ModeOfStudyRequest request)
         {
-            _logger.LogInformation("Updating mode of study Id: {ModeOfStudyId}", id);
-            var modeOfStudy = await _repository.GetByIdAsync(id)
-                ?? throw new KeyNotFoundException("Mode of study not found");
-
-            modeOfStudy.Name = request.name;
-            modeOfStudy.UpdatedAt = DateTime.UtcNow;
-            modeOfStudy.UpdatedBy = request.userId;
-
-            var mapped = Map(await _repository.UpdateAsync(modeOfStudy));
-            if (mapped == null)
+            try
             {
-                return CommonResponse<ModeOfStudyDto>.FailureResponse("Failed to update mode of study.");
+                _logger.LogInformation("Updating mode of study Id: {Id}", id);
+
+                var batch = await _repository.GetByIdAsync(id);
+                if (batch == null)
+                {
+                    return CommonResponse<ModeOfStudyDto>.FailureResponse("mode of study not found");
+                }
+
+                batch.Name = request.name;
+                batch.StateId = request.stateid;
+                batch.UpdatedAt = DateTime.UtcNow;
+                batch.UpdatedBy = request.userId;
+
+                var updated = await _repository.UpdateAsync(batch);
+
+                _logger.LogInformation("mode of study updated Id: {Id}", id);
+                return CommonResponse<ModeOfStudyDto>.SuccessResponse(
+                    "mode of study updated successfully", Map(updated));
             }
-            else
+            catch (Exception ex)
             {
-                return CommonResponse<ModeOfStudyDto>.SuccessResponse("Mode of study updated successfully.", mapped);
+                _logger.LogError(ex, "Error updating mode of study Id: {Id}", id);
+                return CommonResponse<ModeOfStudyDto>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
             }
         }
 
@@ -142,10 +173,28 @@
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>task.</returns>
-        public async Task<bool> DeleteAsync(Guid id)
+        public async Task<CommonResponse<bool>> DeleteAsync(Guid id)
         {
-            _logger.LogInformation("Deleting mode of study Id: {ModeOfStudyId}", id);
-            return await _repository.DeleteAsync(id);
+            try
+            {
+                _logger.LogInformation("Deleting mode of study Id: {ModeOfStudyId}", id);
+                var result = await _repository.DeleteAsync(id);
+
+                if (result)
+                {
+                    return CommonResponse<bool>.SuccessResponse(
+                        "mode of study deleted successfully", true);
+                }
+
+                return CommonResponse<bool>.FailureResponse(
+                    "mode of study not found or already deleted");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting mode of study Id: {Id}", id);
+                return CommonResponse<bool>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
+            }
         }
 
         /// <summary>
@@ -165,6 +214,100 @@
             return Map(modeofstudy);
         }
 
+        /// <summary>
+        /// Gets filtered modeofstudy with pagination support.
+        /// </summary>
+        /// <param name="request">The paged request.</param>
+        /// <returns>Paginated modeofstudy result.</returns>
+        public async Task<CommonResponse<PagedResult<ModeOfStudyDto>>> GetFilteredAsync(
+         PagedRequest request)
+        {
+            try
+            {
+                _logger.LogInformation(
+                    "Fetching filtered grades. Filters => Active:{Active}, " +
+                    "Search:{SearchText}, SortBy:{SortBy}, SortOrder:{SortOrder}, " +
+                    "Limit:{Limit}, Offset:{Offset}",
+                    request.Active, request.SearchText, request.SortBy,
+                    request.SortOrder, request.Limit, request.Offset);
+
+                var query = _repository.Query();
+
+                // ── Filters ──
+                if (request.Active.HasValue)
+                    query = query.Where(x => x.IsActive == request.Active.Value);
+
+                if (request.StartDate.HasValue)
+                    query = query.Where(x => x.CreatedAt >= request.StartDate.Value);
+
+                if (request.EndDate.HasValue)
+                    query = query.Where(x => x.CreatedAt <= request.EndDate.Value);
+
+                if (!string.IsNullOrWhiteSpace(request.SearchText))
+                {
+                    var searchTerm = request.SearchText.Trim().ToLower();
+                    query = query.Where(x =>
+                        x.Name.ToLower().Contains(searchTerm) ||
+                        x.State.Name.ToLower().Contains(searchTerm));
+                }
+
+                // ── Total Count ──
+                var totalCount = await query.CountAsync();
+
+                if (totalCount == 0)
+                {
+                    return CommonResponse<PagedResult<ModeOfStudyDto>>.SuccessResponse(
+                        "No mode of study found.",
+                        new PagedResult<ModeOfStudyDto>(
+                            new List<ModeOfStudyDto>(), 0, request.Limit, request.Offset));
+                }
+
+                // ── Dynamic Sorting ──
+                var isDesc = request.SortOrder.Equals("desc", StringComparison.OrdinalIgnoreCase);
+
+                query = request.SortBy.ToLower() switch
+                {
+                    "name" => isDesc ? query.OrderByDescending(x => x.Name)
+                                             : query.OrderBy(x => x.Name),
+
+                    "statename" => isDesc ? query.OrderByDescending(x => x.State.Name)
+                                             : query.OrderBy(x => x.State.Name),
+
+                    "isactive" => isDesc ? query.OrderByDescending(x => x.IsActive)
+                                             : query.OrderBy(x => x.IsActive),
+
+                    "createdat" => isDesc ? query.OrderByDescending(x => x.CreatedAt)
+                                             : query.OrderBy(x => x.CreatedAt),
+
+                    _ => isDesc ? query.OrderByDescending(x => x.CreatedAt)
+                                             : query.OrderBy(x => x.CreatedAt),
+                };
+
+                // ── Pagination ──
+                var modeofstudy = await query
+                    .Skip(request.Offset)
+                    .Take(request.Limit)
+                    .ToListAsync();
+
+                var dtoList = modeofstudy.Select(Map).ToList();
+
+                _logger.LogInformation(
+                    "Returning {Count} of {Total} mode of study",
+                    dtoList.Count, totalCount);
+
+                return CommonResponse<PagedResult<ModeOfStudyDto>>.SuccessResponse(
+                    "Mode of study fetched successfully.",
+                    new PagedResult<ModeOfStudyDto>(
+                        dtoList, totalCount, request.Limit, request.Offset));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching filtered Mode of study.");
+                return CommonResponse<PagedResult<ModeOfStudyDto>>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
+            }
+        }
+
         private static List<ModeOfStudyDto> Map(IEnumerable<ModeOfStudy> modeofstudy)
         {
             return modeofstudy.Select(Map).ToList();
@@ -176,10 +319,7 @@
                 Id = c.Id,
                 Name = c.Name,
                 StateId = c.StateId,
-                CreatedBy = c.CreatedBy,
-                CreatedAt = c.CreatedAt,
-                UpdatedBy = c.UpdatedBy,
-                UpdatedAt = c.UpdatedAt,
+                IsActive = c.IsActive,
                 State = c.State == null ? null : new StateDto
                 {
                     Id = c.State.Id,
