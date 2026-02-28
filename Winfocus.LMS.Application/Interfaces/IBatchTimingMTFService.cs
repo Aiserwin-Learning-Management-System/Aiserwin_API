@@ -1,6 +1,7 @@
 ﻿namespace Winfocus.LMS.Application.Interfaces
 {
     using Winfocus.LMS.Application.DTOs;
+    using Winfocus.LMS.Application.DTOs.Common;
     using Winfocus.LMS.Application.DTOs.Masters;
 
     /// <summary>
@@ -56,5 +57,12 @@
         /// <param name="request">The request.</param>
         /// <returns>.</returns>
         Task BatchTimingSubjectCreate(SubjectBatchTimingRequest request);
+
+        /// <summary>
+        /// Gets filtered batch timing for monday to friday with pagination support.
+        /// </summary>
+        /// <param name="request">The paged request.</param>
+        /// <returns>Paginated batch timing for monday to frida result.</returns>
+        Task<CommonResponse<PagedResult<BatchTimingMTFDto>>> GetFilteredAsync(PagedRequest request);
     }
 }

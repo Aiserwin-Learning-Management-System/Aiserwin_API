@@ -248,8 +248,6 @@
             }
         }
 
-        //  =>  await _repo.SoftDeleteAsync(id);
-
         /// <summary>
         /// Gets filtered subjects with pagination support.
         /// Search works on Course Name, Stream Name, Grade Name, and Syllabus Name.

@@ -45,5 +45,10 @@ namespace Winfocus.LMS.Application.Interfaces
         /// <returns>task.</returns>
         Task<bool> DeleteAsync(Guid id);
 
+        /// <summary>
+        /// Gets all asynchronous.
+        /// </summary>
+        /// <returns>batches.</returns>
+        IQueryable<Batch> Query();
     }
 }

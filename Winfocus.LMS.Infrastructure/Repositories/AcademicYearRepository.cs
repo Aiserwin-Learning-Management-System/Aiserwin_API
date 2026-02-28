@@ -44,5 +44,72 @@
                     x.StartDate <= date &&
                     x.EndDate >= date);
         }
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>Academic year.</returns>
+        public async Task<AcademicYear?> GetByIdAsync(Guid id)
+        {
+            return await _dbContext.AcademicYears
+                 .Where(x => x.IsActive)
+                .FirstOrDefaultAsync(x => x.Id == id);
+        }
+
+        /// <summary>
+        /// Adds the asynchronous.
+        /// </summary>
+        /// <param name="academicYear">The AcademicYear.</param>
+        /// <returns>AcademicYear.</returns>
+        public async Task<AcademicYear> AddAsync(AcademicYear academicYear)
+        {
+            _dbContext.AcademicYears.Add(academicYear);
+            await _dbContext.SaveChangesAsync();
+            return academicYear;
+        }
+
+        /// <summary>
+        /// Updates the asynchronous.
+        /// </summary>
+        /// <param name="academicYear">The academicYear.</param>
+        /// <returns>task.</returns>
+        public async Task<AcademicYear> UpdateAsync(AcademicYear academicYear)
+        {
+            academicYear.UpdatedAt = DateTime.UtcNow;
+            _dbContext.AcademicYears.Update(academicYear);
+            await _dbContext.SaveChangesAsync();
+            return academicYear;
+        }
+
+        /// <summary>
+        /// Deletes the asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>task.</returns>
+        public async Task<bool> DeleteAsync(Guid id)
+        {
+            var entity = await _dbContext.AcademicYears.FindAsync(id);
+            if (entity == null)
+            {
+                return false;
+            }
+
+            entity.IsActive = false;
+
+            _dbContext.AcademicYears.Update(entity);
+            await _dbContext.SaveChangesAsync();
+            return true;
+        }
+
+        /// <summary>
+        /// Gets queryable for filtering with full hierarchy.
+        /// </summary>
+        /// <returns>Queryable academicYear.</returns>
+        public IQueryable<AcademicYear> Query()
+        {
+            return _dbContext.AcademicYears
+                .AsNoTracking();
+        }
     }
 }

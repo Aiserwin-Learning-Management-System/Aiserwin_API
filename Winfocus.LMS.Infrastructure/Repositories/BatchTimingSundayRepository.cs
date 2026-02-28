@@ -1,7 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Winfocus.LMS.Application.Interfaces;
 using Winfocus.LMS.Domain.Entities;
 using Winfocus.LMS.Infrastructure.Data;
@@ -34,7 +31,12 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         public async Task<IReadOnlyList<BatchTimingSunday>> GetAllAsync()
         {
             return await _dbContext.BatchTimingSundays
-                .Include(x => x.Subject)
+                .Where(x => x.IsActive)
+               .Include(x => x.Subject)
+                  .ThenInclude(s => s.Course)
+                     .ThenInclude(s => s.Stream)
+                      .ThenInclude(s => s.Grade)
+                       .ThenInclude(s => s.Syllabus)
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -48,7 +50,11 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         {
             return await _dbContext.BatchTimingSundays
                 .Include(x => x.Subject)
-                .FirstOrDefaultAsync(x => x.Id == id);
+                  .ThenInclude(s => s.Course)
+                     .ThenInclude(s => s.Stream)
+                      .ThenInclude(s => s.Grade)
+                       .ThenInclude(s => s.Syllabus)
+                .FirstOrDefaultAsync(x => x.Id == id && x.IsActive);
         }
 
         /// <summary>
@@ -107,6 +113,10 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         {
             return await _dbContext.BatchTimingSundays
                 .Include(x => x.Subject)
+                  .ThenInclude(s => s.Course)
+                     .ThenInclude(s => s.Stream)
+                      .ThenInclude(s => s.Grade)
+                       .ThenInclude(s => s.Syllabus)
                 .Where(x => x.SubjectId == subjectid)
                 .ToListAsync();
         }
@@ -121,6 +131,21 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             _dbContext.SubjectBatchTimingSundays.Add(batchtiming);
             await _dbContext.SaveChangesAsync();
             return batchtiming;
+        }
+
+        /// <summary>
+        /// Gets queryable for filtering with full hierarchy.
+        /// </summary>
+        /// <returns>Queryable batches.</returns>
+        public IQueryable<BatchTimingSunday> Query()
+        {
+            return _dbContext.BatchTimingSundays
+               .Include(x => x.Subject)
+                   .ThenInclude(s => s.Course)
+                      .ThenInclude(s => s.Stream)
+                       .ThenInclude(s => s.Grade)
+                        .ThenInclude(s => s.Syllabus)
+                .AsNoTracking();
         }
     }
 }

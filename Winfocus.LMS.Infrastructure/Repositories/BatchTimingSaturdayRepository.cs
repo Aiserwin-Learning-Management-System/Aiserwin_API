@@ -34,7 +34,12 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         public async Task<IReadOnlyList<BatchTimingSaturday>> GetAllAsync()
         {
             return await _dbContext.BatchTimingSaturdays
+                .Where(x => x.IsActive)
                 .Include(x => x.Subject)
+                  .ThenInclude(s => s.Course)
+                     .ThenInclude(s => s.Stream)
+                      .ThenInclude(s => s.Grade)
+                       .ThenInclude(s => s.Syllabus)
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -48,7 +53,11 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         {
             return await _dbContext.BatchTimingSaturdays
                 .Include(x => x.Subject)
-                .FirstOrDefaultAsync(x => x.Id == id);
+                  .ThenInclude(s => s.Course)
+                     .ThenInclude(s => s.Stream)
+                      .ThenInclude(s => s.Grade)
+                       .ThenInclude(s => s.Syllabus)
+                .FirstOrDefaultAsync(x => x.Id == id && x.IsActive);
         }
 
         /// <summary>
@@ -104,7 +113,11 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         public async Task<List<BatchTimingSaturday>> GetBySubjectIdAsync(Guid subjectid)
         {
             return await _dbContext.BatchTimingSaturdays
-                .Include(x => x.Subject)
+               .Include(x => x.Subject)
+                  .ThenInclude(s => s.Course)
+                     .ThenInclude(s => s.Stream)
+                      .ThenInclude(s => s.Grade)
+                       .ThenInclude(s => s.Syllabus)
                 .Where(x => x.SubjectId == subjectid)
                 .ToListAsync();
         }
@@ -119,6 +132,21 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             _dbContext.SubjectBatchTimingSaturdays.Add(batchtiming);
             await _dbContext.SaveChangesAsync();
             return batchtiming;
+        }
+
+        /// <summary>
+        /// Gets queryable for filtering with full hierarchy.
+        /// </summary>
+        /// <returns>Queryable batches.</returns>
+        public IQueryable<BatchTimingSaturday> Query()
+        {
+            return _dbContext.BatchTimingSaturdays
+               .Include(x => x.Subject)
+                   .ThenInclude(s => s.Course)
+                      .ThenInclude(s => s.Stream)
+                       .ThenInclude(s => s.Grade)
+                        .ThenInclude(s => s.Syllabus)
+                .AsNoTracking();
         }
     }
 }
