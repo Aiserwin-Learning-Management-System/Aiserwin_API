@@ -23,6 +23,7 @@
         private readonly IPasswordHasher<User> _passwordHasher;
         private readonly AuthService _authService;
         private readonly Mock<IUsernameGeneratorService> _usernameGeneratorService;
+        private readonly Mock<IUserLoginLogService> _userLoginLogService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthServiceTests"/> class.
@@ -36,6 +37,7 @@
             _userActivationTokenRepositoryMock = new Mock<IUserActivationTokenRepository>();
             _passwordHasher = new PasswordHasher<User>();
             _usernameGeneratorService = new Mock<IUsernameGeneratorService>();
+            _userLoginLogService = new Mock<IUserLoginLogService>();
 
             _authService = new AuthService(
                 _userRepositoryMock.Object,
@@ -45,7 +47,8 @@
                 NullLogger<AuthService>.Instance,
                 _userActivationTokenRepositoryMock.Object,
                 _emailServiceMock.Object,
-                _usernameGeneratorService.Object);
+                _usernameGeneratorService.Object,
+                _userLoginLogService.Object);
         }
 
         /// <summary>
@@ -100,8 +103,9 @@
 
             var request = new LoginRequestDto(
                 username: "testuser",
-                password: password
-            );
+                password: password,
+                ipAddress: "192.168.1.100",
+                userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0");
 
             _userRepositoryMock
                 .Setup(r => r.GetByUsernameAsync("testuser"))
@@ -168,8 +172,9 @@
 
             var request = new LoginRequestDto(
                 username: "testuser",
-                password: "WrongPassword@123"
-            );
+                password: "WrongPassword@123",
+                ipAddress: "192.168.1.100",
+                userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0");
 
             _userRepositoryMock
                 .Setup(r => r.GetByUsernameAsync("testuser"))
@@ -195,8 +200,9 @@
             // Arrange
             var request = new LoginRequestDto(
                 username: "unknown",
-                password: "Password@123"
-            );
+                password: "Password@123",
+                ipAddress: "192.168.1.100",
+                userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0");
 
             _userRepositoryMock
                 .Setup(r => r.GetByUsernameAsync("unknown"))

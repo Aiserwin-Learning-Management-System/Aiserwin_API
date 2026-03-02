@@ -73,7 +73,7 @@
             // Login
             var loginResponse = await _client.PostAsJsonAsync(
                 "/api/v1/Auth/login",
-                new LoginRequestDto(registeredUser.username, "Password@123"));
+                new LoginRequestDto(registeredUser.username, "Password@123", ipAddress: "192.168.1.100", userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0"));
 
             loginResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         }
@@ -106,7 +106,9 @@
         {
             var request = new LoginRequestDto(
                 "user",
-                string.Empty);
+                string.Empty,
+                ipAddress: "192.168.1.100",
+                userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0");
 
             var response = await _client.PostAsJsonAsync(
                 "/api/v1/Auth/login",
