@@ -34,17 +34,25 @@
         /// <returns>StateDto.</returns>
         public async Task<CommonResponse<List<StateDto>>> GetAllAsync()
         {
-            _logger.LogInformation("Fetching all states");
-            var states = await _repository.GetAllAsync();
-            _logger.LogInformation("Fetched {Count} states", states.Count());
-            var mappeddata = states.Select(Map).ToList();
-            if (mappeddata.Any())
+            try
             {
-                return CommonResponse<List<StateDto>>.SuccessResponse("Fetched all states", mappeddata);
+                _logger.LogInformation("Fetching all states");
+                var states = await _repository.GetAllAsync();
+                _logger.LogInformation("Fetched {Count} states", states.Count());
+                var mappeddata = states.Select(Map).ToList();
+                if (mappeddata.Any())
+                {
+                    return CommonResponse<List<StateDto>>.SuccessResponse("Fetched all states", mappeddata);
+                }
+                else
+                {
+                    return CommonResponse<List<StateDto>>.FailureResponse("States not found");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return CommonResponse<List<StateDto>>.FailureResponse("States not found");
+                _logger.LogError(ex, "Error occurred while fetching states");
+                return CommonResponse<List<StateDto>>.FailureResponse($"Failed to fetch states. Error: {ex.Message}");
             }
         }
 
@@ -55,19 +63,27 @@
         /// <returns>StateDto.</returns>
         public async Task<CommonResponse<StateDto>> GetByIdAsync(Guid id)
         {
-            _logger.LogInformation("Fetching state by Id: {StateId}", id);
-            var state = await _repository.GetByIdAsync(id);
-            _logger.LogInformation("State fetched successfully for Id: {StateId}", id);
-            var mappeddata = state == null ? null : Map(state);
-            if (mappeddata != null)
+            try
             {
-                return CommonResponse<StateDto>.SuccessResponse("Fetched state by Id", mappeddata);
+                _logger.LogInformation("Fetching state by Id: {StateId}", id);
+                var state = await _repository.GetByIdAsync(id);
+                _logger.LogInformation("State fetched successfully for Id: {StateId}", id);
+                var mappeddata = state == null ? null : Map(state);
+                if (mappeddata != null)
+                {
+                    return CommonResponse<StateDto>.SuccessResponse("Fetched state by Id", mappeddata);
+                }
+                else
+                {
+                    return CommonResponse<StateDto>.FailureResponse("State not found");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return CommonResponse<StateDto>.FailureResponse("State not found");
+                _logger.LogError(ex, "Error occurred while fetching state by Id: {StateId}", id);
+                return CommonResponse<StateDto>.FailureResponse($"Failed to fetch state. Error: {ex.Message}");
             }
-        }
+         }
 
         /// <summary>
         /// Creates the asynchronous.
@@ -84,11 +100,6 @@
                 if (country == null)
                 {
                     return CommonResponse<StateDto>.FailureResponse("Failed to create State, because the invalid country");
-                }
-
-                if (!country.IsActive)
-                {
-                    throw new InvalidOperationException("Cannot create state for inactive country");
                 }
 
                 var state = new State
@@ -129,25 +140,33 @@
         /// <returns>task.</returns>
         public async Task<CommonResponse<StateDto>> UpdateAsync(Guid id, CreateMasterStateRequest request)
         {
-            _logger.LogInformation("Updating state Id: {StateId}", id);
-            var state = await _repository.GetByIdAsync(id);
-            if (state == null)
+            try
             {
-                return CommonResponse<StateDto>.FailureResponse("State not found");
-            }
+                _logger.LogInformation("Updating state Id: {StateId}", id);
+                var state = await _repository.GetByIdAsync(id);
+                if (state == null)
+                {
+                    return CommonResponse<StateDto>.FailureResponse("State not found");
+                }
 
-            state.Name = request.name;
-            state.UpdatedBy = request.userId;
-            state.UpdatedAt = DateTime.UtcNow;
+                state.Name = request.name;
+                state.UpdatedBy = request.userId;
+                state.UpdatedAt = DateTime.UtcNow;
 
-            var mappeddata = Map(await _repository.UpdateAsync(state));
-            if (mappeddata != null)
-            {
-                return CommonResponse<StateDto>.SuccessResponse("USuccessfully updated", mappeddata);
+                var mappeddata = Map(await _repository.UpdateAsync(state));
+                if (mappeddata != null)
+                {
+                    return CommonResponse<StateDto>.SuccessResponse("USuccessfully updated", mappeddata);
+                }
+                else
+                {
+                    return CommonResponse<StateDto>.FailureResponse("Failed to update");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return CommonResponse<StateDto>.FailureResponse("Failed to update");
+                _logger.LogError(ex, "Error occurred while updating state Id: {StateId}", id);
+                return CommonResponse<StateDto>.FailureResponse($"Failed to update State. Error: {ex.Message}");
             }
         }
 
@@ -156,10 +175,28 @@
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>task.</returns>
-        public async Task<bool> DeleteAsync(Guid id)
+        public async Task<CommonResponse<bool>> DeleteAsync(Guid id)
         {
-            _logger.LogInformation("Deleting state Id: {StateId}", id);
-            return await _repository.DeleteAsync(id);
+            try
+            {
+                _logger.LogInformation("Deleting state Id: {Id}", id);
+                var result = await _repository.DeleteAsync(id);
+
+                if (result)
+                {
+                    return CommonResponse<bool>.SuccessResponse(
+                        "State deleted successfully", true);
+                }
+
+                return CommonResponse<bool>.FailureResponse(
+                    "State not found or already deleted");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting State Id: {Id}", id);
+                return CommonResponse<bool>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
+            }
         }
 
         /// <summary>
@@ -197,21 +234,12 @@
           Id = c.Id,
           Name = c.Name,
           CountryId = c.CountryId,
-          CreatedBy = c.CreatedBy,
-          CreatedAt = c.CreatedAt,
-          UpdatedAt = c.UpdatedAt,
-          UpdatedBy = c.UpdatedBy,
-          Country = c.Country == null ? null : new CountryDto(
-              c.Country.Id,
-              c.Country.Name,
-              c.Country.Centres?
-                  .Select(x => new CentreDto(
-                      x.Id,
-                      x.Name,
-                      x.CenterType.ToString()
-                  ))
-                  .ToList() ?? new List<CentreDto>()
-          )
+          IsActive = c.IsActive,
+          Country = c.Country == null ? null : new CountryDto
+          {
+              Id = c.Country.Id,
+              Name = c.Country.Name
+          }
       };
     }
 }

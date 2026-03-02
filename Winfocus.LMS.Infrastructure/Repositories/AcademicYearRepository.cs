@@ -53,7 +53,6 @@
         public async Task<AcademicYear?> GetByIdAsync(Guid id)
         {
             return await _dbContext.AcademicYears
-                 .Where(x => x.IsActive)
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
 

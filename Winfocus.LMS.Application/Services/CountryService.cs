@@ -1,7 +1,9 @@
 ﻿namespace Winfocus.LMS.Application.Services
 {
     using Microsoft.Extensions.Logging;
+    using Microsoft.EntityFrameworkCore;
     using Winfocus.LMS.Application.DTOs;
+    using Winfocus.LMS.Application.DTOs.Common;
     using Winfocus.LMS.Application.DTOs.Masters;
     using Winfocus.LMS.Application.Interfaces;
     using Winfocus.LMS.Domain.Entities;
@@ -196,12 +198,104 @@
             return await _repository.ExistsByNameAsync(name);
         }
 
+        /// <summary>
+        /// Gets filtered countries with pagination support.
+        /// </summary>
+        /// <param name="request">The paged request.</param>
+        /// <returns>Paginated countries result.</returns>
+        public async Task<CommonResponse<PagedResult<CountryDto>>> GetFilteredAsync(
+            PagedRequest request)
+        {
+            try
+            {
+                _logger.LogInformation(
+                    "Fetching filtered countries. Filters => Active:{Active}, " +
+                    "Search:{SearchText}, SortBy:{SortBy}, SortOrder:{SortOrder}, " +
+                    "Limit:{Limit}, Offset:{Offset}",
+                    request.Active, request.SearchText, request.SortBy,
+                    request.SortOrder, request.Limit, request.Offset);
+
+                var query = _repository.Query();
+
+                // ── Filters ──
+                if (request.Active.HasValue)
+                    query = query.Where(x => x.IsActive == request.Active.Value);
+
+                if (request.StartDate.HasValue)
+                    query = query.Where(x => x.CreatedAt >= request.StartDate.Value);
+
+                if (request.EndDate.HasValue)
+                    query = query.Where(x => x.CreatedAt <= request.EndDate.Value);
+
+                // ── Search on Course, Stream, Grade, AND Syllabus Name ──
+                if (!string.IsNullOrWhiteSpace(request.SearchText))
+                {
+                    var searchTerm = request.SearchText.Trim().ToLower();
+                    query = query.Where(x =>
+                        x.Name.ToLower().Contains(searchTerm));
+                }
+
+                // ── Total Count ──
+                var totalCount = await query.CountAsync();
+
+                if (totalCount == 0)
+                {
+                    return CommonResponse<PagedResult<CountryDto>>.SuccessResponse(
+                        "No countries found.",
+                        new PagedResult<CountryDto>(
+                            new List<CountryDto>(), 0, request.Limit, request.Offset));
+                }
+
+                // ── Dynamic Sorting ──
+                var isDesc = request.SortOrder.Equals("desc", StringComparison.OrdinalIgnoreCase);
+
+                query = request.SortBy.ToLower() switch
+                {
+                    "name" => isDesc ? query.OrderByDescending(x => x.Name)
+                                             : query.OrderBy(x => x.Name),
+
+                    "isactive" => isDesc ? query.OrderByDescending(x => x.IsActive)
+                                             : query.OrderBy(x => x.IsActive),
+
+                    "createdat" => isDesc ? query.OrderByDescending(x => x.CreatedAt)
+                                             : query.OrderBy(x => x.CreatedAt),
+
+                    _ => isDesc ? query.OrderByDescending(x => x.CreatedAt)
+                                             : query.OrderBy(x => x.CreatedAt),
+                };
+
+                // ── Pagination ──
+                var courses = await query
+                    .Skip(request.Offset)
+                    .Take(request.Limit)
+                    .ToListAsync();
+
+                var dtoList = courses.Select(Map).ToList();
+
+                _logger.LogInformation(
+                    "Returning {Count} of {Total} countries",
+                    dtoList.Count, totalCount);
+
+                return CommonResponse<PagedResult<CountryDto>>.SuccessResponse(
+                    "Countries fetched successfully.",
+                    new PagedResult<CountryDto>(
+                        dtoList, totalCount, request.Limit, request.Offset));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching filtered countries.");
+                return CommonResponse<PagedResult<CountryDto>>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
+            }
+        }
+
         private static CountryDto Map(Country c) =>
-            new (
-                c.Id,
-                c.Name,
-                c.Centres.Select(x =>
-                    new CentreDto(x.Id, x.Name, x.CenterType.ToString()))
-                .ToList());
+          new CountryDto
+          {
+              Id = c.Id,
+              Name = c.Name,
+              Code = c.Code,
+              IsActive = c.IsActive,
+          };
     }
 }

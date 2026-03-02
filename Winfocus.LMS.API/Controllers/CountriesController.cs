@@ -5,6 +5,7 @@
     using Microsoft.AspNetCore.Http.HttpResults;
     using Microsoft.AspNetCore.Mvc;
     using Winfocus.LMS.Application.DTOs;
+    using Winfocus.LMS.Application.DTOs.Common;
     using Winfocus.LMS.Application.DTOs.Masters;
     using Winfocus.LMS.Application.Interfaces;
 
@@ -33,7 +34,7 @@
         /// </summary>
         /// <returns>CountryDto list.</returns>
         [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<CountryDto>>> GetAll()
+        public async Task<ActionResult<CommonResponse<CountryDto>>> GetAll()
             => Ok(await _service.GetAllAsync());
 
         /// <summary>
@@ -42,11 +43,8 @@
         /// <param name="id">The identifier.</param>
         /// <returns>CountryDto by id.</returns>
         [HttpGet("{id:guid}")]
-        public async Task<ActionResult<CountryDto>> Get(Guid id)
-        {
-            var result = await _service.GetByIdAsync(id);
-            return result == null ? NotFound() : Ok(result);
-        }
+        public async Task<ActionResult<CommonResponse<CountryDto>>> Get(Guid id)
+         => Ok(await _service.GetByIdAsync(id));
 
         /// <summary>
         /// Creates the specified request.
@@ -55,11 +53,12 @@
         /// <returns>CountryDto.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPost]
-        public async Task<CommonResponse<CountryDto>> Create(
+        public async Task<ActionResult<CommonResponse<CountryDto>>> Create(
             CreateCountryRequest request)
         {
             Guid userid = UserId;
-            return await _service.CreateAsync(request, userid);
+            var created = await _service.CreateAsync(request, userid);
+            return Ok(created);
         }
 
         /// <summary>
@@ -70,12 +69,13 @@
         /// <returns>result.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPut("{id:guid}")]
-        public async Task<CommonResponse<CountryDto>> Update(
+        public async Task<ActionResult<CommonResponse<CountryDto>>> Update(
             Guid id,
             CreateCountryRequest request)
         {
             Guid userid = UserId;
-            return await _service.UpdateAsync(id, request, userid);
+            var updated = await _service.UpdateAsync(id, request, userid);
+            return Ok(updated);
         }
 
         /// <summary>
@@ -85,9 +85,24 @@
         /// <returns>result.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpDelete("{id:guid}")]
-        public async Task<CommonResponse<bool>> Delete(Guid id)
+        public async Task<ActionResult<CommonResponse<bool>>> Delete(Guid id)
         {
-            return await _service.DeleteAsync(id);
+            var result = await _service.DeleteAsync(id);
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Retrieves filtered countries with pagination.
+        /// </summary>
+        /// <param name="request">The paged request.</param>
+        /// <returns>Paginated list of countries.</returns>
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        [HttpGet("filter")]
+        public async Task<ActionResult<CommonResponse<PagedResult<CountryDto>>>> GetFiltered(
+            [FromQuery] PagedRequest request)
+        {
+            var result = await _service.GetFilteredAsync(request);
+            return Ok(result);
         }
     }
 }

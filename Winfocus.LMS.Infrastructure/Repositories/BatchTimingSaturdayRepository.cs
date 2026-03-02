@@ -57,7 +57,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
                      .ThenInclude(s => s.Stream)
                       .ThenInclude(s => s.Grade)
                        .ThenInclude(s => s.Syllabus)
-                .FirstOrDefaultAsync(x => x.Id == id && x.IsActive);
+                .FirstOrDefaultAsync(x => x.Id == id);
         }
 
         /// <summary>

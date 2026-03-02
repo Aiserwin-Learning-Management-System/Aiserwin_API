@@ -45,7 +45,7 @@
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>id.</returns>
-        Task<bool> DeleteAsync(Guid id);
+        Task<CommonResponse<bool>> DeleteAsync(Guid id);
 
         /// <summary>
         /// Gets the by identifier asynchronous.

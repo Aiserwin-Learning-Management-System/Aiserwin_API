@@ -32,7 +32,7 @@
         /// </summary>
         /// <returns>SyllabusDto list.</returns>
         [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<SyllabusDto>>> GetAll()
+        public async Task<ActionResult<CommonResponse<SyllabusDto>>> GetAll()
             => Ok(await _syllabusService.GetAllAsync());
 
         /// <summary>
@@ -50,14 +50,7 @@
                 UserId = UserId
             };
             var created = await _syllabusService.CreateAsync(updatedRequest);
-            if (created == null)
-            {
-                return CommonResponse<SyllabusDto>.FailureResponse("Failed to create syllabus.");
-            }
-            else
-            {
-                return CommonResponse<SyllabusDto>.SuccessResponse("Syllabus created successfully.", created);
-            }
+            return Ok(created);
         }
 
         /// <summary>
@@ -89,14 +82,7 @@
                 UserId = UserId
             };
             var updated = await _syllabusService.UpdateAsync(id, updatedRequest);
-            if (updated == null)
-            {
-                return CommonResponse<SyllabusDto>.FailureResponse("Failed to update Syllabus.");
-            }
-            else
-            {
-                return CommonResponse<SyllabusDto>.SuccessResponse("Syllabus updated successfully.", updated);
-            }
+            return Ok(updated);
         }
 
         /// <summary>
@@ -106,17 +92,10 @@
         /// <returns>result.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpDelete("{id:guid}")]
-        public async Task<CommonResponse<bool>> Delete(Guid id)
+        public async Task<ActionResult<CommonResponse<bool>>> Delete(Guid id)
         {
-            bool response = await _syllabusService.DeleteAsync(id);
-            if (response)
-            {
-                return CommonResponse<bool>.SuccessResponse("Syllabus deleted successfully.", true);
-            }
-            else
-            {
-                return CommonResponse<bool>.FailureResponse("Failed to delete syllabus.");
-            }
+            var response = await _syllabusService.DeleteAsync(id);
+            return Ok(response);
         }
 
         /// <summary>

@@ -47,7 +47,7 @@
              .ThenInclude(c => c.Stream)
                  .ThenInclude(st => st.Grade)
                      .ThenInclude(g => g.Syllabus)
-         .FirstOrDefaultAsync(s => s.Id == id && s.IsActive);
+         .FirstOrDefaultAsync(s => s.Id == id);
 
         /// <summary>
         /// Gets the by stream asynchronous.

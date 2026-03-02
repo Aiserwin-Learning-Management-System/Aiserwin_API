@@ -35,16 +35,25 @@
         /// <returns>GradeDto.</returns>
         public async Task<CommonResponse<List<GradeDto>>> GetAllAsync()
         {
-            _logger.LogInformation("Fetching all Grdaes");
-            var grades = await _repository.GetAllAsync();
-            var mapped = grades.Select(Map).ToList();
-            if (mapped.Any())
+            try
             {
-                return CommonResponse<List<GradeDto>>.SuccessResponse("Fetching all Grades", mapped);
+                _logger.LogInformation("Fetching all Grdaes");
+                var grades = await _repository.GetAllAsync();
+                var mapped = grades.Select(Map).ToList();
+                if (mapped.Any())
+                {
+                    return CommonResponse<List<GradeDto>>.SuccessResponse("Fetching all Grades", mapped);
+                }
+                else
+                {
+                    return CommonResponse<List<GradeDto>>.FailureResponse("Grades not found");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return CommonResponse<List<GradeDto>>.FailureResponse("Grades not found");
+                _logger.LogError(ex, "Error fetching grades.");
+                return CommonResponse<List<GradeDto>>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
             }
         }
 
@@ -55,15 +64,23 @@
         /// <returns>GradeDto.</returns>
         public async Task<CommonResponse<GradeDto>> GetByIdAsync(Guid id)
         {
-            var grades = await _repository.GetByIdAsync(id);
-            var mapped = grades == null ? null : Map(grades);
-            if (mapped != null)
+            try
             {
-                return CommonResponse<GradeDto>.SuccessResponse("Fetching the grade", mapped);
-            }
-            else
+                var grades = await _repository.GetByIdAsync(id);
+                var mapped = grades == null ? null : Map(grades);
+                if (mapped != null)
+                {
+                    return CommonResponse<GradeDto>.SuccessResponse("Fetching the grade", mapped);
+                }
+                else
+                {
+                    return CommonResponse<GradeDto>.FailureResponse("Grade not found");
+                }
+            } catch (Exception ex)
             {
-                return CommonResponse<GradeDto>.FailureResponse("Grade not found");
+                _logger.LogError(ex, "Error fetching grades.");
+                return CommonResponse<GradeDto>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
             }
         }
 
@@ -73,18 +90,31 @@
         /// <param name="request">The request.</param>
         /// <returns>GradeDto.</returns>
         /// <exception cref="InvalidOperationException">grade code already exists.</exception>
-        public async Task<GradeDto> CreateAsync(GradeRequest request)
+        public async Task<CommonResponse<GradeDto>> CreateAsync(GradeRequest request)
         {
-            var grades = new Grade
+            try
             {
-                Name = request.name,
-                CreatedAt = DateTime.UtcNow,
-                CreatedBy = request.userId,
-                SyllabusId = request.syllabusid,
-            };
+                var grades = new Grade
+                {
+                    Name = request.name,
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = request.userId,
+                    SyllabusId = request.syllabusid,
+                };
 
-            var created = await _repository.AddAsync(grades);
-            return Map(created);
+                var created = await _repository.AddAsync(grades);
+                _logger.LogInformation(
+               "Grades created successfully. Id: {Id}",
+               created.Id);
+                return CommonResponse<GradeDto>.SuccessResponse(
+                  "Grade created successfully", Map(created));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating Grade: {Name}", request.name);
+                return CommonResponse<GradeDto>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
+            }
         }
 
         /// <summary>
@@ -94,17 +124,35 @@
         /// <param name="request">The request.</param>
         /// <exception cref="KeyNotFoundException">Grade not found.</exception>
         /// <returns>task.</returns>
-        public async Task<GradeDto> UpdateAsync(Guid id, GradeRequest request)
+        public async Task<CommonResponse<GradeDto>> UpdateAsync(Guid id, GradeRequest request)
         {
-            var grade = await _repository.GetByIdAsync(id)
-                ?? throw new KeyNotFoundException("Grade not found");
+            try
+            {
+                _logger.LogInformation("Updating Grade Id: {Id}", id);
 
-            grade.Name = request.name;
-            grade.SyllabusId = request.syllabusid;
-            grade.UpdatedBy = request.userId;
-            grade.UpdatedAt = DateTime.UtcNow;
+                var batch = await _repository.GetByIdAsync(id);
+                if (batch == null)
+                {
+                    return CommonResponse<GradeDto>.FailureResponse("Grade not found");
+                }
 
-            return Map(await _repository.UpdateAsync(grade));
+                batch.Name = request.name;
+                batch.SyllabusId = request.syllabusid;
+                batch.UpdatedAt = DateTime.UtcNow;
+                batch.UpdatedBy = request.userId;
+
+                var updated = await _repository.UpdateAsync(batch);
+
+                _logger.LogInformation("Grade updated Id: {Id}", id);
+                return CommonResponse<GradeDto>.SuccessResponse(
+                    "Grade updated successfully", Map(updated));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating grade Id: {Id}", id);
+                return CommonResponse<GradeDto>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
+            }
         }
 
         /// <summary>
@@ -112,9 +160,28 @@
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>task.</returns>
-        public async Task<bool> DeleteAsync(Guid id)
+        public async Task<CommonResponse<bool>> DeleteAsync(Guid id)
         {
-           return await _repository.DeleteAsync(id);
+            try
+            {
+                _logger.LogInformation("Deleting grade Id: {Id}", id);
+                var result = await _repository.DeleteAsync(id);
+
+                if (result)
+                {
+                    return CommonResponse<bool>.SuccessResponse(
+                        "Grade deleted successfully", true);
+                }
+
+                return CommonResponse<bool>.FailureResponse(
+                    "Grade not found or already deleted");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting Grade Id: {Id}", id);
+                return CommonResponse<bool>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
+            }
         }
 
         /// <summary>
@@ -124,15 +191,23 @@
         /// <returns>GradeDto.</returns>
         public async Task<CommonResponse<List<GradeDto>>> GetBySyllabusIdAsync(Guid syllabusid)
         {
-            var grades = await _repository.GetBySyllabusIdAsync(syllabusid);
-            var mapped = Map(grades);
-            if (mapped != null)
+            try
             {
-                return CommonResponse<List<GradeDto>>.SuccessResponse("Fetching the grade by syllabus", mapped);
+                var grades = await _repository.GetBySyllabusIdAsync(syllabusid);
+                var mapped = Map(grades);
+                if (mapped != null)
+                {
+                    return CommonResponse<List<GradeDto>>.SuccessResponse("Fetching the grade by syllabus", mapped);
+                }
+                else
+                {
+                    return CommonResponse<List<GradeDto>>.FailureResponse("grade not found");
+                }
             }
-            else
-            {
-                return CommonResponse<List<GradeDto>>.FailureResponse("grade not found");
+            catch (Exception ex) {
+                _logger.LogError(ex, "Error fetching Grade");
+                return CommonResponse<List<GradeDto>>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
             }
         }
 

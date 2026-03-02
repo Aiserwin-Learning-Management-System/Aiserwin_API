@@ -38,18 +38,26 @@ namespace Winfocus.LMS.Application.Services
         /// <returns>CountryDto.</returns>
         public async Task<CommonResponse<List<SyllabusDto>>> GetAllAsync()
         {
-            _logger.LogInformation("Fetching all syllabuses");
-            var syllabuses = await _repository.GetAllAsync();
-            var mappeddata = syllabuses.Select(Map).ToList();
-            if (mappeddata.Any())
+            try
             {
-                return CommonResponse<List<SyllabusDto>>.SuccessResponse("Fetched all syllabuses", mappeddata);
+                _logger.LogInformation("Fetching all syllabuses");
+                var syllabuses = await _repository.GetAllAsync();
+                var mappeddata = syllabuses.Select(Map).ToList();
+                if (mappeddata.Any())
+                {
+                    return CommonResponse<List<SyllabusDto>>.SuccessResponse("Fetched all syllabuses", mappeddata);
+                }
+                else
+                {
+                    return CommonResponse<List<SyllabusDto>>.FailureResponse("syllabuses not found");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return CommonResponse<List<SyllabusDto>>.FailureResponse("syllabuses not found");
+                _logger.LogError(ex, "Error fetching syllabuses");
+                return CommonResponse<List<SyllabusDto>>.FailureResponse($"An error occurred: {ex.Message}");
             }
-        }
+         }
 
         /// <summary>
         /// Gets the by identifier asynchronous.
@@ -58,19 +66,27 @@ namespace Winfocus.LMS.Application.Services
         /// <returns>SyllabusDto.</returns>
         public async Task<CommonResponse<SyllabusDto>> GetByIdAsync(Guid id)
         {
-            _logger.LogInformation("Fetching syllabuses by Id: {Id}", id);
-            var syllabus = await _repository.GetByIdAsync(id);
-            _logger.LogInformation("syllabuses fetched successfully for Id: {Id}", id);
-            var mappeddata = syllabus == null ? null : Map(syllabus);
-            if (mappeddata != null)
+            try
             {
-                return CommonResponse<SyllabusDto>.SuccessResponse("fetched syllabus for this id", mappeddata);
+                _logger.LogInformation("Fetching syllabuses by Id: {Id}", id);
+                var syllabus = await _repository.GetByIdAsync(id);
+                _logger.LogInformation("syllabuses fetched successfully for Id: {Id}", id);
+                var mappeddata = syllabus == null ? null : Map(syllabus);
+                if (mappeddata != null)
+                {
+                    return CommonResponse<SyllabusDto>.SuccessResponse("fetched syllabus for this id", mappeddata);
+                }
+                else
+                {
+                    return CommonResponse<SyllabusDto>.FailureResponse("syllabus not found");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return CommonResponse<SyllabusDto>.FailureResponse("syllabus not found");
+                _logger.LogError(ex, "Error fetching syllabus by Id: {Id}", id);
+                return CommonResponse<SyllabusDto>.FailureResponse($"An error occurred: {ex.Message}");
             }
-        }
+         }
 
         /// <summary>
         /// Creates the asynchronous.
@@ -78,22 +94,27 @@ namespace Winfocus.LMS.Application.Services
         /// <param name="request">The request.</param>
         /// <returns>SyllabusDto.</returns>
         /// <exception cref="InvalidOperationException">syllabus code already exists.</exception>
-        public async Task<SyllabusDto> CreateAsync(SyllabusRequest request)
+        public async Task<CommonResponse<SyllabusDto>> CreateAsync(SyllabusRequest request)
         {
-            if (await _repository.ExistsByNameAsync(request.Name))
+            try
             {
-                throw new InvalidOperationException("Syllabus name already exists.");
+
+                var syllabus = new Syllabus
+                {
+                    Name = request.Name,
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = request.UserId,
+                };
+
+                var created = await _repository.AddAsync(syllabus);
+                return CommonResponse<SyllabusDto>.SuccessResponse(
+                 "Syllabus created successfully", Map(created));
             }
-
-            var syllabus = new Syllabus
+            catch (Exception ex)
             {
-                Name = request.Name,
-                CreatedAt = DateTime.UtcNow,
-                CreatedBy = request.UserId,
-            };
-
-            var created = await _repository.AddAsync(syllabus);
-            return Map(created);
+                _logger.LogError(ex, "Error creating syllabus");
+                return CommonResponse<SyllabusDto>.FailureResponse($"An error occurred: {ex.Message}");
+            }
         }
 
         /// <summary>
@@ -103,16 +124,34 @@ namespace Winfocus.LMS.Application.Services
         /// <param name="request">The request.</param>
         /// <exception cref="KeyNotFoundException">syllabus not found.</exception>
         /// <returns>task.</returns>
-        public async Task<SyllabusDto> UpdateAsync(Guid id, SyllabusRequest request)
+        public async Task<CommonResponse<SyllabusDto>> UpdateAsync(Guid id, SyllabusRequest request)
         {
-            var syllabus = await _repository.GetByIdAsync(id)
-                ?? throw new KeyNotFoundException("syllabus not found");
+            try
+            {
+                _logger.LogInformation("Updating Syllabus Id: {Id}", id);
 
-            syllabus.Name = request.Name;
-            syllabus.UpdatedBy = request.UserId;
-            syllabus.UpdatedAt = DateTime.UtcNow;
+                var batch = await _repository.GetByIdAsync(id);
+                if (batch == null)
+                {
+                    return CommonResponse<SyllabusDto>.FailureResponse("Syllabus not found");
+                }
 
-            return Map(await _repository.UpdateAsync(syllabus));
+                batch.Name = request.Name;
+                batch.UpdatedAt = DateTime.UtcNow;
+                batch.UpdatedBy = request.UserId;
+
+                var updated = await _repository.UpdateAsync(batch);
+
+                _logger.LogInformation("Syllabus updated Id: {Id}", id);
+                return CommonResponse<SyllabusDto>.SuccessResponse(
+                    "Syllabus updated successfully", Map(updated));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating Syllabus Id: {Id}", id);
+                return CommonResponse<SyllabusDto>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
+            }
         }
 
         /// <summary>
@@ -120,9 +159,28 @@ namespace Winfocus.LMS.Application.Services
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>task.</returns>
-        public async Task<bool> DeleteAsync(Guid id)
+        public async Task<CommonResponse<bool>> DeleteAsync(Guid id)
         {
-           return await _repository.DeleteAsync(id);
+            try
+            {
+                _logger.LogInformation("Deleting Syllabus Id: {Id}", id);
+                var result = await _repository.DeleteAsync(id);
+
+                if (result)
+                {
+                    return CommonResponse<bool>.SuccessResponse(
+                        "Syllabus deleted successfully", true);
+                }
+
+                return CommonResponse<bool>.FailureResponse(
+                    "Syllabus not found or already deleted");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting Syllabus Id: {Id}", id);
+                return CommonResponse<bool>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
+            }
         }
 
         /// <summary>
@@ -216,11 +274,6 @@ namespace Winfocus.LMS.Application.Services
          Id = c.Id,
          Name = c.Name,
          IsActive = c.IsActive,
-         CreatedBy = c.CreatedBy,
-         CreatedAt = c.CreatedAt,
-         UpdatedBy = c.UpdatedBy,
-         UpdatedAt = c.UpdatedAt,
      };
-
-    }
+     }
 }

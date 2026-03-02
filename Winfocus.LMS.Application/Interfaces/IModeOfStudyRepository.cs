@@ -56,5 +56,11 @@
         /// <param name="stateid">The identifier.</param>
         /// <returns>State.</returns>
         Task<List<ModeOfStudy>> GetByStateIdAsync(Guid stateid);
+
+        /// <summary>
+        /// Gets all asynchronous.
+        /// </summary>
+        /// <returns>modeofstudy.</returns>
+        IQueryable<ModeOfStudy> Query();
     }
 }

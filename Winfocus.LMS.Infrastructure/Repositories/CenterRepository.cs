@@ -36,6 +36,9 @@
         public async Task<IReadOnlyList<Centre>> GetAllAsync()
         {
             return await _dbContext.Centres
+                .Where(x => x.IsActive)
+                .Include(x => x.Country)
+                .Include(x => x.State)
                 .Include(x => x.modeOfStudy)
                 .AsNoTracking()
                 .ToListAsync();
@@ -49,6 +52,8 @@
         public async Task<Centre?> GetByIdAsync(Guid id)
         {
             return await _dbContext.Centres
+                .Include(x => x.Country)
+                .Include(x => x.State)
                 .Include(x => x.modeOfStudy)
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
@@ -75,7 +80,6 @@
                 throw new Exception("Invalid StateId");
             }
 
-         center.CreatedAt = DateTime.UtcNow;
          center.CountryId = state.CountryId;
          _dbContext.Centres.Add(center);
          await _dbContext.SaveChangesAsync();
@@ -139,6 +143,19 @@
                 .FirstOrDefaultAsync(x =>
                     x.ModeOfStudyId == modeofid &&
                     x.StateId == stateid);
+        }
+
+        /// <summary>
+        /// Gets queryable for filtering with full hierarchy.
+        /// </summary>
+        /// <returns>Queryable center.</returns>
+        public IQueryable<Centre> Query()
+        {
+            return _dbContext.Centres
+                .Include(x => x.Country)
+                .Include(x => x.State)
+                .Include(x => x.modeOfStudy)
+                .AsNoTracking();
         }
 
     }

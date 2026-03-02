@@ -33,7 +33,7 @@ namespace Winfocus.LMS.API.Controllers
         /// </summary>
         /// <returns>StateDto list.</returns>
         [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<StateDto>>> GetAll()
+        public async Task<ActionResult<CommonResponse<List<StateDto>>>> GetAll()
             => Ok(await _stateService.GetAllAsync());
 
         /// <summary>
@@ -43,14 +43,15 @@ namespace Winfocus.LMS.API.Controllers
         /// <returns>StateDto.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPost]
-        public async Task<CommonResponse<StateDto>> Create(
+        public async Task<ActionResult<CommonResponse<StateDto>>> Create(
             CreateMasterStateRequest request)
         {
             var updatedRequest = request with
             {
                 userId = UserId
             };
-            return await _stateService.CreateAsync(updatedRequest);
+            var created = await _stateService.CreateAsync(updatedRequest);
+            return Ok(created);
         }
 
         /// <summary>
@@ -59,10 +60,10 @@ namespace Winfocus.LMS.API.Controllers
         /// <param name="id">The identifier.</param>
         /// <returns>StateDto by id.</returns>
         [HttpGet("{id:guid}")]
-        public async Task<CommonResponse<StateDto>> Get(Guid id)
+        public async Task<ActionResult<CommonResponse<StateDto>>> Get(Guid id)
         {
             var result = await _stateService.GetByIdAsync(id);
-            return result;
+            return Ok(result);
         }
 
         /// <summary>
@@ -73,7 +74,7 @@ namespace Winfocus.LMS.API.Controllers
         /// <returns>result.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPut("{id:guid}")]
-        public async Task<CommonResponse<StateDto>> Update(
+        public async Task<ActionResult<CommonResponse<StateDto>>> Update(
             Guid id,
             CreateMasterStateRequest request)
         {
@@ -81,7 +82,8 @@ namespace Winfocus.LMS.API.Controllers
             {
                 userId = UserId
             };
-            return await _stateService.UpdateAsync(id, updatedRequest);
+            var updated = await _stateService.UpdateAsync(id, updatedRequest);
+            return Ok(updated);
         }
 
         /// <summary>
@@ -105,16 +107,7 @@ namespace Winfocus.LMS.API.Controllers
         [HttpDelete("{id:guid}")]
         public async Task<CommonResponse<bool>> Delete(Guid id)
         {
-            bool result = await _stateService.DeleteAsync(id);
-
-            if (result)
-            {
-                return CommonResponse<bool>.SuccessResponse("State deleted successfully.", true);
-            }
-            else
-            {
-                return CommonResponse<bool>.FailureResponse("Failed to delete State.");
-            }
+            return await _stateService.DeleteAsync(id);
         }
     }
 }
