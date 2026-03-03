@@ -21,5 +21,15 @@
         /// Gets or sets the identifier of the associated country.
         /// </summary>
         public Country Country { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the identifier of the modeOfStudy where the centre is located.
+        /// </summary>
+        public Guid ModeOfStudyId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the modeOfStudy entity associated with the centre.
+        /// </summary>
+        public ModeOfStudy ModeOfStudy { get; set; } = null!;
     }
 }

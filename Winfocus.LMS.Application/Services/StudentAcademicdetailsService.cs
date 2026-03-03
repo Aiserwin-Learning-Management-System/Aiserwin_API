@@ -180,7 +180,7 @@
                 GradeId = request.gradeId,
                 StreamId = request.streamId,
                 BatchId = request.batchId,
-                PreferredBatchTimeId = request.preferredbatchtimeId,
+                PreferredTime = request.preferredtime,
                 PastYearPerformance = request.pastyearperformance,
                 PastSchoolName = request.pastschoolname,
                 PastSchoolLocation = request.pastschoollocation,
@@ -340,7 +340,7 @@
             studentacademic.GradeId = request.gradeId;
             studentacademic.StreamId = request.streamId;
             studentacademic.BatchId = request.batchId;
-            studentacademic.PreferredBatchTimeId = request.preferredbatchtimeId;
+            studentacademic.PreferredTime = request.preferredtime;
             studentacademic.PastYearPerformance = request.pastyearperformance;
             studentacademic.PastSchoolName = request.pastschoolname;
             studentacademic.PastSchoolLocation = request.pastschoollocation;

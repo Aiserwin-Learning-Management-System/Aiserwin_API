@@ -13,11 +13,11 @@
         /// <summary>
         /// Gets or sets the identifier of the associated country.
         /// </summary>
-        public Guid StateId { get; set; }
+        public Guid CountryId { get; set; }
 
         /// <summary>
         /// Gets or sets the identifier of the associated country.
         /// </summary>
-        public StateDto State { get; set; } = null!;
-   }
+        public CountryDto Country { get; set; } = null!;
+    }
 }

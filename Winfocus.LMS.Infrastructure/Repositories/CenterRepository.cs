@@ -33,7 +33,7 @@
         /// Gets all asynchronous.
         /// </summary>
         /// <returns>Center list.</returns>
-        public async Task<IReadOnlyList<Centre>> GetAllAsync()
+        public async Task<IReadOnlyList<Center>> GetAllAsync()
         {
             return await _dbContext.Centres
                 .Where(x => x.IsActive)
@@ -49,7 +49,7 @@
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>Center.</returns>
-        public async Task<Centre?> GetByIdAsync(Guid id)
+        public async Task<Center?> GetByIdAsync(Guid id)
         {
             return await _dbContext.Centres
                 .Include(x => x.Country)
@@ -63,7 +63,7 @@
         /// </summary>
         /// <param name="center">The center.</param>
         /// <returns>center.</returns>
-        public async Task<Centre> AddAsync(Centre center)
+        public async Task<Center> AddAsync(Center center)
         {
          var modeOfStudy = await _dbContext.ModeOfStudies
          .FirstOrDefaultAsync(x => x.Id == center.ModeOfStudyId);
@@ -72,7 +72,6 @@
                 throw new Exception("Invalid ModeOfStudyId");
             }
 
-         center.StateId = modeOfStudy.StateId;
          var state = await _dbContext.States
          .FirstOrDefaultAsync(x => x.Id == center.StateId);
          if (state == null)
@@ -80,7 +79,6 @@
                 throw new Exception("Invalid StateId");
             }
 
-         center.CountryId = state.CountryId;
          _dbContext.Centres.Add(center);
          await _dbContext.SaveChangesAsync();
          return center;
@@ -91,7 +89,7 @@
         /// </summary>
         /// <param name="center">The center.</param>
         /// <returns>task.</returns>
-        public async Task<Centre> UpdateAsync(Centre center)
+        public async Task<Center> UpdateAsync(Center center)
         {
             _dbContext.Centres.Update(center);
             await _dbContext.SaveChangesAsync();
@@ -134,7 +132,7 @@
         /// <param name="modeofid">Mode of study identifier.</param>
         /// <param name="stateid">State identifier.</param>
         /// <returns>Centre entity if found; otherwise null.</returns>
-        public async Task<Centre?> GetByFilterAsync(Guid modeofid, Guid stateid)
+        public async Task<Center?> GetByFilterAsync(Guid modeofid, Guid stateid)
         {
             return await _dbContext.Centres
                 .AsNoTracking()
@@ -149,7 +147,7 @@
         /// Gets queryable for filtering with full hierarchy.
         /// </summary>
         /// <returns>Queryable center.</returns>
-        public IQueryable<Centre> Query()
+        public IQueryable<Center> Query()
         {
             return _dbContext.Centres
                 .Include(x => x.Country)

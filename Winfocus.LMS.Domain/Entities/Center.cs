@@ -6,7 +6,7 @@
     /// <summary>
     /// Represents a training or learning centre.
     /// </summary>
-    public class Centre : BaseEntity
+    public class Center : BaseEntity
     {
         /// <summary>
         /// Gets or sets the name of the centre.

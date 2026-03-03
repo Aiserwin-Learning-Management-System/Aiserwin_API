@@ -99,7 +99,7 @@
             {
                 var modeOfStudy = new ModeOfStudy
                 {
-                    StateId = request.stateid,
+                    CountryId = request.countryid,
                     Name = request.name,
                     CreatedAt = DateTime.UtcNow,
                     CreatedBy = request.userId,
@@ -150,7 +150,7 @@
                 }
 
                 batch.Name = request.name;
-                batch.StateId = request.stateid;
+                batch.CountryId = request.countryid;
                 batch.UpdatedAt = DateTime.UtcNow;
                 batch.UpdatedBy = request.userId;
 
@@ -200,16 +200,16 @@
         /// <summary>
         /// Gets the by identifier asynchronous.
         /// </summary>
-        /// <param name="stateid">The identifier.</param>
+        /// <param name="countryid">The identifier.</param>
         /// <returns>ModeOfStudyDto.</returns>
-        public async Task<List<ModeOfStudyDto>> GetByStateIdAsync(Guid stateid)
+        public async Task<List<ModeOfStudyDto>> GetByCountryIdAsync(Guid countryid)
         {
-            _logger.LogInformation("Fetching Modeof study for StateId: {StateId}", stateid);
+            _logger.LogInformation("Fetching Modeof study for CountryId: {CountryId}", countryid);
 
-            var modeofstudy = await _repository.GetByStateIdAsync(stateid);
+            var modeofstudy = await _repository.GetByCountryIdAsync(countryid);
 
             if (!modeofstudy.Any())
-                _logger.LogWarning("No modeofstudy found for StateId: {StateId}", stateid);
+                _logger.LogWarning("No modeofstudy found for StateId: {StateId}", countryid);
 
             return Map(modeofstudy);
         }
@@ -248,7 +248,7 @@
                     var searchTerm = request.SearchText.Trim().ToLower();
                     query = query.Where(x =>
                         x.Name.ToLower().Contains(searchTerm) ||
-                        x.State.Name.ToLower().Contains(searchTerm));
+                        x.Country.Name.ToLower().Contains(searchTerm));
                 }
 
                 // ── Total Count ──
@@ -270,8 +270,8 @@
                     "name" => isDesc ? query.OrderByDescending(x => x.Name)
                                              : query.OrderBy(x => x.Name),
 
-                    "statename" => isDesc ? query.OrderByDescending(x => x.State.Name)
-                                             : query.OrderBy(x => x.State.Name),
+                    "countryname" => isDesc ? query.OrderByDescending(x => x.Country.Name)
+                                             : query.OrderBy(x => x.Country.Name),
 
                     "isactive" => isDesc ? query.OrderByDescending(x => x.IsActive)
                                              : query.OrderBy(x => x.IsActive),
@@ -318,12 +318,12 @@
             {
                 Id = c.Id,
                 Name = c.Name,
-                StateId = c.StateId,
+                CountryId = c.CountryId,
                 IsActive = c.IsActive,
-                State = c.State == null ? null : new StateDto
+                Country = c.Country == null ? null : new CountryDto
                 {
-                    Id = c.State.Id,
-                    Name = c.State.Name
+                    Id = c.Country.Id,
+                    Name = c.Country.Name
                 }
             };
     }

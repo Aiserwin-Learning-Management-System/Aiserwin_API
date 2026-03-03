@@ -29,7 +29,7 @@
         public async Task<IReadOnlyList<Country>> GetAllAsync()
         {
             return await _db.Countries
-                .Include(x => x.Centres)
+                .Include(x => x.Centers)
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -42,7 +42,7 @@
         public async Task<Country?> GetByIdAsync(Guid id)
         {
             return await _db.Countries
-                .Include(x => x.Centres)
+                .Include(x => x.Centers)
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
 

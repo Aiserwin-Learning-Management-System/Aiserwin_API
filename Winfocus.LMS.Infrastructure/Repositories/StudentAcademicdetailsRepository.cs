@@ -83,7 +83,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             existing.GradeId = studentAcademicDetails.GradeId;
             existing.StreamId = studentAcademicDetails.StreamId;
             existing.BatchId = studentAcademicDetails.BatchId;
-            existing.PreferredBatchTimeId = studentAcademicDetails.PreferredBatchTimeId;
+            existing.PreferredTime = studentAcademicDetails.PreferredTime;
             existing.PastYearPerformance = studentAcademicDetails.PastYearPerformance;
             existing.PastSchoolName = studentAcademicDetails.PastSchoolName;
             existing.PastSchoolLocation = studentAcademicDetails.PastSchoolLocation;

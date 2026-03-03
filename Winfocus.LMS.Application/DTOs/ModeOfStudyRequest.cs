@@ -4,5 +4,5 @@
     /// Request for creating or updating a country.
     /// </summary>
     public sealed record ModeOfStudyRequest(
-        string name, Guid stateid, Guid userId);
+        string name, Guid countryid, Guid userId);
 }

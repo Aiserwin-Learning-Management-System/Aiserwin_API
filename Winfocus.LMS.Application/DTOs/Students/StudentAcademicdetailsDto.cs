@@ -45,7 +45,7 @@
         /// <summary>
         /// Gets or sets the identifier of the associated center.
         /// </summary>
-        public CenterDto1 Center { get; set; } = null!;
+        public CenterDto Center { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the identifier of the associated syllabus.

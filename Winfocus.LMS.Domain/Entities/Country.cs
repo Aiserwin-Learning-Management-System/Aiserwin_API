@@ -23,6 +23,6 @@
         /// <summary>
         /// Gets or sets the collection of centres associated with the country.
         /// </summary>
-        public ICollection<Centre> Centres { get; set; } = new List<Centre>();
+        public ICollection<Center> Centers { get; set; } = new List<Center>();
     }
 }

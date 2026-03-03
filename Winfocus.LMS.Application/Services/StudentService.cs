@@ -230,7 +230,7 @@
                         Name = entity.AcademicDetails.ModeOfStudy.Name,
                     } : null!,
                     CenterId = entity.AcademicDetails.CenterId,
-                    Center = entity.AcademicDetails.Center != null ? new CenterDto1
+                    Center = entity.AcademicDetails.Center != null ? new CenterDto
                     {
                         Id = entity.AcademicDetails.CenterId,
                         Name = entity.AcademicDetails.Center.Name,
@@ -326,7 +326,7 @@
                  Name = c.AcademicDetails.ModeOfStudy.Name,
              },
              CenterId = c.AcademicDetails.CenterId,
-             Center = new CenterDto1
+             Center = new CenterDto
              {
                  Id = c.AcademicDetails.CenterId,
                  Name = c.AcademicDetails.Center.Name,

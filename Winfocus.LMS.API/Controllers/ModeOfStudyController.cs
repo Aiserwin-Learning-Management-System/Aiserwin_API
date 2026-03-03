@@ -90,12 +90,12 @@ namespace Winfocus.LMS.API.Controllers
         /// <summary>
         /// Gets the specified identifier.
         /// </summary>
-        /// <param name="stateid">The identifier.</param>
+        /// <param name="countryid">The identifier.</param>
         /// <returns>ModeOfStudyDto by id.</returns>
-        [HttpGet("by-state/{stateid:guid}")]
-        public async Task<ActionResult<CommonResponse<List<ModeOfStudyDto>>>> GetByStateId(Guid stateid)
+        [HttpGet("by-country/{countryid:guid}")]
+        public async Task<ActionResult<CommonResponse<List<ModeOfStudyDto>>>> GetByCountryId(Guid countryid)
         {
-            var result = await _modeofstudyService.GetByStateIdAsync(stateid);
+            var result = await _modeofstudyService.GetByCountryIdAsync(countryid);
             return Ok(result);
         }
 

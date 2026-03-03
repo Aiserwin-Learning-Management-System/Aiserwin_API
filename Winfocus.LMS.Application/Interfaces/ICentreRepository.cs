@@ -15,28 +15,28 @@ namespace Winfocus.LMS.Application.Interfaces
         /// Gets all asynchronous.
         /// </summary>
         /// <returns>Center.</returns>
-        Task<IReadOnlyList<Centre>> GetAllAsync();
+        Task<IReadOnlyList<Center>> GetAllAsync();
 
         /// <summary>
         /// Gets the by identifier asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>Center.</returns>
-        Task<Centre?> GetByIdAsync(Guid id);
+        Task<Center?> GetByIdAsync(Guid id);
 
         /// <summary>
         /// Adds the asynchronous.
         /// </summary>
         /// <param name="center">The center.</param>
         /// <returns>Center.</returns>
-        Task<Centre> AddAsync(Centre center);
+        Task<Center> AddAsync(Center center);
 
         /// <summary>
         /// Updates the asynchronous.
         /// </summary>
         /// <param name="center">The center.</param>
         /// <returns>Center.</returns>
-        Task<Centre> UpdateAsync(Centre center);
+        Task<Center> UpdateAsync(Center center);
 
         /// <summary>
         /// Deletes the asynchronous.
@@ -58,12 +58,12 @@ namespace Winfocus.LMS.Application.Interfaces
         /// <param name="modeofid">Mode of study identifier.</param>
         /// <param name="stateid">State identifier.</param>
         /// <returns>Centre entity if found; otherwise null.</returns>
-        Task<Centre?> GetByFilterAsync(Guid modeofid, Guid stateid);
+        Task<Center?> GetByFilterAsync(Guid modeofid, Guid stateid);
 
         /// <summary>
         /// Gets all asynchronous.
         /// </summary>
         /// <returns>centers.</returns>
-        IQueryable<Centre> Query();
+        IQueryable<Center> Query();
     }
 }

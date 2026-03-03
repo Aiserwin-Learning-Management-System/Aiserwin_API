@@ -27,7 +27,7 @@
         /// <summary>
         /// Gets or sets the centres in the database.
         /// </summary>
-        public DbSet<Centre> Centres { get; set; } = null!;
+        public DbSet<Center> Centres { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the users in the database.
@@ -281,13 +281,13 @@
                     .HasMaxLength(100);
             });
 
-            modelBuilder.Entity<Centre>(e =>
+            modelBuilder.Entity<Center>(e =>
             {
                 e.Property(x => x.Name).IsRequired().HasMaxLength(100);
                 e.Property(x => x.CenterType).HasConversion<int>();
 
                 e.HasOne(x => x.Country)
-                 .WithMany(x => x.Centres)
+                 .WithMany(x => x.Centers)
                  .HasForeignKey(x => x.CountryId);
             });
 
