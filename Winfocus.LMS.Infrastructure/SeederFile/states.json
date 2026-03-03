@@ -1,431 +1,431 @@
 [
   {
-    "StateName": "Andhra Pradesh",
+    "Name": "Andhra Pradesh",
     "StateCode": "AP",
     "CountryName": "India"
   },
   {
-    "StateName": "Arunachal Pradesh",
+    "Name": "Arunachal Pradesh",
     "StateCode": "AR",
     "CountryName": "India"
   },
   {
-    "StateName": "Assam",
+    "Name": "Assam",
     "StateCode": "AS",
     "CountryName": "India"
   },
   {
-    "StateName": "Bihar",
+    "Name": "Bihar",
     "StateCode": "BR",
     "CountryName": "India"
   },
   {
-    "StateName": "Chhattisgarh",
+    "Name": "Chhattisgarh",
     "StateCode": "CG",
     "CountryName": "India"
   },
   {
-    "StateName": "Goa",
+    "Name": "Goa",
     "StateCode": "GA",
     "CountryName": "India"
   },
   {
-    "StateName": "Gujarat",
+    "Name": "Gujarat",
     "StateCode": "GJ",
     "CountryName": "India"
   },
   {
-    "StateName": "Haryana",
+    "Name": "Haryana",
     "StateCode": "HR",
     "CountryName": "India"
   },
   {
-    "StateName": "Himachal Pradesh",
+    "Name": "Himachal Pradesh",
     "StateCode": "HP",
     "CountryName": "India"
   },
   {
-    "StateName": "Jharkhand",
+    "Name": "Jharkhand",
     "StateCode": "JH",
     "CountryName": "India"
   },
   {
-    "StateName": "Karnataka",
+    "Name": "Karnataka",
     "StateCode": "KA",
     "CountryName": "India"
   },
   {
-    "StateName": "Kerala",
+    "Name": "Kerala",
     "StateCode": "KL",
     "CountryName": "India"
   },
   {
-    "StateName": "Madhya Pradesh",
+    "Name": "Madhya Pradesh",
     "StateCode": "MP",
     "CountryName": "India"
   },
   {
-    "StateName": "Maharashtra",
+    "Name": "Maharashtra",
     "StateCode": "MH",
     "CountryName": "India"
   },
   {
-    "StateName": "Manipur",
+    "Name": "Manipur",
     "StateCode": "MN",
     "CountryName": "India"
   },
   {
-    "StateName": "Meghalaya",
+    "Name": "Meghalaya",
     "StateCode": "ML",
     "CountryName": "India"
   },
   {
-    "StateName": "Mizoram",
+    "Name": "Mizoram",
     "StateCode": "MZ",
     "CountryName": "India"
   },
   {
-    "StateName": "Nagaland",
+    "Name": "Nagaland",
     "StateCode": "NL",
     "CountryName": "India"
   },
   {
-    "StateName": "Odisha",
+    "Name": "Odisha",
     "StateCode": "OD",
     "CountryName": "India"
   },
   {
-    "StateName": "Punjab",
+    "Name": "Punjab",
     "StateCode": "PB",
     "CountryName": "India"
   },
   {
-    "StateName": "Rajasthan",
+    "Name": "Rajasthan",
     "StateCode": "RJ",
     "CountryName": "India"
   },
   {
-    "StateName": "Sikkim",
+    "Name": "Sikkim",
     "StateCode": "SK",
     "CountryName": "India"
   },
   {
-    "StateName": "Tamil Nadu",
+    "Name": "Tamil Nadu",
     "StateCode": "TN",
     "CountryName": "India"
   },
   {
-    "StateName": "Telangana",
+    "Name": "Telangana",
     "StateCode": "TS",
     "CountryName": "India"
   },
   {
-    "StateName": "Tripura",
+    "Name": "Tripura",
     "StateCode": "TR",
     "CountryName": "India"
   },
   {
-    "StateName": "Uttar Pradesh",
+    "Name": "Uttar Pradesh",
     "StateCode": "UP",
     "CountryName": "India"
   },
   {
-    "StateName": "Uttarakhand",
+    "Name": "Uttarakhand",
     "StateCode": "UK",
     "CountryName": "India"
   },
   {
-    "StateName": "West Bengal",
+    "Name": "West Bengal",
     "StateCode": "WB",
     "CountryName": "India"
   },
   {
-    "StateName": "Andaman and Nicobar Islands",
+    "Name": "Andaman and Nicobar Islands",
     "StateCode": "AN",
     "CountryName": "India"
   },
   {
-    "StateName": "Chandigarh",
+    "Name": "Chandigarh",
     "StateCode": "CH",
     "CountryName": "India"
   },
   {
-    "StateName": "Dadra and Nagar Haveli and Daman and Diu",
+    "Name": "Dadra and Nagar Haveli and Daman and Diu",
     "StateCode": "DN",
     "CountryName": "India"
   },
   {
-    "StateName": "Delhi",
+    "Name": "Delhi",
     "StateCode": "DL",
     "CountryName": "India"
   },
   {
-    "StateName": "Jammu and Kashmir",
+    "Name": "Jammu and Kashmir",
     "StateCode": "JK",
     "CountryName": "India"
   },
   {
-    "StateName": "Ladakh",
+    "Name": "Ladakh",
     "StateCode": "LA",
     "CountryName": "India"
   },
   {
-    "StateName": "Lakshadweep",
+    "Name": "Lakshadweep",
     "StateCode": "LD",
     "CountryName": "India"
   },
   {
-    "StateName": "Puducherry",
+    "Name": "Puducherry",
     "StateCode": "PY",
     "CountryName": "India"
   },
   {
-    "StateName": "Riyadh",
+    "Name": "Riyadh",
     "StateCode": "01",
     "CountryName": "Saudi Arabia"
   },
   {
-    "StateName": "Makkah",
+    "Name": "Makkah",
     "StateCode": "02",
     "CountryName": "Saudi Arabia"
   },
   {
-    "StateName": "Eastern Province",
+    "Name": "Eastern Province",
     "StateCode": "03",
     "CountryName": "Saudi Arabia"
   },
   {
-    "StateName": "Madinah",
+    "Name": "Madinah",
     "StateCode": "04",
     "CountryName": "Saudi Arabia"
   },
   {
-    "StateName": "Asir",
+    "Name": "Asir",
     "StateCode": "05",
     "CountryName": "Saudi Arabia"
   },
   {
-    "StateName": "Jazan",
+    "Name": "Jazan",
     "StateCode": "06",
     "CountryName": "Saudi Arabia"
   },
   {
-    "StateName": "Najran",
+    "Name": "Najran",
     "StateCode": "07",
     "CountryName": "Saudi Arabia"
   },
   {
-    "StateName": "Tabuk",
+    "Name": "Tabuk",
     "StateCode": "08",
     "CountryName": "Saudi Arabia"
   },
   {
-    "StateName": "Hail",
+    "Name": "Hail",
     "StateCode": "09",
     "CountryName": "Saudi Arabia"
   },
   {
-    "StateName": "Al-Qassim",
+    "Name": "Al-Qassim",
     "StateCode": "10",
     "CountryName": "Saudi Arabia"
   },
   {
-    "StateName": "Northern Borders",
+    "Name": "Northern Borders",
     "StateCode": "11",
     "CountryName": "Saudi Arabia"
   },
   {
-    "StateName": "Al-Baha",
+    "Name": "Al-Baha",
     "StateCode": "12",
     "CountryName": "Saudi Arabia"
   },
   {
-    "StateName": "Al-Jouf",
+    "Name": "Al-Jouf",
     "StateCode": "13",
     "CountryName": "Saudi Arabia"
   },
 
   {
-    "StateName": "Abu Dhabi",
+    "Name": "Abu Dhabi",
     "StateCode": "AD",
     "CountryName": "United Arab Emirates"
   },
   {
-    "StateName": "Dubai",
+    "Name": "Dubai",
     "StateCode": "DU",
     "CountryName": "United Arab Emirates"
   },
   {
-    "StateName": "Sharjah",
+    "Name": "Sharjah",
     "StateCode": "SH",
     "CountryName": "United Arab Emirates"
   },
   {
-    "StateName": "Ajman",
+    "Name": "Ajman",
     "StateCode": "AJ",
     "CountryName": "United Arab Emirates"
   },
   {
-    "StateName": "Umm Al Quwain",
+    "Name": "Umm Al Quwain",
     "StateCode": "UQ",
     "CountryName": "United Arab Emirates"
   },
   {
-    "StateName": "Ras Al Khaimah",
+    "Name": "Ras Al Khaimah",
     "StateCode": "RK",
     "CountryName": "United Arab Emirates"
   },
   {
-    "StateName": "Fujairah",
+    "Name": "Fujairah",
     "StateCode": "FU",
     "CountryName": "United Arab Emirates"
   },
 
   {
-    "StateName": "Muscat",
+    "Name": "Muscat",
     "StateCode": "MU",
     "CountryName": "Oman"
   },
   {
-    "StateName": "Dhofar",
+    "Name": "Dhofar",
     "StateCode": "DH",
     "CountryName": "Oman"
   },
   {
-    "StateName": "Al Buraimi",
+    "Name": "Al Buraimi",
     "StateCode": "BR",
     "CountryName": "Oman"
   },
   {
-    "StateName": "Al Dakhiliyah",
+    "Name": "Al Dakhiliyah",
     "StateCode": "DK",
     "CountryName": "Oman"
   },
   {
-    "StateName": "Al Wusta",
+    "Name": "Al Wusta",
     "StateCode": "WS",
     "CountryName": "Oman"
   },
   {
-    "StateName": "Ash Sharqiyah North",
+    "Name": "Ash Sharqiyah North",
     "StateCode": "SN",
     "CountryName": "Oman"
   },
   {
-    "StateName": "Ash Sharqiyah South",
+    "Name": "Ash Sharqiyah South",
     "StateCode": "SS",
     "CountryName": "Oman"
   },
   {
-    "StateName": "Ad Dhahirah",
+    "Name": "Ad Dhahirah",
     "StateCode": "DH",
     "CountryName": "Oman"
   },
   {
-    "StateName": "Musandam",
+    "Name": "Musandam",
     "StateCode": "MS",
     "CountryName": "Oman"
   },
   {
-    "StateName": "Al Batinah North",
+    "Name": "Al Batinah North",
     "StateCode": "BN",
     "CountryName": "Oman"
   },
   {
-    "StateName": "Al Batinah South",
+    "Name": "Al Batinah South",
     "StateCode": "BS",
     "CountryName": "Oman"
   },
 
   {
-    "StateName": "Doha",
+    "Name": "Doha",
     "StateCode": "DA",
     "CountryName": "Qatar"
   },
   {
-    "StateName": "Al Rayyan",
+    "Name": "Al Rayyan",
     "StateCode": "RA",
     "CountryName": "Qatar"
   },
   {
-    "StateName": "Al Wakrah",
+    "Name": "Al Wakrah",
     "StateCode": "WA",
     "CountryName": "Qatar"
   },
   {
-    "StateName": "Umm Salal",
+    "Name": "Umm Salal",
     "StateCode": "US",
     "CountryName": "Qatar"
   },
   {
-    "StateName": "Al Daayen",
+    "Name": "Al Daayen",
     "StateCode": "DA",
     "CountryName": "Qatar"
   },
   {
-    "StateName": "Al Khor",
+    "Name": "Al Khor",
     "StateCode": "KH",
     "CountryName": "Qatar"
   },
   {
-    "StateName": "Al Shamal",
+    "Name": "Al Shamal",
     "StateCode": "SM",
     "CountryName": "Qatar"
   },
   {
-    "StateName": "Al Shahaniya",
+    "Name": "Al Shahaniya",
     "StateCode": "SH",
     "CountryName": "Qatar"
   },
 
   {
-    "StateName": "Al Asimah",
+    "Name": "Al Asimah",
     "StateCode": "AS",
     "CountryName": "Kuwait"
   },
   {
-    "StateName": "Hawalli",
+    "Name": "Hawalli",
     "StateCode": "HW",
     "CountryName": "Kuwait"
   },
   {
-    "StateName": "Farwaniya",
+    "Name": "Farwaniya",
     "StateCode": "FW",
     "CountryName": "Kuwait"
   },
   {
-    "StateName": "Jahra",
+    "Name": "Jahra",
     "StateCode": "JA",
     "CountryName": "Kuwait"
   },
   {
-    "StateName": "Mubarak Al-Kabeer",
+    "Name": "Mubarak Al-Kabeer",
     "StateCode": "MK",
     "CountryName": "Kuwait"
   },
   {
-    "StateName": "Ahmadi",
+    "Name": "Ahmadi",
     "StateCode": "AH",
     "CountryName": "Kuwait"
   },
 
   {
-    "StateName": "Capital",
+    "Name": "Capital",
     "StateCode": "CP",
     "CountryName": "Bahrain"
   },
   {
-    "StateName": "Muharraq",
+    "Name": "Muharraq",
     "StateCode": "MU",
     "CountryName": "Bahrain"
   },
   {
-    "StateName": "Northern",
+    "Name": "Northern",
     "StateCode": "NO",
     "CountryName": "Bahrain"
   },
   {
-    "StateName": "Southern",
+    "Name": "Southern",
     "StateCode": "SO",
     "CountryName": "Bahrain"
   }
