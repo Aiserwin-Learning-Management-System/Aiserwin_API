@@ -171,14 +171,29 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         {
             // 1. Start with the query and include all necessary relationships
             var query = _dbContext.Students
-                .Include(s => s.AcademicDetails)
-                .Include(s => s.StudentPersonalDetails)
-                .Include(s => s.StudentAcademicCouses)
-                    .ThenInclude(sc => sc.Course)
-                .AsNoTracking()
-                .AsQueryable();
+         .Include(s => s.AcademicDetails)
+             .ThenInclude(ad => ad.Country)
+         .Include(s => s.AcademicDetails)
+             .ThenInclude(ad => ad.State)
+         .Include(s => s.AcademicDetails)
+             .ThenInclude(ad => ad.ModeOfStudy)
+         .Include(s => s.AcademicDetails)
+             .ThenInclude(ad => ad.Center)
+         .Include(s => s.AcademicDetails)
+             .ThenInclude(ad => ad.Syllabus)
+         .Include(s => s.AcademicDetails)
+             .ThenInclude(ad => ad.Grade)
+         .Include(s => s.AcademicDetails)
+             .ThenInclude(ad => ad.Stream)
+         .Include(s => s.AcademicDetails)
+             .ThenInclude(ad => ad.Subject)
+         .Include(s => s.StudentPersonalDetails)
+         .Include(s => s.StudentDocuments)
+         .Include(s => s.StudentAcademicCouses)
+             .ThenInclude(sc => sc.Course)
+         .AsNoTracking()
+         .AsQueryable();
 
-            // 2. Apply Filters
             if (request.CountryId.HasValue)
             {
                 query = query.Where(s => s.AcademicDetails.CountryId == request.CountryId);
@@ -189,9 +204,39 @@ namespace Winfocus.LMS.Infrastructure.Repositories
                 query = query.Where(s => s.AcademicDetails.StateId == request.StateId);
             }
 
+            if (request.ModeId.HasValue)
+            {
+                query = query.Where(s => s.AcademicDetails.ModeOfStudyId == request.ModeId);
+            }
+
+            if (request.CentreId.HasValue)
+            {
+                query = query.Where(s => s.AcademicDetails.CenterId == request.CentreId);
+            }
+
+            if (request.GradeId.HasValue)
+            {
+                query = query.Where(s => s.AcademicDetails.GradeId == request.GradeId);
+            }
+
+            if (request.BatchId.HasValue)
+            {
+                query = query.Where(s => s.AcademicDetails.AcademicYearId == request.BatchId);
+            }
+
             if (request.RegistrationStatus.HasValue)
             {
                 query = query.Where(s => s.RegistrationStatus == request.RegistrationStatus);
+            }
+
+            if (request.StartDate.HasValue)
+            {
+                query = query.Where(s => s.CreatedAt >= request.StartDate.Value);
+            }
+
+            if (request.EndDate.HasValue)
+            {
+                query = query.Where(s => s.CreatedAt <= request.EndDate.Value);
             }
 
             if (!string.IsNullOrEmpty(request.SearchText))
@@ -199,7 +244,8 @@ namespace Winfocus.LMS.Infrastructure.Repositories
                 var search = request.SearchText.ToLower();
                 query = query.Where(s =>
                     s.StudentPersonalDetails.FullName.ToLower().Contains(search) ||
-                    s.StudentPersonalDetails.EmailAddress.ToLower().Contains(search));
+                    s.StudentPersonalDetails.EmailAddress.ToLower().Contains(search) ||
+                    s.RegistrationNumber.ToLower().Contains(search));
             }
 
             // 3. Count Total Records BEFORE Pagination

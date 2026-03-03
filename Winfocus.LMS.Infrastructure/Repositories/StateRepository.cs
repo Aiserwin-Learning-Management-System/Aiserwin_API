@@ -122,5 +122,19 @@
                 .Where(x => x.CountryId == countryid && x.IsActive == true)
                 .ToListAsync();
         }
+
+        /// <summary>
+        /// Gets all asynchronous.
+        /// </summary>
+        /// <returns>
+        /// state Filter.
+        /// </returns>
+        public IQueryable<State> Query()
+        {
+            return _dbContext.States
+                .Include(x => x.Country)
+                .Include(x => x.ModeOfStudy)
+                .AsNoTracking();
+        }
     }
 }

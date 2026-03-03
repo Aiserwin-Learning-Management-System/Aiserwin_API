@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using Winfocus.LMS.Application.DTOs;
+    using Winfocus.LMS.Application.DTOs.Common;
     using Winfocus.LMS.Application.DTOs.Masters;
     using Winfocus.LMS.Domain.Entities;
 
@@ -53,5 +54,12 @@
         /// <param name="countryid">The identifier.</param>
         /// <returns>StateDto.</returns>
         Task<CommonResponse<List<StateDto>>> GetByCountryIdAsync(Guid countryid);
+
+        /// <summary>
+        /// Gets the records filter.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <returns>StateDto.</returns>
+        Task<CommonResponse<PagedResult<StateDto>>> GetFilteredAsync(PagedRequest request);
     }
 }

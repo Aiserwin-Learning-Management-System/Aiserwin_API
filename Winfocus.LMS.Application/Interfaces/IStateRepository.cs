@@ -59,5 +59,11 @@
         /// <param name="countryid">The identifier.</param>
         /// <returns>State.</returns>
         Task<List<State>> GetByCountryIdAsync(Guid countryid);
+
+        /// <summary>
+        /// Gets all asynchronous.
+        /// </summary>
+        /// <returns>State.</returns>
+        IQueryable<State> Query();
     }
 }
