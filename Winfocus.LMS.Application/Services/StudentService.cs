@@ -278,6 +278,7 @@
                     AreaName = entity.StudentPersonalDetails.AreaName,
                     DistrictOrLocation = entity.StudentPersonalDetails.DistrictOrLocation,
                     Emirates = entity.StudentPersonalDetails.Emirates,
+                    Gender = entity.StudentPersonalDetails.Gender,
                 },
 
                 StudentDocumentsId = entity.StudentDocumentsId,
@@ -372,6 +373,7 @@
              AreaName = c.StudentPersonalDetails.AreaName,
              DistrictOrLocation = c.StudentPersonalDetails.DistrictOrLocation,
              Emirates = c.StudentPersonalDetails.Emirates,
+             Gender = c.StudentPersonalDetails.Gender,
          },
          StudentDocuments = new StudentDocumentsDto
          {

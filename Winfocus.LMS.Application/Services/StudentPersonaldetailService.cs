@@ -82,6 +82,7 @@
                 AreaName = request.areaname,
                 DistrictOrLocation = request.districtorlocation,
                 Emirates = request.emirates,
+                Gender = request.gender,
             };
 
             var created = await _repository.AddAsync(studentPersonalDetails);
@@ -132,6 +133,7 @@
             studentPersonal.DistrictOrLocation = request.districtorlocation;
             studentPersonal.Emirates = request.emirates;
             studentPersonal.Id = id;
+            studentPersonal.Gender = request.gender;
 
             var updated = await _repository.UpdateAsync(studentPersonal);
             _logger.LogInformation(
@@ -171,11 +173,7 @@
         AreaName = c.AreaName,
         DistrictOrLocation = c.DistrictOrLocation,
         Emirates = c.Emirates,
-
-        CreatedBy = c.CreatedBy,
-        CreatedAt = c.CreatedAt,
-        UpdatedBy = c.UpdatedBy,
-        UpdatedAt = c.UpdatedAt,
+        Gender = c.Gender,
     };
     }
 }
