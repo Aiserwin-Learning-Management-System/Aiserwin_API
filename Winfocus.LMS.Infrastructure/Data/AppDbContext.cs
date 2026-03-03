@@ -326,6 +326,12 @@
                 .HasIndex(u => u.Username)
                 .IsUnique();
 
+            modelBuilder.Entity<Center>()
+               .HasOne(c => c.State)
+               .WithMany(s => s.Centers)
+               .HasForeignKey(c => c.StateId)
+               .IsRequired(false);
+
             base.OnModelCreating(modelBuilder);
         }
     }

@@ -65,20 +65,6 @@
         /// <returns>center.</returns>
         public async Task<Center> AddAsync(Center center)
         {
-         var modeOfStudy = await _dbContext.ModeOfStudies
-         .FirstOrDefaultAsync(x => x.Id == center.ModeOfStudyId);
-         if (modeOfStudy == null)
-            {
-                throw new Exception("Invalid ModeOfStudyId");
-            }
-
-         var state = await _dbContext.States
-         .FirstOrDefaultAsync(x => x.Id == center.StateId);
-         if (state == null)
-            {
-                throw new Exception("Invalid StateId");
-            }
-
          _dbContext.Centres.Add(center);
          await _dbContext.SaveChangesAsync();
          return center;
@@ -127,20 +113,31 @@
         }
 
         /// <summary>
-        /// Gets centre by mode of study and state.
+        /// Gets centre by country, mode of study and state.
         /// </summary>
-        /// <param name="modeofid">Mode of study identifier.</param>
-        /// <param name="stateid">State identifier.</param>
+        /// <param name="countryId">Country identifier.</param>
+        /// <param name="modeOfStudyId">Mode of study identifier.</param>
+        /// <param name="stateId">State identifier.</param>
         /// <returns>Centre entity if found; otherwise null.</returns>
-        public async Task<Center?> GetByFilterAsync(Guid modeofid, Guid stateid)
+        public async Task<List<Center>> GetByFilterAsync(
+            Guid? countryId,
+            Guid? modeOfStudyId,
+            Guid? stateId)
         {
-            return await _dbContext.Centres
-                .AsNoTracking()
-                .Include(x => x.modeOfStudy)
-                .Include(x => x.State)
-                .FirstOrDefaultAsync(x =>
-                    x.ModeOfStudyId == modeofid &&
-                    x.StateId == stateid);
+            var query = _dbContext.Centres
+        .AsNoTracking()
+        .AsQueryable();
+
+            if (countryId.HasValue)
+                query = query.Where(x => x.CountryId == countryId.Value);
+
+            if (modeOfStudyId.HasValue)
+                query = query.Where(x => x.ModeOfStudyId == modeOfStudyId.Value);
+
+            if (stateId.HasValue)
+                query = query.Where(x => x.StateId == stateId.Value);
+
+            return await query.ToListAsync();
         }
 
         /// <summary>
@@ -155,6 +152,5 @@
                 .Include(x => x.modeOfStudy)
                 .AsNoTracking();
         }
-
     }
 }

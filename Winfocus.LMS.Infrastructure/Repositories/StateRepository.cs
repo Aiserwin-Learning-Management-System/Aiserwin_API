@@ -35,6 +35,7 @@
             return await _dbContext.States
                 .Include(x => x.Country)
                 .Include(x => x.ModeOfStudy)
+                .Include(x => x.Centers)
                 .AsNoTracking()
                 .ToListAsync();
         }

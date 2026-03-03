@@ -55,10 +55,11 @@ namespace Winfocus.LMS.Application.Interfaces
         /// <summary>
         /// Gets centre by mode of study and state.
         /// </summary>
+        /// <param name="countryid">country identifier.</param>
         /// <param name="modeofid">Mode of study identifier.</param>
         /// <param name="stateid">State identifier.</param>
         /// <returns>Centre entity if found; otherwise null.</returns>
-        Task<Center?> GetByFilterAsync(Guid modeofid, Guid stateid);
+        Task<List<Center>> GetByFilterAsync(Guid? countryid, Guid? modeofid, Guid? stateid);
 
         /// <summary>
         /// Gets all asynchronous.
