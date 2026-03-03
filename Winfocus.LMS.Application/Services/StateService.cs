@@ -237,7 +237,7 @@
             try
             {
                 _logger.LogInformation(
-                    "Fetching filtered grades. Filters => Active:{Active}, " +
+                    "Fetching filtered states. Filters => Active:{Active}, " +
                     "Search:{SearchText}, SortBy:{SortBy}, SortOrder:{SortOrder}, " +
                     "Limit:{Limit}, Offset:{Offset}",
                     request.Active, request.SearchText, request.SortBy,
