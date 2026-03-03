@@ -125,8 +125,11 @@
             Guid? stateId)
         {
             var query = _dbContext.Centres
-        .AsNoTracking()
-        .AsQueryable();
+         .AsNoTracking()
+         .Include(x => x.Country)
+         .Include(x => x.modeOfStudy)
+         .Include(x => x.State)
+         .AsQueryable();
 
             if (countryId.HasValue)
                 query = query.Where(x => x.CountryId == countryId.Value);

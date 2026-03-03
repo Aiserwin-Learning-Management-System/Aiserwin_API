@@ -101,7 +101,7 @@
         /// </summary>
         /// <param name="request">Filter parameters.</param>
         /// <returns> list of CentreDto.</returns>
-        [HttpGet("{countryId:guid}/{modeOfStudyId:guid}/{stateId:guid}")]
+        [HttpGet("{countryId:guid}/{modeOfStudyId:guid}/{stateId:guid?}")]
         public async Task<CommonResponse<List<CenterDto>>> Get([FromRoute] CenterGetRequest request)
         {
             return await _centerService.GetByFilterAsync(

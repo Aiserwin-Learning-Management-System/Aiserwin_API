@@ -9,5 +9,5 @@ namespace Winfocus.LMS.Application.DTOs
     /// </summary>
     public sealed record CenterGetRequest(Guid countryId,
     Guid modeOfStudyId,
-    Guid stateId);
+    Guid? stateId);
 }

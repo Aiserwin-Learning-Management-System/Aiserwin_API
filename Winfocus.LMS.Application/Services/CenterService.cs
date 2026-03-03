@@ -113,33 +113,33 @@ namespace Winfocus.LMS.Application.Services
             State? state = null;
 
             var modeName = modeOfStudy.Name.Trim().ToLower();
-
-            if (modeName == "offline" || modeName == "hybrid")
-            {
-                if (request.stateid != Guid.Empty)
-                    return CommonResponse<CenterDto>
-                        .FailureResponse("State is required for Offline mode");
-
-                state = await _stateRepository.GetByIdAsync(request.stateid);
-                if (state == null)
-                    return CommonResponse<CenterDto>
-                        .FailureResponse("State not found");
-            }
-
-            if (modeName == "online")
-            {
-                request = request with { stateid = Guid.Empty };
-            }
-
             var centre = new Center
             {
                 Name = request.name,
                 CreatedAt = DateTime.UtcNow,
                 CreatedBy = request.userId,
                 ModeOfStudyId = request.modeofstudyid,
-                CountryId = request.countryid,
-                StateId = request.stateid,
+                CountryId = request.countryid
             };
+            if (modeName == "offline" || modeName == "hybrid")
+            {
+                if (Guid.Parse(request.stateid) == Guid.Empty)
+                    return CommonResponse<CenterDto>
+                        .FailureResponse("State is required for Offline mode");
+
+                state = await _stateRepository.GetByIdAsync(Guid.Parse(request.stateid));
+                if (state == null)
+                    return CommonResponse<CenterDto>
+                        .FailureResponse("State not found");
+
+                centre.StateId = Guid.Parse(request.stateid);
+            }
+
+            if (modeName == "online")
+            {
+                request = request with { stateid = "" };
+                centre.StateId = null;
+            }
 
             var created = await _repository.AddAsync(centre);
 
@@ -179,25 +179,26 @@ namespace Winfocus.LMS.Application.Services
 
             if (modeName == "offline" || modeName == "hybrid")
             {
-                if (request.stateid == Guid.Empty)
+                if (Guid.Parse(request.stateid) == Guid.Empty)
                     return CommonResponse<CenterDto>
                         .FailureResponse("State is required for Offline mode");
 
-                state = await _stateRepository.GetByIdAsync(request.stateid);
+                state = await _stateRepository.GetByIdAsync(Guid.Parse(request.stateid));
                 if (state == null)
                     return CommonResponse<CenterDto>
                         .FailureResponse("State not found");
+
+                center.StateId = Guid.Parse(request.stateid);
             }
 
             if (modeName == "online")
             {
-                request = request with { stateid = Guid.Empty };
+                center.StateId = null;
             }
 
             center.Name = request.name;
             center.CountryId = request.countryid;
             center.ModeOfStudyId = request.modeofstudyid;
-            center.StateId = request.stateid;
             center.UpdatedAt = DateTime.UtcNow;
             center.UpdatedBy = request.userId;
 
@@ -393,6 +394,9 @@ namespace Winfocus.LMS.Application.Services
              Name = c.Name,
              CenterType = c.CenterType,
              IsActive = c.IsActive,
+             ModeOfStudyId = c.ModeOfStudyId,
+             StateId = c.StateId ?? Guid.Empty,
+             CountryId = c.CountryId,
              modeOfStudy = c.modeOfStudy == null ? null : new ModeOfStudyDto
              {
                  Id = c.ModeOfStudyId,
@@ -409,7 +413,6 @@ namespace Winfocus.LMS.Application.Services
                  Id = c.State.Id,
                  Name = c.State.Name,
                  IsActive = c.State.IsActive,
-
              },
          };
     }
