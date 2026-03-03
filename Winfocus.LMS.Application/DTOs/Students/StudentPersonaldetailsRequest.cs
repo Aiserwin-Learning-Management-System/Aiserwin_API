@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
     using System.Text;
+    using Winfocus.LMS.Domain.Enums;
 
     public sealed record StudentPersonaldetailsRequest(
 
@@ -41,6 +42,9 @@
 
         [Required]
         [MaxLength(50)]
-        string emirates
+        string emirates,
+
+        [Required]
+        Gender gender
     );
 }
