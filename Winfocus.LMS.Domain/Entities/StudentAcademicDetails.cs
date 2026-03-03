@@ -46,7 +46,7 @@
         /// <summary>
         /// Gets or sets the identifier of the associated center.
         /// </summary>
-        public Centre Center { get; set; } = null!;
+        public Center Center { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the identifier of the associated syllabus.
@@ -96,7 +96,7 @@
         /// <summary>
         /// Gets or sets the identifier of the preferred batch time selection.
         /// </summary>
-        public Guid PreferredBatchTimeId { get; set; }
+        public string PreferredTime { get; set; }
 
         /// <summary>
         /// Gets or sets the past year performance details (textual).

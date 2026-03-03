@@ -106,6 +106,7 @@
                 {
                     Name = request.name,
                     CountryId = request.countryid,
+                    ModeOfStudyId = request.modeofstudyid,
                     CreatedBy = request.userId,
                     CreatedAt = DateTime.UtcNow,
                 };
@@ -234,11 +235,17 @@
           Id = c.Id,
           Name = c.Name,
           CountryId = c.CountryId,
+          ModeOfStudyId = c.ModeOfStudyId,
           IsActive = c.IsActive,
           Country = c.Country == null ? null : new CountryDto
           {
               Id = c.Country.Id,
               Name = c.Country.Name
+          },
+          ModeOfStudy = c.ModeOfStudy == null ? null : new ModeOfStudyDto
+          {
+              Id = c.ModeOfStudy.Id,
+              Name = c.ModeOfStudy.Name
           }
       };
     }

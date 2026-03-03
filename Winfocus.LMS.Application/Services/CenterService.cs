@@ -89,7 +89,7 @@ namespace Winfocus.LMS.Application.Services
         /// <exception cref="InvalidOperationException">Center code already exists.</exception>
         public async Task<CommonResponse<CenterDto>> CreateAsync(CenterRequestDto request)
         {
-            var centre = new Centre
+            var centre = new Center
             {
                 Name = request.name,
                 CreatedAt = DateTime.UtcNow,
@@ -307,7 +307,7 @@ namespace Winfocus.LMS.Application.Services
             }
         }
 
-        private static CenterDto Map(Centre c) =>
+        private static CenterDto Map(Center c) =>
          new CenterDto
          {
              Id = c.Id,
@@ -319,18 +319,19 @@ namespace Winfocus.LMS.Application.Services
                  Id = c.ModeOfStudyId,
                  Name = c.modeOfStudy.Name,
                  IsActive = c.modeOfStudy.IsActive,
-                 State = c.modeOfStudy.State == null ? null : new StateDto
-                 {
-                     Id = c.modeOfStudy.StateId,
-                     Name = c.modeOfStudy.State.Name,
-                     IsActive = c.modeOfStudy.State.IsActive,
-                     Country = c.State.Country == null ? null : new CountryDto
-                     {
-                         Id = c.modeOfStudy.State.CountryId,
-                         Name = c.modeOfStudy.State.Country.Name,
-                     }
-                 }
-             }
+             },
+             Country = c.Country == null ? null : new CountryDto
+             {
+                 Id = c.Country.Id,
+                 Name = c.Country.Name,
+             },
+             State = c.State == null ? null : new StateDto
+             {
+                 Id = c.StateId,
+                 Name = c.State.Name,
+                 IsActive = c.State.IsActive,
+
+             },
          };
     }
 }

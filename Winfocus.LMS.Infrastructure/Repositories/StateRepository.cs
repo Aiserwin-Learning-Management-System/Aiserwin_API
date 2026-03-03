@@ -34,6 +34,7 @@
         {
             return await _dbContext.States
                 .Include(x => x.Country)
+                .Include(x => x.ModeOfStudy)
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -47,6 +48,7 @@
         {
             return await _dbContext.States
                 .Include(x => x.Country)
+                .Include(x => x.ModeOfStudy)
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
 
@@ -115,9 +117,9 @@
         {
             return await _dbContext.States
                 .Include(x => x.Country)
+                .Include(x => x.ModeOfStudy)
                 .Where(x => x.CountryId == countryid && x.IsActive == true)
                 .ToListAsync();
         }
-
     }
 }

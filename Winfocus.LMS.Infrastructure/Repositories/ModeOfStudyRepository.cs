@@ -35,7 +35,7 @@
         public async Task<IReadOnlyList<ModeOfStudy>> GetAllAsync()
         {
             return await _dbContext.ModeOfStudies
-                .Include(x => x.State)
+                .Include(x => x.Country)
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -48,7 +48,7 @@
         public async Task<ModeOfStudy?> GetByIdAsync(Guid id)
         {
             return await _dbContext.ModeOfStudies
-                .Include(x => x.State)
+                .Include(x => x.Country)
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
 
@@ -109,13 +109,13 @@
         /// <summary>
         /// Gets the by identifier asynchronous.
         /// </summary>
-        /// <param name="stateid">The identifier.</param>
+        /// <param name="countryid">The identifier.</param>
         /// <returns>Modeofstudy.</returns>
-        public async Task<List<ModeOfStudy>> GetByStateIdAsync(Guid stateid)
+        public async Task<List<ModeOfStudy>> GetByCountryIdAsync(Guid countryid)
         {
             return await _dbContext.ModeOfStudies
-                .Include(x => x.State)
-                .Where(x => x.StateId == stateid && x.IsActive == true)
+                .Include(x => x.Country)
+                .Where(x => x.CountryId == countryid && x.IsActive == true)
                 .ToListAsync();
         }
 
@@ -127,7 +127,8 @@
         /// </returns>
         public IQueryable<ModeOfStudy> Query()
         {
-            return _dbContext.ModeOfStudies.Include(x => x.State)
+            return _dbContext.ModeOfStudies
+                .Include(x => x.Country)
                 .AsNoTracking();
         }
     }

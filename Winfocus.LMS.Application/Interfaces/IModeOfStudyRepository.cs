@@ -53,9 +53,9 @@
         /// <summary>
         /// Gets the by identifier asynchronous.
         /// </summary>
-        /// <param name="stateid">The identifier.</param>
+        /// <param name="countryid">The identifier.</param>
         /// <returns>State.</returns>
-        Task<List<ModeOfStudy>> GetByStateIdAsync(Guid stateid);
+        Task<List<ModeOfStudy>> GetByCountryIdAsync(Guid countryid);
 
         /// <summary>
         /// Gets all asynchronous.

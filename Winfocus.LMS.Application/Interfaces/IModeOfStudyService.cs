@@ -48,9 +48,9 @@
         /// <summary>
         /// Gets the by identifier asynchronous.
         /// </summary>
-        /// <param name="stateid">The identifier.</param>
+        /// <param name="countryid">The identifier.</param>
         /// <returns>ModeOfStudyDto.</returns>
-        Task<List<ModeOfStudyDto>> GetByStateIdAsync(Guid stateid);
+        Task<List<ModeOfStudyDto>> GetByCountryIdAsync(Guid countryid);
 
         /// <summary>
         /// Gets filtered mode of study with pagination support.

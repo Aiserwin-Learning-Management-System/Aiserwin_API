@@ -15,13 +15,13 @@
         public string Name { get; set; } = null!;
 
         /// <summary>
-        /// Gets or sets the identifier of the associated state.
+        /// Gets or sets the identifier of the associated country.
         /// </summary>
-        public Guid StateId { get; set; }
+        public Guid CountryId { get; set; }
 
         /// <summary>
-        /// Gets or sets the identifier of the associated state.
+        /// Gets or sets the identifier of the associated country.
         /// </summary>
-        public State State { get; set; } = null!;
+        public Country Country { get; set; } = null!;
     }
 }
