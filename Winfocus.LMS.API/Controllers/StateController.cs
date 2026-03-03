@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Winfocus.LMS.Application.DTOs;
+using Winfocus.LMS.Application.DTOs.Common;
 using Winfocus.LMS.Application.DTOs.Masters;
 using Winfocus.LMS.Application.Interfaces;
 using Winfocus.LMS.Application.Services;
@@ -108,6 +109,23 @@ namespace Winfocus.LMS.API.Controllers
         public async Task<CommonResponse<bool>> Delete(Guid id)
         {
             return await _stateService.DeleteAsync(id);
+        }
+
+        /// <summary>
+        /// Gets the filtered.
+        /// Created On: 03/2026
+        /// Created By: Aju Antony
+        /// Task: Issues-175.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <returns>Result.</returns>
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        [HttpGet("filter")]
+        public async Task<ActionResult<CommonResponse<PagedResult<StateDto>>>> GetFiltered(
+        [FromQuery] PagedRequest request)
+        {
+            var result = await _stateService.GetFilteredAsync(request);
+            return Ok(result);
         }
     }
 }

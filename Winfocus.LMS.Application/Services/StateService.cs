@@ -1,7 +1,9 @@
 ﻿namespace Winfocus.LMS.Application.Services
 {
+    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
     using Winfocus.LMS.Application.DTOs;
+    using Winfocus.LMS.Application.DTOs.Common;
     using Winfocus.LMS.Application.DTOs.Masters;
     using Winfocus.LMS.Application.Interfaces;
     using Winfocus.LMS.Domain.Entities;
@@ -221,6 +223,100 @@
             {
                 _logger.LogWarning("No states found for CountryId: {CountryId}", countryid);
                 return CommonResponse<List<StateDto>>.FailureResponse("State not found");
+            }
+        }
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <returns>StateDto.</returns>
+        public async Task<CommonResponse<PagedResult<StateDto>>> GetFilteredAsync(
+           PagedRequest request)
+        {
+            try
+            {
+                _logger.LogInformation(
+                    "Fetching filtered grades. Filters => Active:{Active}, " +
+                    "Search:{SearchText}, SortBy:{SortBy}, SortOrder:{SortOrder}, " +
+                    "Limit:{Limit}, Offset:{Offset}",
+                    request.Active, request.SearchText, request.SortBy,
+                    request.SortOrder, request.Limit, request.Offset);
+
+                var query = _repository.Query();
+
+                // ── Filters ──
+                if (request.Active.HasValue)
+                    query = query.Where(x => x.IsActive == request.Active.Value);
+
+                if (request.StartDate.HasValue)
+                    query = query.Where(x => x.CreatedAt >= request.StartDate.Value);
+
+                if (request.EndDate.HasValue)
+                    query = query.Where(x => x.CreatedAt <= request.EndDate.Value);
+
+                if (!string.IsNullOrWhiteSpace(request.SearchText))
+                {
+                    var searchTerm = request.SearchText.Trim().ToLower();
+                    query = query.Where(x =>
+                        x.Name.ToLower().Contains(searchTerm) ||
+                        x.Country.Name.ToLower().Contains(searchTerm));
+                }
+
+                // ── Total Count ──
+                var totalCount = await query.CountAsync();
+
+                if (totalCount == 0)
+                {
+                    return CommonResponse<PagedResult<StateDto>>.SuccessResponse(
+                        "No state found.",
+                        new PagedResult<StateDto>(
+                            new List<StateDto>(), 0, request.Limit, request.Offset));
+                }
+
+                // ── Dynamic Sorting ──
+                var isDesc = request.SortOrder.Equals("desc", StringComparison.OrdinalIgnoreCase);
+
+                query = request.SortBy.ToLower() switch
+                {
+                    "name" => isDesc ? query.OrderByDescending(x => x.Name)
+                                             : query.OrderBy(x => x.Name),
+
+                    "countryname" => isDesc ? query.OrderByDescending(x => x.Country.Name)
+                    : query.OrderBy(x => x.Country.Name),
+
+                    "isactive" => isDesc ? query.OrderByDescending(x => x.IsActive)
+                                             : query.OrderBy(x => x.IsActive),
+
+                    "createdat" => isDesc ? query.OrderByDescending(x => x.CreatedAt)
+                                             : query.OrderBy(x => x.CreatedAt),
+
+                    _ => isDesc ? query.OrderByDescending(x => x.CreatedAt)
+                                             : query.OrderBy(x => x.CreatedAt),
+                };
+
+                // ── Pagination ──
+                var stateList = await query
+                    .Skip(request.Offset)
+                    .Take(request.Limit)
+                    .ToListAsync();
+
+                var dtoList = stateList.Select(Map).ToList();
+
+                _logger.LogInformation(
+                    "Returning {Count} of {Total} state",
+                    dtoList.Count, totalCount);
+
+                return CommonResponse<PagedResult<StateDto>>.SuccessResponse(
+                    "State details fetched successfully.",
+                    new PagedResult<StateDto>(
+                        dtoList, totalCount, request.Limit, request.Offset));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching filtered in state.");
+                return CommonResponse<PagedResult<StateDto>>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
             }
         }
 
