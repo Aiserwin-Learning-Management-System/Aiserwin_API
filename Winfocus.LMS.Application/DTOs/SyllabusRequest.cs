@@ -21,5 +21,13 @@
         /// The user identifier.
         /// </value>
         public Guid UserId { get; init; }
+
+        /// <summary>
+        /// Gets the Ceneter identifier.
+        /// </summary>
+        /// <value>
+        /// The Ceneter identifier.
+        /// </value>
+        public Guid CeneterId { get; init; }
     }
 }

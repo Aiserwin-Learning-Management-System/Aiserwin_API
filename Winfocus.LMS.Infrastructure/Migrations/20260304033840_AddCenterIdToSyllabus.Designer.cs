@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Winfocus.LMS.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using Winfocus.LMS.Infrastructure.Data;
 namespace Winfocus.LMS.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260304033840_AddCenterIdToSyllabus")]
+    partial class AddCenterIdToSyllabus
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -386,9 +389,18 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.Property<bool>("IsInstallmentAllowed")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsSeasonalDiscountActive")
+                        .HasColumnType("bit");
+
                     b.Property<string>("PlanName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("ScholarshipPercent")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("SeasonalPercent")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("TuitionFee")
                         .HasColumnType("decimal(18,2)");
@@ -404,44 +416,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.HasIndex("CourseId");
 
                     b.ToTable("FeePlans");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.FeePlanDiscount", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("DiscountName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("DiscountPercent")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<Guid>("FeePlanId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FeePlanId");
-
-                    b.ToTable("FeePlanDiscount");
                 });
 
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.Grade", b =>
@@ -1516,17 +1490,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.Navigation("Course");
                 });
 
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.FeePlanDiscount", b =>
-                {
-                    b.HasOne("Winfocus.LMS.Domain.Entities.FeePlan", "FeePlan")
-                        .WithMany("Discounts")
-                        .HasForeignKey("FeePlanId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("FeePlan");
-                });
-
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.Grade", b =>
                 {
                     b.HasOne("Winfocus.LMS.Domain.Entities.Syllabus", "Syllabus")
@@ -1910,8 +1873,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
 
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.FeePlan", b =>
                 {
-                    b.Navigation("Discounts");
-
                     b.Navigation("Installments");
                 });
 
