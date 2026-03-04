@@ -24,6 +24,7 @@
         private readonly AuthService _authService;
         private readonly Mock<IUsernameGeneratorService> _usernameGeneratorService;
         private readonly Mock<IUserLoginLogService> _userLoginLogService;
+        private readonly Mock<IUserSessionService> _userSessionService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthServiceTests"/> class.
@@ -38,6 +39,7 @@
             _passwordHasher = new PasswordHasher<User>();
             _usernameGeneratorService = new Mock<IUsernameGeneratorService>();
             _userLoginLogService = new Mock<IUserLoginLogService>();
+            _userSessionService = new Mock<IUserSessionService>();
 
             _authService = new AuthService(
                 _userRepositoryMock.Object,
@@ -48,7 +50,8 @@
                 _userActivationTokenRepositoryMock.Object,
                 _emailServiceMock.Object,
                 _usernameGeneratorService.Object,
-                _userLoginLogService.Object);
+                _userLoginLogService.Object,
+                _userSessionService.Object);
         }
 
         /// <summary>
@@ -112,7 +115,10 @@
                 .ReturnsAsync(user);
 
             _tokenServiceMock
-                .Setup(t => t.GenerateToken(user, It.IsAny<List<string>>()))
+                .Setup(t => t.GenerateToken(
+                    It.IsAny<User>(),
+                    It.IsAny<IReadOnlyList<string>>(),
+                    It.IsAny<string>()))
                 .Returns("mock-jwt-token");
 
             // Act
@@ -272,9 +278,11 @@
                 .Setup(r => r.GetByNamesAsync(It.Is<IReadOnlyList<string>>(roles => roles.Contains("Student"))))
                 .ReturnsAsync(new List<Role> { new Role { Name = "Student" } });
 
-
             _tokenServiceMock
-                .Setup(t => t.GenerateToken(It.IsAny<User>(), It.IsAny<List<string>>()))
+                .Setup(t => t.GenerateToken(
+                    It.IsAny<User>(),
+                    It.IsAny<IReadOnlyList<string>>(),
+                    It.IsAny<string>()))
                 .Returns("mock-jwt-token");
 
             // Act

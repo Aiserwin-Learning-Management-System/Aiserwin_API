@@ -228,6 +228,11 @@
         public DbSet<UserLoginLog> UserLoginLogs => Set<UserLoginLog>();
 
         /// <summary>
+        /// Gets or sets the user active sessions.
+        /// </summary>
+        public DbSet<UserActiveSession> UserActiveSessions { get; set; } = null!;
+
+        /// <summary>
         /// Configures the model for the context.
         /// </summary>
         /// <param name="modelBuilder">The builder being used to construct the model for this context.</param>
@@ -238,6 +243,7 @@
             modelBuilder.ApplyConfiguration(new SubjectConfiguration());
             modelBuilder.ApplyConfiguration(new UserActivationTokenConfiguration());
             modelBuilder.ApplyConfiguration(new UserLoginLogConfiguration());
+            modelBuilder.ApplyConfiguration(new UserActiveSessionConfiguration());
 
             // User configuration
             modelBuilder.Entity<User>()

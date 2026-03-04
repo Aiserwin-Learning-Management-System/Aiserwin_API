@@ -115,9 +115,10 @@ builder.Services.AddScoped<IUserLoginLogRepository, UserLoginLogRepository>();
 builder.Services.AddScoped<IUserLoginLogService, UserLoginLogService>();
 builder.Services.AddScoped<IUsernameGeneratorService, UsernameGeneratorService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
-
 builder.Services.AddScoped<IBatchService, BatchService>();
 builder.Services.AddScoped<IBatchRepository, BatchRepository>();
+builder.Services.AddScoped<IUserSessionRepository, UserSessionRepository>();
+builder.Services.AddScoped<IUserSessionService, UserSessionService>();
 
 #endregion
 
@@ -300,6 +301,9 @@ if (app.Environment.IsDevelopment())
 app.UseCors("AllowAngularApp");
 
 app.UseAuthentication();
+
+app.UseMiddleware<SessionValidationMiddleware>();
+
 app.UseAuthorization();
 app.UseRateLimiter();
 
