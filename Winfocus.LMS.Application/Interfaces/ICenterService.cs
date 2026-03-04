@@ -11,7 +11,7 @@ namespace Winfocus.LMS.Application.Interfaces
     /// <summary>
     /// Defines business operations for <see cref="Centre"/> entities.
     /// </summary>
-    public interface ICentreService
+    public interface ICenterService
     {
         /// <summary>
         /// Gets all asynchronous.
@@ -51,10 +51,11 @@ namespace Winfocus.LMS.Application.Interfaces
         /// <summary>
         /// Gets centre by mode of study and state.
         /// </summary>
+        /// <param name="countryid">country identifier.</param>
         /// <param name="modeofid">Mode of study identifier.</param>
         /// <param name="stateid">State identifier.</param>
         /// <returns>CentreDto if found; otherwise null.</returns>
-        Task<CommonResponse<CenterDto>> GetByFilterAsync(Guid modeofid, Guid stateid);
+        Task<CommonResponse<List<CenterDto>>> GetByFilterAsync(Guid? countryid, Guid? modeofid, Guid? stateid);
 
         /// <summary>
         /// Gets filtered Center with pagination support.

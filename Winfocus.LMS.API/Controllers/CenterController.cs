@@ -17,13 +17,13 @@
     [Route("api/v{version:apiVersion}/[controller]")]
     public class CenterController : BaseController
     {
-        private readonly ICentreService _centerService;
+        private readonly ICenterService _centerService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CenterController"/> class.
         /// </summary>
         /// <param name="centerService">The center service.</param>
-        public CenterController(ICentreService centerService)
+        public CenterController(ICenterService centerService)
         {
             _centerService = centerService;
         }
@@ -97,15 +97,17 @@
         }
 
         /// <summary>
-        /// Gets centre by mode of study and state.
+        /// Gets centre by country, mode of study and state.
         /// </summary>
-        /// <param name="modeofid">Mode of study identifier.</param>
-        /// <param name="stateid">State identifier.</param>
-        /// <returns>CentreDto.</returns>
-        [HttpGet("{modeofid:guid}/{stateid:guid}")]
-        public async Task<CommonResponse<CenterDto>> Get(Guid modeofid, Guid stateid)
+        /// <param name="request">Filter parameters.</param>
+        /// <returns> list of CentreDto.</returns>
+        [HttpGet("{countryId:guid}/{modeOfStudyId:guid}/{stateId:guid?}")]
+        public async Task<CommonResponse<List<CenterDto>>> Get([FromRoute] CenterGetRequest request)
         {
-            return await _centerService.GetByFilterAsync(modeofid, stateid);
+            return await _centerService.GetByFilterAsync(
+                request.countryId,
+                request.modeOfStudyId,
+                request.stateId);
         }
 
         /// <summary>

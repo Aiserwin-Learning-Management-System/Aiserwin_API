@@ -31,5 +31,10 @@
         /// Gets or sets the modeOfStudy entity associated with the centre.
         /// </summary>
         public ModeOfStudy ModeOfStudy { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the collection of centres associated with the state.
+        /// </summary>
+        public ICollection<Center> Centers { get; set; } = new List<Center>();
     }
 }

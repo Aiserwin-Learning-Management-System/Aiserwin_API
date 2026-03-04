@@ -1,11 +1,12 @@
-﻿using Microsoft.Extensions.Logging;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Winfocus.LMS.Application.DTOs;
 using Winfocus.LMS.Application.DTOs.Common;
 using Winfocus.LMS.Application.DTOs.Masters;
+using Winfocus.LMS.Application.DTOs.Students;
 using Winfocus.LMS.Application.Interfaces;
 using Winfocus.LMS.Domain.Entities;
 using Winfocus.LMS.Domain.Enums;
@@ -15,20 +16,29 @@ namespace Winfocus.LMS.Application.Services
     /// <summary>
     /// Provides business operations for <see cref="Centre"/> entities.
     /// </summary>
-    public sealed class CentreService : ICentreService
+    public sealed class CentreService : ICenterService
     {
         private readonly ICentreRepository _repository;
+        private readonly IModeOfStudyRepository _moderepository;
         private readonly ILogger<CentreService> _logger;
+        private readonly ICountryRepository _countryRepository;
+        private readonly IStateRepository _stateRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CentreService"/> class.
         /// </summary>
         /// <param name="repository">Repository used for data access.</param>
         /// <param name="logger">Logger instance.</param>
-        public CentreService(ICentreRepository repository, ILogger<CentreService> logger)
+        /// <param name="moderepository">moderepository instance.</param>
+        /// <param name="countryRepository">countryRepository instance.</param>
+        /// <param name="stateRepository">stateRepository instance.</param>
+        public CentreService(ICentreRepository repository, ILogger<CentreService> logger, IModeOfStudyRepository moderepository, ICountryRepository countryRepository, IStateRepository stateRepository)
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _moderepository = moderepository;
+            _countryRepository = countryRepository;
+            _stateRepository = stateRepository;
         }
 
         /// <summary>
@@ -89,25 +99,52 @@ namespace Winfocus.LMS.Application.Services
         /// <exception cref="InvalidOperationException">Center code already exists.</exception>
         public async Task<CommonResponse<CenterDto>> CreateAsync(CenterRequestDto request)
         {
+            var country = await _countryRepository.GetByIdAsync(request.countryid);
+            if (country == null)
+                return CommonResponse<CenterDto>.FailureResponse("Country not found");
+
+            if (!country.IsActive)
+                return CommonResponse<CenterDto>.FailureResponse("Cannot create with inactive country");
+
+            var modeOfStudy = await _moderepository.GetByIdAsync(request.modeofstudyid);
+            if (modeOfStudy == null)
+                return CommonResponse<CenterDto>.FailureResponse("Mode of study not found");
+
+            State? state = null;
+
+            var modeName = modeOfStudy.Name.Trim().ToLower();
             var centre = new Center
             {
                 Name = request.name,
                 CreatedAt = DateTime.UtcNow,
                 CreatedBy = request.userId,
-                ModeOfStudyId = request.modeofstudy,
+                ModeOfStudyId = request.modeofstudyid,
+                CountryId = request.countryid
             };
+            if (modeName == "offline" || modeName == "hybrid")
+            {
+                if (Guid.Parse(request.stateid) == Guid.Empty)
+                    return CommonResponse<CenterDto>
+                        .FailureResponse("State is required for Offline mode");
+
+                state = await _stateRepository.GetByIdAsync(Guid.Parse(request.stateid));
+                if (state == null)
+                    return CommonResponse<CenterDto>
+                        .FailureResponse("State not found");
+
+                centre.StateId = Guid.Parse(request.stateid);
+            }
+
+            if (modeName == "online")
+            {
+                request = request with { stateid = "" };
+                centre.StateId = null;
+            }
 
             var created = await _repository.AddAsync(centre);
-            _logger.LogInformation("Centre created successfully. CentreId: {CentreId}", created.Id);
-            var mapped = Map(created);
-            if (mapped == null)
-            {
-                return CommonResponse<CenterDto>.FailureResponse("Failed to create center");
-            }
-            else
-            {
-                return CommonResponse<CenterDto>.SuccessResponse("center created successfully", mapped);
-            }
+
+            return CommonResponse<CenterDto>
+                .SuccessResponse("Center created successfully", Map(created));
         }
 
         /// <summary>
@@ -120,24 +157,57 @@ namespace Winfocus.LMS.Application.Services
         public async Task<CommonResponse<CenterDto>> UpdateAsync(Guid id, CenterRequestDto request)
         {
             _logger.LogInformation("Updating centre Id: {CentreId}", id);
-            var center = await _repository.GetByIdAsync(id)
-                ?? throw new KeyNotFoundException("Center not found");
+
+            var center = await _repository.GetByIdAsync(id);
+            if (center == null)
+                return CommonResponse<CenterDto>.FailureResponse("Center not found");
+
+            var country = await _countryRepository.GetByIdAsync(request.countryid);
+            if (country == null)
+                return CommonResponse<CenterDto>.FailureResponse("Country not found");
+
+            if (!country.IsActive)
+                return CommonResponse<CenterDto>.FailureResponse("Cannot update with inactive country");
+
+            // 🔹 Mode validation
+            var modeOfStudy = await _moderepository.GetByIdAsync(request.modeofstudyid);
+            if (modeOfStudy == null)
+                return CommonResponse<CenterDto>.FailureResponse("Mode of study not found");
+
+            State? state = null;
+            var modeName = modeOfStudy.Name.Trim().ToLower();
+
+            if (modeName == "offline" || modeName == "hybrid")
+            {
+                if (Guid.Parse(request.stateid) == Guid.Empty)
+                    return CommonResponse<CenterDto>
+                        .FailureResponse("State is required for Offline mode");
+
+                state = await _stateRepository.GetByIdAsync(Guid.Parse(request.stateid));
+                if (state == null)
+                    return CommonResponse<CenterDto>
+                        .FailureResponse("State not found");
+
+                center.StateId = Guid.Parse(request.stateid);
+            }
+
+            if (modeName == "online")
+            {
+                center.StateId = null;
+            }
 
             center.Name = request.name;
+            center.CountryId = request.countryid;
+            center.ModeOfStudyId = request.modeofstudyid;
             center.UpdatedAt = DateTime.UtcNow;
             center.UpdatedBy = request.userId;
 
-            var data = await _repository.UpdateAsync(center);
+            var updated = await _repository.UpdateAsync(center);
+
             _logger.LogInformation("Centre updated successfully. CentreId: {CentreId}", id);
-            var mapped = Map(data);
-            if (mapped == null)
-            {
-                return CommonResponse<CenterDto>.FailureResponse("Failed to create center");
-            }
-            else
-            {
-                return CommonResponse<CenterDto>.SuccessResponse("center created successfully", mapped);
-            }
+
+            return CommonResponse<CenterDto>
+                .SuccessResponse("Center updated successfully", Map(updated));
         }
 
         /// <summary>
@@ -172,40 +242,50 @@ namespace Winfocus.LMS.Application.Services
         /// <summary>
         /// Gets centre by mode of study and state.
         /// </summary>
-        /// <param name="modeofid">Mode of study identifier.</param>
-        /// <param name="stateid">State identifier.</param>
+        /// <param name="countryId">country identifier.</param>
+        /// <param name="modeOfStudyId">Mode of study identifier.</param>
+        /// <param name="stateId">State identifier.</param>
         /// <returns>CentreDto if found; otherwise null.</returns>
-        public async Task<CommonResponse<CenterDto>> GetByFilterAsync(Guid modeofid, Guid stateid)
+        public async Task<CommonResponse<List<CenterDto>>> GetByFilterAsync(
+      Guid? countryId,
+      Guid? modeOfStudyId,
+      Guid? stateId)
         {
             try
             {
                 _logger.LogInformation(
-                               "Fetching centre for ModeOfStudyId: {ModeOfStudyId}, StateId: {StateId}",
-                               modeofid, stateid);
+                    "Fetching centres for CountryId: {CountryId}, ModeOfStudyId: {ModeOfStudyId}, StateId: {StateId}",
+                    countryId, modeOfStudyId, stateId);
 
-                var centre = await _repository.GetByFilterAsync(modeofid, stateid);
+                var centres = await _repository.GetByFilterAsync(
+                    countryId, modeOfStudyId, stateId);
 
-                if (centre == null)
+                if (centres == null || !centres.Any())
                 {
                     _logger.LogWarning(
-                        "Centre not found for ModeOfStudyId: {ModeOfStudyId}, StateId: {StateId}",
-                        modeofid, stateid);
+                        "No centres found for CountryId: {CountryId}, ModeOfStudyId: {ModeOfStudyId}, StateId: {StateId}",
+                        countryId, modeOfStudyId, stateId);
 
-                    return CommonResponse<CenterDto>.FailureResponse("Not data found");
+                    return CommonResponse<List<CenterDto>>
+                        .FailureResponse("No data found");
                 }
 
+                var mapped = centres.Select(Map).ToList();
+
                 _logger.LogInformation(
-                    "Centre fetched successfully for ModeOfStudyId: {ModeOfStudyId}, StateId: {StateId}",
-                    modeofid, stateid);
+                    "Centres fetched successfully. Count: {Count}",
+                    mapped.Count);
 
-                var mapped = Map(centre);
-                return CommonResponse<CenterDto>.SuccessResponse("Centre fetched successfully", mapped);
-
-            }catch (Exception ex)
+                return CommonResponse<List<CenterDto>>
+                    .SuccessResponse("Centres fetched successfully", mapped);
+            }
+            catch (Exception ex)
             {
-                _logger.LogError(ex, "Fetching centers by state and mode of study");
-                return CommonResponse<CenterDto>.FailureResponse(
-                    $"An error occurred: {ex.Message}");
+                _logger.LogError(ex,
+                    "Error occurred while fetching centres with filters");
+
+                return CommonResponse<List<CenterDto>>
+                    .FailureResponse("An unexpected error occurred.");
             }
         }
 
@@ -314,6 +394,9 @@ namespace Winfocus.LMS.Application.Services
              Name = c.Name,
              CenterType = c.CenterType,
              IsActive = c.IsActive,
+             ModeOfStudyId = c.ModeOfStudyId,
+             StateId = c.StateId ?? Guid.Empty,
+             CountryId = c.CountryId,
              modeOfStudy = c.modeOfStudy == null ? null : new ModeOfStudyDto
              {
                  Id = c.ModeOfStudyId,
@@ -327,10 +410,9 @@ namespace Winfocus.LMS.Application.Services
              },
              State = c.State == null ? null : new StateDto
              {
-                 Id = c.StateId,
+                 Id = c.State.Id,
                  Name = c.State.Name,
                  IsActive = c.State.IsActive,
-
              },
          };
     }

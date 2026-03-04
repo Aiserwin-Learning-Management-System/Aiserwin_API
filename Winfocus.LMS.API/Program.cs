@@ -80,7 +80,7 @@ builder.Services.AddScoped<IStateService, StateService>();
 builder.Services.AddScoped<IStateRepository, StateRepository>();
 builder.Services.AddScoped<IModeOfStudyService, ModeOfStudyService>();
 builder.Services.AddScoped<IModeOfStudyRepository, ModeOfStudyRepository>();
-builder.Services.AddScoped<ICentreService, CentreService>();
+builder.Services.AddScoped<ICenterService, CentreService>();
 builder.Services.AddScoped<ICentreRepository, CentreRepository>();
 builder.Services.AddScoped<ISyllabusService, SyllabusService>();
 builder.Services.AddScoped<ISyllabusRepository, SyllabusRepository>();
@@ -261,7 +261,7 @@ if (!app.Environment.IsEnvironment("Testing"))
     {
        // db.Database.Migrate();
         CountryDataSeeder.Seed(db);
-        StateDataSeeder.Seed(db);
+       // StateDataSeeder.Seed(db);
         RoleDataSeeder.Seed(db);
     }
     catch (Exception ex)
