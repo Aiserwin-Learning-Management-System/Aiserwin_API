@@ -57,7 +57,7 @@ namespace Winfocus.LMS.Application.Services
                 _logger.LogError(ex, "Error fetching syllabuses");
                 return CommonResponse<List<SyllabusDto>>.FailureResponse($"An error occurred: {ex.Message}");
             }
-         }
+        }
 
         /// <summary>
         /// Gets the by identifier asynchronous.
@@ -86,7 +86,7 @@ namespace Winfocus.LMS.Application.Services
                 _logger.LogError(ex, "Error fetching syllabus by Id: {Id}", id);
                 return CommonResponse<SyllabusDto>.FailureResponse($"An error occurred: {ex.Message}");
             }
-         }
+        }
 
         /// <summary>
         /// Creates the asynchronous.
@@ -104,6 +104,7 @@ namespace Winfocus.LMS.Application.Services
                     Name = request.Name,
                     CreatedAt = DateTime.UtcNow,
                     CreatedBy = request.UserId,
+                    CenterId = request.CeneterId,
                 };
 
                 var created = await _repository.AddAsync(syllabus);
@@ -139,6 +140,7 @@ namespace Winfocus.LMS.Application.Services
                 batch.Name = request.Name;
                 batch.UpdatedAt = DateTime.UtcNow;
                 batch.UpdatedBy = request.UserId;
+                batch.CenterId = request.CeneterId;
 
                 var updated = await _repository.UpdateAsync(batch);
 
@@ -235,6 +237,8 @@ namespace Winfocus.LMS.Application.Services
                 {
                     "name" => isDesc ? query.OrderByDescending(x => x.Name)
                                           : query.OrderBy(x => x.Name),
+                    "centername" => isDesc ? query.OrderByDescending(x => x.Center.Name)
+                                          : query.OrderBy(x => x.Center.Name),
                     "isactive" => isDesc ? query.OrderByDescending(x => x.IsActive)
                                           : query.OrderBy(x => x.IsActive),
                     "createdat" => isDesc ? query.OrderByDescending(x => x.CreatedAt)
@@ -269,11 +273,47 @@ namespace Winfocus.LMS.Application.Services
         }
 
         private static SyllabusDto Map(Syllabus c) =>
-     new SyllabusDto
-     {
-         Id = c.Id,
-         Name = c.Name,
-         IsActive = c.IsActive,
-     };
-     }
+           new SyllabusDto
+           {
+               Id = c.Id,
+               Name = c.Name,
+               IsActive = c.IsActive,
+               CeneterId = c.CenterId,
+               CountryId = c.Center.CountryId,
+               ModeOfStudyId = c.Center.ModeOfStudyId,
+               State_Id = (Guid)c.Center.StateId,
+               Country = c.Center.Country == null ? null : new CountryDto
+               {
+                   Id = c.Center.Id,
+                   Name = c.Center.Name,
+                   Code = c.Center.Country.Code,
+
+
+               },
+               Center = c.Center == null ? null : new CenterDto
+               {
+                   Id = c.Center.Id,
+                   Name = c.Center.Name,
+                   ModeOfStudyId = c.Center.ModeOfStudyId,
+                   CountryId = c.Center.CountryId,
+                   StateId = (Guid)c.Center.StateId,
+
+               },
+               ModeOfStudy = c.Center.modeOfStudy == null ? null : new ModeOfStudyDto
+               {
+                   Id = c.Center.modeOfStudy.Id,
+                   Name = c.Center.modeOfStudy.Name,
+                   CountryId = c.Center.CountryId,
+               },
+               State = c.Center.State == null ? null : new StateDto
+               {
+                   Id = c.Center.State.Id,
+                   Name = c.Center.State.Name,
+                   ModeOfStudyId = c.Center.ModeOfStudyId,
+                   CountryId = c.Center.CountryId,
+
+               },
+
+           };
+    }
 }
