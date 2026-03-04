@@ -28,24 +28,6 @@
         public decimal TuitionFee { get; private set; }
 
         /// <summary>
-        /// Gets the scholarship percent (plan-level default; overridden at student level).
-        /// </summary>
-        /// <value>The scholarship percent.</value>
-        public decimal ScholarshipPercent { get; private set; }
-
-        /// <summary>
-        /// Gets the seasonal discount percent.
-        /// </summary>
-        /// <value>The seasonal percent.</value>
-        public decimal SeasonalPercent { get; private set; }
-
-        /// <summary>
-        /// Gets a value indicating whether the seasonal discount is currently active.
-        /// </summary>
-        /// <value><c>true</c> if the seasonal discount is active; otherwise, <c>false</c>.</value>
-        public bool IsSeasonalDiscountActive { get; private set; }
-
-        /// <summary>
         /// Gets a value indicating whether installment payment is allowed.
         /// </summary>
         /// <value><c>true</c> if installment is allowed; otherwise, <c>false</c>.</value>
@@ -65,24 +47,66 @@
             = new List<FeeInstallment>();
 
         /// <summary>
-        /// Updates the seasonal discount settings.
+        /// Gets the collection of discounts associated with this FeePlan.
         /// </summary>
-        /// <param name="percent">The seasonal discount percent.</param>
-        /// <param name="isActive">Whether the seasonal discount is active.</param>
-        public void UpdateSeasonalDiscount(decimal percent, bool isActive)
+        /// <value>
+        /// A collection of FeePlanDiscount entities.
+        /// </value>
+        public ICollection<FeePlanDiscount> Discounts { get; private set; }
+            = new List<FeePlanDiscount>();
+
+        /// <summary>
+        /// Required by EF Core.
+        /// </summary>
+        private FeePlan()
         {
-            SeasonalPercent = percent;
-            IsSeasonalDiscountActive = isActive;
-            UpdatedAt = DateTime.UtcNow;
         }
 
         /// <summary>
-        /// Updates the scholarship percent on the plan (default value).
+        /// Initializes a new instance of the <see cref="FeePlan"/> class.
         /// </summary>
-        /// <param name="percent">The scholarship percent.</param>
-        public void UpdateScholarshipPercent(decimal percent)
+        /// <param name="courseId">The associated course identifier.</param>
+        /// <param name="planName">The name of the plan.</param>
+        /// <param name="tuitionFee">The tuition fee amount.</param>
+        /// <param name="isInstallmentAllowed">Indicates whether installment payment is allowed.</param>
+        public FeePlan(
+            Guid courseId,
+            string planName,
+            decimal tuitionFee,
+            bool isInstallmentAllowed)
         {
-            ScholarshipPercent = percent;
+            if (string.IsNullOrWhiteSpace(planName))
+                throw new ArgumentException("Plan name is required.");
+
+            if (tuitionFee <= 0)
+                throw new ArgumentException("Tuition fee must be greater than zero.");
+
+            CourseId = courseId;
+            PlanName = planName;
+            TuitionFee = tuitionFee;
+            IsInstallmentAllowed = isInstallmentAllowed;
+        }
+
+        /// <summary>
+        /// Updates the fee plan details.
+        /// </summary>
+        /// <param name="planName">Updated plan name.</param>
+        /// <param name="tuitionFee">Updated tuition fee.</param>
+        /// <param name="isInstallmentAllowed">Indicates if installment is allowed.</param>
+        public void Update(
+            string planName,
+            decimal tuitionFee,
+            bool isInstallmentAllowed)
+        {
+            if (string.IsNullOrWhiteSpace(planName))
+                throw new ArgumentException("Plan name is required.");
+
+            if (tuitionFee <= 0)
+                throw new ArgumentException("Tuition fee must be greater than zero.");
+
+            PlanName = planName;
+            TuitionFee = tuitionFee;
+            IsInstallmentAllowed = isInstallmentAllowed;
             UpdatedAt = DateTime.UtcNow;
         }
     }
