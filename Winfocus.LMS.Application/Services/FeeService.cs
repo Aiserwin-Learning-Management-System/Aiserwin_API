@@ -647,8 +647,10 @@
                 request.CourseId,
                 request.PlanName,
                 request.TuitionFee,
-                request.IsInstallmentAllowed);
-            feePlan.CreatedAt = DateTime.UtcNow;
+                request.IsInstallmentAllowed,
+                request.PaymentType,
+                request.DurationinYears,
+                request.SubjectId);
             feePlan.CreatedBy = request.userid;
 
             if (request.Discounts != null && request.Discounts.Any())
@@ -718,7 +720,10 @@
             feePlan.Update(
              request.PlanName,
              request.TuitionFee,
-             request.IsInstallmentAllowed);
+             request.IsInstallmentAllowed,
+             request.PaymentType,
+             request.DurationinYears,
+             request.SubjectId);
 
             feePlan.UpdatedBy = request.userid;
 
@@ -806,8 +811,10 @@
                 PlanName = feePlan.PlanName,
                 TuitionFee = feePlan.TuitionFee,
                 IsInstallmentAllowed = feePlan.IsInstallmentAllowed,
-                CreatedAt = feePlan.CreatedAt,
-                UpdatedAt = feePlan.UpdatedAt,
+                IsActive = feePlan.IsActive,
+                PaymentType = feePlan.PaymentType,
+                DurationinYears = feePlan.DurationinYears,
+                SubjectId = feePlan.SubjectId,
                 Discounts = feePlan.Discounts.Select(d => new FeePlanDiscountDto
                 {
                     Id = d.Id,

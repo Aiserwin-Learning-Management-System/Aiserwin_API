@@ -12,29 +12,47 @@ namespace Winfocus.LMS.Application.DTOs.Fees
     {
 
         /// <summary>
-        /// Gets the related Course identifier.
+        /// Gets or sets the related Course identifier.
         /// </summary>
-        public Guid CourseId { get; init; }
+        public Guid CourseId { get; set; }
 
         /// <summary>
-        /// Gets the name of the fee plan.
+        /// Gets or sets the name of the fee plan.
         /// </summary>
-        public string PlanName { get; init; } = string.Empty;
+        public string PlanName { get; set; } = string.Empty;
 
         /// <summary>
-        /// Gets the tuition fee amount.
+        /// Gets or sets the tuition fee amount.
         /// </summary>
-        public decimal TuitionFee { get; init; }
+        public decimal TuitionFee { get; set; }
 
         /// <summary>
-        /// Gets a value indicating whether installment payment is allowed.
+        /// Gets or sets a value indicating whether installment payment is allowed.
         /// </summary>
-        public bool IsInstallmentAllowed { get; init; }
+        public bool IsInstallmentAllowed { get; set; }
 
         /// <summary>
-        /// Gets the list of discounts associated with this FeePlan.
+        /// Gets or sets the type of the payment.
         /// </summary>
-        public IReadOnlyCollection<FeePlanDiscountDto> Discounts { get; init; }
+        /// <value>The type of the payment.</value>
+        public string PaymentType { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the course duration in years.
+        /// </summary>
+        /// <value>course duration in years.</value>
+        public int DurationinYears { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Subject identifier.
+        /// </summary>
+        /// <value>The Subject identifier.</value>
+        public Guid SubjectId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the list of discounts associated with this FeePlan.
+        /// </summary>
+        public IReadOnlyCollection<FeePlanDiscountDto> Discounts { get; set; }
             = new List<FeePlanDiscountDto>();
     }
 }

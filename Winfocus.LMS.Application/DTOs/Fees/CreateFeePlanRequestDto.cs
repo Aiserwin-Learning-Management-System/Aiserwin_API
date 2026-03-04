@@ -13,6 +13,7 @@ namespace Winfocus.LMS.Application.DTOs.Fees
         string PlanName,
         decimal TuitionFee,
         bool IsInstallmentAllowed,
-        List<CreateFeePlanDiscountRequestDto>? Discounts, Guid userid
+        List<CreateFeePlanDiscountRequestDto>? Discounts, Guid userid,
+        string PaymentType, int DurationinYears, Guid SubjectId
     );
 }
