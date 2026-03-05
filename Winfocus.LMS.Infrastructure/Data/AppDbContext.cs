@@ -346,6 +346,12 @@
                .HasForeignKey(c => c.StateId)
                .IsRequired(false);
 
+            modelBuilder.Entity<State>()
+                .HasOne(s => s.ModeOfStudy)
+                .WithMany()
+                .HasForeignKey(s => s.ModeOfStudyId)
+                .OnDelete(DeleteBehavior.NoAction);
+
             base.OnModelCreating(modelBuilder);
         }
     }

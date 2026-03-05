@@ -2,6 +2,7 @@
 {
     using FluentAssertions;
     using Microsoft.AspNetCore.Identity;
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging.Abstractions;
     using Moq;
     using Winfocus.LMS.Application.Common.Exceptions;
@@ -25,6 +26,7 @@
         private readonly Mock<IUsernameGeneratorService> _usernameGeneratorService;
         private readonly Mock<IUserLoginLogService> _userLoginLogService;
         private readonly Mock<IUserSessionService> _userSessionService;
+        private readonly Mock<IConfiguration> _userConfig;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthServiceTests"/> class.
@@ -40,6 +42,7 @@
             _usernameGeneratorService = new Mock<IUsernameGeneratorService>();
             _userLoginLogService = new Mock<IUserLoginLogService>();
             _userSessionService = new Mock<IUserSessionService>();
+            _userConfig = new Mock<IConfiguration>();
 
             _authService = new AuthService(
                 _userRepositoryMock.Object,
@@ -51,7 +54,8 @@
                 _emailServiceMock.Object,
                 _usernameGeneratorService.Object,
                 _userLoginLogService.Object,
-                _userSessionService.Object);
+                _userSessionService.Object,
+                _userConfig.Object);
         }
 
         /// <summary>

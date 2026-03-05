@@ -12,8 +12,8 @@ using Winfocus.LMS.Infrastructure.Data;
 namespace Winfocus.LMS.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260227095940_UserLogin")]
-    partial class UserLogin
+    [Migration("20260305053359_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -198,7 +198,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.ToTable("BatchTimingSundays");
                 });
 
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.Centre", b =>
+            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.Center", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -227,7 +227,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<Guid>("StateId")
+                    b.Property<Guid?>("StateId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -383,24 +383,25 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int>("DurationinYears")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsInstallmentAllowed")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsSeasonalDiscountActive")
-                        .HasColumnType("bit");
+                    b.Property<string>("PaymentType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PlanName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("ScholarshipPercent")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("SeasonalPercent")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<Guid>("SubjectId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("TuitionFee")
                         .HasColumnType("decimal(18,2)");
@@ -415,7 +416,47 @@ namespace Winfocus.LMS.Infrastructure.Migrations
 
                     b.HasIndex("CourseId");
 
+                    b.HasIndex("SubjectId");
+
                     b.ToTable("FeePlans");
+                });
+
+            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.FeePlanDiscount", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("DiscountName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("DiscountPercent")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("FeePlanId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FeePlanId");
+
+                    b.ToTable("FeePlanDiscount");
                 });
 
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.Grade", b =>
@@ -459,6 +500,9 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("CountryId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -472,9 +516,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("StateId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -483,7 +524,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("StateId");
+                    b.HasIndex("CountryId");
 
                     b.ToTable("ModeOfStudies");
                 });
@@ -572,6 +613,9 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
+                    b.Property<Guid>("ModeOfStudyId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -585,6 +629,8 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CountryId");
+
+                    b.HasIndex("ModeOfStudyId");
 
                     b.ToTable("States");
                 });
@@ -759,8 +805,9 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("PreferredBatchTimeId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("PreferredTime")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("StateId")
                         .HasColumnType("uniqueidentifier");
@@ -1032,6 +1079,9 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("Gender")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
@@ -1178,6 +1228,9 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("CenterId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -1198,6 +1251,8 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CenterId");
 
                     b.ToTable("Syllabuses");
                 });
@@ -1294,6 +1349,73 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("UserActivationTokens");
+                });
+
+            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.UserActiveSession", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("IpAddress")
+                        .IsRequired()
+                        .HasMaxLength(45)
+                        .HasColumnType("nvarchar(45)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsRevoked")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<DateTimeOffset>("LoginAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset?>("LogoutAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("SessionId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("UserAgent")
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SessionId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_UserActiveSessions_SessionId");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("IX_UserActiveSessions_UserId");
+
+                    b.HasIndex("UserId", "IsActive", "IsRevoked", "ExpiresAt")
+                        .HasDatabaseName("IX_UserActiveSessions_UserId_Active_Revoked_Expires");
+
+                    b.ToTable("UserActiveSessions", (string)null);
                 });
 
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.UserLoginLog", b =>
@@ -1408,10 +1530,10 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.Navigation("Subject");
                 });
 
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.Centre", b =>
+            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.Center", b =>
                 {
                     b.HasOne("Winfocus.LMS.Domain.Entities.Country", "Country")
-                        .WithMany("Centres")
+                        .WithMany("Centers")
                         .HasForeignKey("CountryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1423,10 +1545,8 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .IsRequired();
 
                     b.HasOne("Winfocus.LMS.Domain.Entities.State", "State")
-                        .WithMany()
-                        .HasForeignKey("StateId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .WithMany("Centers")
+                        .HasForeignKey("StateId");
 
                     b.Navigation("Country");
 
@@ -1475,7 +1595,26 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Winfocus.LMS.Domain.Entities.Subject", "Subject")
+                        .WithMany()
+                        .HasForeignKey("SubjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Course");
+
+                    b.Navigation("Subject");
+                });
+
+            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.FeePlanDiscount", b =>
+                {
+                    b.HasOne("Winfocus.LMS.Domain.Entities.FeePlan", "FeePlan")
+                        .WithMany("Discounts")
+                        .HasForeignKey("FeePlanId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FeePlan");
                 });
 
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.Grade", b =>
@@ -1491,13 +1630,13 @@ namespace Winfocus.LMS.Infrastructure.Migrations
 
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.ModeOfStudy", b =>
                 {
-                    b.HasOne("Winfocus.LMS.Domain.Entities.State", "State")
+                    b.HasOne("Winfocus.LMS.Domain.Entities.Country", "Country")
                         .WithMany()
-                        .HasForeignKey("StateId")
+                        .HasForeignKey("CountryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("State");
+                    b.Navigation("Country");
                 });
 
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.PreferredBatch", b =>
@@ -1519,7 +1658,15 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Winfocus.LMS.Domain.Entities.ModeOfStudy", "ModeOfStudy")
+                        .WithMany()
+                        .HasForeignKey("ModeOfStudyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Country");
+
+                    b.Navigation("ModeOfStudy");
                 });
 
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.Streams", b =>
@@ -1581,7 +1728,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
 
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.StudentAcademicDetails", b =>
                 {
-                    b.HasOne("Winfocus.LMS.Domain.Entities.Centre", "Center")
+                    b.HasOne("Winfocus.LMS.Domain.Entities.Center", "Center")
                         .WithMany()
                         .HasForeignKey("CenterId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1811,6 +1958,17 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.Navigation("Subject");
                 });
 
+            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.Syllabus", b =>
+                {
+                    b.HasOne("Winfocus.LMS.Domain.Entities.Center", "Center")
+                        .WithMany()
+                        .HasForeignKey("CenterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Center");
+                });
+
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.UserRole", b =>
                 {
                     b.HasOne("Winfocus.LMS.Domain.Entities.Role", "Role")
@@ -1832,7 +1990,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
 
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.Country", b =>
                 {
-                    b.Navigation("Centres");
+                    b.Navigation("Centers");
                 });
 
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.Course", b =>
@@ -1842,6 +2000,8 @@ namespace Winfocus.LMS.Infrastructure.Migrations
 
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.FeePlan", b =>
                 {
+                    b.Navigation("Discounts");
+
                     b.Navigation("Installments");
                 });
 
@@ -1853,6 +2013,11 @@ namespace Winfocus.LMS.Infrastructure.Migrations
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.Role", b =>
                 {
                     b.Navigation("UserRoles");
+                });
+
+            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.State", b =>
+                {
+                    b.Navigation("Centers");
                 });
 
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.Streams", b =>
