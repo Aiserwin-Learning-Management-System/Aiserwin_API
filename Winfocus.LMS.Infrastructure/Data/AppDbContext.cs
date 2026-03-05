@@ -228,6 +228,14 @@
         public DbSet<FeePlanDiscount> FeePlanDiscount { get; set; }
 
         /// <summary>
+        /// Gets or sets the StaffType.
+        /// </summary>
+        /// <value>
+        /// The StaffType.
+        /// </value>
+        public DbSet<StaffType> StaffType { get; set; }
+
+        /// <summary>
         /// Gets the user login logs.
         /// </summary>
         /// <value>

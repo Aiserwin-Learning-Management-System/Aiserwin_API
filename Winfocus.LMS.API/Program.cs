@@ -1,6 +1,7 @@
 using Asp.Versioning;
 using Asp.Versioning.ApiExplorer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using Serilog;
 using System.Text;
+using Winfocus.LMS.API.Authorization;
 using Winfocus.LMS.API.Middleware;
 using Winfocus.LMS.Application.Configuration;
 using Winfocus.LMS.Application.Interfaces;
@@ -118,6 +120,9 @@ builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
 builder.Services.AddScoped<IBatchService, BatchService>();
 builder.Services.AddScoped<IBatchRepository, BatchRepository>();
+builder.Services.AddSingleton<IAuthorizationHandler, ScopeHandler>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IUserScopeService, UserScopeService>();
 
 #endregion
 
@@ -156,7 +161,29 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("SuperAdminOnly",
+        policy => policy.RequireRole("SuperAdmin"));
+
+    options.AddPolicy("CountryAdminOnly", policy =>
+    {
+        policy.RequireRole("CountryAdmin");
+        policy.Requirements.Add(new ScopeRequirement());
+    });
+
+    options.AddPolicy("CenterAdminOnly", policy =>
+    {
+        policy.RequireRole("CenterAdmin");
+        policy.Requirements.Add(new ScopeRequirement());
+    });
+
+    options.AddPolicy("StaffOnly", policy =>
+    {
+        policy.RequireRole("Staff");
+        policy.Requirements.Add(new ScopeRequirement());
+    });
+});
 
 #endregion
 
