@@ -1,21 +1,22 @@
 ﻿namespace Winfocus.LMS.Application.Interfaces
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
     using Winfocus.LMS.Domain.Entities;
 
     /// <summary>
-    /// ITokenService Interface.
+    /// Defines token generation operations.
     /// </summary>
     public interface ITokenService
     {
         /// <summary>
-        /// Generates the token.
+        /// Generates a JWT token for the specified user and roles.
         /// </summary>
         /// <param name="user">The user.</param>
         /// <param name="roles">The roles.</param>
-        /// <returns>string.</returns>
-        string GenerateToken(User user, IReadOnlyList<string> roles);
+        /// <param name="sessionId">
+        /// The unique session identifier to embed as the JWT JTI claim.
+        /// Used for session tracking and IP-based session locking.
+        /// </param>
+        /// <returns>The JWT token string.</returns>
+        string GenerateToken(User user, IReadOnlyList<string> roles, string sessionId);
     }
 }

@@ -244,6 +244,11 @@
         public DbSet<UserLoginLog> UserLoginLogs => Set<UserLoginLog>();
 
         /// <summary>
+        /// Gets or sets the user active sessions.
+        /// </summary>
+        public DbSet<UserActiveSession> UserActiveSessions { get; set; } = null!;
+
+        /// <summary>
         /// Configures the model for the context.
         /// </summary>
         /// <param name="modelBuilder">The builder being used to construct the model for this context.</param>
@@ -254,6 +259,7 @@
             modelBuilder.ApplyConfiguration(new SubjectConfiguration());
             modelBuilder.ApplyConfiguration(new UserActivationTokenConfiguration());
             modelBuilder.ApplyConfiguration(new UserLoginLogConfiguration());
+            modelBuilder.ApplyConfiguration(new UserActiveSessionConfiguration());
 
             // User configuration
             modelBuilder.Entity<User>()
@@ -297,16 +303,6 @@
                     .HasMaxLength(100);
             });
 
-            modelBuilder.Entity<Center>(e =>
-            {
-                e.Property(x => x.Name).IsRequired().HasMaxLength(100);
-                e.Property(x => x.CenterType).HasConversion<int>();
-
-                e.HasOne(x => x.Country)
-                 .WithMany(x => x.Centers)
-                 .HasForeignKey(x => x.CountryId);
-            });
-
             modelBuilder.Entity<SubjectBatchTimingMTF>()
                 .HasKey(x => new { x.SubjectId, x.BatchTimingId });
             modelBuilder.Entity<SubjectBatchTimingSaturday>()
@@ -328,9 +324,17 @@
                .HasKey(x => new { x.StudentId, x.BatchTimingSundayId });
 
             modelBuilder.Entity<FeePlan>()
-            .HasOne(fp => fp.Course)
-            .WithMany(c => c.FeePlans)
-            .HasForeignKey(fp => fp.CourseId);
+                .HasOne(fp => fp.Course)
+                .WithMany(c => c.FeePlans)
+                .HasForeignKey(fp => fp.CourseId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<FeePlan>()
+                .HasOne(fp => fp.Subject)
+                .WithMany()
+                .HasForeignKey(fp => fp.SubjectId)
+                .OnDelete(DeleteBehavior.NoAction);
+
 
             // Ensure email is globally unique
             modelBuilder.Entity<User>()
@@ -342,11 +346,141 @@
                 .HasIndex(u => u.Username)
                 .IsUnique();
 
-            modelBuilder.Entity<Center>()
-               .HasOne(c => c.State)
-               .WithMany(s => s.Centers)
-               .HasForeignKey(c => c.StateId)
-               .IsRequired(false);
+            modelBuilder.Entity<Center>(e =>
+            {
+                e.Property(x => x.Name).IsRequired().HasMaxLength(100);
+                e.Property(x => x.CenterType).HasConversion<int>();
+
+                e.HasOne(x => x.Country)
+                 .WithMany(x => x.Centers)
+                 .HasForeignKey(x => x.CountryId)
+                 .OnDelete(DeleteBehavior.Cascade);
+
+                e.HasOne(x => x.modeOfStudy)
+                 .WithMany()
+                 .HasForeignKey(x => x.ModeOfStudyId)
+                 .OnDelete(DeleteBehavior.NoAction);
+
+                e.HasOne(c => c.State)
+                 .WithMany(s => s.Centers)
+                 .HasForeignKey(c => c.StateId)
+                 .IsRequired(false)
+                 .OnDelete(DeleteBehavior.NoAction);
+            });
+
+            modelBuilder.Entity<State>()
+                .HasOne(s => s.ModeOfStudy)
+                .WithMany()
+                .HasForeignKey(s => s.ModeOfStudyId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<StudentAcademicDetails>(e =>
+            {
+                e.HasOne(s => s.Country)
+                 .WithMany()
+                 .HasForeignKey(s => s.CountryId)
+                 .OnDelete(DeleteBehavior.NoAction);
+
+                e.HasOne(s => s.ModeOfStudy)
+                 .WithMany()
+                 .HasForeignKey(s => s.ModeOfStudyId)
+                 .OnDelete(DeleteBehavior.NoAction);
+
+                e.HasOne(s => s.State)
+                 .WithMany()
+                 .HasForeignKey(s => s.StateId)
+                 .OnDelete(DeleteBehavior.NoAction);
+
+                e.HasOne(s => s.Center)
+                 .WithMany()
+                 .HasForeignKey(s => s.CenterId)
+                 .OnDelete(DeleteBehavior.Cascade);
+
+                e.HasOne(s => s.Syllabus)
+                 .WithMany()
+                 .HasForeignKey(s => s.SyllabusId)
+                 .OnDelete(DeleteBehavior.NoAction);
+
+                e.HasOne(s => s.Grade)
+                 .WithMany()
+                 .HasForeignKey(s => s.GradeId)
+                 .OnDelete(DeleteBehavior.NoAction);
+
+                e.HasOne(s => s.Stream)
+                 .WithMany()
+                 .HasForeignKey(s => s.StreamId)
+                 .OnDelete(DeleteBehavior.NoAction);
+
+                e.HasOne(s => s.Subject)
+                 .WithMany()
+                 .HasForeignKey(s => s.SubjectId)
+                 .OnDelete(DeleteBehavior.NoAction);
+
+                e.HasOne<AcademicYear>()
+                 .WithMany()
+                 .HasForeignKey(s => s.AcademicYearId)
+                 .OnDelete(DeleteBehavior.NoAction);
+            });
+            modelBuilder.Entity<StudentAcademicCouses>(e =>
+            {
+                e.HasKey(x => new { x.StudentId, x.CourseId });
+
+                e.HasOne(x => x.Student)
+                 .WithMany()
+                 .HasForeignKey(x => x.StudentId)
+                 .OnDelete(DeleteBehavior.NoAction);
+
+                e.HasOne(x => x.Course)
+                 .WithMany()
+                 .HasForeignKey(x => x.CourseId)
+                 .OnDelete(DeleteBehavior.Cascade);
+            });
+            modelBuilder.Entity<StudentFeeSelection>(e =>
+            {
+                e.HasIndex(x => new { x.StudentId, x.CourseId }).IsUnique();
+
+                e.HasOne(sfs => sfs.Student)
+                 .WithMany()
+                 .HasForeignKey(sfs => sfs.StudentId)
+                 .OnDelete(DeleteBehavior.NoAction);
+
+                e.HasOne(sfs => sfs.FeePlan)
+                 .WithMany()
+                 .HasForeignKey(sfs => sfs.FeePlanId)
+                 .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<Batch>(e =>
+            {
+                e.HasOne(b => b.Subject)
+                 .WithMany()
+                 .HasForeignKey(b => b.SubjectId)
+                 .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<BatchTimingMTF>(e =>
+            {
+                e.HasOne(btmf => btmf.Subject)
+                 .WithMany()
+                 .HasForeignKey(btmf => btmf.SubjectId)
+                 .OnDelete(DeleteBehavior.NoAction);
+            });
+
+            modelBuilder.Entity<BatchTimingSaturday>(e =>
+            {
+                e.HasOne(bts => bts.Subject)
+                 .WithMany()
+                 .HasForeignKey(bts => bts.SubjectId)
+                 .OnDelete(DeleteBehavior.NoAction);
+            });
+
+            modelBuilder.Entity<BatchTimingSunday>(e =>
+            {
+                e.HasOne(bts => bts.Subject)
+                 .WithMany()
+                 .HasForeignKey(bts => bts.SubjectId)
+                 .OnDelete(DeleteBehavior.NoAction);
+            });
 
             base.OnModelCreating(modelBuilder);
         }

@@ -3,6 +3,7 @@
     using System.Data;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Identity;
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
     using Winfocus.LMS.Application.Common.Exceptions;
     using Winfocus.LMS.Application.DTOs;
@@ -27,6 +28,8 @@
         private readonly IPasswordHasher<User> _passwordHasher;
         private readonly ILogger<AuthService> _logger;
         private readonly IUserLoginLogService _loginLogService;
+        private readonly IUserSessionService _userSessionService;
+        private readonly IConfiguration _configuration;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthService"/> class.
@@ -40,6 +43,8 @@
         /// <param name="emailService">The email service.</param>
         /// <param name="usernameGeneratorService">The username generator service.</param>
         /// <param name="loginLogService">The user login log service.</param>
+        /// <param name="userSessionService">The user session service.</param>
+        /// <param name="configuration">The configuration.</param>
         public AuthService(
             IUserRepository userRepository,
             IRoleRepository roleRepository,
@@ -49,7 +54,9 @@
             IUserActivationTokenRepository activationRepository,
             IEmailService emailService,
             IUsernameGeneratorService usernameGeneratorService,
-            IUserLoginLogService loginLogService)
+            IUserLoginLogService loginLogService,
+            IUserSessionService userSessionService,
+            IConfiguration configuration)
         {
             _userRepository = userRepository;
             _roleRepository = roleRepository;
@@ -60,6 +67,8 @@
             _emailService = emailService;
             _usernameGeneratorService = usernameGeneratorService;
             _loginLogService = loginLogService;
+            _userSessionService = userSessionService;
+            _configuration = configuration;
         }
 
         /// <summary>
@@ -67,19 +76,14 @@
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>AuthResponseDto.</returns>
-        /// <exception cref="InvalidOperationException">
-        /// Username already exists.
-        /// or
-        /// Invalid role.
-        /// </exception>
         public async Task<AuthResponseDto> RegisterAsync(RegisterRequestDto request)
         {
             try
             {
                 _logger.LogInformation(
-                           "Registration attempt — FullName: '{FullName}', Email: '{Email}'",
-                           request.username,
-                           request.email);
+                    "Registration attempt — FullName: '{FullName}', Email: '{Email}'",
+                    request.username,
+                    request.email);
 
                 var validationErrors = new Dictionary<string, string[]>();
 
@@ -101,14 +105,14 @@
                 if (await _userRepository.EmailExistsAsync(request.email))
                 {
                     _logger.LogWarning(
-                        "Registration rejected: email '{Email}' already exists.", request.email);
+                        "Registration rejected: email '{Email}' already exists.",
+                        request.email);
                     throw new CustomException(
                         "Email address is already registered.",
                         StatusCodes.Status409Conflict,
                         "EMAIL_ALREADY_EXISTS");
                 }
 
-                // We generate the canonical username from the first name + year + sequence.
                 var generatedUsername = await _usernameGeneratorService
                     .GenerateAsync(request.username, DateTime.UtcNow.Year);
 
@@ -119,7 +123,8 @@
 
                 List<Role> roles;
 
-                if (request.roleNames != null && request.roleNames.Any(r => !string.IsNullOrWhiteSpace(r)))
+                if (request.roleNames != null &&
+                    request.roleNames.Any(r => !string.IsNullOrWhiteSpace(r)))
                 {
                     var distinctRoleNames = request.roleNames
                         .Where(r => !string.IsNullOrWhiteSpace(r))
@@ -127,10 +132,12 @@
                         .Distinct(StringComparer.OrdinalIgnoreCase)
                         .ToList();
 
-                    roles = (await _userRepository.GetByNamesAsync(distinctRoleNames)).ToList();
+                    roles = (await _userRepository
+                        .GetByNamesAsync(distinctRoleNames)).ToList();
 
                     var invalidRoles = distinctRoleNames
-                        .Except(roles.Select(r => r.Name), StringComparer.OrdinalIgnoreCase)
+                        .Except(roles.Select(r => r.Name),
+                            StringComparer.OrdinalIgnoreCase)
                         .ToList();
 
                     if (invalidRoles.Any())
@@ -143,7 +150,8 @@
                 }
                 else
                 {
-                    roles = (await _userRepository.GetByNamesAsync(new[] { "Student" })).ToList();
+                    roles = (await _userRepository
+                        .GetByNamesAsync(new[] { "Student" })).ToList();
 
                     if (!roles.Any())
                     {
@@ -186,9 +194,11 @@
 
                 await _activationRepository.AddAsync(activationToken);
 
-                await _emailService.SendActivationEmailAsync(user.Email, generatedUsername, token);
+                await _emailService.SendActivationEmailAsync(
+                    user.Email, generatedUsername, token);
 
-                _logger.LogInformation("Activation token generated for {UserId}", user.Id);
+                _logger.LogInformation(
+                    "Activation token generated for {UserId}", user.Id);
 
                 return new AuthResponseDto(
                     string.Empty,
@@ -200,34 +210,40 @@
             catch (Exception ex)
             {
                 _logger.LogError(
-                            ex,
-                            "Registration failed for FullName='{FullName}', Email='{Email}'",
-                            request.username,
-                            request.email);
+                    ex,
+                    "Registration failed for FullName='{FullName}', Email='{Email}'",
+                    request.username,
+                    request.email);
                 throw;
             }
         }
 
         /// <summary>
         /// Logins the asynchronous.
+        /// Validates credentials, enforces IP-based session locking,
+        /// generates a JWT with embedded session ID, and creates an active session.
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>AuthResponseDto.</returns>
-        /// <exception cref="UnauthorizedAccessException">Invalid credentials.</exception>
         public async Task<AuthResponseDto> LoginAsync(LoginRequestDto request)
         {
             _logger.LogInformation(
                 "Login attempt for username: {Username}",
                 request.username);
 
-            var user = await _userRepository.GetByUsernameAsync(request.username);
+            var ipAddress = request.ipAddress ?? "unknown";
+            var userAgent = request.userAgent;
+
+            // ── 1. Validate user exists ──
+            var user = await _userRepository
+                .GetByUsernameAsync(request.username);
 
             if (user == null)
             {
                 await SafeLogLoginAsync(
                     userId: Guid.Empty,
-                    ipAddress: request.ipAddress,
-                    userAgent: request.userAgent,
+                    ipAddress: ipAddress,
+                    userAgent: userAgent,
                     isSuccessful: false,
                     failureReason: "INVALID_CREDENTIALS");
 
@@ -237,12 +253,13 @@
                     "INVALID_CREDENTIALS");
             }
 
+            // ── 2. Check account is active ──
             if (!user.IsActive)
             {
                 await SafeLogLoginAsync(
                     userId: user.Id,
-                    ipAddress: request.ipAddress,
-                    userAgent: request.userAgent,
+                    ipAddress: ipAddress,
+                    userAgent: userAgent,
                     isSuccessful: false,
                     failureReason: "ACCOUNT_NOT_ACTIVE");
 
@@ -252,12 +269,13 @@
                     "ACCOUNT_NOT_ACTIVE");
             }
 
+            // ── 3. Check password is set ──
             if (user.PasswordHash == null)
             {
                 await SafeLogLoginAsync(
                     userId: user.Id,
-                    ipAddress: request.ipAddress,
-                    userAgent: request.userAgent,
+                    ipAddress: ipAddress,
+                    userAgent: userAgent,
                     isSuccessful: false,
                     failureReason: "ACCOUNT_NOT_ACTIVE");
 
@@ -267,6 +285,7 @@
                     "ACCOUNT_NOT_ACTIVE");
             }
 
+            // ── 4. Verify password ──
             var result = _passwordHasher.VerifyHashedPassword(
                 user,
                 user.PasswordHash,
@@ -276,8 +295,8 @@
             {
                 await SafeLogLoginAsync(
                     userId: user.Id,
-                    ipAddress: request.ipAddress,
-                    userAgent: request.userAgent,
+                    ipAddress: ipAddress,
+                    userAgent: userAgent,
                     isSuccessful: false,
                     failureReason: "INVALID_CREDENTIALS");
 
@@ -287,27 +306,59 @@
                     "INVALID_CREDENTIALS");
             }
 
+            // ── 5. Enforce IP-based session locking ──
+
+            var expiryDays = int.Parse(
+                _configuration["Jwt:SessionExpiryDays"] ?? "1");
+            var sessionId = Guid.NewGuid().ToString();
+            var expiresAt = DateTimeOffset.UtcNow.AddDays(expiryDays);
+
+            try
+            {
+                await _userSessionService.CreateSessionAsync(
+                    user.Id,
+                    sessionId,
+                    ipAddress,
+                    userAgent,
+                    expiresAt);
+            }
+            catch (CustomException ex) when (ex.ErrorCode == "SESSION_IP_CONFLICT")
+            {
+                await SafeLogLoginAsync(
+                    userId: user.Id,
+                    ipAddress: ipAddress,
+                    userAgent: userAgent,
+                    isSuccessful: false,
+                    failureReason: "SESSION_IP_CONFLICT");
+                throw;
+            }
+
+            // ── 6. Generate JWT with session ID as JTI ──
             var roles = user.UserRoles
-                            .Where(ur => ur.Role != null)
-                            .Select(ur => ur.Role!.Name)
-                            .ToList();
+                .Where(ur => ur.Role != null)
+                .Select(ur => ur.Role!.Name)
+                .ToList();
 
-            var token = _tokenService.GenerateToken(user, roles);
+            var jwt = _tokenService.GenerateToken(user, roles, sessionId);
 
+            // ── 7. Log successful login ──
             await SafeLogLoginAsync(
-              userId: user.Id,
-              ipAddress: request.ipAddress,
-              userAgent: request.userAgent,
-              isSuccessful: true,
-              failureReason: null);
+                userId: user.Id,
+                ipAddress: ipAddress,
+                userAgent: userAgent,
+                isSuccessful: true,
+                failureReason: null);
 
             _logger.LogInformation(
-                "Login successful for username {Username} (UserId: {UserId})",
+                "Login successful for username {Username} " +
+                "(UserId: {UserId}, SessionId: {SessionId}, IP: {IpAddress})",
                 user.Username,
-                user.Id);
+                user.Id,
+                sessionId,
+                ipAddress);
 
             return new AuthResponseDto(
-                token,
+                jwt,
                 user.Id,
                 user.Username,
                 user.Email,
@@ -318,26 +369,20 @@
         /// Sets the password asynchronous.
         /// </summary>
         /// <param name="request">The request.</param>
-        /// <exception cref="InvalidOperationException">
-        /// Invalid token.
-        /// or
-        /// Token already used.
-        /// or
-        /// Token expired.
-        /// </exception>
-        /// <exception cref="KeyNotFoundException">User not found.</exception>
         /// <returns>Task.</returns>
         public async Task SetPasswordAsync(SetPasswordDto request)
         {
             try
             {
-                _logger.LogInformation("Password setup attempt for token {Token}", request.token);
+                _logger.LogInformation(
+                    "Password setup attempt for token {Token}", request.token);
 
-                var tokenEntity = await _activationRepository.GetByTokenAsync(request.token)
-                                    ?? throw new CustomException(
-                                        "Invalid token.",
-                                        StatusCodes.Status400BadRequest,
-                                        "INVALID_TOKEN");
+                var tokenEntity = await _activationRepository
+                    .GetByTokenAsync(request.token)
+                    ?? throw new CustomException(
+                        "Invalid token.",
+                        StatusCodes.Status400BadRequest,
+                        "INVALID_TOKEN");
 
                 if (tokenEntity.IsUsed)
                 {
@@ -355,24 +400,30 @@
                         "TOKEN_EXPIRED");
                 }
 
-                var user = await _userRepository.GetByIdAsync(tokenEntity.UserId)
+                var user = await _userRepository
+                    .GetByIdAsync(tokenEntity.UserId)
                     ?? throw new CustomException(
                         "User not found.",
                         StatusCodes.Status404NotFound,
                         "USER_NOT_FOUND");
 
-                user.PasswordHash = _passwordHasher.HashPassword(user, request.password);
+                user.PasswordHash = _passwordHasher
+                    .HashPassword(user, request.password);
                 user.IsActive = true;
 
                 tokenEntity.IsUsed = true;
 
                 await _userRepository.UpdateAsync(user);
 
-                _logger.LogInformation("Password set successfully for user {UserId}", user.Id);
+                _logger.LogInformation(
+                    "Password set successfully for user {UserId}", user.Id);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Password setup failed for token {Token}", request.token);
+                _logger.LogError(
+                    ex,
+                    "Password setup failed for token {Token}",
+                    request.token);
                 throw;
             }
         }
@@ -381,7 +432,6 @@
         /// Forgots the password asynchronous.
         /// </summary>
         /// <param name="request">The request.</param>
-        /// <exception cref="CustomException">Invalid email.</exception>
         /// <returns>Task.</returns>
         public async Task ForgotPasswordAsync(ForgotPasswordDto request)
         {
@@ -389,11 +439,12 @@
 
             if (user == null)
             {
-                _logger.LogInformation("ForgotPassword for non-existing email {Email}", request.email);
+                _logger.LogInformation(
+                    "ForgotPassword for non-existing email {Email}",
+                    request.email);
                 return;
             }
 
-            // Decide purpose based on activation state
             var purpose = user.IsActive
                 ? TokenPurpose.ResetPassword
                 : TokenPurpose.SetPassword;
@@ -419,16 +470,12 @@
             if (purpose == TokenPurpose.SetPassword)
             {
                 await _emailService.SendActivationEmailAsync(
-                    user.Email,
-                    user.Username,
-                    token);
+                    user.Email, user.Username, token);
             }
             else
             {
                 await _emailService.SendResetPasswordEmailAsync(
-                    user.Email,
-                    user.Username,
-                    token);
+                    user.Email, user.Username, token);
             }
         }
 
@@ -436,17 +483,6 @@
         /// Resets the password asynchronous.
         /// </summary>
         /// <param name="request">The request.</param>
-        /// <exception cref="CustomException">
-        /// Invalid token. - INVALID_TOKEN
-        /// or
-        /// Invalid token purpose. - INVALID_TOKEN
-        /// or
-        /// Token already used. - TOKEN_ALREADY_USED
-        /// or
-        /// Token expired. - TOKEN_EXPIRED
-        /// or
-        /// User not found. - USER_NOT_FOUND.
-        /// </exception>
         /// <returns>Task.</returns>
         public async Task ResetPasswordAsync(ResetPasswordDto request)
         {
@@ -492,10 +528,69 @@
 
             await _userRepository.UpdateAsync(user);
             await _activationRepository.UpdateAsync(tokenEntity);
+
+            // Revoke all existing sessions on password reset
+            await _userSessionService.RevokeAllUserSessionsAsync(user.Id);
+
+            _logger.LogInformation(
+                "Password reset and all sessions revoked for UserId={UserId}",
+                user.Id);
         }
 
         /// <summary>
-        /// Safely logs a login attempt. Never throws — logging failure must not break authentication.
+        /// Revokes all active sessions for a user using their credentials.
+        /// This is the escape hatch for users locked out due to IP change.
+        /// </summary>
+        /// <param name="request">The username and password.</param>
+        /// <returns>Task.</returns>
+        public async Task RevokeAllSessionsAsync(RevokeAllSessionsDto request)
+        {
+            _logger.LogInformation(
+                "Revoke all sessions attempt for username: {Username}",
+                request.username);
+
+            var user = await _userRepository
+                .GetByUsernameAsync(request.username);
+
+            if (user == null)
+            {
+                throw new CustomException(
+                    "Invalid credentials.",
+                    StatusCodes.Status401Unauthorized,
+                    "INVALID_CREDENTIALS");
+            }
+
+            if (user.PasswordHash == null)
+            {
+                throw new CustomException(
+                    "Account not activated.",
+                    StatusCodes.Status403Forbidden,
+                    "ACCOUNT_NOT_ACTIVE");
+            }
+
+            var result = _passwordHasher.VerifyHashedPassword(
+                user,
+                user.PasswordHash,
+                request.password);
+
+            if (result == PasswordVerificationResult.Failed)
+            {
+                throw new CustomException(
+                    "Invalid credentials.",
+                    StatusCodes.Status401Unauthorized,
+                    "INVALID_CREDENTIALS");
+            }
+
+            await _userSessionService.RevokeAllUserSessionsAsync(user.Id);
+
+            _logger.LogInformation(
+                "All sessions revoked for UserId={UserId} via credential-based request",
+                user.Id);
+        }
+
+        /// <summary>
+        /// Safely logs a login attempt. Never throws —
+        /// logging failure must not break authentication.
         /// </summary>
         private async Task SafeLogLoginAsync(
             Guid userId,
@@ -519,7 +614,7 @@
             {
                 _logger.LogError(
                     ex,
-                    "Failed to log login attempt for UserId: {UserId}, Successful: {IsSuccessful}",
+                    "Failed to log login attempt for UserId: {UserId}, " + "Successful: {IsSuccessful}",
                     userId,
                     isSuccessful);
             }

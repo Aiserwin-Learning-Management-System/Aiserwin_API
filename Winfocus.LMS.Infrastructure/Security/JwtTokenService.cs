@@ -26,21 +26,34 @@
         }
 
         /// <summary>
-        /// Generates the token.
+        /// Generates the JWT token with the given session identifier as the JTI claim.
+        /// Also adds a custom "session_id" claim for reliable retrieval
+        /// regardless of inbound claim type mapping.
         /// </summary>
         /// <param name="user">The user.</param>
         /// <param name="roles">The roles.</param>
-        /// <returns>
-        /// string.
-        /// </returns>
-        public string GenerateToken(User user, IReadOnlyList<string> roles)
+        /// <param name="sessionId">The session identifier to use as JTI.</param>
+        /// <returns>The JWT token string.</returns>
+        public string GenerateToken(
+            User user,
+            IReadOnlyList<string> roles,
+            string sessionId)
         {
-            var issuer = _configuration["Jwt:Issuer"] !;
-            var audience = _configuration["Jwt:Audience"] !;
+            var issuer = _configuration["Jwt:Issuer"]!;
+            var audience = _configuration["Jwt:Audience"]!;
             var key = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] !));
+            var expiryDays = int.Parse(
+                _configuration["Jwt:SessionExpiryDays"] ?? "1");
 
             var claims = new List<Claim>
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim(JwtRegisteredClaimNames.Jti, sessionId),
+                new Claim("session_id", sessionId),
+            };
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new Claim(ClaimTypes.Name, user.Username),
@@ -60,7 +73,7 @@
                 issuer: issuer,
                 audience: audience,
                 claims: claims,
-                expires: DateTime.UtcNow.AddDays(7),
+                expires: DateTime.UtcNow.AddDays(expiryDays),
                 signingCredentials: new SigningCredentials(
                     key,
                     SecurityAlgorithms.HmacSha256));

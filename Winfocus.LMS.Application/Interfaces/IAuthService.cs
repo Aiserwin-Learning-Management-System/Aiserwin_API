@@ -54,5 +54,13 @@
         /// </exception>
         /// <returns>Task.</returns>
         Task ResetPasswordAsync(ResetPasswordDto request);
+
+        /// <summary>
+        /// Revokes all active sessions for a user using their credentials.
+        /// Allows locked-out users to clear their sessions without a valid JWT.
+        /// </summary>
+        /// <param name="request">The username and password.</param>
+        /// <returns>Task.</returns>
+        Task RevokeAllSessionsAsync(RevokeAllSessionsDto request);
     }
 }
