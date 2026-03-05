@@ -220,6 +220,14 @@
         public DbSet<UserActivationToken> UserActivationTokens { get; set; }
 
         /// <summary>
+        /// Gets or sets the FeePlanDiscount.
+        /// </summary>
+        /// <value>
+        /// The FeePlanDiscount.
+        /// </value>
+        public DbSet<FeePlanDiscount> FeePlanDiscount { get; set; }
+
+        /// <summary>
         /// Gets the user login logs.
         /// </summary>
         /// <value>

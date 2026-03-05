@@ -54,5 +54,46 @@
         /// </summary>
         /// <returns>Task.</returns>
         Task SaveChangesAsync();
+
+        /// <summary>
+        /// Adds the asynchronous.
+        /// </summary>
+        /// <param name="feePlan">The feePlan.</param>
+        /// <returns>FeePlan.</returns>
+        Task AddAsync(FeePlan feePlan);
+
+        /// <summary>
+        /// Retrieves a <see cref="FeePlan"/> by its unique identifier.
+        /// </summary>
+        /// <param name="id">The unique identifier of the fee plan.</param>
+        /// <returns>
+        /// The matching <see cref="FeePlan"/> if found; otherwise, <c>null</c>.
+        /// </returns>
+        Task<FeePlan?> GetByIdAsync(Guid id);
+
+        /// <summary>
+        /// Retrieves all <see cref="FeePlan"/> entities.
+        /// </summary>
+        /// <returns>A collection of fee plans.</returns>
+        Task<List<FeePlan>> GetAllAsync();
+
+        /// <summary>
+        /// add discounts.
+        /// </summary>
+        /// <param name="discount">.</param>
+        void AddDiscount(FeePlanDiscount discount);
+
+        /// <summary>
+        /// remove discounts.
+        /// </summary>
+        /// <param name="discount"> fee plan.</param>
+        void RemoveDiscount(FeePlanDiscount discount);
+
+        /// <summary>
+        /// Deletes the asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>task.</returns>
+        Task<bool> DeleteAsync(Guid id);
     }
 }

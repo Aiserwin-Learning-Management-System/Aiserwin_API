@@ -2,6 +2,7 @@
 {
     using Microsoft.Extensions.Logging;
     using Winfocus.LMS.Application.Common.Exceptions;
+    using Winfocus.LMS.Application.DTOs;
     using Winfocus.LMS.Application.DTOs.Fees;
     using Winfocus.LMS.Application.Interfaces;
     using Winfocus.LMS.Domain.Entities;
@@ -72,24 +73,24 @@
                     selectionLookup.TryGetValue(
                         (course.Id, feePlan.Id), out var existingSelection);
 
-                    var scholarshipPercent = existingSelection?.ScholarshipPercent
-                        ?? feePlan.ScholarshipPercent;
+                    //var scholarshipPercent = existingSelection?.ScholarshipPercent
+                    //    ?? feePlan.ScholarshipPercent;
                     var isScholarshipActive = existingSelection?.IsScholarshipActive ?? true;
 
-                    var seasonalPercent = existingSelection?.SeasonalPercent
-                        ?? feePlan.SeasonalPercent;
-                    var isSeasonalActive = existingSelection?.IsSeasonalActive
-                        ?? feePlan.IsSeasonalDiscountActive;
+                    //var seasonalPercent = existingSelection?.SeasonalPercent
+                    //    ?? feePlan.SeasonalPercent;
+                    //var isSeasonalActive = existingSelection?.IsSeasonalActive
+                    //    ?? feePlan.IsSeasonalDiscountActive;
 
                     var manualPercent = existingSelection?.ManualDiscountPercent ?? 0m;
                     var isManualActive = existingSelection?.IsManualDiscountActive ?? false;
 
                     var feeAfterDiscount = CalculateFinalAmount(
                         baseFee,
-                        scholarshipPercent,
+                        0,
                         isScholarshipActive,
-                        seasonalPercent,
-                        isSeasonalActive,
+                        0,
+                        false,
                         manualPercent,
                         isManualActive);
 
@@ -100,10 +101,10 @@
                         CourseName = course.Name,
                         BaseFee = baseFee,
                         PaymentType = feePlan.PlanName,
-                        ScholarshipPercent = scholarshipPercent,
+                       // ScholarshipPercent = scholarshipPercent,
                         IsScholarshipActive = isScholarshipActive,
-                        SeasonalPercent = seasonalPercent,
-                        IsSeasonalActive = isSeasonalActive,
+                        //SeasonalPercent = seasonalPercent,
+                        //IsSeasonalActive = isSeasonalActive,
                         ManualDiscountPercent = manualPercent,
                         IsManualDiscountActive = isManualActive,
                         FeeAfterDiscount = feeAfterDiscount,
@@ -162,12 +163,12 @@
             var baseFee = feePlan.TuitionFee;
 
             // Use request override or plan default for scholarship
-            var scholarshipPercent = request.ScholarshipPercent ?? feePlan.ScholarshipPercent;
+           // var scholarshipPercent = request.ScholarshipPercent ?? feePlan.ScholarshipPercent;
             var isScholarshipActive = request.IsScholarshipActive;
 
             // Seasonal comes from the plan
-            var seasonalPercent = feePlan.SeasonalPercent;
-            var isSeasonalActive = request.IsSeasonalActive && feePlan.IsSeasonalDiscountActive;
+            //var seasonalPercent = feePlan.SeasonalPercent;
+            //var isSeasonalActive = request.IsSeasonalActive && feePlan.IsSeasonalDiscountActive;
 
             // Manual from admin
             var manualPercent = request.ManualDiscountPercent;
@@ -175,19 +176,19 @@
 
             var finalAmount = CalculateFinalAmount(
                 baseFee,
-                scholarshipPercent,
+                0,
                 isScholarshipActive,
-                seasonalPercent,
-                isSeasonalActive,
+                0,
+                false,
                 manualPercent,
                 isManualActive);
 
             var summary = BuildSummary(
                 baseFee,
-                scholarshipPercent,
+                0,
                 isScholarshipActive,
-                seasonalPercent,
-                isSeasonalActive,
+                0,
+                false,
                 manualPercent,
                 isManualActive);
 
@@ -195,10 +196,10 @@
                 request.StudentId,
                 feePlan.CourseId,
                 feePlan.Id,
-                scholarshipPercent,
+                0,
                 isScholarshipActive,
-                seasonalPercent,
-                isSeasonalActive,
+                0,
+                false,
                 manualPercent,
                 isManualActive,
                 baseFee,
@@ -407,7 +408,7 @@
                     "Fee plan not found.", 404, "FEE_PLAN_NOT_FOUND");
             }
 
-            feePlan.UpdateSeasonalDiscount(request.Percent, request.IsActive);
+           // feePlan.UpdateSeasonalDiscount(request.Percent, request.IsActive);
             await _repo.SaveChangesAsync();
 
             _logger.LogInformation(
@@ -442,8 +443,8 @@
                 CourseId = feePlan.CourseId,
                 FeePlanId = feePlan.Id,
                 DiscountType = DiscountType.Seasonal,
-                Percent = feePlan.SeasonalPercent,
-                IsActive = feePlan.IsSeasonalDiscountActive,
+               // Percent = feePlan.SeasonalPercent,
+                //IsActive = feePlan.IsSeasonalDiscountActive,
                 BaseFee = feePlan.TuitionFee,
                 FinalAmount = 0,
             };
@@ -468,7 +469,7 @@
                     "Fee plan not found.", 404, "FEE_PLAN_NOT_FOUND");
             }
 
-            feePlan.UpdateSeasonalDiscount(0m, false);
+           // feePlan.UpdateSeasonalDiscount(0m, false);
             await _repo.SaveChangesAsync();
 
             _logger.LogInformation(
@@ -633,6 +634,197 @@
                     400,
                     "INVALID_DISCOUNT_TYPE");
             }
+        }
+
+        /// <summary>
+        /// Creates the asynchronous.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <returns>FeePlanDto.</returns>
+        public async Task<FeePlanDto> CreateAsync(CreateFeePlanRequestDto request)
+        {
+            var feePlan = new FeePlan(
+                request.CourseId,
+                request.PlanName,
+                request.TuitionFee,
+                request.IsInstallmentAllowed,
+                request.PaymentType,
+                request.DurationinYears,
+                request.SubjectId);
+            feePlan.CreatedBy = request.userid;
+
+            if (request.Discounts != null && request.Discounts.Any())
+            {
+                foreach (var discount in request.Discounts)
+                {
+                    var feePlanDiscount = new FeePlanDiscount(
+                        feePlan.Id,
+                        discount.discountName,
+                        discount.discountPercent);
+                    feePlanDiscount.CreatedAt = DateTime.UtcNow;
+                    feePlanDiscount.CreatedBy = request.userid;
+
+                    feePlan.Discounts.Add(feePlanDiscount);
+                }
+            }
+
+            await _repo.AddAsync(feePlan);
+            await _repo.SaveChangesAsync();
+            return MapToDto(feePlan);
+        }
+
+        /// <summary>
+        /// Retrieves all fee plans from the system.
+        /// </summary>
+        /// <returns>A list of <see cref="FeePlanDto"/>.</returns>
+        public async Task<List<FeePlanDto>> GetAllAsync()
+        {
+            var feePlans = await _repo.GetAllAsync();
+            return feePlans.Select(MapToDto).ToList();
+        }
+
+        /// <summary>
+        /// Retrieves a fee plan by its unique identifier.
+        /// </summary>
+        /// <param name="id">The unique identifier of the fee plan.</param>
+        /// <returns>
+        /// The matching <see cref="FeePlanDto"/> if found; otherwise, <c>null</c>.
+        /// </returns>
+        public async Task<FeePlanDto?> GetByIdAsync(Guid id)
+        {
+            var feePlan = await _repo.GetByIdAsync(id);
+
+            if (feePlan == null)
+                return null;
+
+            return MapToDto(feePlan);
+        }
+
+        /// <summary>
+        /// Updates an existing fee plan using create DTO.
+        /// </summary>
+        /// <param name="id">id.</param>
+        /// <param name="request">request.</param>
+        /// <returns>
+        /// The matching <see cref="FeePlanDto"/> if found; otherwise, <c>null</c>.
+        /// </returns>
+        public async Task<FeePlanDto?> UpdateAsync(
+          Guid id,
+          CreateFeePlanRequestDto request)
+        {
+            var feePlan = await _repo.GetByIdAsync(id);
+
+            if (feePlan == null)
+                return null;
+
+            feePlan.Update(
+             request.PlanName,
+             request.TuitionFee,
+             request.IsInstallmentAllowed,
+             request.PaymentType,
+             request.DurationinYears,
+             request.SubjectId);
+
+            feePlan.UpdatedBy = request.userid;
+
+            var existingDiscounts = feePlan.Discounts.ToList();
+            var requestDiscounts = request.Discounts ?? new List<CreateFeePlanDiscountRequestDto>();
+
+            foreach (var existing in existingDiscounts)
+            {
+                var stillExists = requestDiscounts
+                    .Any(d => d.id != Guid.Empty && d.id == existing.Id);
+
+                if (!stillExists)
+                {
+                    _repo.RemoveDiscount(existing);
+                }
+            }
+
+            foreach (var discountDto in requestDiscounts)
+            {
+                if (discountDto.id == Guid.Empty)
+                {
+                    var newDiscount = new FeePlanDiscount(
+                        feePlan.Id,
+                        discountDto.discountName,
+                        discountDto.discountPercent);
+                    newDiscount.CreatedBy = request.userid;
+
+                    _repo.AddDiscount(newDiscount);
+                }
+                else
+                {
+                    var existing = existingDiscounts
+                        .FirstOrDefault(d => d.Id == discountDto.id);
+
+                    if (existing != null)
+                    {
+                        existing.Update(
+                            discountDto.discountName,
+                            discountDto.discountPercent);
+                        existing.UpdatedBy = request.userid;
+                    }
+                }
+            }
+
+            await _repo.SaveChangesAsync();
+
+            return MapToDto(feePlan);
+        }
+
+        /// <summary>
+        /// Deletes the asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>task.</returns>
+        public async Task<CommonResponse<bool>> DeleteAsync(Guid id)
+        {
+            try
+            {
+                _logger.LogInformation("Deleting Fee Id: {Id}", id);
+                var result = await _repo.DeleteAsync(id);
+
+                if (result)
+                {
+                    return CommonResponse<bool>.SuccessResponse(
+                        "Fee deleted successfully", true);
+                }
+
+                return CommonResponse<bool>.FailureResponse(
+                    "Fee not found or already deleted");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting Fee Id: {Id}", id);
+                return CommonResponse<bool>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
+            }
+        }
+
+        private static FeePlanDto MapToDto(FeePlan feePlan)
+        {
+            return new FeePlanDto
+            {
+                Id = feePlan.Id,
+                CourseId = feePlan.CourseId,
+                PlanName = feePlan.PlanName,
+                TuitionFee = feePlan.TuitionFee,
+                IsInstallmentAllowed = feePlan.IsInstallmentAllowed,
+                IsActive = feePlan.IsActive,
+                PaymentType = feePlan.PaymentType,
+                DurationinYears = feePlan.DurationinYears,
+                SubjectId = feePlan.SubjectId,
+                Discounts = feePlan.Discounts.Select(d => new FeePlanDiscountDto
+                {
+                    Id = d.Id,
+                    FeePlanId = d.FeePlanId,
+                    DiscountName = d.DiscountName,
+                    DiscountPercent = d.DiscountPercent,
+                    CreatedAt = d.CreatedAt,
+                    UpdatedAt = d.UpdatedAt
+                }).ToList()
+            };
         }
     }
 }
