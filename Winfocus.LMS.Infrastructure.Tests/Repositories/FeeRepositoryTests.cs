@@ -158,8 +158,17 @@
         }
 
         /// <summary>
-        /// Verifies only active selections for the student are returned.
+        /// Verifies that <see cref="FeeRepository.GetStudentFeeSelectionsByStudentAsync(Guid)"/>
+        /// returns only selections marked as active for a given student.
         /// </summary>
+        /// <remarks>
+        /// This test ensures:
+        /// <list type="bullet">
+        /// <item>Inactive selections are excluded from the result.</item>
+        /// <item>Only records where <c>IsActive</c> is <c>true</c> are returned.</item>
+        /// <item>The returned selection belongs to the requested student.</item>
+        /// </list>
+        /// </remarks>
         [Fact]
         public async Task GetSelectionsByStudent_ReturnsOnlyActiveSelections()
         {

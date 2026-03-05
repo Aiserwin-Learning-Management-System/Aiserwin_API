@@ -3,8 +3,10 @@
     using Asp.Versioning;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
+    using Winfocus.LMS.Application.DTOs;
     using Winfocus.LMS.Application.DTOs.Fees;
     using Winfocus.LMS.Application.Interfaces;
+    using Winfocus.LMS.Application.Services;
     using Winfocus.LMS.Domain.Enums;
 
     /// <summary>
@@ -15,7 +17,7 @@
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
-    public sealed class FeeController : ControllerBase
+    public sealed class FeeController : BaseController
     {
         private readonly IFeeService _service;
 
@@ -155,6 +157,96 @@
         {
             await _service.RemoveSeasonalDiscountOnPlanAsync(feePlanId);
             return NoContent();
+        }
+
+        /// <summary>
+        /// Creates a new FeePlan with optional discounts.
+        /// </summary>
+        /// <param name="request">The fee plan identifier.</param>
+        /// <returns>FeePlanDto;.</returns>
+        [HttpPost]
+        public async Task<ActionResult<FeePlanDto>> Create(
+            [FromBody] CreateFeePlanRequestDto request)
+        {
+            var updatedRequest = request with
+            {
+                userid = UserId
+            };
+            var result = await _service.CreateAsync(updatedRequest);
+
+            return CreatedAtAction(
+                nameof(GetById),
+                new { id = result.Id },
+                result);
+        }
+
+        /// <summary>
+        /// Retrieves all fee plans.
+        /// </summary>
+        /// <returns>A list of fee plans.</returns>
+        /// <response code="200">Returns the list of fee plans.</response>
+        [HttpGet]
+        [ProducesResponseType(typeof(List<FeePlanDto>), StatusCodes.Status200OK)]
+        public async Task<ActionResult<List<FeePlanDto>>> GetAll()
+        {
+            var result = await _service.GetAllAsync();
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Retrieves a fee plan by its unique identifier.
+        /// </summary>
+        /// <param name="id">The unique identifier of the fee plan.</param>
+        /// <returns>The matching fee plan.</returns>
+        /// <response code="200">Returns the requested fee plan.</response>
+        /// <response code="404">If the fee plan is not found.</response>
+        [HttpGet("{id:guid}")]
+        [ProducesResponseType(typeof(FeePlanDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<FeePlanDto>> GetById(Guid id)
+        {
+            var result = await _service.GetByIdAsync(id);
+
+            if (result == null)
+                return NotFound("FeePlan not found.");
+
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Updates the specified identifier.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <param name="request">The request.</param>
+        /// <returns>result.</returns>
+        [HttpPut("{id:guid}")]
+        public async Task<ActionResult<FeePlanDto>> Update(
+            Guid id,
+            [FromBody] CreateFeePlanRequestDto request)
+        {
+            var updatedRequest = request with
+            {
+                userid = UserId
+            };
+            var result = await _service.UpdateAsync(id, updatedRequest);
+
+            if (result == null)
+                return NotFound("FeePlan not found.");
+
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Deletes the specified identifier.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>result.</returns>
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        [HttpDelete("{id:guid}")]
+        public async Task<ActionResult<CommonResponse<bool>>> Delete(Guid id)
+        {
+            var result = await _service.DeleteAsync(id);
+            return Ok(result);
         }
     }
 }

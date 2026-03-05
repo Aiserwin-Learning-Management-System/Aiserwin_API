@@ -1,5 +1,6 @@
 ﻿namespace Winfocus.LMS.Application.Interfaces
 {
+    using Winfocus.LMS.Application.DTOs;
     using Winfocus.LMS.Application.DTOs.Fees;
     using Winfocus.LMS.Domain.Enums;
 
@@ -71,5 +72,42 @@
         /// <param name="feePlanId">The fee plan identifier.</param>
         /// <returns>Task.</returns>
         Task RemoveSeasonalDiscountOnPlanAsync(Guid feePlanId);
+
+        /// <summary>
+        /// Creates the asynchronous.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <returns>FeePlanDto.</returns>
+        Task<FeePlanDto> CreateAsync(CreateFeePlanRequestDto request);
+
+        /// <summary>
+        /// Retrieves all fee plans.
+        /// </summary>
+        /// <returns>A collection of fee plan DTOs.</returns>
+        Task<List<FeePlanDto>> GetAllAsync();
+
+        /// <summary>
+        /// Retrieves a fee plan by its unique identifier.
+        /// </summary>
+        /// <param name="id">The unique identifier of the fee plan.</param>
+        /// <returns>
+        /// The matching fee plan DTO if found; otherwise, <c>null</c>.
+        /// </returns>
+        Task<FeePlanDto?> GetByIdAsync(Guid id);
+
+        /// <summary>
+        /// Updates an existing fee plan.
+        /// </summary>
+        /// <param name="id">The fee plan identifier.</param>
+        /// <param name="request">The fee plan data.</param>
+        /// <returns>The updated fee plan DTO.</returns>
+        Task<FeePlanDto?> UpdateAsync(Guid id, CreateFeePlanRequestDto request);
+
+        /// <summary>
+        /// Deletes the asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>id.</returns>
+        Task<CommonResponse<bool>> DeleteAsync(Guid id);
     }
 }

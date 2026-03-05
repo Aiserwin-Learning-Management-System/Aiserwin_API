@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Winfocus.LMS.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using Winfocus.LMS.Infrastructure.Data;
 namespace Winfocus.LMS.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260304080844_feeandfeediscounttables")]
+    partial class feeandfeediscounttables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -380,25 +383,15 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("DurationinYears")
-                        .HasColumnType("int");
-
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsInstallmentAllowed")
                         .HasColumnType("bit");
 
-                    b.Property<string>("PaymentType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("PlanName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("SubjectId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("TuitionFee")
                         .HasColumnType("decimal(18,2)");
@@ -412,8 +405,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CourseId");
-
-                    b.HasIndex("SubjectId");
 
                     b.ToTable("FeePlans");
                 });
@@ -1225,9 +1216,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("CenterId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -1248,8 +1236,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CenterId");
 
                     b.ToTable("Syllabuses");
                 });
@@ -1525,15 +1511,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Winfocus.LMS.Domain.Entities.Subject", "Subject")
-                        .WithMany()
-                        .HasForeignKey("SubjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Course");
-
-                    b.Navigation("Subject");
                 });
 
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.FeePlanDiscount", b =>
@@ -1886,17 +1864,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.Navigation("BatchTimingSunday");
 
                     b.Navigation("Subject");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.Syllabus", b =>
-                {
-                    b.HasOne("Winfocus.LMS.Domain.Entities.Center", "Center")
-                        .WithMany()
-                        .HasForeignKey("CenterId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Center");
                 });
 
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.UserRole", b =>

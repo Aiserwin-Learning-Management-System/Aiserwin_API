@@ -103,5 +103,78 @@
         {
             await _context.SaveChangesAsync();
         }
+
+        /// <summary>
+        /// Adds the asynchronous.
+        /// </summary>
+        /// <param name="feePlan">The feePlan.</param>
+        /// <returns>feePlan.</returns>
+        public async Task AddAsync(FeePlan feePlan)
+        {
+            await _context.FeePlans.AddAsync(feePlan);
+        }
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>FeePlan.</returns>
+        public async Task<FeePlan?> GetByIdAsync(Guid id)
+        {
+            return await _context.FeePlans
+                .Include(x => x.Discounts)
+                .FirstOrDefaultAsync(x => x.Id == id);
+        }
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <returns>FeePlan.</returns>
+        public async Task<List<FeePlan>> GetAllAsync()
+        {
+            return await _context.FeePlans
+                .Include(x => x.Discounts)
+                .Include(x => x.Installments)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="discount">The discount.</param>
+        public void AddDiscount(FeePlanDiscount discount)
+        {
+            _context.FeePlanDiscount.Add(discount);
+        }
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="discount">The discount.</param>
+        public void RemoveDiscount(FeePlanDiscount discount)
+        {
+            _context.FeePlanDiscount.Remove(discount);
+        }
+
+        /// <summary>
+        /// Deletes the asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>task.</returns>
+        public async Task<bool> DeleteAsync(Guid id)
+        {
+            var entity = await _context.FeePlans.FindAsync(id);
+            if (entity == null)
+            {
+                return false;
+            }
+
+            entity.IsActive = false;
+
+            _context.FeePlans.Update(entity);
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }
