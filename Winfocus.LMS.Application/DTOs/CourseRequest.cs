@@ -6,5 +6,5 @@
     public sealed record CourseRequest(
         string coursename,
         Guid streamid,
-        Guid userId);
+        Guid userId, string courseCode);
 }

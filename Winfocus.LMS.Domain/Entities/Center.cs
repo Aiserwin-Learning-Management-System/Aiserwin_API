@@ -47,5 +47,10 @@
         /// Gets or sets the state entity associated with the centre.
         /// </summary>
         public State? State { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the Ceneter Code of the centre.
+        /// </summary>
+        public string CenterCode { get; set; } = null!;
     }
 }

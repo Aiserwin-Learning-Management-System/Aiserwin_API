@@ -24,5 +24,10 @@
         /// Gets or sets the courses.
         /// </summary>
         public IReadOnlyList<CourseDto> Courses { get; set; } = new List<CourseDto>();
+
+        /// <summary>
+        /// Gets or sets the display code of the stream.
+        /// </summary>
+        public string StreamCode { get; set; } = null!;
     }
 }

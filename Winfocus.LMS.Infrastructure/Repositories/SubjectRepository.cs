@@ -143,5 +143,15 @@
                        .ThenInclude(g => g.Syllabus)
                 .AsNoTracking();
         }
+
+        /// <summary>
+        /// Existses the by code asynchronous.
+        /// </summary>
+        /// <param name="code">The code.</param>
+        /// <returns>bool.</returns>
+        public async Task<bool> ExistsByCodeAsync(string code)
+        {
+            return await _db.Subjects.AnyAsync(x => x.SubjectCode == code);
+        }
     }
 }

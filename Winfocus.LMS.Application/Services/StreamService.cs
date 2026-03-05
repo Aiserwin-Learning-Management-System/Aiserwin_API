@@ -91,13 +91,30 @@
             try
             {
                 var existingStreams = await _repository.GetByGradeIdAsync(request.gradeid);
-                var isDuplicate = existingStreams.Any(s =>
-                    s.Name.Equals(request.name, StringComparison.OrdinalIgnoreCase));
+                //var isDuplicate = existingStreams.Any(s =>
+                //    s.Name.Equals(request.name, StringComparison.OrdinalIgnoreCase));
+                var nameExists = existingStreams.Any(s =>
+                                  s.Name.Equals(request.name, StringComparison.OrdinalIgnoreCase));
 
-                if (isDuplicate)
+                if (nameExists)
                 {
-                    return CommonResponse<StreamDto>.FailureResponse($"Stream '{request.name}' already exists under this grade.");
+                    return CommonResponse<StreamDto>.FailureResponse(
+                        $"Stream '{request.name}' already exists under this grade.");
                 }
+
+                var codeExists = existingStreams.Any(s =>
+                    s.StreamCode.Equals(request.streamcode, StringComparison.OrdinalIgnoreCase));
+
+                if (codeExists)
+                {
+                    return CommonResponse<StreamDto>.FailureResponse(
+                        $"Stream Code '{request.streamcode}' already exists under this grade.");
+                }
+
+                //if (isDuplicate)
+                //{
+                //    return CommonResponse<StreamDto>.FailureResponse($"Stream '{request.name}' already exists under this grade.");
+                //}
 
                 var stream = new Streams
                 {
@@ -106,6 +123,7 @@
                     CreatedAt = DateTime.UtcNow,
                     CreatedBy = request.userId,
                     Courses = new List<Course>(),
+                    StreamCode = request.streamcode
                 };
 
                 var created = await _repository.AddAsync(stream);
@@ -142,6 +160,7 @@
                 batch.GradeId = request.gradeid;
                 batch.UpdatedAt = DateTime.UtcNow;
                 batch.UpdatedBy = request.userId;
+                batch.StreamCode = request.streamcode;
 
                 var updated = await _repository.UpdateAsync(batch);
 
@@ -241,6 +260,7 @@
                     query = query.Where(x =>
                         x.Name.ToLower().Contains(searchTerm) ||
                         x.Grade.Name.ToLower().Contains(searchTerm) ||
+                        x.StreamCode.ToLower().Contains(searchTerm) ||
                         x.Grade.Syllabus.Name.ToLower().Contains(searchTerm));
                 }
 
@@ -262,6 +282,8 @@
                 {
                     "name" => isDesc ? query.OrderByDescending(x => x.Name)
                                              : query.OrderBy(x => x.Name),
+                    "code" => isDesc ? query.OrderByDescending(x => x.StreamCode)
+                    : query.OrderBy(x => x.StreamCode),
 
                     "gradename" => isDesc ? query.OrderByDescending(x => x.Grade.Name)
                                              : query.OrderBy(x => x.Grade.Name),
@@ -321,6 +343,7 @@
             {
                 Id = c.Id,
                 Name = c.Name,
+                StreamCode = c.StreamCode,
                 IsActive = c.IsActive,
                 GradeId = c.GradeId,
                 CreatedBy = c.CreatedBy,
