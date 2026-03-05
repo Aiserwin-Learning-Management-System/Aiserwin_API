@@ -146,6 +146,17 @@
             return true;
         }
 
+
+        /// <summary>
+        /// Existses the by code asynchronous.
+        /// </summary>
+        /// <param name="code">The code.</param>
+        /// <returns>bool.</returns>
+        public async Task<bool> ExistsByCodeAsync(string code)
+        {
+            return await _db.Courses.AnyAsync(x => x.CourseCode == code);
+        }
+
         /// <summary>
         /// Gets queryable for filtering with full hierarchy.
         /// </summary>

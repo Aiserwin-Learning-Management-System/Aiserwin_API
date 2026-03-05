@@ -148,6 +148,10 @@
                     return CommonResponse<CourseDto>.FailureResponse("Course not found");
                 }
 
+                var existingCourseCode = await _repo.ExistsByCodeAsync(request.courseCode);
+                if(existingCourseCode)
+                    return CommonResponse<CourseDto>.FailureResponse("Course code already exist");
+
                 var course = new Course
                 {
                     Name = request.coursename,

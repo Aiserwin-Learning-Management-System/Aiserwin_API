@@ -113,6 +113,11 @@ namespace Winfocus.LMS.Application.Services
             if(request.centerCode == null)
                 return CommonResponse<CenterDto>.FailureResponse("Center code not found");
 
+            var existingCenterCode = await _repository.ExistsByCodeAsync(request.centerCode);
+            if(existingCenterCode)
+                return CommonResponse<CenterDto>.FailureResponse("Center Code already exist ");
+
+
             State? state = null;
 
             var modeName = modeOfStudy.Name.Trim().ToLower();

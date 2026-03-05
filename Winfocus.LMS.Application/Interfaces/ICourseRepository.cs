@@ -58,6 +58,13 @@
         Task<Course> UpdateAsync(Course course);
 
         /// <summary>
+        /// Existses the by code asynchronous.
+        /// </summary>
+        /// <param name="code">The code.</param>
+        /// <returns>bool.</returns>
+        Task<bool> ExistsByCodeAsync(string code);
+
+        /// <summary>
         /// Softs the delete asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>

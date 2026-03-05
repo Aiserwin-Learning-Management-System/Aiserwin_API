@@ -160,6 +160,10 @@
                     return CommonResponse<SubjectDto>.FailureResponse("subject code not found");
                 }
 
+                var existingCourseCode = await _repo.ExistsByCodeAsync(request.subjectCode);
+                if (existingCourseCode)
+                    return CommonResponse<SubjectDto>.FailureResponse("subject code already exist");
+
                 var course = new Subject
                 {
                     Name = request.name,
