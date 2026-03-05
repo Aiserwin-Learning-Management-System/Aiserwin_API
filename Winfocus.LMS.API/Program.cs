@@ -115,9 +115,10 @@ builder.Services.AddScoped<IUserLoginLogRepository, UserLoginLogRepository>();
 builder.Services.AddScoped<IUserLoginLogService, UserLoginLogService>();
 builder.Services.AddScoped<IUsernameGeneratorService, UsernameGeneratorService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
-
 builder.Services.AddScoped<IBatchService, BatchService>();
 builder.Services.AddScoped<IBatchRepository, BatchRepository>();
+builder.Services.AddScoped<IUserSessionRepository, UserSessionRepository>();
+builder.Services.AddScoped<IUserSessionService, UserSessionService>();
 
 #endregion
 
@@ -232,7 +233,7 @@ builder.Services.AddRateLimiter(options =>
 {
     options.AddFixedWindowLimiter("SetPasswordPolicy", config =>
     {
-        config.PermitLimit = 1;                 // 5 requests
+        config.PermitLimit = 1;                 // 1 requests
         config.Window = TimeSpan.FromMinutes(1); // per minute
         config.QueueProcessingOrder = System.Threading.RateLimiting.QueueProcessingOrder.OldestFirst;
         config.QueueLimit = 2;
@@ -259,9 +260,9 @@ if (!app.Environment.IsEnvironment("Testing"))
 
     try
     {
-       // db.Database.Migrate();
+        db.Database.Migrate();
         CountryDataSeeder.Seed(db);
-       // StateDataSeeder.Seed(db);
+        StateDataSeeder.Seed(db);
         RoleDataSeeder.Seed(db);
     }
     catch (Exception ex)
@@ -300,6 +301,9 @@ if (app.Environment.IsDevelopment())
 app.UseCors("AllowAngularApp");
 
 app.UseAuthentication();
+
+app.UseMiddleware<SessionValidationMiddleware>();
+
 app.UseAuthorization();
 app.UseRateLimiter();
 

@@ -515,7 +515,8 @@
                 var request = new CourseRequest(
                     coursename: "Test Course",
                     streamid: Guid.NewGuid(),
-                    userId: Guid.NewGuid());
+                    userId: Guid.NewGuid(),
+                    courseCode: "COT");
 
                 var createdCourse = new Course
                 {
@@ -564,7 +565,8 @@
                 var request = new CourseRequest(
                     coursename: "Test Course",
                     streamid: Guid.NewGuid(),
-                    userId: Guid.NewGuid());
+                    userId: Guid.NewGuid(),
+                    courseCode: "COT");
 
                 var beforeCreate = DateTime.UtcNow;
 
@@ -607,7 +609,7 @@
                 var request = new CourseRequest(
                     coursename: "Test Course",
                     streamid: Guid.NewGuid(),
-                    userId: Guid.NewGuid());
+                    userId: Guid.NewGuid(), courseCode: "COT");
 
                 _mockRepository
                     .Setup(r => r.AddAsync(It.IsAny<Course>()))
@@ -652,7 +654,7 @@
                 var request = new CourseRequest(
                     coursename: "Test Course",
                     streamid: Guid.NewGuid(),
-                    userId: Guid.NewGuid());
+                    userId: Guid.NewGuid(), courseCode: "COT");
 
                 _mockRepository
                     .Setup(r => r.GetByIdAsync(courseId))
@@ -703,7 +705,7 @@
                 var request = new CourseRequest(
                     coursename: "Test Course",
                     streamid: Guid.NewGuid(),
-                    userId: Guid.NewGuid());
+                    userId: Guid.NewGuid(), courseCode: "COT");
 
                 _mockRepository
                     .Setup(r => r.GetByIdAsync(courseId))
@@ -746,7 +748,7 @@
                 var request = new CourseRequest(
                      coursename: "Test Course",
                      streamid: Guid.NewGuid(),
-                     userId: Guid.NewGuid());
+                     userId: Guid.NewGuid(), courseCode: "COT");
 
                 var beforeUpdate = DateTime.UtcNow;
 

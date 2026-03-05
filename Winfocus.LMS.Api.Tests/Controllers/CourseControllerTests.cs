@@ -491,7 +491,7 @@
                 var request = new CourseRequest(
                    coursename: "Test Course",
                    streamid: Guid.NewGuid(),
-                   userId: Guid.NewGuid());
+                   userId: Guid.NewGuid(), courseCode: "COT");
 
                 var createdCourse = new CourseDto
                 {
@@ -572,7 +572,7 @@
                 var request = new CourseRequest(
                    coursename: "Test Course",
                    streamid: Guid.NewGuid(),
-                   userId: Guid.NewGuid());
+                   userId: Guid.NewGuid(), courseCode: "COT");
 
                 var updatedCourse = new CourseDto
                 {
@@ -618,7 +618,7 @@
                 var request = new CourseRequest(
                     coursename: "Test Course",
                     streamid: Guid.NewGuid(),
-                    userId: Guid.NewGuid());
+                    userId: Guid.NewGuid(), courseCode: "COT");
 
                 _mockService
                     .Setup(s => s.UpdateAsync(courseId, It.IsAny<CourseRequest>()))
