@@ -1,6 +1,7 @@
 ﻿namespace Winfocus.LMS.Domain.Entities
 {
     using System;
+    using System.ComponentModel.DataAnnotations;
     using Winfocus.LMS.Domain.Common;
 
     /// <summary>
@@ -47,5 +48,14 @@
         /// The grade.
         /// </value>
         public Grade Grade { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the CourseCode.
+        /// </summary>
+        /// <value>
+        /// The grade.
+        /// </value>
+        [MaxLength(50)]
+        public string CourseCode { get; set; } = null!;
     }
 }

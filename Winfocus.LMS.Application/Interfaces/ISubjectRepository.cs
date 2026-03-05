@@ -60,5 +60,12 @@
         /// </summary>
         /// <returns>subject.</returns>
         IQueryable<Subject> Query();
+
+        /// <summary>
+        /// Existses the by code asynchronous.
+        /// </summary>
+        /// <param name="code">The code.</param>
+        /// <returns>bool.</returns>
+        Task<bool> ExistsByCodeAsync(string code);
     }
 }

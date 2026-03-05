@@ -21,5 +21,11 @@ namespace Winfocus.LMS.Application.DTOs.Masters
         /// Gets or sets the associated courses.
         /// </summary>
         public CourseDto Course { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the associated courses.
+        /// </summary>
+        public string SubjectCode { get; set; } = null!;
     }
+
 }

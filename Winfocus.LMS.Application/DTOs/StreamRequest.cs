@@ -22,5 +22,7 @@
         /// <summary>
         /// Gets the identifier of the Grade associated with the user.
         /// </summary>
-    Guid userId);
+    Guid userId,
+
+    string streamcode);
 }
