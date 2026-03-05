@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Winfocus.LMS.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitialMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -272,8 +272,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         name: "FK_States_ModeOfStudies_ModeOfStudyId",
                         column: x => x.ModeOfStudyId,
                         principalTable: "ModeOfStudies",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -286,6 +285,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     ModeOfStudyId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CountryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     StateId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CenterCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -305,8 +305,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         name: "FK_Centres_ModeOfStudies_ModeOfStudyId",
                         column: x => x.ModeOfStudyId,
                         principalTable: "ModeOfStudies",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Centres_States_StateId",
                         column: x => x.StateId,
@@ -369,6 +368,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     GradeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StreamCode = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -490,6 +490,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     StreamId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     GradeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CourseCode = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     SubjectId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -521,6 +522,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     CourseId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    SubjectCode = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -569,8 +571,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         name: "FK_FeePlans_Subjects_SubjectId",
                         column: x => x.SubjectId,
                         principalTable: "Subjects",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -603,6 +604,11 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_StudentAcademicDetails", x => x.Id);
                     table.ForeignKey(
+                        name: "FK_StudentAcademicDetails_AcademicYears_AcademicYearId",
+                        column: x => x.AcademicYearId,
+                        principalTable: "AcademicYears",
+                        principalColumn: "Id");
+                    table.ForeignKey(
                         name: "FK_StudentAcademicDetails_Centres_CenterId",
                         column: x => x.CenterId,
                         principalTable: "Centres",
@@ -612,44 +618,37 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         name: "FK_StudentAcademicDetails_Countries_CountryId",
                         column: x => x.CountryId,
                         principalTable: "Countries",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_StudentAcademicDetails_Grades_GradeId",
                         column: x => x.GradeId,
                         principalTable: "Grades",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_StudentAcademicDetails_ModeOfStudies_ModeOfStudyId",
                         column: x => x.ModeOfStudyId,
                         principalTable: "ModeOfStudies",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_StudentAcademicDetails_States_StateId",
                         column: x => x.StateId,
                         principalTable: "States",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_StudentAcademicDetails_Streams_StreamId",
                         column: x => x.StreamId,
                         principalTable: "Streams",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_StudentAcademicDetails_Subjects_SubjectId",
                         column: x => x.SubjectId,
                         principalTable: "Subjects",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_StudentAcademicDetails_Syllabuses_SyllabusId",
                         column: x => x.SyllabusId,
                         principalTable: "Syllabuses",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -845,6 +844,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                 {
                     StudentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CourseId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StudentId1 = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -865,8 +865,12 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         name: "FK_StudentAcademicCouses_Students_StudentId",
                         column: x => x.StudentId,
                         principalTable: "Students",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_StudentAcademicCouses_Students_StudentId1",
+                        column: x => x.StudentId1,
+                        principalTable: "Students",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -977,8 +981,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         name: "FK_StudentFeeSelections_Students_StudentId",
                         column: x => x.StudentId,
                         principalTable: "Students",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -1113,6 +1116,16 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                 name: "IX_StudentAcademicCouses_CourseId",
                 table: "StudentAcademicCouses",
                 column: "CourseId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StudentAcademicCouses_StudentId1",
+                table: "StudentAcademicCouses",
+                column: "StudentId1");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StudentAcademicDetails_AcademicYearId",
+                table: "StudentAcademicDetails",
+                column: "AcademicYearId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_StudentAcademicDetails_CenterId",
@@ -1307,24 +1320,21 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                 table: "BatchTimingMTFs",
                 column: "SubjectId",
                 principalTable: "Subjects",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+                principalColumn: "Id");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_BatchTimingSaturdays_Subjects_SubjectId",
                 table: "BatchTimingSaturdays",
                 column: "SubjectId",
                 principalTable: "Subjects",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+                principalColumn: "Id");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_BatchTimingSundays_Subjects_SubjectId",
                 table: "BatchTimingSundays",
                 column: "SubjectId",
                 principalTable: "Subjects",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+                principalColumn: "Id");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Courses_Subjects_SubjectId",
@@ -1340,9 +1350,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
             migrationBuilder.DropForeignKey(
                 name: "FK_Courses_Subjects_SubjectId",
                 table: "Courses");
-
-            migrationBuilder.DropTable(
-                name: "AcademicYears");
 
             migrationBuilder.DropTable(
                 name: "FeeInstallments");
@@ -1424,6 +1431,9 @@ namespace Winfocus.LMS.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "StudentPersonalDetails");
+
+            migrationBuilder.DropTable(
+                name: "AcademicYears");
 
             migrationBuilder.DropTable(
                 name: "Subjects");

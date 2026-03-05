@@ -233,7 +233,7 @@ builder.Services.AddRateLimiter(options =>
 {
     options.AddFixedWindowLimiter("SetPasswordPolicy", config =>
     {
-        config.PermitLimit = 1;                 // 5 requests
+        config.PermitLimit = 1;                 // 1 requests
         config.Window = TimeSpan.FromMinutes(1); // per minute
         config.QueueProcessingOrder = System.Threading.RateLimiting.QueueProcessingOrder.OldestFirst;
         config.QueueLimit = 2;
@@ -260,9 +260,9 @@ if (!app.Environment.IsEnvironment("Testing"))
 
     try
     {
-       // db.Database.Migrate();
+        db.Database.Migrate();
         CountryDataSeeder.Seed(db);
-       // StateDataSeeder.Seed(db);
+        StateDataSeeder.Seed(db);
         RoleDataSeeder.Seed(db);
     }
     catch (Exception ex)
