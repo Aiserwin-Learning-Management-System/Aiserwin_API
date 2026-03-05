@@ -110,6 +110,9 @@ namespace Winfocus.LMS.Application.Services
             if (modeOfStudy == null)
                 return CommonResponse<CenterDto>.FailureResponse("Mode of study not found");
 
+            if(request.centerCode == null)
+                return CommonResponse<CenterDto>.FailureResponse("Center code not found");
+
             State? state = null;
 
             var modeName = modeOfStudy.Name.Trim().ToLower();
@@ -119,7 +122,8 @@ namespace Winfocus.LMS.Application.Services
                 CreatedAt = DateTime.UtcNow,
                 CreatedBy = request.userId,
                 ModeOfStudyId = request.modeofstudyid,
-                CountryId = request.countryid
+                CountryId = request.countryid,
+                CenterCode = request.centerCode
             };
             if (modeName == "offline" || modeName == "hybrid")
             {
@@ -169,6 +173,9 @@ namespace Winfocus.LMS.Application.Services
             if (!country.IsActive)
                 return CommonResponse<CenterDto>.FailureResponse("Cannot update with inactive country");
 
+            if (request.centerCode == null)
+                return CommonResponse<CenterDto>.FailureResponse("Center code not found");
+
             // 🔹 Mode validation
             var modeOfStudy = await _moderepository.GetByIdAsync(request.modeofstudyid);
             if (modeOfStudy == null)
@@ -201,6 +208,7 @@ namespace Winfocus.LMS.Application.Services
             center.ModeOfStudyId = request.modeofstudyid;
             center.UpdatedAt = DateTime.UtcNow;
             center.UpdatedBy = request.userId;
+            center.CenterCode = request.centerCode;
 
             var updated = await _repository.UpdateAsync(center);
 
@@ -325,7 +333,8 @@ namespace Winfocus.LMS.Application.Services
                     query = query.Where(x =>
                         x.Name.ToLower().Contains(searchTerm) ||
                         x.modeOfStudy.Name.ToLower().Contains(searchTerm) ||
-                        x.State.Name.ToLower().Contains(searchTerm));
+                        x.State.Name.ToLower().Contains(searchTerm) ||
+                        x.CenterCode.ToLower().Contains(searchTerm));
                 }
 
                 // ── Total Count ──
@@ -346,6 +355,9 @@ namespace Winfocus.LMS.Application.Services
                 {
                     "name" => isDesc ? query.OrderByDescending(x => x.Name)
                                              : query.OrderBy(x => x.Name),
+                    "centercode" => isDesc ? query.OrderByDescending(x => x.Name)
+                                             : query.OrderBy(x => x.Name), 
+
                     "modeofstudyname" => isDesc ? query.OrderByDescending(x => x.modeOfStudy.Name)
                                              : query.OrderBy(x => x.modeOfStudy.Name),
 
@@ -392,6 +404,7 @@ namespace Winfocus.LMS.Application.Services
          {
              Id = c.Id,
              Name = c.Name,
+             CenterCode = c.CenterCode,
              CenterType = c.CenterType,
              IsActive = c.IsActive,
              ModeOfStudyId = c.ModeOfStudyId,

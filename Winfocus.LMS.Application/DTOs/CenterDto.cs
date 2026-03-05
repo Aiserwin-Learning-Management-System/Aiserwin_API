@@ -48,5 +48,10 @@ namespace Winfocus.LMS.Application.DTOs
         /// Gets or sets the identifier of the associated country.
         /// </summary>
         public CountryDto Country { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the identifier of the associated country.
+        /// </summary>
+        public string CenterCode { get; set; } = null!;
     }
 }

@@ -103,11 +103,25 @@ namespace Winfocus.LMS.Infrastructure.Repositories
 
             var maxValue = latestRecord?.RegistrationNumber;
 
+            var codes = await _dbContext.StudentAcademicDetails
+                             .Where(a => a.Id == student.StudentAcademicDetailsId)
+                             .Select(a => new
+                             {
+                                 a.Stream.StreamCode,
+                                 a.Center.CenterCode
+                             }).FirstOrDefaultAsync();
+
+            var streamCode = codes?.StreamCode;
+            var centerCode = codes?.CenterCode;
+
+            var year = DateTime.UtcNow.ToString("yy");
+            var register_prefix = $"{centerCode}-{year}-{streamCode}";
+
             if (string.IsNullOrEmpty(maxValue))
             {
                 maxValue = "1";
                 string formattedNumber = maxValue.ToString().PadLeft(4, '0');
-                student.RegistrationNumber = $"AIS-{formattedNumber}";
+                student.RegistrationNumber = $"{register_prefix}-{formattedNumber}";
             }
             else
             {
@@ -117,7 +131,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
                     int val = int.Parse(digitsOnly);
                     val++;
                     string num = val.ToString().PadLeft(4, '0');
-                    student.RegistrationNumber = $"AIS-{num}";
+                    student.RegistrationNumber = $"{register_prefix}-{num}";
             }
 
             student.CreatedAt = DateTime.UtcNow;

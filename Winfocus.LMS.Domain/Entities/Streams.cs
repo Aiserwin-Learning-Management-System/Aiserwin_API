@@ -1,6 +1,7 @@
 ﻿namespace Winfocus.LMS.Domain.Entities
 {
     using System;
+    using System.ComponentModel.DataAnnotations;
     using Winfocus.LMS.Domain.Common;
 
     /// <summary>
@@ -30,5 +31,11 @@
         /// The courses.
         /// </value>
         public ICollection<Course> Courses { get; set; } = new List<Course>();
+
+        /// <summary>
+        /// Gets or sets the display code of the stream.
+        /// </summary>
+        [MaxLength(50)]
+        public string StreamCode { get; set; } = null!;
     }
 }
