@@ -31,5 +31,14 @@
         /// The courses.
         /// </value>
         public ICollection<Course> Courses { get; set; } = new List<Course>();
+
+        /// <summary>
+        /// Gets or sets the SubjectCode.
+        /// </summary>
+        /// <value>
+        /// The grade.
+        /// </value>
+        [MaxLength(50)]
+        public string SubjectCode { get; set; } = null!;
     }
 }

@@ -155,12 +155,18 @@
                     "Creating subject: {Name}, CourseId: {CourseId}",
                     request.name, request.courseid);
 
+                if (request.subjectCode == null)
+                {
+                    return CommonResponse<SubjectDto>.FailureResponse("subject code not found");
+                }
+
                 var course = new Subject
                 {
                     Name = request.name,
                     CourseId = request.courseid,
                     CreatedAt = DateTime.UtcNow,
                     CreatedBy = request.userid,
+                    SubjectCode= request.subjectCode
                 };
 
                 var created = await _repo.AddAsync(course);
@@ -202,6 +208,7 @@
                 course.CourseId = request.courseid;
                 course.UpdatedAt = DateTime.UtcNow;
                 course.UpdatedBy = request.userid;
+                course.SubjectCode = request.subjectCode;
 
                 var updated = await _repo.UpdateAsync(course);
 
@@ -311,7 +318,8 @@
 
                     "coursename" => isDesc ? query.OrderByDescending(x => x.Course.Name)
                                              : query.OrderBy(x => x.Course.Name),
-
+                    "subjectcode" => isDesc ? query.OrderByDescending(x => x.SubjectCode)
+                                                                 : query.OrderBy(x => x.SubjectCode),
                     "streamname" => isDesc ? query.OrderByDescending(x => x.Course.Stream.Name)
                                              : query.OrderBy(x => x.Course.Stream.Name),
 
@@ -360,7 +368,7 @@
         {
             Id = s.Id,
             Name = s.Name,
-
+            SubjectCode = s.SubjectCode,
             Course = s.Course == null ? null : new CourseDto
             {
                 Id = s.Course.Id,

@@ -52,5 +52,10 @@
         /// The grade.
         /// </value>
         public GradeDto Grade { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the display course code code of the course.
+        /// </summary>
+        public string CourseCode { get; set; } = null!;
     }
 }

@@ -143,12 +143,18 @@
                     "Creating course: {CourseName}, StreamId: {StreamId}",
                     request.coursename, request.streamid);
 
+                if (request.courseCode == null)
+                {
+                    return CommonResponse<CourseDto>.FailureResponse("Course not found");
+                }
+
                 var course = new Course
                 {
                     Name = request.coursename,
                     StreamId = request.streamid,
                     CreatedAt = DateTime.UtcNow,
                     CreatedBy = request.userId,
+                    CourseCode = request.courseCode,
                 };
 
                 var created = await _repo.AddAsync(course);
@@ -187,6 +193,7 @@
                 course.StreamId = request.streamid;
                 course.UpdatedAt = DateTime.UtcNow;
                 course.UpdatedBy = request.userId;
+                course.CourseCode = request.courseCode;
 
                 var updated = await _repo.UpdateAsync(course);
 
@@ -348,6 +355,7 @@
             CreatedAt = c.CreatedAt,
             UpdatedBy = c.UpdatedBy,
             UpdatedAt = c.UpdatedAt,
+            CourseCode = c.CourseCode,
             Stream = c.Stream == null ? null : new StreamDto
             {
                 Id = c.Stream.Id,
