@@ -30,6 +30,10 @@
             return await _db.Streams
                 .Include(x => x.Grade)
                     .ThenInclude(g => g.Syllabus)
+                    .ThenInclude(s => s.Center)
+                    .ThenInclude(s => s.State)
+                    .ThenInclude(s => s.ModeOfStudy)
+                    .ThenInclude(s => s.Country)
                 .Include(x => x.Courses)
                 .Where(x => x.IsActive)
                 .AsNoTracking()
@@ -46,6 +50,10 @@
             return await _db.Streams
                 .Include(x => x.Grade)
                     .ThenInclude(g => g.Syllabus)
+                    .ThenInclude(s => s.Center)
+                    .ThenInclude(s => s.State)
+                    .ThenInclude(s => s.ModeOfStudy)
+                    .ThenInclude(s => s.Country)
                 .Include(x => x.Courses)
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
@@ -113,6 +121,10 @@
             return await _db.Streams
                 .Include(x => x.Grade)
                     .ThenInclude(g => g.Syllabus)
+                    .ThenInclude(s => s.Center)
+                    .ThenInclude(s => s.State)
+                    .ThenInclude(s => s.ModeOfStudy)
+                    .ThenInclude(s => s.Country)
                 .Include(x => x.Courses)
                 .Where(x => x.GradeId == gradeid && x.IsActive)
                 .AsNoTracking()
@@ -128,6 +140,12 @@
         {
             return await _db.Streams
                 .Include(x => x.Courses)
+                .ThenInclude(g => g.Grade)
+                .ThenInclude(g => g.Syllabus)
+                    .ThenInclude(s => s.Center)
+                    .ThenInclude(s => s.State)
+                    .ThenInclude(s => s.ModeOfStudy)
+                    .ThenInclude(s => s.Country)
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
 
@@ -140,6 +158,10 @@
             return _db.Streams
                 .Include(s => s.Grade)
                     .ThenInclude(g => g.Syllabus)
+                    .ThenInclude(s => s.Center)
+                    .ThenInclude(s => s.State)
+                    .ThenInclude(s => s.ModeOfStudy)
+                    .ThenInclude(s => s.Country)
                 .AsNoTracking();
         }
     }
