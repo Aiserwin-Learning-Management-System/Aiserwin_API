@@ -53,16 +53,10 @@
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
                 new Claim(JwtRegisteredClaimNames.Jti, sessionId),
                 new Claim("session_id", sessionId),
+                new Claim("countryId", user.CountryId.ToString() ?? string.Empty),
+                new Claim("centerId", user.CenterId.ToString() ?? string.Empty),
+                new Claim("StaffTypeId", user.StaffTypeId?.ToString() ?? ""),
             };
-        {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim(ClaimTypes.Name, user.Username),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim("countryId", user.CountryId.ToString() ?? string.Empty),
-            new Claim("centerId", user.CenterId.ToString() ?? string.Empty),
-            new Claim("StaffTypeId", user.StaffTypeId?.ToString() ?? ""),
-        };
 
             foreach (var role in roles)
             {

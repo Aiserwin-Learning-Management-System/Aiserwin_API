@@ -1,0 +1,18 @@
+[
+  {
+    "Name": "AcademicStaff",
+    "Description": "Handles academic operations and student learning activities"
+  },
+  {
+    "Name": "FinanceStaff",
+    "Description": "Manages financial operations and fee processing"
+  },
+  {
+    "Name": "OperationsStaff",
+    "Description": "Responsible for operational management"
+  },
+  {
+    "Name": "SupportStaff",
+    "Description": "Provides administrative and support services"
+  }
+]

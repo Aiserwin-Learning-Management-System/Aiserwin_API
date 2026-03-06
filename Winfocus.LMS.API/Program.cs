@@ -291,6 +291,7 @@ if (!app.Environment.IsEnvironment("Testing"))
         CountryDataSeeder.Seed(db);
         StateDataSeeder.Seed(db);
         RoleDataSeeder.Seed(db);
+        StaffTypeDataSeeder.Seed(db);
     }
     catch (Exception ex)
     {

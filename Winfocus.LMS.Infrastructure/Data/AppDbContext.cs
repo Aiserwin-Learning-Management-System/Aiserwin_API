@@ -236,6 +236,16 @@
         public DbSet<StaffType> StaffType { get; set; }
 
         /// <summary>
+        /// Gets or sets stores all available system permissions.
+        /// </summary>
+        public DbSet<Permission> Permissions { get; set; }
+
+        /// <summary>
+        /// Gets or sets stores the mapping between roles and permissions.
+        /// </summary>
+        public DbSet<RolePermission> RolePermissions { get; set; }
+
+        /// <summary>
         /// Gets the user login logs.
         /// </summary>
         /// <value>
