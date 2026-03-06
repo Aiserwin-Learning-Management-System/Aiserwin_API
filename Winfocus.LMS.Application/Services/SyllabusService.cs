@@ -186,6 +186,34 @@ namespace Winfocus.LMS.Application.Services
         }
 
         /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="centerId">The identifier.</param>
+        /// <returns>GradeDto.</returns>
+        public async Task<CommonResponse<List<SyllabusDto>>> GetByCenterIdAsync(Guid centerId)
+        {
+            try
+            {
+                var syllabus = await _repository.GetByCenterIdAsync(centerId);
+                var mapped = Map(syllabus);
+                if (mapped != null)
+                {
+                    return CommonResponse<List<SyllabusDto>>.SuccessResponse("Fetching the syllabus by center", mapped);
+                }
+                else
+                {
+                    return CommonResponse<List<SyllabusDto>>.FailureResponse("Syllabus not found");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching Syllabus");
+                return CommonResponse<List<SyllabusDto>>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
+            }
+        }
+
+        /// <summary>
         /// Retrieves syllabuses based on filter criteria with pagination.
         /// </summary>
         /// <param name="request">The paged request.</param>
@@ -270,6 +298,14 @@ namespace Winfocus.LMS.Application.Services
                 return CommonResponse<PagedResult<SyllabusDto>>.FailureResponse(
                     $"An error occurred: {ex.Message}");
             }
+        }
+
+        /// <summary>
+        /// Maps grade entity list to DTO list.
+        /// </summary>
+        private static List<SyllabusDto> Map(IEnumerable<Syllabus> syllabus)
+        {
+            return syllabus.Select(Map).ToList();
         }
 
         private static SyllabusDto Map(Syllabus c) =>

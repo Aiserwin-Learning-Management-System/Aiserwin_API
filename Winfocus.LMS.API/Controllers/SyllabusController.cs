@@ -7,6 +7,7 @@
     using Winfocus.LMS.Application.DTOs.Common;
     using Winfocus.LMS.Application.DTOs.Masters;
     using Winfocus.LMS.Application.Interfaces;
+    using Winfocus.LMS.Application.Services;
 
     /// <summary>
     /// Handles authentication endpoints.
@@ -111,5 +112,18 @@
             var result = await _syllabusService.GetFilteredAsync(request);
             return Ok(result);
         }
+
+        /// <summary>
+        /// Gets the specified identifier.
+        /// </summary>
+        /// <param name="centerId">The identifier.</param>
+        /// <returns>GradeDto by id.</returns>
+        [HttpGet("by-center/{centerid:guid}")]
+        public async Task<ActionResult<CommonResponse<List<SyllabusDto>>>> GetBySyllabusId(Guid centerId)
+        {
+            var result = await _syllabusService.GetByCenterIdAsync(centerId);
+            return Ok(result);
+        }
+
     }
 }
