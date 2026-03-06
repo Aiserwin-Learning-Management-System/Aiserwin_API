@@ -1,5 +1,6 @@
 ﻿namespace Winfocus.LMS.Application.Services
 {
+    using Microsoft.AspNetCore.Http.HttpResults;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
     using Winfocus.LMS.Application.DTOs;
@@ -91,8 +92,6 @@
             try
             {
                 var existingStreams = await _repository.GetByGradeIdAsync(request.gradeid);
-                //var isDuplicate = existingStreams.Any(s =>
-                //    s.Name.Equals(request.name, StringComparison.OrdinalIgnoreCase));
                 var nameExists = existingStreams.Any(s =>
                                   s.Name.Equals(request.name, StringComparison.OrdinalIgnoreCase));
 
@@ -111,11 +110,6 @@
                         $"Stream Code '{request.streamcode}' already exists under this grade.");
                 }
 
-                //if (isDuplicate)
-                //{
-                //    return CommonResponse<StreamDto>.FailureResponse($"Stream '{request.name}' already exists under this grade.");
-                //}
-
                 var stream = new Streams
                 {
                     Name = request.name,
@@ -127,8 +121,17 @@
                 };
 
                 var created = await _repository.AddAsync(stream);
+                var response = new StreamDto
+                {
+                    Name = created.Name,
+                    GradeId = created.GradeId,
+                    CreatedAt = created.CreatedAt,
+                    CreatedBy = created.CreatedBy,
+                    StreamCode = created.StreamCode
+                };
+
                 return CommonResponse<StreamDto>.SuccessResponse(
-                     "Stream created successfully", Map(created));
+                     "Stream created successfully", response);
             }
             catch (Exception ex)
             {
@@ -163,10 +166,15 @@
                 batch.StreamCode = request.streamcode;
 
                 var updated = await _repository.UpdateAsync(batch);
-
+                var response = new StreamDto
+                {
+                    Name = updated.Name,
+                    GradeId = updated.GradeId,
+                    StreamCode = updated.StreamCode,
+                };
                 _logger.LogInformation("Stream updated Id: {Id}", id);
                 return CommonResponse<StreamDto>.SuccessResponse(
-                    "Stream updated successfully", Map(updated));
+                    "Stream updated successfully", response);
             }
             catch (Exception ex)
             {
@@ -346,10 +354,11 @@
                 StreamCode = c.StreamCode,
                 IsActive = c.IsActive,
                 GradeId = c.GradeId,
-                CreatedBy = c.CreatedBy,
-                CreatedAt = c.CreatedAt,
-                UpdatedBy = c.UpdatedBy,
-                UpdatedAt = c.UpdatedAt,
+                SyllabusId = c.Grade.SyllabusId,
+                CenterId = c.Grade.Syllabus.CenterId,
+                StateId = c.Grade.Syllabus.Center.StateId,
+                ModeOfStudyId = c.Grade.Syllabus.Center.ModeOfStudyId,
+                CountryId = c.Grade.Syllabus.Center.CountryId,
                 Grade = c.Grade == null ? null : new GradeDto
                 {
                     Id = c.Grade.Id,
