@@ -47,6 +47,9 @@
              .ThenInclude(c => c.Stream)
                  .ThenInclude(st => st.Grade)
                      .ThenInclude(g => g.Syllabus)
+                      .ThenInclude(x => x.Center)
+                         .ThenInclude(x => x.State)
+                         .ThenInclude(x => x.Country)
          .FirstOrDefaultAsync(s => s.Id == id);
 
         /// <summary>
@@ -137,10 +140,13 @@
         public IQueryable<Subject> Query()
         {
             return _db.Subjects
-                .Include(c => c.Courses)
+                .Include(c => c.Course)
                     .ThenInclude(g => g.Stream)
                      .ThenInclude(s => s.Grade)
                        .ThenInclude(g => g.Syllabus)
+                         .ThenInclude(x => x.Center)
+                             .ThenInclude(x => x.State)
+                             .ThenInclude(x => x.Country)
                 .AsNoTracking();
         }
 

@@ -58,7 +58,16 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         {
             _db.Syllabuses.Add(syllabus);
             await _db.SaveChangesAsync();
-            return syllabus;
+
+            return await _db.Syllabuses
+                .Include(x => x.Center)
+                    .ThenInclude(c => c.Country)
+                .Include(x => x.Center)
+                    .ThenInclude(c => c.State)
+                .Include(x => x.Center)
+                    .ThenInclude(c => c.modeOfStudy)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == syllabus.Id);
         }
 
         /// <summary>
@@ -117,6 +126,19 @@ namespace Winfocus.LMS.Infrastructure.Repositories
                 .Include(x => x.Center.modeOfStudy)
                 .Include(x => x.Center.State)
                 .AsNoTracking();
+        }
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="centerId">The identifier.</param>
+        /// <returns>Syllabus.</returns>
+        public async Task<List<Syllabus>> GetByCenterIdAsync(Guid centerId)
+        {
+            return await _db.Syllabuses
+                .Include(x => x.Center)
+                .Where(x => x.CenterId == centerId)
+                .ToListAsync();
         }
     }
 }

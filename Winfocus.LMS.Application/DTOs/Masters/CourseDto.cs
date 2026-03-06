@@ -28,7 +28,6 @@
         /// </value>
         public StreamDto Stream { get; set; } = null!;
 
-
         /// <summary>
         /// Gets or sets the subject.
         /// </summary>
@@ -57,5 +56,30 @@
         /// Gets or sets the display course code code of the course.
         /// </summary>
         public string CourseCode { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the identifier of the associated syllabus.
+        /// </summary>
+        public Guid SyllabusId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the identifier of the associated country.
+        /// </summary>
+        public Guid CountryId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the identifier of the modeOfStudy where the centre is located.
+        /// </summary>
+        public Guid ModeOfStudyId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the identifier of the state where the centre is located.
+        /// </summary>
+        public Guid? StateId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the identifier of the center.
+        /// </summary>
+        public Guid CenterId { get; set; }
     }
 }

@@ -103,6 +103,7 @@
                 {
                     Name = request.name,
                     Code = request.code,
+                    PhoneCode = request.phonecode,
                     CreatedAt = DateTime.UtcNow,
                     CreatedBy = userid,
                 };
@@ -146,6 +147,7 @@
                 country.Code = request.code;
                 country.UpdatedAt = DateTime.UtcNow;
                 country.UpdatedBy = userid;
+                country.PhoneCode = request.phonecode;
 
                 var mapped = Map(await _repository.UpdateAsync(country));
                 if (mapped == null)
@@ -296,6 +298,7 @@
               Name = c.Name,
               Code = c.Code,
               IsActive = c.IsActive,
+              PhoneCode = c.PhoneCode,
           };
     }
 }

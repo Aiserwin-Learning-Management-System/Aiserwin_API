@@ -1,11 +1,11 @@
-﻿using Winfocus.LMS.Application.DTOs.Masters;
-
-namespace Winfocus.LMS.Application.DTOs
+﻿namespace Winfocus.LMS.Application.DTOs
 {
+    using Winfocus.LMS.Application.DTOs.Masters;
+
     /// <summary>
     /// Country response DTO.
     /// </summary>
-   public class CountryDto : BaseClassDTO
+    public class CountryDto : BaseClassDTO
     {
         /// <summary>
         /// Gets or sets the name of the country.
@@ -21,7 +21,11 @@ namespace Winfocus.LMS.Application.DTOs
         public string Code { get; set; } = null!;
 
         /// <summary>
-        /// Gets or sets the collection of centres associated with the country.
+        /// Gets or sets the phone code.
         /// </summary>
+        /// <value>
+        /// The phone code.
+        /// </value>
+        public string PhoneCode { get; set; } = null!;
     }
 }

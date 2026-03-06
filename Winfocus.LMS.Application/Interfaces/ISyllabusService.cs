@@ -50,5 +50,12 @@
         /// <param name="request">The paged request.</param>
         /// <returns>Paginated syllabus result.</returns>
         Task<CommonResponse<PagedResult<SyllabusDto>>> GetFilteredAsync(PagedRequest request);
+
+        /// <summary>
+        /// Gets the by center identifier asynchronous.
+        /// </summary>
+        /// <param name="centerId">The center identifier.</param>
+        /// <returns>List of SyllabusDto.</returns>
+        Task<CommonResponse<List<SyllabusDto>>> GetByCenterIdAsync(Guid centerId);
     }
 }

@@ -1,5 +1,6 @@
 ﻿namespace Winfocus.LMS.Application.Services
 {
+    using Microsoft.AspNetCore.Http.HttpResults;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
     using Org.BouncyCastle.Utilities.IO;
@@ -174,10 +175,18 @@
                 };
 
                 var created = await _repo.AddAsync(course);
+                var response = new SubjectDto
+                {
+                    Name = created.Name,
+                    CourseId = created.CourseId,
+                    CreatedAt = created.CreatedAt,
+                    CreatedBy = created.CreatedBy,
+                    SubjectCode = created.SubjectCode,
+                };
 
                 _logger.LogInformation("subject created with Id: {Id}", created.Id);
                 return CommonResponse<SubjectDto>.SuccessResponse(
-                    "subject created successfully", Map(created));
+                    "subject created successfully", response);
             }
             catch (Exception ex)
             {
@@ -216,9 +225,18 @@
 
                 var updated = await _repo.UpdateAsync(course);
 
+                var response = new SubjectDto
+                {
+                    Name = updated.Name,
+                    CourseId = updated.CourseId,
+                    CreatedAt = updated.CreatedAt,
+                    CreatedBy = updated.CreatedBy,
+                    SubjectCode = updated.SubjectCode,
+                };
+
                 _logger.LogInformation("subject updated Id: {Id}", id);
                 return CommonResponse<SubjectDto>.SuccessResponse(
-                    "subject updated successfully", Map(updated));
+                    "subject updated successfully", response);
             }
             catch (Exception ex)
             {
@@ -373,6 +391,14 @@
             Id = s.Id,
             Name = s.Name,
             SubjectCode = s.SubjectCode,
+            CourseId = s.CourseId,
+            StreamId = s.Course?.StreamId ?? Guid.Empty,
+            GradeId = s.Course?.Stream?.GradeId ?? Guid.Empty,
+            SyllabusId = s.Course?.Stream?.Grade?.SyllabusId ?? Guid.Empty,
+            CenterId = s.Course?.Stream?.Grade?.Syllabus?.CenterId ?? Guid.Empty,
+            StateId = s.Course?.Stream?.Grade?.Syllabus?.Center.StateId ?? Guid.Empty,
+            ModeOfStudyId = s.Course?.Stream?.Grade?.Syllabus?.Center.ModeOfStudyId ?? Guid.Empty,
+            CountryId = s.Course?.Stream?.Grade?.Syllabus?.Center.CountryId ?? Guid.Empty,
             Course = s.Course == null ? null : new CourseDto
             {
                 Id = s.Course.Id,

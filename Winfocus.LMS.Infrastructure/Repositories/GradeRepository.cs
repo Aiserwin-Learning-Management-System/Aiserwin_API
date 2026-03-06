@@ -30,6 +30,9 @@
         {
             return await _db.Grades
                 .Include(x => x.Syllabus)
+                .ThenInclude(x => x.Center)
+                .ThenInclude(x => x.State)
+                .ThenInclude(x => x.Country)
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -43,6 +46,9 @@
         {
             return await _db.Grades
                 .Include(x => x.Syllabus)
+                .ThenInclude(x => x.Center)
+                .ThenInclude(x => x.State)
+                .ThenInclude(x => x.Country)
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
 
@@ -109,6 +115,9 @@
         {
             return await _db.Grades
                 .Include(x => x.Syllabus)
+                .ThenInclude(x => x.Center)
+                .ThenInclude(x => x.State)
+                .ThenInclude(x => x.Country)
                 .Where(x => x.SyllabusId == syllabusid)
                 .ToListAsync();
         }
@@ -122,6 +131,9 @@
         public IQueryable<Grade> Query()
         {
             return _db.Grades.Include(x => x.Syllabus)
+                .ThenInclude(x => x.Center)
+                .ThenInclude(x => x.State)
+                .ThenInclude(x => x.Country)
                 .AsNoTracking();
         }
     }

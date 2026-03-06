@@ -1,5 +1,6 @@
 ﻿namespace Winfocus.LMS.Application.Services
 {
+    using Microsoft.AspNetCore.Http.HttpResults;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
     using Winfocus.LMS.Application.DTOs;
@@ -15,16 +16,19 @@
     {
         private readonly ICourseRepository _repo;
         private readonly ILogger<CourseService> _logger;
+        private readonly IStreamRepository _streamRepo;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CourseService"/> class.
         /// </summary>
         /// <param name="repo">The repo.</param>
         /// <param name="logger">The logger.</param>
-        public CourseService(ICourseRepository repo, ILogger<CourseService> logger)
+        /// <param name="streamRepo">The streamRepo.</param>
+        public CourseService(ICourseRepository repo, ILogger<CourseService> logger, IStreamRepository streamRepo)
         {
             _repo = repo;
             _logger = logger;
+            _streamRepo = streamRepo;
         }
 
         /// <summary>
@@ -152,10 +156,15 @@
                 if(existingCourseCode)
                     return CommonResponse<CourseDto>.FailureResponse("Course code already exist");
 
+                var stream = await _streamRepo.GetByIdAsync(request.streamid);
+                if (stream == null)
+                    return CommonResponse<CourseDto>.FailureResponse("Invalid stream");
+
                 var course = new Course
                 {
                     Name = request.coursename,
                     StreamId = request.streamid,
+                    GradeId = stream.GradeId,
                     CreatedAt = DateTime.UtcNow,
                     CreatedBy = request.userId,
                     CourseCode = request.courseCode,
@@ -163,9 +172,16 @@
 
                 var created = await _repo.AddAsync(course);
 
+                var response = new CourseDto
+                {
+                    Name = created.Name,
+                    StreamId = created.StreamId,
+                    CourseCode = created.CourseCode,
+                };
+
                 _logger.LogInformation("Course created with Id: {CourseId}", created.Id);
                 return CommonResponse<CourseDto>.SuccessResponse(
-                    "Course created successfully", Map(created));
+                    "Course created successfully", response);
             }
             catch (Exception ex)
             {
@@ -193,14 +209,25 @@
                     return CommonResponse<CourseDto>.FailureResponse("Course not found");
                 }
 
+                var stream = await _streamRepo.GetByIdAsync(request.streamid);
+                if (stream == null)
+                    return CommonResponse<CourseDto>.FailureResponse("Invalid stream");
+
                 course.Name = request.coursename;
                 course.StreamId = request.streamid;
                 course.UpdatedAt = DateTime.UtcNow;
                 course.UpdatedBy = request.userId;
                 course.CourseCode = request.courseCode;
+                course.GradeId = stream.GradeId;
 
                 var updated = await _repo.UpdateAsync(course);
 
+                var response = new CourseDto
+                {
+                    Name = updated.Name,
+                    StreamId = updated.StreamId,
+                    CourseCode = updated.CourseCode,
+                };
                 _logger.LogInformation("Course updated Id: {CourseId}", id);
                 return CommonResponse<CourseDto>.SuccessResponse(
                     "Course updated successfully", Map(updated));
@@ -355,11 +382,13 @@
             Name = c.Name,
             IsActive = c.IsActive,
             StreamId = c.StreamId,
-            CreatedBy = c.CreatedBy,
-            CreatedAt = c.CreatedAt,
-            UpdatedBy = c.UpdatedBy,
-            UpdatedAt = c.UpdatedAt,
             CourseCode = c.CourseCode,
+            GradeId = c.GradeId,
+            SyllabusId = c.Grade.SyllabusId,
+            CenterId = c.Grade.Syllabus.CenterId,
+            StateId = c.Grade.Syllabus.Center.StateId,
+            ModeOfStudyId = c.Grade.Syllabus.Center.ModeOfStudyId,
+            CountryId = c.Grade.Syllabus.Center.CountryId,
             Stream = c.Stream == null ? null : new StreamDto
             {
                 Id = c.Stream.Id,
