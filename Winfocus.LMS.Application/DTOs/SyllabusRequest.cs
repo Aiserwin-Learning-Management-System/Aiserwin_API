@@ -28,6 +28,6 @@
         /// <value>
         /// The Ceneter identifier.
         /// </value>
-        public Guid CeneterId { get; init; }
+        public Guid CenterId { get; init; }
     }
 }

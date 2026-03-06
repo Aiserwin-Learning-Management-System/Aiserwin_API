@@ -104,7 +104,7 @@ namespace Winfocus.LMS.Application.Services
                     Name = request.Name,
                     CreatedAt = DateTime.UtcNow,
                     CreatedBy = request.UserId,
-                    CenterId = request.CeneterId,
+                    CenterId = request.CenterId,
                 };
 
                 var created = await _repository.AddAsync(syllabus);
@@ -140,7 +140,7 @@ namespace Winfocus.LMS.Application.Services
                 batch.Name = request.Name;
                 batch.UpdatedAt = DateTime.UtcNow;
                 batch.UpdatedBy = request.UserId;
-                batch.CenterId = request.CeneterId;
+                batch.CenterId = request.CenterId;
 
                 var updated = await _repository.UpdateAsync(batch);
 
@@ -315,41 +315,40 @@ namespace Winfocus.LMS.Application.Services
                Name = c.Name,
                IsActive = c.IsActive,
                CeneterId = c.CenterId,
-               CountryId = c.Center.CountryId,
-               ModeOfStudyId = c.Center.ModeOfStudyId,
-               State_Id = (Guid)c.Center.StateId,
-               Country = c.Center.Country == null ? null : new CountryDto
+               CountryId = c.Center?.CountryId ?? Guid.Empty,
+               ModeOfStudyId = c.Center?.ModeOfStudyId ?? Guid.Empty,
+               State_Id = c.Center?.StateId ?? Guid.Empty,
+
+               Country = c.Center?.Country == null ? null : new CountryDto
                {
-                   Id = c.Center.Id,
-                   Name = c.Center.Name,
+                   Id = c.Center.Country.Id,
+                   Name = c.Center.Country.Name,
                    Code = c.Center.Country.Code,
-
-
                },
+
                Center = c.Center == null ? null : new CenterDto
                {
                    Id = c.Center.Id,
                    Name = c.Center.Name,
                    ModeOfStudyId = c.Center.ModeOfStudyId,
                    CountryId = c.Center.CountryId,
-                   StateId = (Guid)c.Center.StateId,
-
+                   StateId = c.Center.StateId ?? Guid.Empty,
                },
-               ModeOfStudy = c.Center.modeOfStudy == null ? null : new ModeOfStudyDto
+
+               ModeOfStudy = c.Center?.modeOfStudy == null ? null : new ModeOfStudyDto
                {
                    Id = c.Center.modeOfStudy.Id,
                    Name = c.Center.modeOfStudy.Name,
                    CountryId = c.Center.CountryId,
                },
-               State = c.Center.State == null ? null : new StateDto
+
+               State = c.Center?.State == null ? null : new StateDto
                {
                    Id = c.Center.State.Id,
                    Name = c.Center.State.Name,
                    ModeOfStudyId = c.Center.ModeOfStudyId,
                    CountryId = c.Center.CountryId,
-
                },
-
            };
     }
 }
