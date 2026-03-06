@@ -1,5 +1,6 @@
 ﻿namespace Winfocus.LMS.Application.Services
 {
+    using Microsoft.AspNetCore.Http.HttpResults;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
     using Winfocus.LMS.Application.DTOs;
@@ -103,11 +104,18 @@
                 };
 
                 var created = await _repository.AddAsync(grades);
+                var result = new GradeDto
+                {
+                    Id = created.Id,
+                    Name = created.Name,
+                    SyllabusId = created.SyllabusId,
+                };
+
                 _logger.LogInformation(
                "Grades created successfully. Id: {Id}",
                created.Id);
                 return CommonResponse<GradeDto>.SuccessResponse(
-                  "Grade created successfully", Map(created));
+                  "Grade created successfully", result);
             }
             catch (Exception ex)
             {
@@ -142,10 +150,16 @@
                 batch.UpdatedBy = request.userId;
 
                 var updated = await _repository.UpdateAsync(batch);
+                var result = new GradeDto
+                {
+                    Id = updated.Id,
+                    Name = updated.Name,
+                    SyllabusId = updated.SyllabusId,
+                };
 
                 _logger.LogInformation("Grade updated Id: {Id}", id);
                 return CommonResponse<GradeDto>.SuccessResponse(
-                    "Grade updated successfully", Map(updated));
+                    "Grade updated successfully", result);
             }
             catch (Exception ex)
             {
@@ -325,10 +339,10 @@
                 Name = c.Name,
                 IsActive = c.IsActive,
                 SyllabusId = c.SyllabusId,
-                CreatedBy = c.CreatedBy,
-                CreatedAt = c.CreatedAt,
-                UpdatedBy = c.UpdatedBy,
-                UpdatedAt = c.UpdatedAt,
+                CenterId = c.Syllabus.CenterId,
+                StateId = c.Syllabus.Center.StateId,
+                ModeOfStudyId = c.Syllabus.Center.ModeOfStudyId,
+                CountryId = c.Syllabus.Center.CountryId,
                 Syllabus = c.Syllabus == null ? null : new SyllabusDto
                 {
                     Id = c.Syllabus.Id,
