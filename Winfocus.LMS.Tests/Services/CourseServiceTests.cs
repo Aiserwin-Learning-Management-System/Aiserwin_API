@@ -28,6 +28,11 @@
         private readonly Mock<ILogger<CourseService>> _mockLogger;
 
         /// <summary>
+        /// Mock instance of the IStreamRepository for testing.
+        /// </summary>
+        private readonly Mock<IStreamRepository> _mockstream;
+
+        /// <summary>
         /// Instance of CourseService under test.
         /// </summary>
         private readonly CourseService _service;
@@ -42,7 +47,8 @@
             {
                 _mockRepository = new Mock<ICourseRepository>();
                 _mockLogger = new Mock<ILogger<CourseService>>();
-                _service = new CourseService(_mockRepository.Object, _mockLogger.Object);
+                _mockstream = new Mock<IStreamRepository>();
+                _service = new CourseService(_mockRepository.Object, _mockLogger.Object, _mockstream.Object);
             }
             catch (Exception ex)
             {
