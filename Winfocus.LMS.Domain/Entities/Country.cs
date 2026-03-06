@@ -21,6 +21,14 @@
         public string Code { get; set; } = null!;
 
         /// <summary>
+        /// Gets or sets the phone code.
+        /// </summary>
+        /// <value>
+        /// The phone code.
+        /// </value>
+        public string PhoneCode { get; set; } = null!;
+
+        /// <summary>
         /// Gets or sets the collection of centres associated with the country.
         /// </summary>
         public ICollection<Center> Centers { get; set; } = new List<Center>();
