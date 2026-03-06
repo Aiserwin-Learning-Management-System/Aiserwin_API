@@ -212,7 +212,7 @@
                 {
                     Id = entity.StudentAcademicDetailsId,
                     CountryId = entity.AcademicDetails.CountryId,
-                    Country = entity.AcademicDetails.Country != null ? new CountryDto1
+                    Country = entity.AcademicDetails.Country != null ? new CountryDto
                     {
                         Id = entity.AcademicDetails.CountryId,
                         Name = entity.AcademicDetails.Country.Name,
@@ -308,7 +308,7 @@
          {
              Id = c.StudentAcademicDetailsId,
              CountryId = c.AcademicDetails.CountryId,
-             Country = new CountryDto1
+             Country = new CountryDto
              {
                  Id = c.AcademicDetails.CountryId,
                  Name = c.AcademicDetails.Country.Name,

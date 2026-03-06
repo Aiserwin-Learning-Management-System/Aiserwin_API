@@ -6,5 +6,5 @@ namespace Winfocus.LMS.Application.DTOs
     /// Request for creating or updating a country.
     /// </summary>
     public sealed record CreateCountryRequest(
-       [Required] string name, [Required] string code);
+       [Required] string name, [Required] string code, [Required] string phonecode);
 }
