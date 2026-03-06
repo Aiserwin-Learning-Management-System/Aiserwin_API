@@ -118,5 +118,18 @@ namespace Winfocus.LMS.Infrastructure.Repositories
                 .Include(x => x.Center.State)
                 .AsNoTracking();
         }
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="centerId">The identifier.</param>
+        /// <returns>Syllabus.</returns>
+        public async Task<List<Syllabus>> GetByCenterIdAsync(Guid centerId)
+        {
+            return await _db.Syllabuses
+                .Include(x => x.Center)
+                .Where(x => x.CenterId == centerId)
+                .ToListAsync();
+        }
     }
 }
