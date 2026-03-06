@@ -120,6 +120,9 @@ builder.Services.AddScoped<IBatchRepository, BatchRepository>();
 builder.Services.AddScoped<IUserSessionRepository, UserSessionRepository>();
 builder.Services.AddScoped<IUserSessionService, UserSessionService>();
 
+builder.Services.AddScoped<IDoubtClearingRepository, DoubtClearingRepository>();
+builder.Services.AddScoped<IDoubtClearingService, DoubtClearingService>();
+
 #endregion
 
 #region JWT Authentication
