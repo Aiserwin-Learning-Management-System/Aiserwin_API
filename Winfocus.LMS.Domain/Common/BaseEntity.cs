@@ -34,5 +34,11 @@
         /// Gets or sets a value indicating whether the entity is active.
         /// </summary>
         public bool IsActive { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the entity has been soft-deleted.
+        /// Soft-deleted entities are excluded from normal queries via global query filters.
+        /// </summary>
+        public bool IsDeleted { get; set; } = false;
     }
 }
