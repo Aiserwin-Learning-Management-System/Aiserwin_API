@@ -152,12 +152,12 @@
 
             entity.IsActive = false;
             entity.UpdatedAt = DateTime.UtcNow;
+            entity.IsDeleted = true;
 
             _db.Courses.Update(entity);
             await _db.SaveChangesAsync();
             return true;
         }
-
 
         /// <summary>
         /// Existses the by code asynchronous.

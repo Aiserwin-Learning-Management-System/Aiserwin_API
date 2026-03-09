@@ -85,6 +85,7 @@
 
             entity.UpdatedAt = DateTime.UtcNow;
             entity.IsActive = false;
+            entity.IsDeleted = true;
 
             _db.Countries.Update(entity);
             await _db.SaveChangesAsync();

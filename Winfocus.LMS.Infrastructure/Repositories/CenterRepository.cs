@@ -96,6 +96,7 @@
             }
 
             entity.IsActive = false;
+            entity.IsDeleted = true;
 
             _dbContext.Centres.Update(entity);
             await _dbContext.SaveChangesAsync();

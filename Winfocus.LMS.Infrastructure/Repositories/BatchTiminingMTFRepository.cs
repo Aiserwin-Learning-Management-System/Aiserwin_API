@@ -99,6 +99,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             }
 
             entity.IsActive = false;
+            entity.IsDeleted = true;
 
             _dbContext.BatchTimingMTFs.Update(entity);
             await _dbContext.SaveChangesAsync();

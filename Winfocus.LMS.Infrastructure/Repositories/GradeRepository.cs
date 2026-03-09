@@ -90,6 +90,7 @@
             }
 
             entity.IsActive = false;
+            entity.IsDeleted = true;
 
             _db.Grades.Update(entity);
             await _db.SaveChangesAsync();

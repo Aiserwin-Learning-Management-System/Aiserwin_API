@@ -127,6 +127,7 @@
 
             entity.IsActive = false;
             entity.UpdatedAt = DateTime.UtcNow;
+            entity.IsDeleted = true;
 
             _db.Subjects.Update(entity);
             await _db.SaveChangesAsync();

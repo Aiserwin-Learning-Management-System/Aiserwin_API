@@ -90,6 +90,7 @@
             }
 
             entity.IsActive = false;
+            entity.IsDeleted = true;
 
             _dbContext.ModeOfStudies.Update(entity);
             await _dbContext.SaveChangesAsync();

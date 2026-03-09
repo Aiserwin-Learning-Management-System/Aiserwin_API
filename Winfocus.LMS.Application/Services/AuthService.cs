@@ -169,6 +169,9 @@
                     Email = request.email,
                     CreatedAt = DateTime.UtcNow,
                     IsActive = false,
+                    CenterId = request.centerid,
+                    CountryId = request.countryid,
+                    StaffCategoryId = request.staffcategoryid,
                 };
 
                 user.UserRoles = roles.Select(role => new UserRole
@@ -339,7 +342,14 @@
                 .Select(ur => ur.Role!.Name)
                 .ToList();
 
-            var jwt = _tokenService.GenerateToken(user, roles, sessionId);
+            var roleId = user.UserRoles
+             .Select(ur => ur.RoleId)
+             .FirstOrDefault();
+
+            var permissions = await _userRepository
+                .GetByRoleAsync(roleId);
+
+            var jwt = _tokenService.GenerateToken(user, roles, sessionId, permissions);
 
             // ── 7. Log successful login ──
             await SafeLogLoginAsync(

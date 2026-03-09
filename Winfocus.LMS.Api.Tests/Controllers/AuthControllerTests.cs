@@ -36,8 +36,10 @@
             var request = new RegisterRequestDto(
                 "testuser",
                 "test@winfocus.com",
-                null
-            );
+                null,
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                Guid.NewGuid());
 
             var response = await _client.PostAsJsonAsync(
                 "/api/v1/Auth/register",
@@ -56,7 +58,7 @@
             // Register user
             var registerResponse = await _client.PostAsJsonAsync(
                 "/api/v1/Auth/register",
-                new RegisterRequestDto("loginuser", "login@winfocus.com", null));
+                new RegisterRequestDto("loginuser", "login@winfocus.com", null, Guid.Empty, Guid.Empty, Guid.Empty));
 
             var registeredUser = await registerResponse.Content.ReadFromJsonAsync<AuthResponseDto>();
 
@@ -88,7 +90,10 @@
             var request = new RegisterRequestDto(
                 "user",
                 "invalid-email",
-                null);
+                null,
+                Guid.Empty,
+                Guid.Empty,
+                Guid.Empty);
 
             var response = await _client.PostAsJsonAsync(
                 "/api/v1/Auth/register",

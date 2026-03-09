@@ -32,12 +32,14 @@
         /// </summary>
         /// <param name="user">The user.</param>
         /// <param name="roles">The roles.</param>
+        /// <param name="permissions">The permissions.</param>
         /// <param name="sessionId">The session identifier to use as JTI.</param>
         /// <returns>The JWT token string.</returns>
         public string GenerateToken(
             User user,
             IReadOnlyList<string> roles,
-            string sessionId)
+            string sessionId, 
+            IReadOnlyList<string> permissions)
         {
             var issuer = _configuration["Jwt:Issuer"]!;
             var audience = _configuration["Jwt:Audience"]!;
@@ -55,7 +57,7 @@
                 new Claim("session_id", sessionId),
                 new Claim("countryId", user.CountryId.ToString() ?? string.Empty),
                 new Claim("centerId", user.CenterId.ToString() ?? string.Empty),
-                new Claim("StaffTypeId", user.StaffTypeId?.ToString() ?? ""),
+                new Claim("StaffCategoryId", user.StaffCategoryId?.ToString() ?? ""),
             };
 
             foreach (var role in roles)
@@ -63,6 +65,10 @@
                 claims.Add(new Claim(ClaimTypes.Role, role));
             }
 
+            foreach (var permission in permissions)
+            {
+                claims.Add(new Claim("Permission", permission));
+            }
             var token = new JwtSecurityToken(
                 issuer: issuer,
                 audience: audience,

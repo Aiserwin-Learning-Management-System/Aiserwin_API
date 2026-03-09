@@ -45,12 +45,12 @@
         /// <summary>
         /// Gets or sets the identifier of the Stafftype.
         /// </summary>
-        public Guid? StaffTypeId { get; set; }
+        public Guid? StaffCategoryId { get; set; }
 
         /// <summary>
         /// Gets or sets the identifier of the StaffType.
         /// </summary>
-        public StaffType? StaffType { get; set; } = null!;
+        public StaffCategory? StaffCategory { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the collection of UserRole associated with the user.

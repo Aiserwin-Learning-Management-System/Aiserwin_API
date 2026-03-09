@@ -106,6 +106,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             }
 
             entity.IsActive = false;
+            entity.IsDeleted = true;
 
             _dbContext.DoubtClearing.Update(entity);
             await _dbContext.SaveChangesAsync();

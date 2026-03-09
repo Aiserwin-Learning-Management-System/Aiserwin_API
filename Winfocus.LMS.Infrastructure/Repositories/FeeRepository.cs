@@ -171,6 +171,7 @@
             }
 
             entity.IsActive = false;
+            entity.IsDeleted = false;
 
             _context.FeePlans.Update(entity);
             await _context.SaveChangesAsync();

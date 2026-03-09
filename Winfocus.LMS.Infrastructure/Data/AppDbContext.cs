@@ -234,14 +234,6 @@
         public DbSet<FeePlanDiscount> FeePlanDiscount { get; set; }
 
         /// <summary>
-        /// Gets or sets the StaffType.
-        /// </summary>
-        /// <value>
-        /// The StaffType.
-        /// </value>
-        public DbSet<StaffType> StaffType { get; set; }
-
-        /// <summary>
         /// Gets or sets stores all available system permissions.
         /// </summary>
         public DbSet<Permission> Permissions { get; set; }

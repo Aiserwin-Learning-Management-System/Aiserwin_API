@@ -89,6 +89,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             }
 
             entity.IsActive = false;
+            entity.IsDeleted = true;
 
             _dbContext.StudentPersonalDetails.Update(entity);
             await _dbContext.SaveChangesAsync();

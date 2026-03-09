@@ -169,6 +169,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             entity.IsActive = false;
             entity.UpdatedAt = DateTime.UtcNow;
             entity.RegistrationStatus = RegistrationStatus.Disabled;
+            entity.IsDeleted = true;
 
             _dbContext.Students.Update(entity);
             await _dbContext.SaveChangesAsync();

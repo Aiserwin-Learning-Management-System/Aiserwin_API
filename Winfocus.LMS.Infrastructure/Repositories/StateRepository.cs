@@ -93,6 +93,7 @@
             }
 
             entity.IsActive = false;
+            entity.IsDeleted = true;
 
             _dbContext.States.Update(entity);
             await _dbContext.SaveChangesAsync();

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
@@ -18,7 +19,7 @@ namespace Winfocus.LMS.Infrastructure.DataSeeders
         /// <param name="db">The application database context.</param>
         public static void Seed(AppDbContext db)
         {
-            if (!db.StaffType.Any())
+            if (!db.StaffCategories.Any())
             {
                 // Build path to JSON file
                 var jsonPath = Path.Combine(AppContext.BaseDirectory, "SeederFile", "stafftypes.json");
@@ -27,7 +28,7 @@ namespace Winfocus.LMS.Infrastructure.DataSeeders
                 {
                     var json = File.ReadAllText(jsonPath);
 
-                    var staffTypesFromJson = JsonSerializer.Deserialize<List<StaffType>>(json);
+                    var staffTypesFromJson = JsonSerializer.Deserialize<List<StaffCategory>>(json);
 
                     if (staffTypesFromJson != null)
                     {
@@ -36,9 +37,10 @@ namespace Winfocus.LMS.Infrastructure.DataSeeders
                             staffType.Id = Guid.NewGuid();
                             staffType.CreatedAt = DateTime.UtcNow;
                             staffType.IsActive = true;
+                            staffType.CreatedBy = Guid.Empty;
                         }
 
-                        db.StaffType.AddRange(staffTypesFromJson);
+                        db.StaffCategories.AddRange(staffTypesFromJson);
                         db.SaveChanges();
                     }
                 }

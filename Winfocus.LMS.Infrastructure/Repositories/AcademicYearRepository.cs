@@ -95,6 +95,7 @@
             }
 
             entity.IsActive = false;
+            entity.IsDeleted = true;
 
             _dbContext.AcademicYears.Update(entity);
             await _dbContext.SaveChangesAsync();

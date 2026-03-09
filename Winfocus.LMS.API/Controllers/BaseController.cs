@@ -46,5 +46,31 @@ namespace Winfocus.LMS.API.Controllers
                 return userId;
             }
         }
+
+        /// <summary>
+        /// Gets the authenticated user's country from the JWT token.
+        /// Returns empty string if user is not authenticated.
+        /// </summary>
+        protected string CountryId
+        {
+            get
+            {
+                string compnayId = (User?.Identity?.IsAuthenticated == true && User?.FindFirst("countryId").Value != null) ? User.FindFirst("companyId").Value : "";
+                return compnayId;
+            }
+        }
+
+        /// <summary>
+        /// Gets the authenticated user's center from the JWT token.
+        /// Returns empty string if user is not authenticated.
+        /// </summary>
+        protected string CenterId
+        {
+            get
+            {
+                string compnayId = (User?.Identity?.IsAuthenticated == true && User?.FindFirst("centerId").Value != null) ? User.FindFirst("companyId").Value : "";
+                return compnayId;
+            }
+        }
     }
 }
