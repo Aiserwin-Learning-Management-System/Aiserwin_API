@@ -815,6 +815,9 @@
                 PaymentType = feePlan.PaymentType,
                 DurationinYears = feePlan.DurationinYears,
                 SubjectId = feePlan.SubjectId,
+                StreamId = feePlan.Course?.StreamId ?? Guid.Empty,
+                GradeId = feePlan.Course?.GradeId ?? Guid.Empty,
+                SyllabusId = feePlan.Course?.Grade.SyllabusId ?? Guid.Empty,
                 Discounts = feePlan.Discounts.Select(d => new FeePlanDiscountDto
                 {
                     Id = d.Id,

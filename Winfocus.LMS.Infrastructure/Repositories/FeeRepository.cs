@@ -123,6 +123,10 @@
         {
             return await _context.FeePlans
                 .Include(x => x.Discounts)
+                .Include(x => x.Course)
+                .ThenInclude(x => x.Stream)
+                .ThenInclude(x => x.Grade)
+                .ThenInclude(x => x.Syllabus)
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
 
@@ -135,6 +139,10 @@
             return await _context.FeePlans
                 .Include(x => x.Discounts)
                 .Include(x => x.Installments)
+                 .Include(x => x.Course)
+                .ThenInclude(x => x.Stream)
+                .ThenInclude(x => x.Grade)
+                .ThenInclude(x => x.Syllabus)
                 .AsNoTracking()
                 .ToListAsync();
         }
