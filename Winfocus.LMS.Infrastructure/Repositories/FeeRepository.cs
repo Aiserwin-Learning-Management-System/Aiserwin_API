@@ -141,6 +141,7 @@
                 .Include(x => x.Installments)
                  .Include(x => x.Course)
                 .ThenInclude(x => x.Stream)
+                .Include(x => x.Course)
                 .ThenInclude(x => x.Grade)
                 .ThenInclude(x => x.Syllabus)
                 .AsNoTracking()
