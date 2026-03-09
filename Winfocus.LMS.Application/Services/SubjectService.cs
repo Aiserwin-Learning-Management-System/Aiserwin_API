@@ -399,6 +399,7 @@
             StateId = s.Course?.Stream?.Grade?.Syllabus?.Center.StateId ?? Guid.Empty,
             ModeOfStudyId = s.Course?.Stream?.Grade?.Syllabus?.Center.ModeOfStudyId ?? Guid.Empty,
             CountryId = s.Course?.Stream?.Grade?.Syllabus?.Center.CountryId ?? Guid.Empty,
+            IsActive = s.IsActive,
             Course = s.Course == null ? null : new CourseDto
             {
                 Id = s.Course.Id,
