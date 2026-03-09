@@ -50,6 +50,24 @@ namespace Winfocus.LMS.Application.DTOs.Fees
         public Guid SubjectId { get; set; }
 
         /// <summary>
+        /// Gets or sets the syllabus identifier.
+        /// </summary>
+        /// <value>The syllabus identifier.</value>
+        public Guid SyllabusId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Grade identifier.
+        /// </summary>
+        /// <value>The Grade identifier.</value>
+        public Guid GradeId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Stream identifier.
+        /// </summary>
+        /// <value>The Stream identifier.</value>
+        public Guid StreamId { get; set; }
+
+        /// <summary>
         /// Gets or sets the list of discounts associated with this FeePlan.
         /// </summary>
         public IReadOnlyCollection<FeePlanDiscountDto> Discounts { get; set; }
