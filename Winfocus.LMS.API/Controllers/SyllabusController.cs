@@ -41,6 +41,7 @@
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>SyllabusDto.</returns>
+        [Authorize(Policy = "CenterAdminOnly")]
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPost]
         public async Task<ActionResult<CommonResponse<SyllabusDto>>> Create(

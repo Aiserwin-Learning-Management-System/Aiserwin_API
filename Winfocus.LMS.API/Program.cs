@@ -192,6 +192,21 @@ builder.Services.AddAuthorization(options =>
     {
         policy.RequireClaim("Permission", "CanCreateStudent");
     });
+
+    options.AddPolicy("CanViewStudent", policy =>
+    {
+        policy.RequireClaim("Permission", "CanViewStudent");
+    });
+
+    options.AddPolicy("CanDeleteStudent", policy =>
+    {
+        policy.RequireClaim("Permission", "CanDeleteStudent");
+    });
+    options.AddPolicy("CanUpdateStudent", policy =>
+    {
+        policy.RequireClaim("Permission", "CanUpdateStudent");
+    });
+
 });
 
 #endregion

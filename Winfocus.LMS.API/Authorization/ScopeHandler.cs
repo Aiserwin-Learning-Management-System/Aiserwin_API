@@ -8,8 +8,8 @@ namespace Winfocus.LMS.API.Authorization
        AuthorizationHandlerContext context,
        ScopeRequirement requirement)
         {
-            var userCountryId = context.User.FindFirst("CountryId")?.Value;
-            var userCenterId = context.User.FindFirst("CenterId")?.Value;
+            var userCountryId = context.User.FindFirst("countryId")?.Value;
+            var userCenterId = context.User.FindFirst("centerId")?.Value;
 
             if (context.Resource is HttpContext httpContext)
             {
