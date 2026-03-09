@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Winfocus.LMS.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using Winfocus.LMS.Infrastructure.Data;
 namespace Winfocus.LMS.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260305102258_DoubtClearingTable")]
+    partial class DoubtClearingTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -271,10 +274,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("PhoneCode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -640,31 +639,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Roles");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.StaffType", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("StaffType");
                 });
 
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.State", b =>
@@ -1352,12 +1326,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("CenterId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("CountryId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -1375,9 +1343,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("StaffTypeId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -1390,14 +1355,8 @@ namespace Winfocus.LMS.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CenterId");
-
-                    b.HasIndex("CountryId");
-
                     b.HasIndex("Email")
                         .IsUnique();
-
-                    b.HasIndex("StaffTypeId");
 
                     b.HasIndex("Username")
                         .IsUnique();
@@ -2093,27 +2052,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Center");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.User", b =>
-                {
-                    b.HasOne("Winfocus.LMS.Domain.Entities.Center", "Center")
-                        .WithMany()
-                        .HasForeignKey("CenterId");
-
-                    b.HasOne("Winfocus.LMS.Domain.Entities.Country", "Country")
-                        .WithMany()
-                        .HasForeignKey("CountryId");
-
-                    b.HasOne("Winfocus.LMS.Domain.Entities.StaffType", "StaffType")
-                        .WithMany()
-                        .HasForeignKey("StaffTypeId");
-
-                    b.Navigation("Center");
-
-                    b.Navigation("Country");
-
-                    b.Navigation("StaffType");
                 });
 
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.UserRole", b =>

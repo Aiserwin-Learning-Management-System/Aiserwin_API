@@ -125,6 +125,9 @@ builder.Services.AddSingleton<IAuthorizationHandler, ScopeHandler>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUserScopeService, UserScopeService>();
 
+builder.Services.AddScoped<IDoubtClearingRepository, DoubtClearingRepository>();
+builder.Services.AddScoped<IDoubtClearingService, DoubtClearingService>();
+
 #endregion
 
 #region JWT Authentication

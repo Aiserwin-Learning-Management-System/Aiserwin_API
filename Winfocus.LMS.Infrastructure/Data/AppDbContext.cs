@@ -29,6 +29,11 @@
         /// </summary>
         public DbSet<Center> Centres { get; set; } = null!;
 
+
+        /// <summary>
+        /// Gets or sets the Doubt Clearing in the database.
+        /// </summary>
+        public DbSet<DoubtClearing> DoubtClearing { get; set; } = null!;
         /// <summary>
         /// Gets or sets the users in the database.
         /// </summary>
