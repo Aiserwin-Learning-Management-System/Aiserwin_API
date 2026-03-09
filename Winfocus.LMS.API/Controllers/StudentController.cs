@@ -54,6 +54,7 @@
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>StudentDto.</returns>
+        [Authorize(Policy = "CanCreateStudent")]
         [HttpPost]
         public async Task<CommonResponse<StudentDto>> Create([FromForm] StudentRequest request)
         {

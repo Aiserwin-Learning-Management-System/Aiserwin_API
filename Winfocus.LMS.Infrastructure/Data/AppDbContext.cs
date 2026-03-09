@@ -497,6 +497,21 @@
                  .OnDelete(DeleteBehavior.NoAction);
             });
 
+            modelBuilder.Entity<RolePermission>(entity =>
+            {
+                entity.HasKey(rp => new { rp.RoleId, rp.PermissionId });
+
+                entity.HasOne(rp => rp.Role)
+                      .WithMany(r => r.RolePermissions)
+                      .HasForeignKey(rp => rp.RoleId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(rp => rp.Permission)
+                      .WithMany(p => p.RolePermissions)
+                      .HasForeignKey(rp => rp.PermissionId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
             base.OnModelCreating(modelBuilder);
         }
     }

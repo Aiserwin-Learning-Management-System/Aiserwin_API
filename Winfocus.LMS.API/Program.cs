@@ -187,6 +187,11 @@ builder.Services.AddAuthorization(options =>
         policy.RequireRole("Staff");
         policy.Requirements.Add(new ScopeRequirement());
     });
+
+    options.AddPolicy("CanCreateStudent", policy =>
+    {
+        policy.RequireClaim("Permission", "CanCreateStudent");
+    });
 });
 
 #endregion
@@ -295,6 +300,7 @@ if (!app.Environment.IsEnvironment("Testing"))
         StateDataSeeder.Seed(db);
         RoleDataSeeder.Seed(db);
         StaffTypeDataSeeder.Seed(db);
+        PermissionSeeder.Seed(db);
     }
     catch (Exception ex)
     {
