@@ -1,6 +1,7 @@
 ﻿namespace Winfocus.LMS.Infrastructure.Data
 {
     using Microsoft.EntityFrameworkCore;
+    using Winfocus.LMS.Domain.Common;
     using Winfocus.LMS.Domain.Entities;
     using Winfocus.LMS.Infrastructure.Data.Configurations;
     using Winfocus.LMS.Infrastructure.Persistence.Configurations;
@@ -264,6 +265,14 @@
         public DbSet<UserActiveSession> UserActiveSessions { get; set; } = null!;
 
         /// <summary>
+        /// Gets or sets the staff categories.
+        /// </summary>
+        /// <value>
+        /// The staff categories.
+        /// </value>
+        public DbSet<StaffCategory> StaffCategories { get; set; } = null!;
+
+        /// <summary>
         /// Configures the model for the context.
         /// </summary>
         /// <param name="modelBuilder">The builder being used to construct the model for this context.</param>
@@ -275,6 +284,7 @@
             modelBuilder.ApplyConfiguration(new UserActivationTokenConfiguration());
             modelBuilder.ApplyConfiguration(new UserLoginLogConfiguration());
             modelBuilder.ApplyConfiguration(new UserActiveSessionConfiguration());
+            modelBuilder.ApplyConfiguration(new StaffCategoryConfiguration());
 
             // User configuration
             modelBuilder.Entity<User>()
@@ -349,7 +359,6 @@
                 .WithMany()
                 .HasForeignKey(fp => fp.SubjectId)
                 .OnDelete(DeleteBehavior.NoAction);
-
 
             // Ensure email is globally unique
             modelBuilder.Entity<User>()
@@ -513,6 +522,83 @@
             });
 
             base.OnModelCreating(modelBuilder);
+        }
+
+        /// <summary>
+        /// Saves all changes made in this context to the database.
+        /// </summary>
+        /// <returns>
+        /// The number of state entries written to the database.
+        /// </returns>
+        /// <remarks>
+        /// <para>
+        /// This method will automatically call <see cref="M:Microsoft.EntityFrameworkCore.ChangeTracking.ChangeTracker.DetectChanges" />
+        /// to discover any changes to entity instances before saving to the underlying database. This can be disabled via
+        /// <see cref="P:Microsoft.EntityFrameworkCore.ChangeTracking.ChangeTracker.AutoDetectChangesEnabled" />.
+        /// </para>
+        /// <para>
+        /// Entity Framework Core does not support multiple parallel operations being run on the same DbContext instance. This
+        /// includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
+        /// Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
+        /// in parallel. See <see href="https://aka.ms/efcore-docs-threading">Avoiding DbContext threading issues</see> for more information
+        /// and examples.
+        /// </para>
+        /// <para>
+        /// See <see href="https://aka.ms/efcore-docs-saving-data">Saving data in EF Core</see> for more information and examples.
+        /// </para>
+        /// </remarks>
+        public override int SaveChanges()
+        {
+            HandleSoftDelete();
+            return base.SaveChanges();
+        }
+
+        /// <summary>
+        /// Saves all changes made in this context to the database.
+        /// </summary>
+        /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        /// A task that represents the asynchronous save operation. The task result contains the
+        /// number of state entries written to the database.
+        /// </returns>
+        /// <remarks>
+        /// <para>
+        /// This method will automatically call <see cref="M:Microsoft.EntityFrameworkCore.ChangeTracking.ChangeTracker.DetectChanges" />
+        /// to discover any changes to entity instances before saving to the underlying database. This can be disabled via
+        /// <see cref="P:Microsoft.EntityFrameworkCore.ChangeTracking.ChangeTracker.AutoDetectChangesEnabled" />.
+        /// </para>
+        /// <para>
+        /// Entity Framework Core does not support multiple parallel operations being run on the same DbContext instance. This
+        /// includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
+        /// Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
+        /// in parallel. See <see href="https://aka.ms/efcore-docs-threading">Avoiding DbContext threading issues</see> for more
+        /// information and examples.
+        /// </para>
+        /// <para>
+        /// See <see href="https://aka.ms/efcore-docs-saving-data">Saving data in EF Core</see> for more information and examples.
+        /// </para>
+        /// </remarks>
+        public override Task<int> SaveChangesAsync(
+            CancellationToken cancellationToken = default)
+        {
+            HandleSoftDelete();
+            return base.SaveChangesAsync(cancellationToken);
+        }
+
+        private void HandleSoftDelete()
+        {
+            var deletedEntries = ChangeTracker
+                .Entries<BaseEntity>()
+                .Where(e => e.State == EntityState.Deleted);
+
+            foreach (var entry in deletedEntries)
+            {
+                // Convert hard delete → soft delete
+                entry.State = EntityState.Modified;
+                entry.Entity.IsDeleted = true;
+                entry.Entity.IsActive = false;
+                entry.Entity.UpdatedAt = DateTime.UtcNow;
+            }
         }
     }
 }
