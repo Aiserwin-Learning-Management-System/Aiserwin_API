@@ -31,13 +31,11 @@
         public async Task<IReadOnlyList<Course>> GetAllAsync()
             => await _db.Courses
                 .Include(c => c.Stream)
-                    .ThenInclude(s => s.Grade)
-                        .ThenInclude(g => g.Syllabus)
+                .Include(c => c.Grade)
+                    .ThenInclude(g => g.Syllabus)
                          .ThenInclude(x => x.Center)
                          .ThenInclude(x => x.State)
                          .ThenInclude(x => x.Country)
-                .Include(c => c.Grade)
-                    .ThenInclude(g => g.Syllabus)
                 .AsNoTracking()
                 .ToListAsync();
 
@@ -51,13 +49,11 @@
         public async Task<Course?> GetByIdAsync(Guid id)
     => await _db.Courses
             .Include(c => c.Stream)
-            .ThenInclude(s => s.Grade)
+            .Include(c => c.Grade)
                 .ThenInclude(g => g.Syllabus)
                  .ThenInclude(x => x.Center)
                  .ThenInclude(x => x.State)
                  .ThenInclude(x => x.Country)
-            .Include(c => c.Grade)
-                .ThenInclude(g => g.Syllabus)
         .FirstOrDefaultAsync(x => x.Id == id);
 
         /// <summary>
