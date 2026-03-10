@@ -30,7 +30,7 @@
         /// </returns>
         public async Task<IReadOnlyList<Subject>> GetAllAsync()
             => await _db.Subjects
-                .Where(x => x.IsActive)
+                .Where(x => x.IsActive && !x.IsDeleted)
                 .AsNoTracking()
                 .ToListAsync();
 
@@ -50,7 +50,7 @@
                       .ThenInclude(x => x.Center)
                          .ThenInclude(x => x.State)
                          .ThenInclude(x => x.Country)
-         .FirstOrDefaultAsync(s => s.Id == id);
+         .FirstOrDefaultAsync(s => s.Id == id && !s.IsDeleted);
 
         /// <summary>
         /// Gets the by stream asynchronous.
@@ -62,7 +62,7 @@
         public async Task<IReadOnlyList<Subject>> GetByStreamAsync(Guid streamId)
             => await _db.Subjects
                 .Include(s => s.Course)
-                .Where(s => s.Course.StreamId == streamId && s.IsActive)
+                .Where(s => s.Course.StreamId == streamId && s.IsActive && !s.IsDeleted)
                 .AsNoTracking()
                 .ToListAsync();
 
@@ -76,7 +76,7 @@
         public async Task<IReadOnlyList<Subject>> GetByCourseIdsAsync(List<Guid> courseIds)
         {
             return await _db.Subjects
-                .Where(c => courseIds.Contains(c.Id) && c.IsActive)
+                .Where(c => courseIds.Contains(c.Id) && c.IsActive && !c.IsDeleted)
                 .Distinct()
                 .AsNoTracking()
                 .ToListAsync();
@@ -140,7 +140,7 @@
         /// <returns>Queryable subjects.</returns>
         public IQueryable<Subject> Query()
         {
-            return _db.Subjects
+            return _db.Subjects.Where(x => !x.IsDeleted)
                 .Include(c => c.Course)
                     .ThenInclude(g => g.Stream)
                      .ThenInclude(s => s.Grade)
@@ -158,7 +158,7 @@
         /// <returns>bool.</returns>
         public async Task<bool> ExistsByCodeAsync(string code)
         {
-            return await _db.Subjects.AnyAsync(x => x.SubjectCode == code);
+            return await _db.Subjects.AnyAsync(x => x.SubjectCode == code && !x.IsDeleted);
         }
     }
 }

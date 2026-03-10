@@ -31,7 +31,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// <returns>Syllabus list.</returns>
         public async Task<IReadOnlyList<Syllabus>> GetAllAsync()
         {
-            return await _db.Syllabuses
+            return await _db.Syllabuses.Where(x => !x.IsDeleted)
                  .Include(x => x.Center)
                 .AsNoTracking()
                 .ToListAsync();
@@ -46,7 +46,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         {
             return await _db.Syllabuses
                  .Include(x => x.Center)
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
         }
 
         /// <summary>
@@ -110,7 +110,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// <returns>bool.</returns>
         public async Task<bool> ExistsByNameAsync(string name)
         {
-            return await _db.Syllabuses.AnyAsync(x => x.Name == name);
+            return await _db.Syllabuses.AnyAsync(x => x.Name == name && !x.IsDeleted);
         }
 
         /// <summary>
@@ -121,7 +121,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// </returns>
         public IQueryable<Syllabus> Query()
         {
-            return _db.Syllabuses
+            return _db.Syllabuses.Where(x => !x.IsDeleted)
                  .Include(x => x.Center)
                  .Include(x => x.Center.Country)
                 .Include(x => x.Center.modeOfStudy)
@@ -138,7 +138,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         {
             return await _db.Syllabuses
                 .Include(x => x.Center)
-                .Where(x => x.CenterId == centerId)
+                .Where(x => x.CenterId == centerId && !x.IsDeleted)
                 .ToListAsync();
         }
     }

@@ -34,7 +34,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         public async Task<IReadOnlyList<BatchTimingSaturday>> GetAllAsync()
         {
             return await _dbContext.BatchTimingSaturdays
-                .Where(x => x.IsActive)
+                .Where(x => x.IsActive && !x.IsDeleted)
                 .Include(x => x.Subject)
                   .ThenInclude(s => s.Course)
                      .ThenInclude(s => s.Stream)
@@ -57,7 +57,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
                      .ThenInclude(s => s.Stream)
                       .ThenInclude(s => s.Grade)
                        .ThenInclude(s => s.Syllabus)
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
         }
 
         /// <summary>
@@ -119,7 +119,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
                      .ThenInclude(s => s.Stream)
                       .ThenInclude(s => s.Grade)
                        .ThenInclude(s => s.Syllabus)
-                .Where(x => x.SubjectId == subjectid)
+                .Where(x => x.SubjectId == subjectid && !x.IsDeleted)
                 .ToListAsync();
         }
 

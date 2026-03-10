@@ -31,7 +31,7 @@
         /// <returns>AcademicYear list.</returns>
         public async Task<IReadOnlyList<AcademicYear>> GetAllAsync()
         {
-            return await _dbContext.AcademicYears
+            return await _dbContext.AcademicYears.Where(predicate => !predicate.IsDeleted)
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -42,7 +42,7 @@
             return await _dbContext.AcademicYears
                 .FirstOrDefaultAsync(x =>
                     x.StartDate <= date &&
-                    x.EndDate >= date);
+                    x.EndDate >= date && !x.IsDeleted);
         }
 
         /// <summary>
@@ -53,7 +53,7 @@
         public async Task<AcademicYear?> GetByIdAsync(Guid id)
         {
             return await _dbContext.AcademicYears
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
         }
 
         /// <summary>
@@ -108,7 +108,7 @@
         /// <returns>Queryable academicYear.</returns>
         public IQueryable<AcademicYear> Query()
         {
-            return _dbContext.AcademicYears
+            return _dbContext.AcademicYears.Where(predicate => !predicate.IsDeleted)
                 .AsNoTracking();
         }
     }

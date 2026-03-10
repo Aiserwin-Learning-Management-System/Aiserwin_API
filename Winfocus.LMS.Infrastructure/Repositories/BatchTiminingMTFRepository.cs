@@ -33,7 +33,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// <returns>BatchTimingMTF list.</returns>
         public async Task<IReadOnlyList<BatchTimingMTF>> GetAllAsync()
         {
-            return await _dbContext.BatchTimingMTFs
+            return await _dbContext.BatchTimingMTFs.Where(x => !x.IsDeleted)
                .Include(x => x.Subject)
                   .ThenInclude(s => s.Course)
                      .ThenInclude(s => s.Stream)
@@ -56,7 +56,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
                      .ThenInclude(s => s.Stream)
                       .ThenInclude(s => s.Grade)
                        .ThenInclude(s => s.Syllabus)
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
         }
 
         /// <summary>
@@ -119,7 +119,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
                      .ThenInclude(s => s.Stream)
                       .ThenInclude(s => s.Grade)
                        .ThenInclude(s => s.Syllabus)
-                .Where(x => x.SubjectId == subjectid)
+                .Where(x => x.SubjectId == subjectid && !x.IsDeleted)
                 .ToListAsync();
         }
 
@@ -141,7 +141,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// <returns>Queryable batches.</returns>
         public IQueryable<BatchTimingMTF> Query()
         {
-            return _dbContext.BatchTimingMTFs
+            return _dbContext.BatchTimingMTFs.Where(x => !x.IsDeleted)
                .Include(x => x.Subject)
                    .ThenInclude(s => s.Course)
                       .ThenInclude(s => s.Stream)

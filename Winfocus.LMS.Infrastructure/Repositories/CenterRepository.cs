@@ -36,7 +36,7 @@
         public async Task<IReadOnlyList<Center>> GetAllAsync()
         {
             return await _dbContext.Centres
-                .Where(x => x.IsActive)
+                .Where(x => x.IsActive && !x.IsDeleted)
                 .Include(x => x.Country)
                 .Include(x => x.State)
                 .Include(x => x.modeOfStudy)
@@ -55,7 +55,7 @@
                 .Include(x => x.Country)
                 .Include(x => x.State)
                 .Include(x => x.modeOfStudy)
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
         }
 
         /// <summary>
@@ -125,7 +125,7 @@
             Guid? modeOfStudyId,
             Guid? stateId)
         {
-            var query = _dbContext.Centres
+            var query = _dbContext.Centres.Where(x => !x.IsDeleted)
          .AsNoTracking()
          .Include(x => x.Country)
          .Include(x => x.modeOfStudy)
@@ -150,7 +150,7 @@
         /// <returns>Queryable center.</returns>
         public IQueryable<Center> Query()
         {
-            return _dbContext.Centres
+            return _dbContext.Centres.Where(x => !x.IsDeleted)
                 .Include(x => x.Country)
                 .Include(x => x.State)
                 .Include(x => x.modeOfStudy)

@@ -34,7 +34,7 @@
         /// <returns>Mode of study list.</returns>
         public async Task<IReadOnlyList<ModeOfStudy>> GetAllAsync()
         {
-            return await _dbContext.ModeOfStudies
+            return await _dbContext.ModeOfStudies.Where(x => !x.IsDeleted)
                 .Include(x => x.Country)
                 .AsNoTracking()
                 .ToListAsync();
@@ -49,7 +49,7 @@
         {
             return await _dbContext.ModeOfStudies
                 .Include(x => x.Country)
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
         }
 
         /// <summary>
@@ -104,7 +104,7 @@
         /// <returns>bool.</returns>
         public async Task<bool> ExistsByCodeAsync(string code)
         {
-            return await _dbContext.ModeOfStudies.AnyAsync(x => x.Name == code);
+            return await _dbContext.ModeOfStudies.AnyAsync(x => x.Name == code && !x.IsDeleted);
         }
 
         /// <summary>
@@ -116,7 +116,7 @@
         {
             return await _dbContext.ModeOfStudies
                 .Include(x => x.Country)
-                .Where(x => x.CountryId == countryid && x.IsActive == true)
+                .Where(x => x.CountryId == countryid && x.IsActive == true && !x.IsDeleted)
                 .ToListAsync();
         }
 
@@ -128,7 +128,7 @@
         /// </returns>
         public IQueryable<ModeOfStudy> Query()
         {
-            return _dbContext.ModeOfStudies
+            return _dbContext.ModeOfStudies.Where(x => !x.IsDeleted)
                 .Include(x => x.Country)
                 .AsNoTracking();
         }

@@ -29,7 +29,7 @@
         /// Course.
         /// </returns>
         public async Task<IReadOnlyList<Course>> GetAllAsync()
-            => await _db.Courses
+            => await _db.Courses.Where(x => !x.IsDeleted)
                 .Include(c => c.Stream)
                     .ThenInclude(s => s.Grade)
                         .ThenInclude(g => g.Syllabus)
@@ -58,7 +58,7 @@
                  .ThenInclude(x => x.Country)
             .Include(c => c.Grade)
                 .ThenInclude(g => g.Syllabus)
-        .FirstOrDefaultAsync(x => x.Id == id);
+        .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
 
         /// <summary>
         /// Gets the by identifier with subjects asynchronous.
@@ -79,7 +79,7 @@
         /// </returns>
         public async Task<IReadOnlyList<Course>> GetByStreamAsync(Guid streamId)
     => await _db.Courses
-        .Where(c => c.StreamId == streamId && c.IsActive)
+        .Where(c => c.StreamId == streamId && c.IsActive && !c.IsDeleted)
         .Include(c => c.Grade)
             .ThenInclude(g => g.Syllabus)
              .ThenInclude(x => x.Center)
@@ -97,7 +97,7 @@
         /// Course.
         /// </returns>
         public async Task<IReadOnlyList<Course>> GetBySubjectAsync(Guid subjectId)
-    => await _db.Courses
+    => await _db.Courses.Where(x => !x.IsDeleted)
         .Include(c => c.Grade)
             .ThenInclude(g => g.Syllabus)
                 .ThenInclude(x => x.Center)
@@ -166,7 +166,7 @@
         /// <returns>bool.</returns>
         public async Task<bool> ExistsByCodeAsync(string code)
         {
-            return await _db.Courses.AnyAsync(x => x.CourseCode == code);
+            return await _db.Courses.AnyAsync(x => x.CourseCode == code && !x.IsDeleted);
         }
 
         /// <summary>
@@ -175,7 +175,7 @@
         /// <returns>Queryable courses.</returns>
         public IQueryable<Course> Query()
         {
-            return _db.Courses
+            return _db.Courses.Where(x => !x.IsDeleted)
                 .Include(c => c.Stream)
                 .ThenInclude(s => s.Grade)
                 .ThenInclude(g => g.Syllabus)

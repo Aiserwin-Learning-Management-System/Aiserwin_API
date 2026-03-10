@@ -35,7 +35,7 @@
                     .ThenInclude(s => s.ModeOfStudy)
                     .ThenInclude(s => s.Country)
                 .Include(x => x.Courses)
-                .Where(x => x.IsActive)
+                .Where(x => x.IsActive && !x.IsDeleted)
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -55,7 +55,7 @@
                     .ThenInclude(s => s.ModeOfStudy)
                     .ThenInclude(s => s.Country)
                 .Include(x => x.Courses)
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
         }
 
         /// <summary>
@@ -109,7 +109,7 @@
         /// <returns>bool.</returns>
         public async Task<bool> ExistsByCodeAsync(string code)
         {
-            return await _db.Streams.AnyAsync(x => x.StreamCode == code);
+            return await _db.Streams.AnyAsync(x => x.StreamCode == code && !x.IsDeleted);
         }
 
         /// <summary>
@@ -127,7 +127,7 @@
                     .ThenInclude(s => s.ModeOfStudy)
                     .ThenInclude(s => s.Country)
                 .Include(x => x.Courses)
-                .Where(x => x.GradeId == gradeid && x.IsActive)
+                .Where(x => x.GradeId == gradeid && x.IsActive && !x.IsDeleted)
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -147,7 +147,7 @@
                     .ThenInclude(s => s.State)
                     .ThenInclude(s => s.ModeOfStudy)
                     .ThenInclude(s => s.Country)
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
         }
 
         /// <summary>
@@ -156,7 +156,7 @@
         /// <returns>Queryable streams.</returns>
         public IQueryable<Streams> Query()
         {
-            return _db.Streams
+            return _db.Streams.Where(x => !x.IsDeleted)
                 .Include(s => s.Grade)
                     .ThenInclude(g => g.Syllabus)
                     .ThenInclude(s => s.Center)

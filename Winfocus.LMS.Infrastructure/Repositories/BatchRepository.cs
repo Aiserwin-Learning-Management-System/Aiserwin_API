@@ -34,7 +34,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         public async Task<IReadOnlyList<Batch>> GetAllAsync()
         {
             return await _dbContext.Batches
-                .Where(x => x.IsActive)
+                .Where(x => x.IsActive && !x.IsDeleted)
                 .Include(x => x.Subject)
                   .ThenInclude(s => s.Course)
                      .ThenInclude(s => s.Stream)
@@ -57,7 +57,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
                      .ThenInclude(s => s.Stream)
                       .ThenInclude(s => s.Grade)
                        .ThenInclude(s => s.Syllabus)
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
         }
 
         /// <summary>
@@ -119,7 +119,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
                       .ThenInclude(s => s.Stream)
                        .ThenInclude(s => s.Grade)
                         .ThenInclude(s => s.Syllabus)
-                .Where(x => x.SubjectId == subjectid && x.IsActive)
+                .Where(x => x.SubjectId == subjectid && x.IsActive && !x.IsDeleted)
                 .ToListAsync();
         }
 
@@ -129,7 +129,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// <returns>Queryable batches.</returns>
         public IQueryable<Batch> Query()
         {
-            return _dbContext.Batches
+            return _dbContext.Batches.Where(x => !x.IsDeleted)
                .Include(x => x.Subject)
                    .ThenInclude(s => s.Course)
                       .ThenInclude(s => s.Stream)

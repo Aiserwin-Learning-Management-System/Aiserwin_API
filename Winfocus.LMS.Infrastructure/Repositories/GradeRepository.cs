@@ -28,7 +28,7 @@
         /// <returns>Grade list.</returns>
         public async Task<IReadOnlyList<Grade>> GetAllAsync()
         {
-            return await _db.Grades
+            return await _db.Grades.Where(x => !x.IsDeleted)
                 .Include(x => x.Syllabus)
                 .ThenInclude(x => x.Center)
                 .ThenInclude(x => x.State)
@@ -49,7 +49,7 @@
                 .ThenInclude(x => x.Center)
                 .ThenInclude(x => x.State)
                 .ThenInclude(x => x.Country)
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
         }
 
         /// <summary>
@@ -104,7 +104,7 @@
         /// <returns>bool.</returns>
         public async Task<bool> ExistsByCodeAsync(string code)
         {
-            return await _db.Grades.AnyAsync(x => x.Name == code);
+            return await _db.Grades.AnyAsync(x => x.Name == code && !x.IsDeleted);
         }
 
         /// <summary>
@@ -119,7 +119,7 @@
                 .ThenInclude(x => x.Center)
                 .ThenInclude(x => x.State)
                 .ThenInclude(x => x.Country)
-                .Where(x => x.SyllabusId == syllabusid)
+                .Where(x => x.SyllabusId == syllabusid && !x.IsDeleted)
                 .ToListAsync();
         }
 
@@ -131,7 +131,7 @@
         /// </returns>
         public IQueryable<Grade> Query()
         {
-            return _db.Grades.Include(x => x.Syllabus)
+            return _db.Grades.Where(x => !x.IsDeleted).Include(x => x.Syllabus)
                 .ThenInclude(x => x.Center)
                 .ThenInclude(x => x.State)
                 .ThenInclude(x => x.Country)

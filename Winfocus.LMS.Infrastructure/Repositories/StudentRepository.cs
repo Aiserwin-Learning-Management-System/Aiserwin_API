@@ -43,7 +43,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// <returns>Student list.</returns>
         public async Task<IReadOnlyList<Student>> GetAllAsync()
         {
-            return await _dbContext.Students
+            return await _dbContext.Students.Where(x => !x.IsDeleted)
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -85,7 +85,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         .Include(x => x.StudentBatchTimingSundays)
            .ThenInclude(sc => sc.BatchTimingSunday)
 
-        .FirstOrDefaultAsync(x => x.Id == id && x.IsActive == true);
+        .FirstOrDefaultAsync(x => x.Id == id && x.IsActive == true && !x.IsDeleted);
         }
 
         /// <summary>
@@ -185,7 +185,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         public async Task<PagedResult<Student>> GetFilteredAsync(StudentFilterRequest request)
         {
             // 1. Start with the query and include all necessary relationships
-            var query = _dbContext.Students
+            var query = _dbContext.Students.Where(x => !x.IsDeleted)
          .Include(s => s.AcademicDetails)
              .ThenInclude(ad => ad.Country)
          .Include(s => s.AcademicDetails)

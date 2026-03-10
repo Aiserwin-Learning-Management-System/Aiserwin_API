@@ -32,7 +32,7 @@
         /// <returns>State list.</returns>
         public async Task<IReadOnlyList<State>> GetAllAsync()
         {
-            return await _dbContext.States
+            return await _dbContext.States.Where(x => !x.IsDeleted)
                 .Include(x => x.Country)
                 .Include(x => x.ModeOfStudy)
                 .Include(x => x.Centers)
@@ -50,7 +50,7 @@
             return await _dbContext.States
                 .Include(x => x.Country)
                 .Include(x => x.ModeOfStudy)
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
         }
 
         /// <summary>
@@ -107,7 +107,7 @@
         /// <returns>bool.</returns>
         public async Task<bool> ExistsByCodeAsync(string code)
         {
-            return await _dbContext.States.AnyAsync(x => x.Name == code);
+            return await _dbContext.States.AnyAsync(x => x.Name == code && !x.IsDeleted);
         }
 
         /// <summary>
@@ -120,7 +120,7 @@
             return await _dbContext.States
                 .Include(x => x.Country)
                 .Include(x => x.ModeOfStudy)
-                .Where(x => x.CountryId == countryid && x.IsActive == true)
+                .Where(x => x.CountryId == countryid && x.IsActive == true && !x.IsDeleted)
                 .ToListAsync();
         }
 
@@ -132,7 +132,7 @@
         /// </returns>
         public IQueryable<State> Query()
         {
-            return _dbContext.States
+            return _dbContext.States.Where(x => !x.IsDeleted)
                 .Include(x => x.Country)
                 .Include(x => x.ModeOfStudy)
                 .AsNoTracking();
