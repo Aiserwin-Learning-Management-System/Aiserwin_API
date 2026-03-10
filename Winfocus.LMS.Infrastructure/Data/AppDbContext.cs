@@ -30,11 +30,11 @@
         /// </summary>
         public DbSet<Center> Centres { get; set; } = null!;
 
-
         /// <summary>
         /// Gets or sets the Doubt Clearing in the database.
         /// </summary>
         public DbSet<DoubtClearing> DoubtClearing { get; set; } = null!;
+
         /// <summary>
         /// Gets or sets the users in the database.
         /// </summary>
@@ -255,6 +255,21 @@
         public DbSet<StaffCategory> StaffCategories { get; set; } = null!;
 
         /// <summary>
+        /// Gets or sets the field groups in the database.
+        /// </summary>
+        public DbSet<FieldGroup> FieldGroups { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the form fields in the database.
+        /// </summary>
+        public DbSet<FormField> FormFields { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the field options in the database.
+        /// </summary>
+        public DbSet<FieldOption> FieldOptions { get; set; } = null!;
+
+        /// <summary>
         /// Configures the model for the context.
         /// </summary>
         /// <param name="modelBuilder">The builder being used to construct the model for this context.</param>
@@ -267,6 +282,9 @@
             modelBuilder.ApplyConfiguration(new UserLoginLogConfiguration());
             modelBuilder.ApplyConfiguration(new UserActiveSessionConfiguration());
             modelBuilder.ApplyConfiguration(new StaffCategoryConfiguration());
+            modelBuilder.ApplyConfiguration(new FieldGroupConfiguration());
+            modelBuilder.ApplyConfiguration(new FormFieldConfiguration());
+            modelBuilder.ApplyConfiguration(new FieldOptionConfiguration());
 
             // User configuration
             modelBuilder.Entity<User>()
