@@ -818,6 +818,10 @@
                 StreamId = feePlan.Course?.StreamId ?? Guid.Empty,
                 GradeId = feePlan.Course?.GradeId ?? Guid.Empty,
                 SyllabusId = feePlan.Course?.Grade.SyllabusId ?? Guid.Empty,
+                CountryId = feePlan.Course?.Grade.Syllabus.Center.CountryId ?? Guid.Empty,
+                StateId = feePlan.Course?.Grade.Syllabus.Center.StateId ?? Guid.Empty,
+                ModeofstudyId = feePlan.Course?.Grade.Syllabus.Center.State.ModeOfStudyId ?? Guid.Empty,
+                CenterId = feePlan.Course?.Grade.Syllabus.CenterId ?? Guid.Empty,
                 Discounts = feePlan.Discounts.Select(d => new FeePlanDiscountDto
                 {
                     Id = d.Id,
