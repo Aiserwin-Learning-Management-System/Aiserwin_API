@@ -81,6 +81,15 @@ namespace Winfocus.LMS.Application.Services
         {
             try
             {
+                var exists = await _repository.Query()
+            .AnyAsync(x => x.Name.ToLower() == request.name.ToLower());
+
+                if (exists)
+                {
+                    return CommonResponse<StaffCategoryDto>.FailureResponse(
+                        "Staff category with the same name already exists");
+                }
+
                 var staffcategory = new StaffCategory
                 {
                     Name = request.name,
@@ -123,6 +132,14 @@ namespace Winfocus.LMS.Application.Services
                     return CommonResponse<StaffCategoryDto>.FailureResponse("staff category not found");
                 }
 
+                var exists = await _repository.Query().AnyAsync(x => x.Name.ToLower() == request.name.ToLower());
+
+                if (exists)
+                {
+                    return CommonResponse<StaffCategoryDto>.FailureResponse(
+                        "Staff category with the same name already exists");
+                }
+
                 staff_category.Name = request.name;
                 staff_category.Description = request.description;
                 staff_category.UpdatedAt = DateTime.UtcNow;
@@ -153,6 +170,14 @@ namespace Winfocus.LMS.Application.Services
             {
                 _logger.LogInformation("Deleting staff category Id: {Id}", id);
                 var result = await _repository.DeleteAsync(id);
+                var count = await _repository.Query()
+                                .CountAsync(x => x.Id == id);
+
+                if (count > 0)
+                {
+                    return CommonResponse<bool>.FailureResponse(
+                        $"Category is in use by {count} registration form(s)");
+                }
 
                 if (result)
                 {
