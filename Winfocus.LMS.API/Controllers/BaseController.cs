@@ -51,12 +51,28 @@ namespace Winfocus.LMS.API.Controllers
         /// Gets the authenticated user's country from the JWT token.
         /// Returns empty string if user is not authenticated.
         /// </summary>
-        protected string CountryId
+        protected Guid CountryId
         {
             get
             {
-                string compnayId = (User?.Identity?.IsAuthenticated == true && User?.FindFirst("countryId").Value != null) ? User.FindFirst("companyId").Value : "";
-                return compnayId;
+                if (User?.Identity?.IsAuthenticated != true)
+                {
+                    throw new UnauthorizedAccessException("User is not authenticated.");
+                }
+
+                var countryIdString = User.FindFirst("countryId")?.Value;
+
+                if (string.IsNullOrWhiteSpace(countryIdString))
+                {
+                    throw new UnauthorizedAccessException("Country ID claim is missing.");
+                }
+
+                if (!Guid.TryParse(countryIdString, out Guid countryId))
+                {
+                    throw new UnauthorizedAccessException("Invalid Country ID claim.");
+                }
+
+                return countryId;
             }
         }
 
@@ -64,12 +80,28 @@ namespace Winfocus.LMS.API.Controllers
         /// Gets the authenticated user's center from the JWT token.
         /// Returns empty string if user is not authenticated.
         /// </summary>
-        protected string CenterId
+        protected Guid CenterId
         {
             get
             {
-                string compnayId = (User?.Identity?.IsAuthenticated == true && User?.FindFirst("centerId").Value != null) ? User.FindFirst("companyId").Value : "";
-                return compnayId;
+                if (User?.Identity?.IsAuthenticated != true)
+                {
+                    throw new UnauthorizedAccessException("User is not authenticated.");
+                }
+
+                var centerIdString = User.FindFirst("centerId")?.Value;
+
+                if (string.IsNullOrWhiteSpace(centerIdString))
+                {
+                    throw new UnauthorizedAccessException("Center ID claim is missing.");
+                }
+
+                if (!Guid.TryParse(centerIdString, out Guid centerId))
+                {
+                    throw new UnauthorizedAccessException("Invalid Center ID claim.");
+                }
+
+                return centerId;
             }
         }
     }

@@ -35,7 +35,21 @@ namespace Winfocus.LMS.API.Controllers
         /// <returns>ModeOfStudyDto list.</returns>
         [HttpGet]
         public async Task<ActionResult<CommonResponse<List<ModeOfStudyDto>>>> GetAll()
-          => Ok(await _modeofstudyService.GetAllAsync());
+        {
+            if (User?.Identity?.IsAuthenticated == true)
+            {
+                var userid = UserId;
+                if (Guid.Empty != userid)
+                {
+                    var countryid = CountryId;
+                    return Ok(await _modeofstudyService.GetByCountryIdAsync(countryid));
+                }
+            }
+
+            return Ok(await _modeofstudyService.GetAllAsync());
+        }
+
+         // => Ok(await _modeofstudyService.GetAllAsync());
 
         /// <summary>
         /// Creates the specified request.
