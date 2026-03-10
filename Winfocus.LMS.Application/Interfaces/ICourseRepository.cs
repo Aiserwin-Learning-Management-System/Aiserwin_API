@@ -12,8 +12,9 @@
         /// <summary>
         /// Gets all asynchronous.
         /// </summary>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>Course.</returns>
-        Task<IReadOnlyList<Course>> GetAllAsync();
+        Task<IReadOnlyList<Course>> GetAllAsync(Guid centerId);
 
         /// <summary>
         /// Gets the by identifier asynchronous.
@@ -21,6 +22,14 @@
         /// <param name="id">The identifier.</param>
         /// <returns>Course.</returns>
         Task<Course?> GetByIdAsync(Guid id);
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <param name="centerId">The centerId.</param>
+        /// <returns>Course.</returns>
+        Task<Course?> GetByIdCenterIdAsync(Guid id, Guid centerId);
 
         /// <summary>
         /// Gets the by stream asynchronous.
@@ -68,13 +77,15 @@
         /// Softs the delete asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>Course.</returns>
-        Task<bool> SoftDeleteAsync(Guid id);
+        Task<bool> SoftDeleteAsync(Guid id, Guid centerId);
 
         /// <summary>
         /// Gets all asynchronous.
         /// </summary>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>Course.</returns>
-        IQueryable<Course> Query();
+        IQueryable<Course> Query(Guid centerId);
     }
 }

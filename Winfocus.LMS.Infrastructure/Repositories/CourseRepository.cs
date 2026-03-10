@@ -25,11 +25,12 @@
         /// <summary>
         /// Gets all asynchronous.
         /// </summary>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>
         /// Course.
         /// </returns>
-        public async Task<IReadOnlyList<Course>> GetAllAsync()
-            => await _db.Courses.Where(x => !x.IsDeleted)
+        public async Task<IReadOnlyList<Course>> GetAllAsync(Guid centerId)
+            => await _db.Courses.Where(x => !x.IsDeleted && x.Grade.Syllabus.CenterId == centerId)
                 .Include(c => c.Stream)
                     .ThenInclude(s => s.Grade)
                         .ThenInclude(g => g.Syllabus)
@@ -59,6 +60,26 @@
             .Include(c => c.Grade)
                 .ThenInclude(g => g.Syllabus)
         .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <param name="centerId">The centerId.</param>
+        /// <returns>
+        /// Course.
+        /// </returns>
+        public async Task<Course?> GetByIdCenterIdAsync(Guid id, Guid centerId)
+    => await _db.Courses
+            .Include(c => c.Stream)
+            .ThenInclude(s => s.Grade)
+                .ThenInclude(g => g.Syllabus)
+                 .ThenInclude(x => x.Center)
+                 .ThenInclude(x => x.State)
+                 .ThenInclude(x => x.Country)
+            .Include(c => c.Grade)
+                .ThenInclude(g => g.Syllabus)
+        .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted && x.Grade.Syllabus.CenterId == centerId);
 
         /// <summary>
         /// Gets the by identifier with subjects asynchronous.
@@ -139,13 +160,19 @@
         /// Softs the delete asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>
         /// Task.
         /// </returns>
-        public async Task<bool> SoftDeleteAsync(Guid id)
+        public async Task<bool> SoftDeleteAsync(Guid id, Guid centerId)
         {
             var entity = await _db.Courses.FindAsync(id);
             if (entity == null || entity.IsActive == false)
+            {
+                return false;
+            }
+
+            if (entity.Grade.Syllabus.CenterId != centerId)
             {
                 return false;
             }
@@ -172,10 +199,11 @@
         /// <summary>
         /// Gets queryable for filtering with full hierarchy.
         /// </summary>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>Queryable courses.</returns>
-        public IQueryable<Course> Query()
+        public IQueryable<Course> Query(Guid centerId)
         {
-            return _db.Courses.Where(x => !x.IsDeleted)
+            return _db.Courses.Where(x => !x.IsDeleted && x.Grade.Syllabus.CenterId == centerId)
                 .Include(c => c.Stream)
                 .ThenInclude(s => s.Grade)
                 .ThenInclude(g => g.Syllabus)

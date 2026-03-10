@@ -10,8 +10,9 @@
         /// <summary>
         /// Gets all asynchronous.
         /// </summary>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>Subject list.</returns>
-        Task<IReadOnlyList<Subject>> GetAllAsync();
+        Task<IReadOnlyList<Subject>> GetAllAsync(Guid centerId);
 
         /// <summary>
         /// Gets the by identifier asynchronous.
@@ -19,6 +20,14 @@
         /// <param name="id">The identifier.</param>
         /// <returns>Subject.</returns>
         Task<Subject?> GetByIdAsync(Guid id);
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <param name="centerId">The centerId.</param>
+        /// <returns>Subject.</returns>
+        Task<Subject?> GetByCenterIdIdAsync(Guid id, Guid centerId);
 
         /// <summary>
         /// Gets the by stream asynchronous.
@@ -52,8 +61,9 @@
         /// Soft deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>Task.</returns>
-        Task<bool> SoftDeleteAsync(Guid id);
+        Task<bool> SoftDeleteAsync(Guid id, Guid centerId);
 
         /// <summary>
         /// Gets all asynchronous.

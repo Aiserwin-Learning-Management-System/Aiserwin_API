@@ -85,11 +85,11 @@
                     expectedCourses);
 
                 _mockService
-                    .Setup(s => s.GetAllAsync())
+                    .Setup(s => s.GetAllAsync(Guid.NewGuid()))
                     .ReturnsAsync(response);
 
                 // Act
-                var result = await _controller.GetAll();
+                var result = await _controller.GetAll(Guid.NewGuid());
 
                 // Assert
                 var okResult = Assert.IsType<CommonResponse<List<CourseDto>>>(result);
@@ -100,7 +100,7 @@
                 Assert.Single(returnedResponse.Data);
                 Assert.Equal("Mathematics 101", returnedResponse.Data[0].Name);
 
-                _mockService.Verify(s => s.GetAllAsync(), Times.Once);
+                _mockService.Verify(s => s.GetAllAsync(Guid.NewGuid()), Times.Once);
             }
             catch (Exception ex)
             {
@@ -124,11 +124,11 @@
                     new List<CourseDto>());
 
                 _mockService
-                    .Setup(s => s.GetAllAsync())
+                    .Setup(s => s.GetAllAsync(Guid.NewGuid()))
                     .ReturnsAsync(response);
 
                 // Act
-                var result = await _controller.GetAll();
+                var result = await _controller.GetAll(Guid.NewGuid());
 
                 // Assert
                 var okResult = Assert.IsType<CommonResponse<List<CourseDto>>>(result);
@@ -138,7 +138,7 @@
                 Assert.True(returnedResponse.Success);
                 Assert.Empty(returnedResponse.Data);
 
-                _mockService.Verify(s => s.GetAllAsync(), Times.Once);
+                _mockService.Verify(s => s.GetAllAsync(Guid.NewGuid()), Times.Once);
             }
             catch (Exception ex)
             {
@@ -158,13 +158,13 @@
             {
                 // Arrange
                 _mockService
-                    .Setup(s => s.GetAllAsync())
+                    .Setup(s => s.GetAllAsync(Guid.NewGuid()))
                     .ThrowsAsync(new InvalidOperationException("Database connection failed"));
 
                 // Act & Assert
-                await Assert.ThrowsAsync<InvalidOperationException>(() => _controller.GetAll());
+                await Assert.ThrowsAsync<InvalidOperationException>(() => _controller.GetAll(Guid.NewGuid()));
 
-                _mockService.Verify(s => s.GetAllAsync(), Times.Once);
+                _mockService.Verify(s => s.GetAllAsync(Guid.NewGuid()), Times.Once);
             }
             catch (Exception ex)
             {
@@ -209,7 +209,7 @@
                     .ReturnsAsync(response);
 
                 // Act
-                var result = await _controller.Get(courseId);
+                var result = await _controller.Get(courseId, Guid.NewGuid());
 
                 // Assert
                 var okResult = Assert.IsType<CommonResponse<CourseDto>>(result);
@@ -247,7 +247,7 @@
                     .ReturnsAsync(response);
 
                 // Act
-                var result = await _controller.Get(courseId);
+                var result = await _controller.Get(courseId, Guid.NewGuid());
 
                 // Assert
                 var okResult = Assert.IsType<CommonResponse<CourseDto>>(result);
@@ -282,7 +282,7 @@
                     .ReturnsAsync(response);
 
                 // Act
-                var result = await _controller.Get(invalidId);
+                var result = await _controller.Get(invalidId, Guid.NewGuid());
 
                 // Assert
                 var okResult = Assert.IsType<CommonResponse<CourseDto>>(result);
@@ -657,7 +657,7 @@
                     true);
 
                 _mockService
-                    .Setup(s => s.DeleteAsync(courseId))
+                    .Setup(s => s.DeleteAsync(courseId, Guid.NewGuid()))
                     .ReturnsAsync(response);
 
                 // Act
@@ -667,7 +667,7 @@
                 var noContentResult = Assert.IsType<NoContentResult>(result);
                 Assert.Equal(204, noContentResult.StatusCode);
 
-                _mockService.Verify(s => s.DeleteAsync(courseId), Times.Once);
+                _mockService.Verify(s => s.DeleteAsync(courseId, Guid.NewGuid()), Times.Once);
             }
             catch (Exception ex)
             {
@@ -691,7 +691,7 @@
                     "Course not found or could not be deleted");
 
                 _mockService
-                    .Setup(s => s.DeleteAsync(courseId))
+                    .Setup(s => s.DeleteAsync(courseId, Guid.NewGuid()))
                     .ReturnsAsync(response);
 
                 // Act
@@ -701,7 +701,7 @@
                 var noContentResult = Assert.IsType<NoContentResult>(result);
                 Assert.Equal(204, noContentResult.StatusCode);
 
-                _mockService.Verify(s => s.DeleteAsync(courseId), Times.Once);
+                _mockService.Verify(s => s.DeleteAsync(courseId, Guid.NewGuid()), Times.Once);
             }
             catch (Exception ex)
             {

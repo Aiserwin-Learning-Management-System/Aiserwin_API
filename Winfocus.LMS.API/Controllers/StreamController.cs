@@ -7,6 +7,8 @@
     using Winfocus.LMS.Application.DTOs.Common;
     using Winfocus.LMS.Application.DTOs.Masters;
     using Winfocus.LMS.Application.Interfaces;
+    using Winfocus.LMS.Application.Services;
+    using Winfocus.LMS.Domain.Entities;
 
     /// <summary>
     /// Handles stream endpoints.
@@ -30,10 +32,26 @@
         /// <summary>
         /// Gets all streams.
         /// </summary>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>StreamDto list.</returns>
-        [HttpGet]
-        public async Task<ActionResult<CommonResponse<List<StreamDto>>>> GetAll()
-            => Ok(await _streamService.GetAllAsync());
+        [HttpGet("{centerId:guid?}")]
+        public async Task<ActionResult<CommonResponse<List<StreamDto>>>> GetAll(Guid centerId)
+        {
+            if (User?.Identity?.IsAuthenticated == true)
+            {
+                var userId = UserId;
+
+                if (userId != Guid.Empty)
+                {
+                    var centerIdFromToken = CenterId;
+                    return Ok(await _streamService.GetAllAsync(centerIdFromToken));
+                }
+            }
+
+            return Ok(await _streamService.GetAllAsync(centerId));
+        }
+
+            //=> Ok(await _streamService.GetAllAsync());
 
         /// <summary>
         /// Creates a new stream.
@@ -54,12 +72,23 @@
         /// Gets a stream by identifier.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>StreamDto.</returns>
-        [HttpGet("{id:guid}")]
-        public async Task<ActionResult<CommonResponse<StreamDto>>> Get(Guid id)
+        [HttpGet("{id:guid}/center/{centerid:guid?}")]
+        public async Task<ActionResult<CommonResponse<StreamDto>>> Get(Guid id, Guid centerId)
         {
-            var result = await _streamService.GetByIdAsync(id);
-            return Ok(result);
+            if (User?.Identity?.IsAuthenticated == true)
+            {
+                var userId = UserId;
+
+                if (userId != Guid.Empty)
+                {
+                    var countryIdFromToken = CenterId;
+                    return Ok(await _streamService.GetByIdCenterIdAsync(id, countryIdFromToken));
+                }
+            }
+
+            return Ok(await _streamService.GetByIdCenterIdAsync(id, centerId));
         }
 
         /// <summary>
@@ -101,7 +130,7 @@
         [HttpDelete("{id:guid}")]
         public async Task<ActionResult<CommonResponse<bool>>> Delete(Guid id)
         {
-            var result = await _streamService.DeleteAsync(id);
+            var result = await _streamService.DeleteAsync(id, CenterId);
             return Ok(result);
         }
 
@@ -115,7 +144,7 @@
         public async Task<ActionResult<CommonResponse<PagedResult<StreamDto>>>> GetFiltered(
             [FromQuery] PagedRequest request)
         {
-            var result = await _streamService.GetFilteredAsync(request);
+            var result = await _streamService.GetFilteredAsync(request, CenterId);
             return Ok(result);
         }
     }

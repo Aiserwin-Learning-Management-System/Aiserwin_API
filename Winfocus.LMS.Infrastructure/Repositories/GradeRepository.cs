@@ -97,11 +97,17 @@
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>task.</returns>
-        public async Task<bool> DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(Guid id, Guid centerId)
         {
             var entity = await _db.Grades.FindAsync(id);
             if (entity == null)
+            {
+                return false;
+            }
+
+            if (entity.Id != centerId)
             {
                 return false;
             }

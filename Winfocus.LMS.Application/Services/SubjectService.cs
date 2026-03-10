@@ -33,15 +33,16 @@
         /// <summary>
         /// Gets all active subjects.
         /// </summary>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>
         /// A list of subject DTOs.
         /// </returns>
-        public async Task<CommonResponse<List<SubjectDto>>> GetAllAsync()
+        public async Task<CommonResponse<List<SubjectDto>>> GetAllAsync(Guid centerId)
         {
             try
             {
                 _logger.LogInformation("Fetching all active subjects.");
-                var subjects = (await _repo.GetAllAsync())
+                var subjects = (await _repo.GetAllAsync(centerId))
                     .Select(Map)
                     .ToList();
                 _logger.LogInformation("Retrieved {Count} subjects.", subjects.Count);
@@ -68,6 +69,36 @@
             try
             {
                 var subject = (await _repo.GetByIdAsync(id)) is { } c ? Map(c) : null;
+                if (subject == null)
+                {
+                    return CommonResponse<SubjectDto>.FailureResponse("subject not found");
+                }
+                else
+                {
+                    return CommonResponse<SubjectDto>.SuccessResponse("Subject retrieved successfully", subject);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching subject with ID: {Id}", id);
+                return CommonResponse<SubjectDto>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Gets a subject by identifier.
+        /// </summary>
+        /// <param name="id">The subject identifier.</param>
+        /// <param name="centerId">The centerId.</param>
+        /// <returns>
+        /// The subject DTO if found; otherwise, null.
+        /// </returns>
+        public async Task<CommonResponse<SubjectDto>> GetByIdCenterIdAsync(Guid id, Guid centerId)
+        {
+            try
+            {
+                var subject = (await _repo.GetByCenterIdIdAsync(id, centerId)) is { } c ? Map(c) : null;
                 if (subject == null)
                 {
                     return CommonResponse<SubjectDto>.FailureResponse("subject not found");
@@ -250,15 +281,16 @@
         /// Soft deletes a subject.
         /// </summary>
         /// <param name="id">The subject identifier.</param>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>
         /// A task that represents the asynchronous delete operation.
         /// </returns>
-        public async Task<CommonResponse<bool>> DeleteAsync(Guid id)
+        public async Task<CommonResponse<bool>> DeleteAsync(Guid id, Guid centerId)
         {
             try
             {
                 _logger.LogInformation("Deleting subject Id: {Id}", id);
-                var result = await _repo.SoftDeleteAsync(id);
+                var result = await _repo.SoftDeleteAsync(id, centerId);
 
                 if (result)
                 {

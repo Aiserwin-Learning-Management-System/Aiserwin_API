@@ -25,12 +25,13 @@
         /// <summary>
         /// Gets all asynchronous.
         /// </summary>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>
         /// Subject list.
         /// </returns>
-        public async Task<IReadOnlyList<Subject>> GetAllAsync()
+        public async Task<IReadOnlyList<Subject>> GetAllAsync(Guid centerId)
             => await _db.Subjects
-                .Where(x => x.IsActive && !x.IsDeleted)
+                .Where(x => x.IsActive && !x.IsDeleted && x.Course.Grade.Syllabus.CenterId == centerId)
                 .AsNoTracking()
                 .ToListAsync();
 
@@ -51,6 +52,26 @@
                          .ThenInclude(x => x.State)
                          .ThenInclude(x => x.Country)
          .FirstOrDefaultAsync(s => s.Id == id && !s.IsDeleted);
+
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <param name="centerId">The centerId.</param>
+        /// <returns>
+        /// Subject.
+        /// </returns>
+        public async Task<Subject?> GetByCenterIdIdAsync(Guid id, Guid centerId)
+     => await _db.Subjects
+         .Include(s => s.Course)
+             .ThenInclude(c => c.Stream)
+                 .ThenInclude(st => st.Grade)
+                     .ThenInclude(g => g.Syllabus)
+                      .ThenInclude(x => x.Center)
+                         .ThenInclude(x => x.State)
+                         .ThenInclude(x => x.Country)
+         .FirstOrDefaultAsync(s => s.Id == id && !s.IsDeleted && s.Course.Grade.Syllabus.CenterId == centerId);
 
         /// <summary>
         /// Gets the by stream asynchronous.
@@ -114,13 +135,19 @@
         /// Soft deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>
         /// Task.
         /// </returns>
-        public async Task<bool> SoftDeleteAsync(Guid id)
+        public async Task<bool> SoftDeleteAsync(Guid id, Guid centerId)
         {
             var entity = await _db.Subjects.FindAsync(id);
             if (entity == null)
+            {
+                return false;
+            }
+
+            if (entity.Course.Grade.Syllabus.CenterId != centerId)
             {
                 return false;
             }

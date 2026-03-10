@@ -171,7 +171,7 @@
             try
             {
                 // Act
-                var result = await _repository.GetAllAsync();
+                var result = await _repository.GetAllAsync(Guid.NewGuid());
 
                 // Assert
                 Assert.NotNull(result);
@@ -196,7 +196,7 @@
             try
             {
                 // Act
-                var result = await _repository.GetAllAsync();
+                var result = await _repository.GetAllAsync(Guid.NewGuid());
 
                 // Assert
                 Assert.NotNull(result);
@@ -222,7 +222,7 @@
             try
             {
                 // Act
-                var result = await _repository.GetAllAsync();
+                var result = await _repository.GetAllAsync(Guid.NewGuid());
 
                 // Assert
                 Assert.NotNull(result);
@@ -257,7 +257,7 @@
                 await _context.SaveChangesAsync();
 
                 // Act
-                var result = await _repository.GetAllAsync();
+                var result = await _repository.GetAllAsync(Guid.NewGuid());
 
                 // Assert
                 Assert.NotNull(result);
@@ -851,7 +851,7 @@
                     .FirstAsync(c => c.IsActive);
 
                 // Act
-                var result = await _repository.SoftDeleteAsync(activeCourse.Id);
+                var result = await _repository.SoftDeleteAsync(activeCourse.Id, Guid.NewGuid());
 
                 // Assert
                 Assert.True(result);
@@ -881,7 +881,7 @@
                 var nonExistentId = Guid.NewGuid();
 
                 // Act
-                var result = await _repository.SoftDeleteAsync(nonExistentId);
+                var result = await _repository.SoftDeleteAsync(nonExistentId, Guid.NewGuid());
 
                 // Assert
                 Assert.False(result);
@@ -909,7 +909,7 @@
                 var beforeDelete = DateTime.UtcNow;
 
                 // Act
-                await _repository.SoftDeleteAsync(activeCourse.Id);
+                await _repository.SoftDeleteAsync(activeCourse.Id, Guid.NewGuid());
                 var afterDelete = DateTime.UtcNow;
 
                 // Assert
@@ -942,7 +942,7 @@
                 var courseId = activeCourse.Id;
 
                 // Act
-                await _repository.SoftDeleteAsync(courseId);
+                await _repository.SoftDeleteAsync(courseId, Guid.NewGuid());
 
                 // Assert
                 var dbCourse = await _context.Courses
@@ -973,8 +973,8 @@
                     .FirstAsync(c => c.IsActive);
 
                 // Act
-                var result1 = await _repository.SoftDeleteAsync(activeCourse.Id);
-                var result2 = await _repository.SoftDeleteAsync(activeCourse.Id);
+                var result1 = await _repository.SoftDeleteAsync(activeCourse.Id, Guid.NewGuid());
+                var result2 = await _repository.SoftDeleteAsync(activeCourse.Id, Guid.NewGuid());
 
                 // Assert
                 Assert.True(result1);

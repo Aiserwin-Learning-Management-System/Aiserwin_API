@@ -34,13 +34,14 @@
         /// <summary>
         /// Gets all asynchronous.
         /// </summary>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>CourseDto list.</returns>
-        public async Task<CommonResponse<List<CourseDto>>> GetAllAsync()
+        public async Task<CommonResponse<List<CourseDto>>> GetAllAsync(Guid centerId)
         {
             try
             {
                 _logger.LogInformation("Fetching all courses.");
-                var courses = (await _repo.GetAllAsync()).Select(Map).ToList();
+                var courses = (await _repo.GetAllAsync(centerId)).Select(Map).ToList();
 
                 return CommonResponse<List<CourseDto>>.SuccessResponse(
                     courses.Any() ? "Courses retrieved successfully" : "No courses found",
@@ -65,6 +66,35 @@
             {
                 _logger.LogInformation("Fetching course with Id: {CourseId}", id);
                 var course = await _repo.GetByIdAsync(id);
+
+                if (course == null)
+                {
+                    return CommonResponse<CourseDto>.FailureResponse("Course not found");
+                }
+
+                return CommonResponse<CourseDto>.SuccessResponse(
+                    "Course retrieved successfully", Map(course));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching course Id: {CourseId}", id);
+                return CommonResponse<CourseDto>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Gets course by identifier.
+        /// </summary>
+        /// <param name="id">The course identifier.</param>
+        /// <param name="centerId">The centerId.</param>
+        /// <returns>CourseDto.</returns>
+        public async Task<CommonResponse<CourseDto>> GetByIdCenterIdAsync(Guid id,Guid centerId)
+        {
+            try
+            {
+                _logger.LogInformation("Fetching course with Id: {CourseId}", id);
+                var course = await _repo.GetByIdCenterIdAsync(id, centerId);
 
                 if (course == null)
                 {
@@ -244,13 +274,14 @@
         /// Soft deletes a course.
         /// </summary>
         /// <param name="id">The course identifier.</param>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>bool.</returns>
-        public async Task<CommonResponse<bool>> DeleteAsync(Guid id)
+        public async Task<CommonResponse<bool>> DeleteAsync(Guid id, Guid centerId)
         {
             try
             {
                 _logger.LogInformation("Deleting course Id: {CourseId}", id);
-                var result = await _repo.SoftDeleteAsync(id);
+                var result = await _repo.SoftDeleteAsync(id, centerId);
 
                 if (result)
                 {
@@ -274,9 +305,10 @@
         /// Search works on Course Name, Stream Name, Grade Name, and Syllabus Name.
         /// </summary>
         /// <param name="request">The paged request.</param>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>Paginated course result.</returns>
         public async Task<CommonResponse<PagedResult<CourseDto>>> GetFilteredAsync(
-            PagedRequest request)
+            PagedRequest request, Guid centerId)
         {
             try
             {
@@ -287,7 +319,7 @@
                     request.Active, request.SearchText, request.SortBy,
                     request.SortOrder, request.Limit, request.Offset);
 
-                var query = _repo.Query();
+                var query = _repo.Query(centerId);
 
                 // ── Filters ──
                 if (request.Active.HasValue)

@@ -12,8 +12,9 @@
         /// <summary>
         /// Gets all asynchronous.
         /// </summary>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>CourseDto list.</returns>
-        Task<CommonResponse<List<CourseDto>>> GetAllAsync();
+        Task<CommonResponse<List<CourseDto>>> GetAllAsync(Guid centerId);
 
         /// <summary>
         /// Gets course by identifier.
@@ -21,6 +22,14 @@
         /// <param name="id">The course identifier.</param>
         /// <returns>CourseDto.</returns>
         Task<CommonResponse<CourseDto>> GetByIdAsync(Guid id);
+
+        /// <summary>
+        /// Gets course by identifier.
+        /// </summary>
+        /// <param name="id">The course identifier.</param>
+        /// <param name="centerId">The centerId.</param>
+        /// <returns>CourseDto.</returns>
+        Task<CommonResponse<CourseDto>> GetByIdCenterIdAsync(Guid id, Guid centerId);
 
         /// <summary>
         /// Gets courses by stream identifier.
@@ -55,14 +64,16 @@
         /// Soft deletes a course.
         /// </summary>
         /// <param name="id">The course identifier.</param>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>bool.</returns>
-        Task<CommonResponse<bool>> DeleteAsync(Guid id);
+        Task<CommonResponse<bool>> DeleteAsync(Guid id, Guid centerId);
 
         /// <summary>
         /// Gets filtered courses with pagination support.
         /// </summary>
         /// <param name="request">The paged request.</param>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>Paginated course result.</returns>
-        Task<CommonResponse<PagedResult<CourseDto>>> GetFilteredAsync(PagedRequest request);
+        Task<CommonResponse<PagedResult<CourseDto>>> GetFilteredAsync(PagedRequest request, Guid centerId);
     }
 }

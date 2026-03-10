@@ -9,6 +9,7 @@
     using Winfocus.LMS.Application.DTOs.Masters;
     using Winfocus.LMS.Application.Interfaces;
     using Winfocus.LMS.Application.Services;
+    using Winfocus.LMS.Domain.Entities;
     using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
     /// <summary>
@@ -34,19 +35,50 @@
         /// <summary>
         /// Gets all.
         /// </summary>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>SubjectDto list.</returns>
         [HttpGet]
-        public async Task<ActionResult<CommonResponse<SubjectDto>>> GetAll()
-            => Ok(await _service.GetAllAsync());
+        public async Task<ActionResult<CommonResponse<SubjectDto>>> GetAll(Guid centerId)
+        {
+            if (User?.Identity?.IsAuthenticated == true)
+            {
+                var userId = UserId;
+
+                if (userId != Guid.Empty)
+                {
+                    var centerIdFromToken = CenterId;
+                    return Ok(await _service.GetAllAsync(centerIdFromToken));
+                }
+            }
+
+            return Ok(await _service.GetAllAsync(centerId));
+        }
+
+        //  => Ok(await _service.GetAllAsync());
 
         /// <summary>
         /// Gets the specified identifier.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>SubjectDto.</returns>
         [HttpGet("{id:guid}")]
-        public async Task<ActionResult<CommonResponse<SubjectDto>>> Get(Guid id)
-            => Ok(await _service.GetByIdAsync(id));
+        public async Task<ActionResult<CommonResponse<SubjectDto>>> Get(Guid id, Guid centerId)
+        {
+            if (User?.Identity?.IsAuthenticated == true)
+            {
+                var userId = UserId;
+
+                if (userId != Guid.Empty)
+                {
+                    var centerIdFromToken = CenterId;
+                    return Ok(await _service.GetByIdCenterIdAsync(id, centerIdFromToken));
+                }
+            }
+
+            return Ok(await _service.GetByIdCenterIdAsync(id, centerId));
+        }
+           // => Ok(await _service.GetByIdAsync(id));
 
         /// <summary>
         /// Gets the subjects by courses.
@@ -103,7 +135,7 @@
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpDelete("{id:guid}")]
         public async Task<ActionResult<CommonResponse<bool>>> Delete(Guid id)
-              => Ok(await _service.DeleteAsync(id));
+              => Ok(await _service.DeleteAsync(id, CenterId));
 
         /// <summary>
         /// Retrieves filtered subjects with pagination.

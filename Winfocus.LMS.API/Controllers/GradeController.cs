@@ -136,7 +136,7 @@ namespace Winfocus.LMS.API.Controllers
         [HttpDelete("{id:guid}")]
         public async Task<ActionResult<CommonResponse<bool>>> Delete(Guid id)
         {
-            var result = await _gradeService.DeleteAsync(id);
+            var result = await _gradeService.DeleteAsync(id, CenterId);
             return Ok(result);
         }
 
