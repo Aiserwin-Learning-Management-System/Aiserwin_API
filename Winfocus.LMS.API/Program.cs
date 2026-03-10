@@ -122,6 +122,8 @@ builder.Services.AddScoped<IUserSessionService, UserSessionService>();
 
 builder.Services.AddScoped<IDoubtClearingRepository, DoubtClearingRepository>();
 builder.Services.AddScoped<IDoubtClearingService, DoubtClearingService>();
+builder.Services.AddScoped<IStaffCategoryRepository, StaffCategoryRepository>();
+builder.Services.AddScoped<IStaffCategoryService, StaffCategoryService>();
 
 #endregion
 
