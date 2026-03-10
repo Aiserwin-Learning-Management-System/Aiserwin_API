@@ -68,6 +68,30 @@ namespace Winfocus.LMS.Application.DTOs.Fees
         public Guid StreamId { get; set; }
 
         /// <summary>
+        /// Gets or sets the Country identifier.
+        /// </summary>
+        /// <value>The Country identifier.</value>
+        public Guid CountryId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the State identifier.
+        /// </summary>
+        /// <value>The State identifier.</value>
+        public Guid StateId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Modeofstudy identifier.
+        /// </summary>
+        /// <value>The Modeofstudy identifier.</value>
+        public Guid ModeofstudyId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Center identifier.
+        /// </summary>
+        /// <value>The Center identifier.</value>
+        public Guid CenterId { get; set; }
+
+        /// <summary>
         /// Gets or sets the list of discounts associated with this FeePlan.
         /// </summary>
         public IReadOnlyCollection<FeePlanDiscountDto> Discounts { get; set; }
