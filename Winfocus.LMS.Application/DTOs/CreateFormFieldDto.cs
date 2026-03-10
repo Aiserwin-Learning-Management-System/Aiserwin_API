@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Winfocus.LMS.Domain.Enums;
 
 namespace Winfocus.LMS.Application.DTOs
 {
@@ -20,13 +21,13 @@ namespace Winfocus.LMS.Application.DTOs
         /// Gets or sets the unique programmatic name of the field.
         /// Used as the key when storing form data.
         /// </summary>
-        /// <example>first_name, date_of_birth</example>
+        /// <example>first_name, date_of_birth.</example>
         public string FieldName { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the human-readable label displayed on the form.
         /// </summary>
-        /// <example>First Name</example>
+        /// <example>First Name.</example>
         public string DisplayLabel { get; set; } = string.Empty;
 
         /// <summary>
@@ -70,5 +71,4 @@ namespace Winfocus.LMS.Application.DTOs
         /// </summary>
         public List<FieldOptionDto>? Options { get; set; }
     }
-}
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Winfocus.LMS.Domain.Enums;
 
 namespace Winfocus.LMS.Application.DTOs
 {
