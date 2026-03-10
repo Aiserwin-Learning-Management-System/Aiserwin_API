@@ -33,13 +33,14 @@
         /// <summary>
         /// Gets all asynchronous.
         /// </summary>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>GradeDto.</returns>
-        public async Task<CommonResponse<List<GradeDto>>> GetAllAsync()
+        public async Task<CommonResponse<List<GradeDto>>> GetAllAsync(Guid centerId)
         {
             try
             {
                 _logger.LogInformation("Fetching all Grdaes");
-                var grades = await _repository.GetAllAsync();
+                var grades = await _repository.GetAllAsync(centerId);
                 var mapped = grades.Select(Map).ToList();
                 if (mapped.Any())
                 {
@@ -78,6 +79,35 @@
                     return CommonResponse<GradeDto>.FailureResponse("Grade not found");
                 }
             } catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching grades.");
+                return CommonResponse<GradeDto>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <param name="centerId">The centerId.</param>
+        /// <returns>GradeDto.</returns>
+        public async Task<CommonResponse<GradeDto>> GetByIdCenterIdAsync(Guid id, Guid centerId)
+        {
+            try
+            {
+                var grades = await _repository.GetByIdCenterIdAsync(id, centerId);
+                var mapped = grades == null ? null : Map(grades);
+                if (mapped != null)
+                {
+                    return CommonResponse<GradeDto>.SuccessResponse("Fetching the grade", mapped);
+                }
+                else
+                {
+                    return CommonResponse<GradeDto>.FailureResponse("Grade not found");
+                }
+            }
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Error fetching grades.");
                 return CommonResponse<GradeDto>.FailureResponse(
@@ -230,9 +260,10 @@
         /// Search works on both Grade Name and Syllabus Name.
         /// </summary>
         /// <param name="request">The paged request.</param>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>Paginated grade result.</returns>
         public async Task<CommonResponse<PagedResult<GradeDto>>> GetFilteredAsync(
-            PagedRequest request)
+            PagedRequest request, Guid centerId)
         {
             try
             {
@@ -243,7 +274,7 @@
                     request.Active, request.SearchText, request.SortBy,
                     request.SortOrder, request.Limit, request.Offset);
 
-                var query = _repository.Query();
+                var query = _repository.Query(centerId);
 
                 // ── Filters ──
                 if (request.Active.HasValue)

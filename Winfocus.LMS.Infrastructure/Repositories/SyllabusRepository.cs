@@ -41,12 +41,13 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// Gets the by identifier asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="centerId">centerId.</param>
         /// <returns>Syllabus.</returns>
-        public async Task<Syllabus?> GetByIdAsync(Guid id)
+        public async Task<Syllabus?> GetByIdAsync(Guid id, Guid centerId)
         {
             return await _db.Syllabuses
                  .Include(x => x.Center)
-                .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
+                .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted && x.CenterId == centerId);
         }
 
         /// <summary>
@@ -86,13 +87,19 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="centerId">centerId.</param>
         /// <returns>task.</returns>
-        public async Task<bool> DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(Guid id, Guid centerId)
         {
             var entity = await _db.Syllabuses.FindAsync(id);
             if (entity == null)
             {
                 return false;
+            }
+
+            if (entity.CenterId != centerId)
+            {
+              return false;
             }
 
             entity.IsActive = false;
@@ -116,12 +123,13 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// <summary>
         /// Gets all asynchronous.
         /// </summary>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>
         /// syllabuses.
         /// </returns>
-        public IQueryable<Syllabus> Query()
+        public IQueryable<Syllabus> Query(Guid centerId)
         {
-            return _db.Syllabuses.Where(x => !x.IsDeleted)
+            return _db.Syllabuses.Where(x => !x.IsDeleted && x.CenterId == centerId)
                  .Include(x => x.Center)
                  .Include(x => x.Center.Country)
                 .Include(x => x.Center.modeOfStudy)

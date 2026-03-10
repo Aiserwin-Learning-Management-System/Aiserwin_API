@@ -17,8 +17,9 @@
         /// Gets the by identifier asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="centerId">centerId.</param>
         /// <returns>Syllabus.</returns>
-        Task<Syllabus?> GetByIdAsync(Guid id);
+        Task<Syllabus?> GetByIdAsync(Guid id, Guid centerId);
 
         /// <summary>
         /// Adds the asynchronous.
@@ -38,8 +39,9 @@
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>task.</returns>
-        Task<bool> DeleteAsync(Guid id);
+        Task<bool> DeleteAsync(Guid id, Guid centerId);
 
         /// <summary>
         /// Existses the by name asynchronous.
@@ -51,8 +53,9 @@
         /// <summary>
         /// Gets all asynchronous.
         /// </summary>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>syllabuses.</returns>
-        IQueryable<Syllabus> Query();
+        IQueryable<Syllabus> Query(Guid centerId);
 
         /// <summary>
         /// Gets the by identifier asynchronous.

@@ -63,13 +63,14 @@ namespace Winfocus.LMS.Application.Services
         /// Gets the by identifier asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="centerId">centerId.</param>
         /// <returns>SyllabusDto.</returns>
-        public async Task<CommonResponse<SyllabusDto>> GetByIdAsync(Guid id)
+        public async Task<CommonResponse<SyllabusDto>> GetByIdAsync(Guid id, Guid centerId)
         {
             try
             {
                 _logger.LogInformation("Fetching syllabuses by Id: {Id}", id);
-                var syllabus = await _repository.GetByIdAsync(id);
+                var syllabus = await _repository.GetByIdAsync(id, centerId);
                 _logger.LogInformation("syllabuses fetched successfully for Id: {Id}", id);
                 var mappeddata = syllabus == null ? null : Map(syllabus);
                 if (mappeddata != null)
@@ -131,7 +132,7 @@ namespace Winfocus.LMS.Application.Services
             {
                 _logger.LogInformation("Updating Syllabus Id: {Id}", id);
 
-                var batch = await _repository.GetByIdAsync(id);
+                var batch = await _repository.GetByIdAsync(id, request.CenterId);
                 if (batch == null)
                 {
                     return CommonResponse<SyllabusDto>.FailureResponse("Syllabus not found");
@@ -160,13 +161,14 @@ namespace Winfocus.LMS.Application.Services
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="centerId">centerId.</param>
         /// <returns>task.</returns>
-        public async Task<CommonResponse<bool>> DeleteAsync(Guid id)
+        public async Task<CommonResponse<bool>> DeleteAsync(Guid id, Guid centerId)
         {
             try
             {
                 _logger.LogInformation("Deleting Syllabus Id: {Id}", id);
-                var result = await _repository.DeleteAsync(id);
+                var result = await _repository.DeleteAsync(id, centerId);
 
                 if (result)
                 {
@@ -217,9 +219,10 @@ namespace Winfocus.LMS.Application.Services
         /// Retrieves syllabuses based on filter criteria with pagination.
         /// </summary>
         /// <param name="request">The paged request.</param>
+        /// <param name="centerId">centerId.</param>
         /// <returns>Paginated syllabus result.</returns>
         public async Task<CommonResponse<PagedResult<SyllabusDto>>> GetFilteredAsync(
-            PagedRequest request)
+            PagedRequest request, Guid centerId)
         {
             try
             {
@@ -229,7 +232,7 @@ namespace Winfocus.LMS.Application.Services
                     request.Active, request.SearchText, request.SortBy,
                     request.SortOrder, request.Limit, request.Offset);
 
-                var query = _repository.Query();
+                var query = _repository.Query(centerId);
 
                 // ── Filters ──
                 if (request.Active.HasValue)

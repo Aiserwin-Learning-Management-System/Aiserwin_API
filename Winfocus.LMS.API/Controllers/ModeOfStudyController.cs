@@ -86,7 +86,7 @@ namespace Winfocus.LMS.API.Controllers
         /// <param name="id">The identifier.</param>
         /// <param name="countryId">The countryId.</param>
         /// <returns>ModeOfStudyDto by id.</returns>
-        [HttpGet("{id:guid}/{countryid:guid?}")]
+        [HttpGet("{id:guid}/country/{countryid:guid?}")]
         public async Task<ActionResult<CommonResponse<ModeOfStudyDto>>> Get(Guid id, Guid countryId)
         {
             if (User?.Identity?.IsAuthenticated == true)

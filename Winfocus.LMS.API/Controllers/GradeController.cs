@@ -7,6 +7,7 @@ using Winfocus.LMS.Application.DTOs.Common;
 using Winfocus.LMS.Application.DTOs.Masters;
 using Winfocus.LMS.Application.Interfaces;
 using Winfocus.LMS.Application.Services;
+using Winfocus.LMS.Domain.Entities;
 
 namespace Winfocus.LMS.API.Controllers
 {
@@ -32,10 +33,25 @@ namespace Winfocus.LMS.API.Controllers
         /// <summary>
         /// Gets all.
         /// </summary>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>GradeDto list.</returns>
-        [HttpGet]
-        public async Task<ActionResult<CommonResponse<GradeDto>>> GetAll()
-            => Ok(await _gradeService.GetAllAsync());
+        [HttpGet("{centerId:guid?}")]
+        public async Task<ActionResult<CommonResponse<GradeDto>>> GetAll(Guid centerId)
+        {
+            if (User?.Identity?.IsAuthenticated == true)
+            {
+                var userId = UserId;
+
+                if (userId != Guid.Empty)
+                {
+                    var countryIdFromToken = CenterId;
+                    return Ok(await _gradeService.GetAllAsync(countryIdFromToken));
+                }
+            }
+
+            return Ok(await _gradeService.GetAllAsync(centerId));
+        }
+          //  => Ok(await _gradeService.GetAllAsync());
 
         /// <summary>
         /// Creates the specified request.
@@ -59,10 +75,25 @@ namespace Winfocus.LMS.API.Controllers
         /// Gets the specified identifier.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="centerid">The centerid.</param>
         /// <returns>GradeDto by id.</returns>
-        [HttpGet("{id:guid}")]
-        public async Task<ActionResult<CommonResponse<GradeDto>>> Get(Guid id)
-           => Ok(await _gradeService.GetByIdAsync(id));
+        [HttpGet("{id:guid}/center/{centerid:guid?}")]
+        public async Task<ActionResult<CommonResponse<GradeDto>>> Get(Guid id, Guid centerid)
+        {
+            if (User?.Identity?.IsAuthenticated == true)
+            {
+                var userId = UserId;
+
+                if (userId != Guid.Empty)
+                {
+                    var countryIdFromToken = CenterId;
+                    return Ok(await _gradeService.GetByIdCenterIdAsync(id,countryIdFromToken));
+                }
+            }
+
+            return Ok(await _gradeService.GetByIdCenterIdAsync(id, centerid));
+        }
+           //=> Ok(await _gradeService.GetByIdAsync(id));
 
         /// <summary>
         /// Updates the specified identifier.
@@ -119,7 +150,7 @@ namespace Winfocus.LMS.API.Controllers
         public async Task<ActionResult<CommonResponse<PagedResult<GradeDto>>>> GetFiltered(
         [FromQuery] PagedRequest request)
         {
-            var result = await _gradeService.GetFilteredAsync(request);
+            var result = await _gradeService.GetFilteredAsync(request, CenterId);
             return Ok(result);
         }
     }

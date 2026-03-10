@@ -25,10 +25,11 @@
         /// <summary>
         /// Gets all asynchronous.
         /// </summary>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>Grade list.</returns>
-        public async Task<IReadOnlyList<Grade>> GetAllAsync()
+        public async Task<IReadOnlyList<Grade>> GetAllAsync(Guid centerId)
         {
-            return await _db.Grades.Where(x => !x.IsDeleted)
+            return await _db.Grades.Where(x => !x.IsDeleted && x.Syllabus.CenterId == centerId)
                 .Include(x => x.Syllabus)
                 .ThenInclude(x => x.Center)
                 .ThenInclude(x => x.State)
@@ -50,6 +51,22 @@
                 .ThenInclude(x => x.State)
                 .ThenInclude(x => x.Country)
                 .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
+        }
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <param name="centerId">The centerId.</param>
+        /// <returns>Grade.</returns>
+        public async Task<Grade?> GetByIdCenterIdAsync(Guid id, Guid centerId)
+        {
+            return await _db.Grades
+                .Include(x => x.Syllabus)
+                .ThenInclude(x => x.Center)
+                .ThenInclude(x => x.State)
+                .ThenInclude(x => x.Country)
+                .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted && x.Syllabus.CenterId == centerId);
         }
 
         /// <summary>
@@ -126,12 +143,13 @@
         /// <summary>
         /// Gets all asynchronous.
         /// </summary>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>
         /// grade.
         /// </returns>
-        public IQueryable<Grade> Query()
+        public IQueryable<Grade> Query(Guid centerId)
         {
-            return _db.Grades.Where(x => !x.IsDeleted).Include(x => x.Syllabus)
+            return _db.Grades.Where(x => !x.IsDeleted && x.Syllabus.CenterId == centerId).Include(x => x.Syllabus)
                 .ThenInclude(x => x.Center)
                 .ThenInclude(x => x.State)
                 .ThenInclude(x => x.Country)

@@ -143,7 +143,7 @@
                     .FailureResponse("Center not found");
             }
 
-            var syllabus = await _syllabusRepository.GetByIdAsync(request.syllabusId);
+            var syllabus = await _syllabusRepository.GetByIdAsync(request.syllabusId, request.centerId);
             if (syllabus == null)
             {
                 _logger.LogWarning("CreateAcademicDetails failed: Syllabus not found. SyllabusId: {SyllabusId}", request.syllabusId);
@@ -298,7 +298,7 @@
                     .FailureResponse("Center not found");
             }
 
-            var syllabus = await _syllabusRepository.GetByIdAsync(request.syllabusId);
+            var syllabus = await _syllabusRepository.GetByIdAsync(request.syllabusId, request.centerId);
             if (syllabus == null)
             {
                 _logger.LogWarning(

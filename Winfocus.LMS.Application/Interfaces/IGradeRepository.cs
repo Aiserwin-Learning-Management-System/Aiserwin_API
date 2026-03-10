@@ -10,8 +10,9 @@
         /// <summary>
         /// Gets all asynchronous.
         /// </summary>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>Grade.</returns>
-        Task<IReadOnlyList<Grade>> GetAllAsync();
+        Task<IReadOnlyList<Grade>> GetAllAsync(Guid centerId);
 
         /// <summary>
         /// Gets the by identifier asynchronous.
@@ -19,6 +20,14 @@
         /// <param name="id">The identifier.</param>
         /// <returns>Grade.</returns>
         Task<Grade?> GetByIdAsync(Guid id);
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <param name="centerId">The centerId.</param>
+        /// <returns>Grade.</returns>
+        Task<Grade?> GetByIdCenterIdAsync(Guid id, Guid centerId);
 
         /// <summary>
         /// Adds the asynchronous.
@@ -58,7 +67,8 @@
         /// <summary>
         /// Gets all asynchronous.
         /// </summary>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>grdaes.</returns>
-        IQueryable<Grade> Query();
+        IQueryable<Grade> Query(Guid centerId);
     }
 }

@@ -19,8 +19,9 @@
         /// Gets the by identifier asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="centerId">centerId.</param>
         /// <returns>SyllabusDto.</returns>
-        Task<CommonResponse<SyllabusDto>> GetByIdAsync(Guid id);
+        Task<CommonResponse<SyllabusDto>> GetByIdAsync(Guid id, Guid centerId);
 
         /// <summary>
         /// Creates the asynchronous.
@@ -41,15 +42,17 @@
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="centerId">centerId.</param>
         /// <returns>id.</returns>
-        Task<CommonResponse<bool>> DeleteAsync(Guid id);
+        Task<CommonResponse<bool>> DeleteAsync(Guid id, Guid centerId);
 
         /// <summary>
         /// Gets filtered syllabuses with pagination support.
         /// </summary>
         /// <param name="request">The paged request.</param>
+        /// <param name="centerId">centerId.</param>
         /// <returns>Paginated syllabus result.</returns>
-        Task<CommonResponse<PagedResult<SyllabusDto>>> GetFilteredAsync(PagedRequest request);
+        Task<CommonResponse<PagedResult<SyllabusDto>>> GetFilteredAsync(PagedRequest request, Guid centerId);
 
         /// <summary>
         /// Gets the by center identifier asynchronous.
