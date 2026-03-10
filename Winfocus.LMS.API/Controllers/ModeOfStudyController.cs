@@ -6,6 +6,7 @@ using Winfocus.LMS.Application.DTOs.Common;
 using Winfocus.LMS.Application.DTOs.Masters;
 using Winfocus.LMS.Application.Interfaces;
 using Winfocus.LMS.Application.Services;
+using Winfocus.LMS.Domain.Entities;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Winfocus.LMS.API.Controllers
@@ -33,20 +34,22 @@ namespace Winfocus.LMS.API.Controllers
         /// Gets all.
         /// </summary>
         /// <returns>ModeOfStudyDto list.</returns>
+        /// <param name="countryId">The countryId.</param>
         [HttpGet]
-        public async Task<ActionResult<CommonResponse<List<ModeOfStudyDto>>>> GetAll()
+        public async Task<ActionResult<CommonResponse<List<ModeOfStudyDto>>>> GetAll(Guid countryId)
         {
             if (User?.Identity?.IsAuthenticated == true)
             {
-                var userid = UserId;
-                if (Guid.Empty != userid)
+                var userId = UserId;
+
+                if (userId != Guid.Empty)
                 {
-                    var countryid = CountryId;
-                    return Ok(await _modeofstudyService.GetByCountryIdAsync(countryid));
+                    var countryIdFromToken = CountryId;
+                    return Ok(await _modeofstudyService.GetByCountryIdAsync(countryIdFromToken));
                 }
             }
 
-            return Ok(await _modeofstudyService.GetAllAsync());
+            return Ok(await _modeofstudyService.GetByCountryIdAsync(countryId));
         }
 
          // => Ok(await _modeofstudyService.GetAllAsync());
