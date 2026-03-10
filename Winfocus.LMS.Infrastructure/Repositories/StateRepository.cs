@@ -44,13 +44,14 @@
         /// Gets the by identifier asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="countryId">The countryId.</param>
         /// <returns>State.</returns>
-        public async Task<State?> GetByIdAsync(Guid id)
+        public async Task<State?> GetByIdAsync(Guid id, Guid countryId)
         {
             return await _dbContext.States
                 .Include(x => x.Country)
                 .Include(x => x.ModeOfStudy)
-                .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
+                .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted && x.CountryId == countryId);
         }
 
         /// <summary>
@@ -83,11 +84,17 @@
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="countryId">The countryId.</param>
         /// <returns>task.</returns>
-        public async Task<bool> DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(Guid id, Guid countryId)
         {
             var entity = await _dbContext.States.FindAsync(id);
             if (entity == null)
+            {
+                return false;
+            }
+
+            if (entity.CountryId != countryId)
             {
                 return false;
             }
@@ -127,12 +134,13 @@
         /// <summary>
         /// Gets all asynchronous.
         /// </summary>
+        /// <param name="countryId">The countryId.</param>
         /// <returns>
         /// state Filter.
         /// </returns>
-        public IQueryable<State> Query()
+        public IQueryable<State> Query(Guid countryId)
         {
-            return _dbContext.States.Where(x => !x.IsDeleted)
+            return _dbContext.States.Where(x => !x.IsDeleted && x.CountryId == countryId)
                 .Include(x => x.Country)
                 .Include(x => x.ModeOfStudy)
                 .AsNoTracking();

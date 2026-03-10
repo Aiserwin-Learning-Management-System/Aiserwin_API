@@ -44,12 +44,20 @@
         /// Gets the by identifier asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="countryId">The countryId.</param>
         /// <returns>Country.</returns>
-        public async Task<ModeOfStudy?> GetByIdAsync(Guid id)
+        public async Task<ModeOfStudy?> GetByIdAsync(Guid id, Guid countryId)
         {
-            return await _dbContext.ModeOfStudies
-                .Include(x => x.Country)
-                .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
+            var query = _dbContext.ModeOfStudies
+         .Include(x => x.Country)
+         .Where(x => x.Id == id && !x.IsDeleted);
+
+            if (countryId != Guid.Empty)
+            {
+                query = query.Where(x => x.CountryId == countryId);
+            }
+
+            return await query.FirstOrDefaultAsync();
         }
 
         /// <summary>
@@ -80,11 +88,16 @@
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="countryId">The countryId.</param>
         /// <returns>task.</returns>
-        public async Task<bool> DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(Guid id, Guid countryId)
         {
             var entity = await _dbContext.ModeOfStudies.FindAsync(id);
             if (entity == null)
+            {
+                return false;
+            }
+            if (entity.CountryId != countryId)
             {
                 return false;
             }
@@ -123,12 +136,13 @@
         /// <summary>
         /// Gets all asynchronous.
         /// </summary>
+        /// <param name="countryId">The identifier.</param>
         /// <returns>
         /// modeofstudy.
         /// </returns>
-        public IQueryable<ModeOfStudy> Query()
+        public IQueryable<ModeOfStudy> Query(Guid countryId)
         {
-            return _dbContext.ModeOfStudies.Where(x => !x.IsDeleted)
+            return _dbContext.ModeOfStudies.Where(x => !x.IsDeleted && x.CountryId == countryId)
                 .Include(x => x.Country)
                 .AsNoTracking();
         }

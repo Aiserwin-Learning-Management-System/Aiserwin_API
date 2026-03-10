@@ -74,11 +74,12 @@ namespace Winfocus.LMS.Application.Services
         /// Gets the by identifier asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="countryId">The countryId.</param>
         /// <returns>CenterDto.</returns>
-        public async Task<CommonResponse<CenterDto>> GetByIdAsync(Guid id)
+        public async Task<CommonResponse<CenterDto>> GetByIdAsync(Guid id, Guid countryId)
         {
             _logger.LogInformation("Fetching centre by Id: {CentreId}", id);
-            var centre = Map(await _repository.GetByIdAsync(id));
+            var centre = Map(await _repository.GetByIdAsync(id, countryId));
             if (centre == null)
             {
                 _logger.LogWarning("Centre not found for Id: {CentreId}", id);
@@ -106,7 +107,7 @@ namespace Winfocus.LMS.Application.Services
             if (!country.IsActive)
                 return CommonResponse<CenterDto>.FailureResponse("Cannot create with inactive country");
 
-            var modeOfStudy = await _moderepository.GetByIdAsync(request.modeofstudyid);
+            var modeOfStudy = await _moderepository.GetByIdAsync(request.modeofstudyid, request.countryid);
             if (modeOfStudy == null)
                 return CommonResponse<CenterDto>.FailureResponse("Mode of study not found");
 
@@ -136,7 +137,7 @@ namespace Winfocus.LMS.Application.Services
                     return CommonResponse<CenterDto>
                         .FailureResponse("State is required for Offline mode");
 
-                state = await _stateRepository.GetByIdAsync(Guid.Parse(request.stateid));
+                state = await _stateRepository.GetByIdAsync(Guid.Parse(request.stateid), request.countryid);
                 if (state == null)
                     return CommonResponse<CenterDto>
                         .FailureResponse("State not found");
@@ -167,7 +168,7 @@ namespace Winfocus.LMS.Application.Services
         {
             _logger.LogInformation("Updating centre Id: {CentreId}", id);
 
-            var center = await _repository.GetByIdAsync(id);
+            var center = await _repository.GetByIdAsync(id, request.countryid);
             if (center == null)
                 return CommonResponse<CenterDto>.FailureResponse("Center not found");
 
@@ -182,7 +183,7 @@ namespace Winfocus.LMS.Application.Services
                 return CommonResponse<CenterDto>.FailureResponse("Center code not found");
 
             // 🔹 Mode validation
-            var modeOfStudy = await _moderepository.GetByIdAsync(request.modeofstudyid);
+            var modeOfStudy = await _moderepository.GetByIdAsync(request.modeofstudyid, request.countryid);
             if (modeOfStudy == null)
                 return CommonResponse<CenterDto>.FailureResponse("Mode of study not found");
 
@@ -195,7 +196,7 @@ namespace Winfocus.LMS.Application.Services
                     return CommonResponse<CenterDto>
                         .FailureResponse("State is required for Offline mode");
 
-                state = await _stateRepository.GetByIdAsync(Guid.Parse(request.stateid));
+                state = await _stateRepository.GetByIdAsync(Guid.Parse(request.stateid), request.countryid);
                 if (state == null)
                     return CommonResponse<CenterDto>
                         .FailureResponse("State not found");
@@ -227,13 +228,14 @@ namespace Winfocus.LMS.Application.Services
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="countryId">The countryId.</param>
         /// <returns>task.</returns>
-        public async Task<CommonResponse<bool>> DeleteAsync(Guid id)
+        public async Task<CommonResponse<bool>> DeleteAsync(Guid id, Guid countryId)
         {
             try
             {
                 _logger.LogInformation("Deleting center Id: {Id}", id);
-                var result = await _repository.DeleteAsync(id);
+                var result = await _repository.DeleteAsync(id, countryId);
 
                 if (result)
                 {
@@ -307,9 +309,10 @@ namespace Winfocus.LMS.Application.Services
         /// Search works on mode of study name, state Name.
         /// </summary>
         /// <param name="request">The paged request.</param>
+        /// <param name="countryId">countryId.</param>
         /// <returns>Paginated Center result.</returns>
         public async Task<CommonResponse<PagedResult<CenterDto>>> GetFilteredAsync(
-            PagedRequest request)
+            PagedRequest request, Guid countryId)
         {
             try
             {
@@ -320,7 +323,7 @@ namespace Winfocus.LMS.Application.Services
                     request.Active, request.SearchText, request.SortBy,
                     request.SortOrder, request.Limit, request.Offset);
 
-                var query = _repository.Query();
+                var query = _repository.Query(countryId);
 
                 // ── Filters ──
                 if (request.Active.HasValue)
@@ -401,6 +404,47 @@ namespace Winfocus.LMS.Application.Services
                 _logger.LogError(ex, "Error fetching filtered centers.");
                 return CommonResponse<PagedResult<CenterDto>>.FailureResponse(
                     $"An error occurred: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Gets centre by mode of study and state.
+        /// </summary>
+        /// <param name="countryId">country identifier.</param>
+        /// <returns>CentreDto if found; otherwise null.</returns>
+        public async Task<CommonResponse<List<CenterDto>>> GetByCountryAsync(Guid countryId)
+        {
+            try
+            {
+                _logger.LogInformation(
+                    "Fetching centres for CountryId: {CountryId}",
+                    countryId);
+
+                var centres = await _repository.GetByCountryAsync(
+                    countryId);
+
+                if (centres == null || !centres.Any())
+                {
+                    return CommonResponse<List<CenterDto>>
+                        .FailureResponse("No data found");
+                }
+
+                var mapped = centres.Select(Map).ToList();
+
+                _logger.LogInformation(
+                    "Centres fetched successfully. Count: {Count}",
+                    mapped.Count);
+
+                return CommonResponse<List<CenterDto>>
+                    .SuccessResponse("Centres fetched successfully", mapped);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex,
+                    "Error occurred while fetching centres with filters");
+
+                return CommonResponse<List<CenterDto>>
+                    .FailureResponse("An unexpected error occurred.");
             }
         }
 

@@ -23,8 +23,9 @@
         /// Gets the by identifier asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="countryId">The countryId.</param>
         /// <returns>StateDto.</returns>
-        Task<CommonResponse<StateDto>> GetByIdAsync(Guid id);
+        Task<CommonResponse<StateDto>> GetByIdAsync(Guid id, Guid countryId);
 
         /// <summary>
         /// Creates the asynchronous.
@@ -45,8 +46,9 @@
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="countryId">The countryId.</param>
         /// <returns>id.</returns>
-        Task<CommonResponse<bool>> DeleteAsync(Guid id);
+        Task<CommonResponse<bool>> DeleteAsync(Guid id, Guid countryId);
 
         /// <summary>
         /// Gets the by identifier asynchronous.
@@ -59,7 +61,8 @@
         /// Gets the records filter.
         /// </summary>
         /// <param name="request">The request.</param>
+        /// <param name="countryId">The countryId.</param>
         /// <returns>StateDto.</returns>
-        Task<CommonResponse<PagedResult<StateDto>>> GetFilteredAsync(PagedRequest request);
+        Task<CommonResponse<PagedResult<StateDto>>> GetFilteredAsync(PagedRequest request, Guid countryId);
     }
 }

@@ -8,6 +8,7 @@
     using Winfocus.LMS.Application.DTOs.Masters;
     using Winfocus.LMS.Application.Interfaces;
     using Winfocus.LMS.Application.Services;
+    using Winfocus.LMS.Domain.Entities;
 
     /// <summary>
     /// Handles authentication endpoints.
@@ -31,19 +32,51 @@
         /// <summary>
         /// Gets all.
         /// </summary>
+        /// <param name="countryId">The countryId.</param>
         /// <returns>CenterDto list.</returns>
-        [HttpGet]
-        public async Task<ActionResult<CommonResponse<List<CenterDto>>>> GetAll()
-           => Ok(await _centerService.GetAllAsync());
+        [HttpGet("{countryId:guid?}")]
+        public async Task<ActionResult<CommonResponse<List<CenterDto>>>> GetAll(Guid countryId)
+        {
+            if (User?.Identity?.IsAuthenticated == true)
+            {
+                var userId = UserId;
+
+                if (userId != Guid.Empty)
+                {
+                    var countryIdFromToken = CountryId;
+                    return Ok(await _centerService.GetByCountryAsync(countryIdFromToken));
+                }
+            }
+
+            return Ok(await _centerService.GetByCountryAsync(countryId));
+        }
+
+        // => Ok(await _centerService.GetAllAsync());
 
         /// <summary>
         /// Gets the specified identifier.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="countryId">The countryId.</param>
         /// <returns>CenterDto by id.</returns>
-        [HttpGet("{id:guid}")]
-        public async Task<ActionResult<CommonResponse<CenterDto>>> Get(Guid id)
-         => Ok(await _centerService.GetByIdAsync(id));
+        [HttpGet("{id:guid}/{countryid:guid?}")]
+        public async Task<ActionResult<CommonResponse<CenterDto>>> Get(Guid id, Guid countryId)
+        {
+            if (User?.Identity?.IsAuthenticated == true)
+            {
+                var userId = UserId;
+
+                if (userId != Guid.Empty)
+                {
+                    var countryIdFromToken = CountryId;
+                    return Ok(await _centerService.GetByIdAsync(id, countryIdFromToken));
+                }
+            }
+
+            return Ok(await _centerService.GetByIdAsync(id,countryId));
+        }
+
+        //=> Ok(await _centerService.GetByIdAsync(id));
 
         /// <summary>
         /// Creates the specified request.
@@ -92,7 +125,7 @@
         [HttpDelete("{id:guid}")]
         public async Task<ActionResult<CommonResponse<bool>>> Delete(Guid id)
         {
-            var result = await _centerService.DeleteAsync(id);
+            var result = await _centerService.DeleteAsync(id, CountryId);
             return Ok(result);
         }
 
@@ -120,7 +153,7 @@
         public async Task<ActionResult<CommonResponse<PagedResult<CenterDto>>>> GetFiltered(
             [FromQuery] PagedRequest request)
         {
-            var result = await _centerService.GetFilteredAsync(request);
+            var result = await _centerService.GetFilteredAsync(request, CountryId);
             return Ok(result);
         }
     }

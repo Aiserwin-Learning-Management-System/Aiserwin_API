@@ -35,7 +35,7 @@ namespace Winfocus.LMS.API.Controllers
         /// </summary>
         /// <returns>ModeOfStudyDto list.</returns>
         /// <param name="countryId">The countryId.</param>
-        [HttpGet]
+        [HttpGet("{countryId:guid?}")]
         public async Task<ActionResult<CommonResponse<List<ModeOfStudyDto>>>> GetAll(Guid countryId)
         {
             if (User?.Identity?.IsAuthenticated == true)
@@ -64,10 +64,18 @@ namespace Winfocus.LMS.API.Controllers
         public async Task<ActionResult<CommonResponse<ModeOfStudyDto>>> Create(
             ModeOfStudyRequest request)
         {
+            var countryId = CountryId;
+
+            if (countryId != request.countryid)
+            {
+                return StatusCode(403, "You are not allowed to create data for this country.");
+            }
+
             var updatedRequest = request with
             {
                 userId = UserId
             };
+
             var created = await _modeofstudyService.CreateAsync(updatedRequest);
             return Ok(created);
         }
@@ -76,11 +84,21 @@ namespace Winfocus.LMS.API.Controllers
         /// Gets the specified identifier.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="countryId">The countryId.</param>
         /// <returns>ModeOfStudyDto by id.</returns>
-        [HttpGet("{id:guid}")]
-        public async Task<ActionResult<CommonResponse<ModeOfStudyDto>>> Get(Guid id)
+        [HttpGet("{id:guid}/{countryid:guid?}")]
+        public async Task<ActionResult<CommonResponse<ModeOfStudyDto>>> Get(Guid id, Guid countryId)
         {
-            var result = await _modeofstudyService.GetByIdAsync(id);
+            if (User?.Identity?.IsAuthenticated == true)
+            {
+                if (UserId != Guid.Empty)
+                {
+                    var countryIdFromToken = CountryId;
+                    return Ok(await _modeofstudyService.GetByIdAsync(id, CountryId));
+                }
+            }
+
+            var result = await _modeofstudyService.GetByIdAsync(id, countryId);
             return Ok(result);
         }
 
@@ -125,7 +143,16 @@ namespace Winfocus.LMS.API.Controllers
         [HttpDelete("{id:guid}")]
         public async Task<ActionResult<CommonResponse<bool>>> Delete(Guid id)
         {
-            var result = await _modeofstudyService.DeleteAsync(id);
+            if (User?.Identity?.IsAuthenticated == true)
+            {
+                if (UserId != Guid.Empty)
+                {
+                    var countryIdFromToken = CountryId;
+                    return Ok(await _modeofstudyService.DeleteAsync(id, countryIdFromToken));
+                }
+            }
+
+            var result = await _modeofstudyService.DeleteAsync(id, CountryId);
             return Ok(result);
         }
 
@@ -139,7 +166,7 @@ namespace Winfocus.LMS.API.Controllers
         public async Task<ActionResult<CommonResponse<PagedResult<ModeOfStudyDto>>>> GetFiltered(
         [FromQuery] PagedRequest request)
         {
-            var result = await _modeofstudyService.GetFilteredAsync(request);
+            var result = await _modeofstudyService.GetFilteredAsync(request, CountryId);
             return Ok(result);
         }
     }

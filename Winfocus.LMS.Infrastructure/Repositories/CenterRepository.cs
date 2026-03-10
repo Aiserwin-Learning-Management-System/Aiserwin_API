@@ -48,14 +48,15 @@
         /// Gets the by identifier asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="countryId">The countryId.</param>
         /// <returns>Center.</returns>
-        public async Task<Center?> GetByIdAsync(Guid id)
+        public async Task<Center?> GetByIdAsync(Guid id, Guid countryId)
         {
             return await _dbContext.Centres
                 .Include(x => x.Country)
                 .Include(x => x.State)
                 .Include(x => x.modeOfStudy)
-                .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
+                .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted && x.CountryId == countryId);
         }
 
         /// <summary>
@@ -86,11 +87,17 @@
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="countryId">The countryId.</param>
         /// <returns>task.</returns>
-        public async Task<bool> DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(Guid id, Guid countryId)
         {
             var entity = await _dbContext.Centres.FindAsync(id);
             if (entity == null)
+            {
+                return false;
+            }
+
+            if (entity.CountryId == countryId)
             {
                 return false;
             }
@@ -145,12 +152,31 @@
         }
 
         /// <summary>
+        /// Gets centre by country, mode of study and state.
+        /// </summary>
+        /// <param name="countryId">Country identifier.</param>
+        /// <returns>Centre entity if found; otherwise null.</returns>
+        public async Task<List<Center>> GetByCountryAsync(
+            Guid countryId)
+        {
+            var query = _dbContext.Centres.Where(x => !x.IsDeleted && x.CountryId == countryId)
+                 .AsNoTracking()
+                 .Include(x => x.Country)
+                 .Include(x => x.modeOfStudy)
+                 .Include(x => x.State)
+                 .AsQueryable();
+
+            return await query.ToListAsync();
+        }
+
+        /// <summary>
         /// Gets queryable for filtering with full hierarchy.
         /// </summary>
+        /// <param name="countryId">Country identifier.</param>
         /// <returns>Queryable center.</returns>
-        public IQueryable<Center> Query()
+        public IQueryable<Center> Query(Guid countryId)
         {
-            return _dbContext.Centres.Where(x => !x.IsDeleted)
+            return _dbContext.Centres.Where(x => !x.IsDeleted && x.CountryId == countryId)
                 .Include(x => x.Country)
                 .Include(x => x.State)
                 .Include(x => x.modeOfStudy)

@@ -122,7 +122,8 @@
                 .Setup(t => t.GenerateToken(
                     It.IsAny<User>(),
                     It.IsAny<IReadOnlyList<string>>(),
-                    It.IsAny<string>()))
+                    It.IsAny<string>(),
+                    It.IsAny<IReadOnlyList<string>>()))
                 .Returns("mock-jwt-token");
 
             // Act
@@ -292,7 +293,8 @@
                 .Setup(t => t.GenerateToken(
                     It.IsAny<User>(),
                     It.IsAny<IReadOnlyList<string>>(),
-                    It.IsAny<string>()))
+                    It.IsAny<string>(),
+                    It.IsAny<IReadOnlyList<string>>()))
                 .Returns("mock-jwt-token");
 
             // Act

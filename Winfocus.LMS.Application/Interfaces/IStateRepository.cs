@@ -22,8 +22,9 @@
         /// Gets the by identifier asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="countryId">The countryId.</param>
         /// <returns>State.</returns>
-        Task<State?> GetByIdAsync(Guid id);
+        Task<State?> GetByIdAsync(Guid id, Guid countryId);
 
         /// <summary>
         /// Adds the asynchronous.
@@ -43,8 +44,9 @@
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="countryId">The countryId.</param>
         /// <returns>task.</returns>
-        Task<bool> DeleteAsync(Guid id);
+        Task<bool> DeleteAsync(Guid id, Guid countryId);
 
         /// <summary>
         /// Existses the by code asynchronous.
@@ -63,7 +65,8 @@
         /// <summary>
         /// Gets all asynchronous.
         /// </summary>
+        /// <param name="countryId">The countryId.</param>
         /// <returns>State.</returns>
-        IQueryable<State> Query();
+        IQueryable<State> Query(Guid countryId);
     }
 }

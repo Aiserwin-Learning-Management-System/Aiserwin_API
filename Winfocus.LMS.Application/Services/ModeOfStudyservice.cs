@@ -61,13 +61,14 @@
         /// Gets the by identifier asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="countryId">The countryId.</param>
         /// <returns>ModeOfStudyDto.</returns>
-        public async Task<CommonResponse<ModeOfStudyDto>> GetByIdAsync(Guid id)
+        public async Task<CommonResponse<ModeOfStudyDto>> GetByIdAsync(Guid id, Guid countryId)
         {
             try
             {
                 _logger.LogInformation("Fetching mode of study by Id: {ModeOfStudyId}", id);
-                var modeOfStudies = await _repository.GetByIdAsync(id);
+                var modeOfStudies = await _repository.GetByIdAsync(id, countryId);
                 _logger.LogInformation("Mode of study fetched successfully for Id: {ModeOfStudyId}", id);
                 var mapped = modeOfStudies == null ? null : Map(modeOfStudies);
                 if (mapped != null)
@@ -143,7 +144,7 @@
             {
                 _logger.LogInformation("Updating mode of study Id: {Id}", id);
 
-                var batch = await _repository.GetByIdAsync(id);
+                var batch = await _repository.GetByIdAsync(id, request.countryid);
                 if (batch == null)
                 {
                     return CommonResponse<ModeOfStudyDto>.FailureResponse("mode of study not found");
@@ -172,13 +173,14 @@
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="countryId">The countryId.</param>
         /// <returns>task.</returns>
-        public async Task<CommonResponse<bool>> DeleteAsync(Guid id)
+        public async Task<CommonResponse<bool>> DeleteAsync(Guid id, Guid countryId)
         {
             try
             {
                 _logger.LogInformation("Deleting mode of study Id: {ModeOfStudyId}", id);
-                var result = await _repository.DeleteAsync(id);
+                var result = await _repository.DeleteAsync(id, countryId);
 
                 if (result)
                 {
@@ -218,9 +220,10 @@
         /// Gets filtered modeofstudy with pagination support.
         /// </summary>
         /// <param name="request">The paged request.</param>
+        /// <param name="countryId">The countryId.</param>
         /// <returns>Paginated modeofstudy result.</returns>
         public async Task<CommonResponse<PagedResult<ModeOfStudyDto>>> GetFilteredAsync(
-         PagedRequest request)
+         PagedRequest request, Guid countryId)
         {
             try
             {
@@ -231,7 +234,7 @@
                     request.Active, request.SearchText, request.SortBy,
                     request.SortOrder, request.Limit, request.Offset);
 
-                var query = _repository.Query();
+                var query = _repository.Query(countryId);
 
                 // ── Filters ──
                 if (request.Active.HasValue)

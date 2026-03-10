@@ -7,6 +7,7 @@ using Winfocus.LMS.Application.DTOs.Common;
 using Winfocus.LMS.Application.DTOs.Masters;
 using Winfocus.LMS.Application.Interfaces;
 using Winfocus.LMS.Application.Services;
+using Winfocus.LMS.Domain.Entities;
 
 namespace Winfocus.LMS.API.Controllers
 {
@@ -32,10 +33,23 @@ namespace Winfocus.LMS.API.Controllers
         /// <summary>
         /// Gets all.
         /// </summary>
+        /// <param name="countryId">The identifier.</param>
         /// <returns>StateDto list.</returns>
-        [HttpGet]
-        public async Task<ActionResult<CommonResponse<List<StateDto>>>> GetAll()
-            => Ok(await _stateService.GetAllAsync());
+        [HttpGet("{countryId:guid?}")]
+        public async Task<ActionResult<CommonResponse<List<StateDto>>>> GetAll(Guid countryId)
+        {
+            if (User?.Identity?.IsAuthenticated == true)
+            {
+                if (UserId != Guid.Empty)
+                {
+                    return Ok(await _stateService.GetByCountryIdAsync(CountryId));
+                }
+            }
+
+            return Ok(await _stateService.GetByCountryIdAsync(countryId));
+        }
+
+          //=> Ok(await _stateService.GetAllAsync());
 
         /// <summary>
         /// Creates the specified request.
@@ -59,11 +73,20 @@ namespace Winfocus.LMS.API.Controllers
         /// Gets the specified identifier.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="countryid">The countryid.</param>
         /// <returns>StateDto by id.</returns>
-        [HttpGet("{id:guid}")]
-        public async Task<ActionResult<CommonResponse<StateDto>>> Get(Guid id)
+        [HttpGet("{id:guid}/{countryid:guid?}")]
+        public async Task<ActionResult<CommonResponse<StateDto>>> Get(Guid id, Guid countryid)
         {
-            var result = await _stateService.GetByIdAsync(id);
+            if (User?.Identity?.IsAuthenticated == true)
+            {
+                if (UserId != Guid.Empty)
+                {
+                    return Ok(await _stateService.GetByIdAsync(id, CountryId));
+                }
+            }
+
+            var result = await _stateService.GetByIdAsync(id, countryid);
             return Ok(result);
         }
 
@@ -108,7 +131,7 @@ namespace Winfocus.LMS.API.Controllers
         [HttpDelete("{id:guid}")]
         public async Task<CommonResponse<bool>> Delete(Guid id)
         {
-            return await _stateService.DeleteAsync(id);
+            return await _stateService.DeleteAsync(id, CountryId);
         }
 
         /// <summary>
@@ -124,7 +147,7 @@ namespace Winfocus.LMS.API.Controllers
         public async Task<ActionResult<CommonResponse<PagedResult<StateDto>>>> GetFiltered(
         [FromQuery] PagedRequest request)
         {
-            var result = await _stateService.GetFilteredAsync(request);
+            var result = await _stateService.GetFilteredAsync(request, CountryId);
             return Ok(result);
         }
     }
