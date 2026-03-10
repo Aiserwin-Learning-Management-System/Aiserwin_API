@@ -11,7 +11,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
     /// <summary>
     /// Provides data access operations for <see cref="StaffCategory"/> entities.
     /// </summary>
-    public class StaffCategoryRepository : IStaffCategoryRepository
+    public sealed class StaffCategoryRepository : IStaffCategoryRepository
     {
         /// <summary>
         /// The application database context used to access StaffCategory.
