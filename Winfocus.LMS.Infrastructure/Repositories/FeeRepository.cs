@@ -127,6 +127,8 @@
                 .ThenInclude(x => x.Stream)
                 .ThenInclude(x => x.Grade)
                 .ThenInclude(x => x.Syllabus)
+                .ThenInclude(x => x.Center)
+                 .ThenInclude(x => x.State)
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
 
@@ -144,6 +146,8 @@
                 .Include(x => x.Course)
                 .ThenInclude(x => x.Grade)
                 .ThenInclude(x => x.Syllabus)
+                .ThenInclude(x => x.Center)
+                 .ThenInclude(x => x.State)
                 .AsNoTracking()
                 .ToListAsync();
         }
