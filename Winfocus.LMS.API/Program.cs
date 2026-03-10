@@ -13,6 +13,7 @@ using Winfocus.LMS.API.Middleware;
 using Winfocus.LMS.Application.Configuration;
 using Winfocus.LMS.Application.Interfaces;
 using Winfocus.LMS.Application.Services;
+using Winfocus.LMS.Application.Settings;
 using Winfocus.LMS.Domain.Entities;
 using Winfocus.LMS.Infrastructure.Data;
 using Winfocus.LMS.Infrastructure.DataSeeders;
@@ -24,6 +25,9 @@ var config = builder.Configuration;
 
 builder.Services.Configure<SmtpSettings>(
     builder.Configuration.GetSection("SmtpSettings"));
+
+builder.Services.Configure<FileUploadSettings>(
+    builder.Configuration.GetSection(FileUploadSettings.SectionName));
 
 #region Serilog Configuration
 
@@ -275,6 +279,14 @@ if (!app.Environment.IsEnvironment("Testing"))
         logger.LogCritical(ex, "Database migration or seeding failed.");
         throw;
     }
+
+    var webRootPath = app.Environment.WebRootPath
+       ?? Path.Combine(app.Environment.ContentRootPath, "wwwroot");
+    var uploadsPath = Path.Combine(webRootPath, "uploads", "registrations");
+    if (!Directory.Exists(uploadsPath))
+    {
+        Directory.CreateDirectory(uploadsPath);
+    }
 }
 
 #endregion
@@ -305,6 +317,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("AllowAngularApp");
 
+app.UseStaticFiles();
 app.UseAuthentication();
 
 app.UseMiddleware<SessionValidationMiddleware>();
