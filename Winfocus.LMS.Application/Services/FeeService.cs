@@ -1,9 +1,12 @@
 ﻿namespace Winfocus.LMS.Application.Services
 {
+    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
     using Winfocus.LMS.Application.Common.Exceptions;
     using Winfocus.LMS.Application.DTOs;
+    using Winfocus.LMS.Application.DTOs.Common;
     using Winfocus.LMS.Application.DTOs.Fees;
+    using Winfocus.LMS.Application.DTOs.Masters;
     using Winfocus.LMS.Application.Interfaces;
     using Winfocus.LMS.Domain.Entities;
     using Winfocus.LMS.Domain.Enums;
@@ -798,6 +801,106 @@
             {
                 _logger.LogError(ex, "Error deleting Fee Id: {Id}", id);
                 return CommonResponse<bool>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Gets filtered fees with pagination support.
+        /// </summary>
+        /// <param name="request">The paged request.</param>
+        /// <returns>Paginated fees result.</returns>
+        public async Task<CommonResponse<PagedResult<FeePlanDto>>> GetFilteredAsync(
+            PagedRequest request)
+        {
+            try
+            {
+                var query = _repo.Query();
+
+                // ── Filters ──
+                if (request.Active.HasValue)
+                    query = query.Where(x => x.IsActive == request.Active.Value);
+
+                if (request.StartDate.HasValue)
+                    query = query.Where(x => x.CreatedAt >= request.StartDate.Value);
+
+                if (request.EndDate.HasValue)
+                    query = query.Where(x => x.CreatedAt <= request.EndDate.Value);
+
+                // ── Search on Course, Stream, Grade, AND Syllabus Name ──
+                if (!string.IsNullOrWhiteSpace(request.SearchText))
+                {
+                    var searchTerm = request.SearchText.Trim().ToLower();
+                    query = query.Where(x =>
+                        x.PlanName.ToLower().Contains(searchTerm) ||
+                        x.Course.Name.ToLower().Contains(searchTerm) ||
+                        x.Course.Stream.Name.ToLower().Contains(searchTerm) ||
+                        x.Course.Stream.Grade.Name.ToLower().Contains(searchTerm) ||
+                        x.Course.Stream.Grade.Syllabus.Name.ToLower().Contains(searchTerm));
+                }
+
+                // ── Total Count ──
+                var totalCount = await query.CountAsync();
+
+                if (totalCount == 0)
+                {
+                    return CommonResponse<PagedResult<FeePlanDto>>.SuccessResponse(
+                        "No fees found.",
+                        new PagedResult<FeePlanDto>(
+                            new List<FeePlanDto>(), 0, request.Limit, request.Offset));
+                }
+
+                // ── Dynamic Sorting ──
+                var isDesc = request.SortOrder.Equals("desc", StringComparison.OrdinalIgnoreCase);
+
+                query = request.SortBy.ToLower() switch
+                {
+                    "name" => isDesc ? query.OrderByDescending(x => x.PlanName)
+                                             : query.OrderBy(x => x.PlanName),
+
+                    "coursename" => isDesc ? query.OrderByDescending(x => x.Course.Name)
+                                       : query.OrderBy(x => x.Course.Name),
+
+                    "streamname" => isDesc ? query.OrderByDescending(x => x.Course.Stream.Name)
+                                             : query.OrderBy(x => x.Course.Stream.Name),
+
+                    "gradename" => isDesc ? query.OrderByDescending(x => x.Course.Stream.Grade.Name)
+                                             : query.OrderBy(x => x.Course.Stream.Grade.Name),
+
+                    "syllabusname" => isDesc ? query.OrderByDescending(x => x.Course.Stream.Grade.Syllabus.Name)
+                                             : query.OrderBy(x => x.Course.Stream.Grade.Syllabus.Name),
+
+                    "isactive" => isDesc ? query.OrderByDescending(x => x.IsActive)
+                                             : query.OrderBy(x => x.IsActive),
+
+                    "createdat" => isDesc ? query.OrderByDescending(x => x.CreatedAt)
+                                             : query.OrderBy(x => x.CreatedAt),
+
+                    _ => isDesc ? query.OrderByDescending(x => x.CreatedAt)
+                                             : query.OrderBy(x => x.CreatedAt),
+                };
+
+                // ── Pagination ──
+                var courses = await query
+                    .Skip(request.Offset)
+                    .Take(request.Limit)
+                    .ToListAsync();
+
+                var dtoList = courses.Select(MapToDto).ToList();
+
+                _logger.LogInformation(
+                    "Returning {Count} of {Total} fees",
+                    dtoList.Count, totalCount);
+
+                return CommonResponse<PagedResult<FeePlanDto>>.SuccessResponse(
+                    "fees fetched successfully.",
+                    new PagedResult<FeePlanDto>(
+                        dtoList, totalCount, request.Limit, request.Offset));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching filtered fees.");
+                return CommonResponse<PagedResult<FeePlanDto>>.FailureResponse(
                     $"An error occurred: {ex.Message}");
             }
         }

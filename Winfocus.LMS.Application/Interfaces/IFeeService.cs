@@ -1,7 +1,9 @@
 ﻿namespace Winfocus.LMS.Application.Interfaces
 {
     using Winfocus.LMS.Application.DTOs;
+    using Winfocus.LMS.Application.DTOs.Common;
     using Winfocus.LMS.Application.DTOs.Fees;
+    using Winfocus.LMS.Application.DTOs.Masters;
     using Winfocus.LMS.Domain.Enums;
 
     /// <summary>
@@ -109,5 +111,12 @@
         /// <param name="id">The identifier.</param>
         /// <returns>id.</returns>
         Task<CommonResponse<bool>> DeleteAsync(Guid id);
+
+        /// <summary>
+        /// Gets filtered courses with pagination support.
+        /// </summary>
+        /// <param name="request">The paged request.</param>
+        /// <returns>Paginated fee result.</returns>
+        Task<CommonResponse<PagedResult<FeePlanDto>>> GetFilteredAsync(PagedRequest request);
     }
 }
