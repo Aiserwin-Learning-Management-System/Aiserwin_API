@@ -129,7 +129,6 @@
                 .ThenInclude(x => x.Syllabus)
                 .ThenInclude(x => x.Center)
                  .ThenInclude(x => x.State)
-                .FirstOrDefaultAsync(x => x.Id == id);
                 .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
         }
 

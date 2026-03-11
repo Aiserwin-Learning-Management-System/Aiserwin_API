@@ -10,6 +10,11 @@ namespace Winfocus.LMS.Application.DTOs
     public class FieldGroupDto
     {
         /// <summary>
+        /// Gets or sets the GroupId.
+        /// </summary>
+        public string GroupId { get; set; } = null!;
+
+        /// <summary>
         /// Gets or sets the GroupName.
         /// </summary>
         public string GroupName { get; set; } = null!;
