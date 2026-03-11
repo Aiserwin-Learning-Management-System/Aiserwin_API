@@ -104,9 +104,7 @@
                          .ThenInclude(x => x.Center)
                             .ThenInclude(x => x.State)
                             .ThenInclude(x => x.Country)
-                .Where(c => courseIds.Contains(c.CourseId) && c.IsActive)
-            return await _db.Subjects
-                .Where(c => courseIds.Contains(c.Id) && c.IsActive && !c.IsDeleted)
+                .Where(c => courseIds.Contains(c.CourseId) && c.IsActive && !c.IsDeleted)
                 .Distinct()
                 .AsNoTracking()
                 .ToListAsync();
