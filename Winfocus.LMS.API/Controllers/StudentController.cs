@@ -67,6 +67,7 @@
             var academicDetails = await _studentAcademicdetailsService.CreateAsync(request.academicdetails);
             if (!academicDetails.Success || academicDetails.Data == null)
             {
+                await _studentPersonaldetailsService.DeleteAsync(personalDetails.Data.Id);
                 return CommonResponse<StudentDto>.FailureResponse(academicDetails.Message);
             }
 
