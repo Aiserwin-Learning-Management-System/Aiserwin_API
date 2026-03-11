@@ -23,20 +23,15 @@ namespace Winfocus.LMS.Application.Mapping
         /// </summary>
         public FormFieldProfile()
         {
-            /// <summary>
-            /// Maps the <see cref="CreateFormFieldDto"/> request DTO to the
-            /// <see cref="FormField"/> entity when creating a new form field.
-            /// </summary>
+            // Maps Create DTO → Entity
             CreateMap<CreateFormFieldDto, FormField>();
 
-            /// <summary>
-            /// Maps the <see cref="FormField"/> entity to the
-            /// <see cref="FormFieldResponseDto"/> used for detailed API responses.
-            /// 
-            /// Custom mappings:
-            /// - Maps <c>FormField.Id</c> to <c>FieldId</c>.
-            /// - Converts the <see cref="FieldType"/> enum to its string representation.
-            /// </summary>
+            /// Maps Update DTO → Existing Entity
+            /// Ignores Id to prevent overwriting the primary key.
+            CreateMap<UpdateFormFieldDto, FormField>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore());
+
+            /// Maps Entity → Detailed response DTO
             CreateMap<FormField, FormFieldResponseDto>()
                 .ForMember(
                     dest => dest.FieldId,
@@ -45,14 +40,7 @@ namespace Winfocus.LMS.Application.Mapping
                     dest => dest.FieldType,
                     opt => opt.MapFrom(src => src.FieldType.ToString()));
 
-            /// <summary>
-            /// Maps the <see cref="FormField"/> entity to the
-            /// <see cref="FormFieldListDto"/> used in list endpoints.
-            /// 
-            /// Custom mappings:
-            /// - Maps <c>FormField.Id</c> to <c>FieldId</c>.
-            /// - Converts the <see cref="FieldType"/> enum to string for readability.
-            /// </summary>
+            /// Maps Entity → List DTO
             CreateMap<FormField, FormFieldListDto>()
                 .ForMember(
                     dest => dest.FieldId,
@@ -61,12 +49,7 @@ namespace Winfocus.LMS.Application.Mapping
                     dest => dest.FieldType,
                     opt => opt.MapFrom(src => src.FieldType.ToString()));
 
-            /// <summary>
-            /// Maps the <see cref="FieldGroup"/> entity to a lightweight
-            /// <see cref="FieldGroupDto"/> used inside form field responses.
-            /// Custom mappings:
-            /// - Maps <c>FieldGroup.Id</c> to <c>GroupId</c>.
-            /// </summary>
+            /// Maps FieldGroup entity → DTO
             CreateMap<FieldGroup, FieldGroupDto>()
                 .ForMember(
                     dest => dest.GroupId,

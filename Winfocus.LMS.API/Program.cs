@@ -12,6 +12,7 @@ using System.Text;
 using Winfocus.LMS.API.Middleware;
 using Winfocus.LMS.Application.Configuration;
 using Winfocus.LMS.Application.Interfaces;
+using Winfocus.LMS.Application.Mapping;
 using Winfocus.LMS.Application.Services;
 using Winfocus.LMS.Application.Settings;
 using Winfocus.LMS.Domain.Entities;
@@ -73,6 +74,8 @@ if (!builder.Environment.IsEnvironment("Testing"))
 
 #region Dependency Injection
 
+builder.Services.AddAutoMapper(typeof(FormFieldProfile));
+
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, JwtTokenService>();
 
@@ -128,6 +131,9 @@ builder.Services.AddScoped<IDoubtClearingRepository, DoubtClearingRepository>();
 builder.Services.AddScoped<IDoubtClearingService, DoubtClearingService>();
 builder.Services.AddScoped<IStaffCategoryRepository, StaffCategoryRepository>();
 builder.Services.AddScoped<IStaffCategoryService, StaffCategoryService>();
+
+builder.Services.AddScoped<IFormFieldRepository, FormFieldRepository>();
+builder.Services.AddScoped<IFormFieldService, FormFieldService>();
 
 #endregion
 
