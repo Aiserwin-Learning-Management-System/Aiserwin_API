@@ -12,8 +12,9 @@
         /// <summary>
         /// Gets all asynchronous.
         /// </summary>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>StreamDto list.</returns>
-        Task<CommonResponse<List<StreamDto>>> GetAllAsync();
+        Task<CommonResponse<List<StreamDto>>> GetAllAsync(Guid centerId);
 
         /// <summary>
         /// Gets the by identifier asynchronous.
@@ -23,11 +24,20 @@
         Task<CommonResponse<StreamDto>> GetByIdAsync(Guid id);
 
         /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <param name="centerId">The centerId.</param>
+        /// <returns>StreamDto.</returns>
+        Task<CommonResponse<StreamDto>> GetByIdCenterIdAsync(Guid id, Guid centerId);
+
+        /// <summary>
         /// Creates the asynchronous.
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>StreamDto.</returns>
-        Task<CommonResponse<StreamDto>> CreateAsync(StreamRequest request);
+        Task<CommonResponse<StreamDto>> 
+            CreateAsync(StreamRequest request);
 
         /// <summary>
         /// Updates the asynchronous.
@@ -41,8 +51,9 @@
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>bool.</returns>
-        Task<CommonResponse<bool>> DeleteAsync(Guid id);
+        Task<CommonResponse<bool>> DeleteAsync(Guid id, Guid centerId);
 
         /// <summary>
         /// Gets streams by grade identifier.
@@ -55,7 +66,8 @@
         /// Gets filtered streams with pagination support.
         /// </summary>
         /// <param name="request">The paged request.</param>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>Paginated stream result.</returns>
-        Task<CommonResponse<PagedResult<StreamDto>>> GetFilteredAsync(PagedRequest request);
+        Task<CommonResponse<PagedResult<StreamDto>>> GetFilteredAsync(PagedRequest request, Guid centerId);
     }
 }

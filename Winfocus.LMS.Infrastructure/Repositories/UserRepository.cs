@@ -75,7 +75,8 @@
         /// </returns>
         public Task<User?> GetByIdAsync(Guid id)
         {
-            return _dbContext.Users
+            return _dbContext.Users.Include(u => u.Country)
+                .Include(u => u.Center)
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
 
@@ -176,6 +177,20 @@
                 _logger.LogError(ex, "Error checking email existence for {Email}", email);
                 throw;
             }
+        }
+
+        /// <summary>
+        /// Gets the by role permissions.
+        /// </summary>
+        /// <param name="roleid">The roleid.</param>
+        /// <returns>user.</returns>
+        public async Task<List<string>> GetByRoleAsync(Guid roleid)
+        {
+            return await _dbContext.RolePermissions
+         .AsNoTracking()
+         .Where(rp => rp.RoleId == roleid)
+         .Select(rp => rp.Permission.Name)
+         .ToListAsync();
         }
     }
 }

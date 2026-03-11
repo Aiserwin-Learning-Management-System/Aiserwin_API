@@ -797,6 +797,21 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.ToTable("ModeOfStudies");
                 });
 
+            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.Permission", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Permissions");
+                });
+
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.PreferredBatch", b =>
                 {
                     b.Property<Guid>("Id")
@@ -998,6 +1013,21 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Roles");
+                });
+
+            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.RolePermission", b =>
+                {
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PermissionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("RoleId", "PermissionId");
+
+                    b.HasIndex("PermissionId");
+
+                    b.ToTable("RolePermissions");
                 });
 
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.StaffCategory", b =>
@@ -1851,6 +1881,12 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("CenterId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("CountryId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -1871,6 +1907,9 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("StaffCategoryId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -1883,8 +1922,14 @@ namespace Winfocus.LMS.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CenterId");
+
+                    b.HasIndex("CountryId");
+
                     b.HasIndex("Email")
                         .IsUnique();
+
+                    b.HasIndex("StaffCategoryId");
 
                     b.HasIndex("Username")
                         .IsUnique();
@@ -2377,6 +2422,25 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.Navigation("StaffRegistration");
                 });
 
+            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.RolePermission", b =>
+                {
+                    b.HasOne("Winfocus.LMS.Domain.Entities.Permission", "Permission")
+                        .WithMany("RolePermissions")
+                        .HasForeignKey("PermissionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Winfocus.LMS.Domain.Entities.Role", "Role")
+                        .WithMany("RolePermissions")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Permission");
+
+                    b.Navigation("Role");
+                });
+
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.State", b =>
                 {
                     b.HasOne("Winfocus.LMS.Domain.Entities.Country", "Country")
@@ -2706,6 +2770,27 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.Navigation("Center");
                 });
 
+            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.User", b =>
+                {
+                    b.HasOne("Winfocus.LMS.Domain.Entities.Center", "Center")
+                        .WithMany()
+                        .HasForeignKey("CenterId");
+
+                    b.HasOne("Winfocus.LMS.Domain.Entities.Country", "Country")
+                        .WithMany()
+                        .HasForeignKey("CountryId");
+
+                    b.HasOne("Winfocus.LMS.Domain.Entities.StaffCategory", "StaffCategory")
+                        .WithMany()
+                        .HasForeignKey("StaffCategoryId");
+
+                    b.Navigation("Center");
+
+                    b.Navigation("Country");
+
+                    b.Navigation("StaffCategory");
+                });
+
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.UserRole", b =>
                 {
                     b.HasOne("Winfocus.LMS.Domain.Entities.Role", "Role")
@@ -2771,8 +2856,15 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.Navigation("FormFields");
                 });
 
+            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.Permission", b =>
+                {
+                    b.Navigation("RolePermissions");
+                });
+
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.Role", b =>
                 {
+                    b.Navigation("RolePermissions");
+
                     b.Navigation("UserRoles");
                 });
 

@@ -62,13 +62,14 @@
         /// Gets the by identifier asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="countryId">The countryId.</param>
         /// <returns>StateDto.</returns>
-        public async Task<CommonResponse<StateDto>> GetByIdAsync(Guid id)
+        public async Task<CommonResponse<StateDto>> GetByIdAsync(Guid id, Guid countryId)
         {
             try
             {
                 _logger.LogInformation("Fetching state by Id: {StateId}", id);
-                var state = await _repository.GetByIdAsync(id);
+                var state = await _repository.GetByIdAsync(id, countryId);
                 _logger.LogInformation("State fetched successfully for Id: {StateId}", id);
                 var mappeddata = state == null ? null : Map(state);
                 if (mappeddata != null)
@@ -146,7 +147,7 @@
             try
             {
                 _logger.LogInformation("Updating state Id: {StateId}", id);
-                var state = await _repository.GetByIdAsync(id);
+                var state = await _repository.GetByIdAsync(id, request.countryid);
                 if (state == null)
                 {
                     return CommonResponse<StateDto>.FailureResponse("State not found");
@@ -177,13 +178,14 @@
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="countryId">The countryId.</param>
         /// <returns>task.</returns>
-        public async Task<CommonResponse<bool>> DeleteAsync(Guid id)
+        public async Task<CommonResponse<bool>> DeleteAsync(Guid id, Guid countryId)
         {
             try
             {
                 _logger.LogInformation("Deleting state Id: {Id}", id);
-                var result = await _repository.DeleteAsync(id);
+                var result = await _repository.DeleteAsync(id, countryId);
 
                 if (result)
                 {
@@ -230,9 +232,10 @@
         /// Gets the by identifier asynchronous.
         /// </summary>
         /// <param name="request">The request.</param>
+        /// <param name="countryId">The countryId.</param>
         /// <returns>StateDto.</returns>
         public async Task<CommonResponse<PagedResult<StateDto>>> GetFilteredAsync(
-           PagedRequest request)
+           PagedRequest request, Guid countryId)
         {
             try
             {
@@ -243,7 +246,7 @@
                     request.Active, request.SearchText, request.SortBy,
                     request.SortOrder, request.Limit, request.Offset);
 
-                var query = _repository.Query();
+                var query = _repository.Query(countryId);
 
                 // ── Filters ──
                 if (request.Active.HasValue)

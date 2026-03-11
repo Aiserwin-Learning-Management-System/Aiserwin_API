@@ -164,6 +164,7 @@
         /// </summary>
         /// <param name="request">The fee plan identifier.</param>
         /// <returns>FeePlanDto;.</returns>
+        [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPost]
         public async Task<ActionResult<FeePlanDto>> Create(
             [FromBody] CreateFeePlanRequestDto request)
@@ -219,6 +220,7 @@
         /// <param name="id">The identifier.</param>
         /// <param name="request">The request.</param>
         /// <returns>result.</returns>
+        [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPut("{id:guid}")]
         public async Task<ActionResult<FeePlanDto>> Update(
             Guid id,

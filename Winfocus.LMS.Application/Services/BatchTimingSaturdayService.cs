@@ -33,13 +33,14 @@ namespace Winfocus.LMS.Application.Services
         /// <summary>
         /// Gets all asynchronous.
         /// </summary>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>BatchTimingSaturdayDto.</returns>
-        public async Task<CommonResponse<List<BatchTimingSaturdayDto>>> GetAllAsync()
+        public async Task<CommonResponse<List<BatchTimingSaturdayDto>>> GetAllAsync(Guid centerId)
         {
             try
             {
                 _logger.LogInformation("Fetching all Batches");
-                var batchtiming = await _repository.GetAllAsync();
+                var batchtiming = await _repository.GetAllAsync(centerId);
                 _logger.LogInformation("Fetched {Count} batches", batchtiming.Count());
                 var nappedbatchtiming = batchtiming.Select(Map).ToList();
                 if (nappedbatchtiming.Any())
@@ -69,6 +70,37 @@ namespace Winfocus.LMS.Application.Services
             {
                 _logger.LogInformation("Fetching batchtiming by Id: {Id}", id);
                 var batchtiming = await _repository.GetByIdAsync(id);
+                _logger.LogInformation("batch fetched successfully for Id: {Id}", id);
+                var mappeddata = batchtiming == null ? null : Map(batchtiming);
+                if (mappeddata != null)
+                {
+                    return CommonResponse<BatchTimingSaturdayDto>.SuccessResponse("batch timing saturday", mappeddata);
+                }
+                else
+                {
+                    return CommonResponse<BatchTimingSaturdayDto>.FailureResponse("batch timing not found");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching batch timing.");
+                return CommonResponse<BatchTimingSaturdayDto>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <param name="centerId">The centerId.</param>
+        /// <returns>BatchTimingSaturdayDto.</returns>
+        public async Task<CommonResponse<BatchTimingSaturdayDto>> GetByIdCenterIdAsync(Guid id, Guid centerId)
+        {
+            try
+            {
+                _logger.LogInformation("Fetching batchtiming by Id: {Id}", id);
+                var batchtiming = await _repository.GetByIdCenterIdAsync(id, centerId);
                 _logger.LogInformation("batch fetched successfully for Id: {Id}", id);
                 var mappeddata = batchtiming == null ? null : Map(batchtiming);
                 if (mappeddata != null)
@@ -162,13 +194,14 @@ namespace Winfocus.LMS.Application.Services
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>task.</returns>
-        public async Task<CommonResponse<bool>> DeleteAsync(Guid id)
+        public async Task<CommonResponse<bool>> DeleteAsync(Guid id, Guid centerId)
         {
             try
             {
                 _logger.LogInformation("Deleting batch time Id: {Id}", id);
-                var result = await _repository.DeleteAsync(id);
+                var result = await _repository.DeleteAsync(id, centerId);
 
                 if (result)
                 {
@@ -243,9 +276,10 @@ namespace Winfocus.LMS.Application.Services
         /// Search works on Subject name, Course Name, Stream Name, Grade Name, and Syllabus Name.
         /// </summary>
         /// <param name="request">The paged request.</param>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>Paginated batch timing for saturday result.</returns>
         public async Task<CommonResponse<PagedResult<BatchTimingSaturdayDto>>> GetFilteredAsync(
-            PagedRequest request)
+            PagedRequest request, Guid centerId)
         {
             try
             {
@@ -256,7 +290,7 @@ namespace Winfocus.LMS.Application.Services
                     request.Active, request.SearchText, request.SortBy,
                     request.SortOrder, request.Limit, request.Offset);
 
-                var query = _repository.Query();
+                var query = _repository.Query(centerId);
 
                 // ── Filters ──
                 if (request.Active.HasValue)

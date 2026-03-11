@@ -19,7 +19,7 @@
         public void Should_Fail_When_Username_Is_Empty()
         {
             var dto = new RegisterRequestDto(
-                "", "test@winfocus.com", null);
+                "", "test@winfocus.com", null, Guid.NewGuid(),Guid.NewGuid(), Guid.NewGuid());
 
             var result = _validator.TestValidate(dto);
 
@@ -33,7 +33,7 @@
         public void Should_Fail_When_Email_Is_Invalid()
         {
             var dto = new RegisterRequestDto(
-                "user", "invalid-email", null);
+                "user", "invalid-email", null, Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid());
 
             var result = _validator.TestValidate(dto);
 

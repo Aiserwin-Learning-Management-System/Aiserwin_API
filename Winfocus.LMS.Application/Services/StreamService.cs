@@ -33,13 +33,14 @@
         /// <summary>
         /// Gets all asynchronous.
         /// </summary>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>StreamDto list.</returns>
-        public async Task<CommonResponse<List<StreamDto>>> GetAllAsync()
+        public async Task<CommonResponse<List<StreamDto>>> GetAllAsync(Guid centerId)
         {
             try
             {
                 _logger.LogInformation("Fetching all streams");
-                var streams = await _repository.GetAllAsync();
+                var streams = await _repository.GetAllAsync(centerId);
                 var mapped = streams.Select(Map).ToList();
 
                 return CommonResponse<List<StreamDto>>.SuccessResponse(
@@ -65,6 +66,35 @@
             {
                 _logger.LogInformation("Fetching stream by Id: {Id}", id);
                 var stream = await _repository.GetByIdAsync(id);
+
+                if (stream == null)
+                {
+                    return CommonResponse<StreamDto>.FailureResponse("Stream not found");
+                }
+
+                return CommonResponse<StreamDto>.SuccessResponse(
+                    "Stream fetched successfully", Map(stream));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching stream by Id: {Id}", id);
+                return CommonResponse<StreamDto>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <param name="centerId">The centerId.</param>
+        /// <returns>StreamDto.</returns>
+        public async Task<CommonResponse<StreamDto>> GetByIdCenterIdAsync(Guid id, Guid centerId)
+        {
+            try
+            {
+                _logger.LogInformation("Fetching stream by Id: {Id}", id);
+                var stream = await _repository.GetByIdCenterIdAsync(id, centerId);
 
                 if (stream == null)
                 {
@@ -188,13 +218,14 @@
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>bool.</returns>
-        public async Task<CommonResponse<bool>> DeleteAsync(Guid id)
+        public async Task<CommonResponse<bool>> DeleteAsync(Guid id, Guid centerId)
         {
             try
             {
                 _logger.LogInformation("Deleting Stream Id: {Id}", id);
-                var result = await _repository.DeleteAsync(id);
+                var result = await _repository.DeleteAsync(id, centerId);
 
                 if (result)
                 {
@@ -236,9 +267,10 @@
         /// Search works on Stream Name, Grade Name, and Syllabus Name.
         /// </summary>
         /// <param name="request">The paged request.</param>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>Paginated stream result.</returns>
         public async Task<CommonResponse<PagedResult<StreamDto>>> GetFilteredAsync(
-            PagedRequest request)
+            PagedRequest request, Guid centerId)
         {
             try
             {
@@ -249,7 +281,7 @@
                     request.Active, request.SearchText, request.SortBy,
                     request.SortOrder, request.Limit, request.Offset);
 
-                var query = _repository.Query();
+                var query = _repository.Query(centerId);
 
                 // ── Filters ──
                 if (request.Active.HasValue)

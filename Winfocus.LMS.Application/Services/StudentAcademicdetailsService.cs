@@ -116,7 +116,7 @@
                     .FailureResponse("Cannot create with inactive country");
             }
 
-            var state = await _stateRepository.GetByIdAsync(request.stateId);
+            var state = await _stateRepository.GetByIdAsync(request.stateId, request.countryId);
             if (state == null)
             {
                 _logger.LogWarning("CreateAcademicDetails failed: State not found. StateId: {StateId}", request.stateId);
@@ -125,7 +125,7 @@
                     .FailureResponse("State not found");
             }
 
-            var modeOfStudy = await _modeOfStudyRepository.GetByIdAsync(request.modeOfStudyId);
+            var modeOfStudy = await _modeOfStudyRepository.GetByIdAsync(request.modeOfStudyId, request.countryId);
             if (modeOfStudy == null)
             {
                 _logger.LogWarning("CreateAcademicDetails failed: ModeOfStudy not found. Id: {ModeOfStudyId}", request.modeOfStudyId);
@@ -134,7 +134,7 @@
                     .FailureResponse("Mode of study not found");
             }
 
-            var center = await _centerRepository.GetByIdAsync(request.centerId);
+            var center = await _centerRepository.GetByIdAsync(request.centerId, request.countryId);
             if (center == null)
             {
                 _logger.LogWarning("CreateAcademicDetails failed: Center not found. CenterId: {CenterId}", request.centerId);
@@ -143,7 +143,7 @@
                     .FailureResponse("Center not found");
             }
 
-            var syllabus = await _syllabusRepository.GetByIdAsync(request.syllabusId);
+            var syllabus = await _syllabusRepository.GetByIdAsync(request.syllabusId, request.centerId);
             if (syllabus == null)
             {
                 _logger.LogWarning("CreateAcademicDetails failed: Syllabus not found. SyllabusId: {SyllabusId}", request.syllabusId);
@@ -265,7 +265,7 @@
                     .FailureResponse("Cannot create with inactive country");
             }
 
-            var state = await _stateRepository.GetByIdAsync(request.stateId);
+            var state = await _stateRepository.GetByIdAsync(request.stateId, request.countryId);
             if (state == null)
             {
                 _logger.LogWarning(
@@ -276,7 +276,7 @@
                     .FailureResponse("State not found");
             }
 
-            var modeOfStudy = await _modeOfStudyRepository.GetByIdAsync(request.modeOfStudyId);
+            var modeOfStudy = await _modeOfStudyRepository.GetByIdAsync(request.modeOfStudyId, request.countryId);
             if (modeOfStudy == null)
             {
                 _logger.LogWarning(
@@ -287,7 +287,7 @@
                     .FailureResponse("Mode of study not found");
             }
 
-            var center = await _centerRepository.GetByIdAsync(request.centerId);
+            var center = await _centerRepository.GetByIdAsync(request.centerId, request.countryId);
             if (center == null)
             {
                 _logger.LogWarning(
@@ -298,7 +298,7 @@
                     .FailureResponse("Center not found");
             }
 
-            var syllabus = await _syllabusRepository.GetByIdAsync(request.syllabusId);
+            var syllabus = await _syllabusRepository.GetByIdAsync(request.syllabusId, request.centerId);
             if (syllabus == null)
             {
                 _logger.LogWarning(

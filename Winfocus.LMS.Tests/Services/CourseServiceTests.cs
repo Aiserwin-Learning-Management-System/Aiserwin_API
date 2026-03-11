@@ -91,11 +91,11 @@
                 };
 
                 _mockRepository
-                    .Setup(r => r.GetAllAsync())
+                    .Setup(r => r.GetAllAsync(Guid.NewGuid()))
                     .ReturnsAsync(courses);
 
                 // Act
-                var result = await _service.GetAllAsync();
+                var result = await _service.GetAllAsync(Guid.NewGuid());
 
                 // Assert
                 Assert.NotNull(result);
@@ -106,7 +106,7 @@
                 Assert.Equal("Mathematics 101", result.Data[0].Name);
                 Assert.Equal("Physics 101", result.Data[1].Name);
 
-                _mockRepository.Verify(r => r.GetAllAsync(), Times.Once);
+                _mockRepository.Verify(r => r.GetAllAsync(Guid.NewGuid()), Times.Once);
             }
             catch (Exception ex)
             {
@@ -128,11 +128,11 @@
                 var emptyCourses = new List<Course>();
 
                 _mockRepository
-                    .Setup(r => r.GetAllAsync())
+                    .Setup(r => r.GetAllAsync(Guid.NewGuid()))
                     .ReturnsAsync(emptyCourses);
 
                 // Act
-                var result = await _service.GetAllAsync();
+                var result = await _service.GetAllAsync(Guid.NewGuid());
 
                 // Assert
                 Assert.NotNull(result);
@@ -141,7 +141,7 @@
                 Assert.NotNull(result.Data);
                 Assert.Empty(result.Data);
 
-                _mockRepository.Verify(r => r.GetAllAsync(), Times.Once);
+                _mockRepository.Verify(r => r.GetAllAsync(Guid.NewGuid()), Times.Once);
             }
             catch (Exception ex)
             {
@@ -177,11 +177,11 @@
                 };
 
                 _mockRepository
-                    .Setup(r => r.GetAllAsync())
+                    .Setup(r => r.GetAllAsync(Guid.NewGuid()))
                     .ReturnsAsync(courses);
 
                 // Act
-                var result = await _service.GetAllAsync();
+                var result = await _service.GetAllAsync(Guid.NewGuid());
 
                 // Assert
                 Assert.NotNull(result);
@@ -196,7 +196,7 @@
                 Assert.Equal(subjectId, dto.Subject.Id);
                 Assert.Equal("Chemistry", dto.Subject.Name);
 
-                _mockRepository.Verify(r => r.GetAllAsync(), Times.Once);
+                _mockRepository.Verify(r => r.GetAllAsync(Guid.NewGuid()), Times.Once);
             }
             catch (Exception ex)
             {
@@ -216,13 +216,13 @@
             {
                 // Arrange
                 _mockRepository
-                    .Setup(r => r.GetAllAsync())
+                    .Setup(r => r.GetAllAsync(Guid.NewGuid()))
                     .ThrowsAsync(new InvalidOperationException("Database connection failed"));
 
                 // Act & Assert
-                await Assert.ThrowsAsync<InvalidOperationException>(() => _service.GetAllAsync());
+                await Assert.ThrowsAsync<InvalidOperationException>(() => _service.GetAllAsync(Guid.NewGuid()));
 
-                _mockRepository.Verify(r => r.GetAllAsync(), Times.Once);
+                _mockRepository.Verify(r => r.GetAllAsync(Guid.NewGuid()), Times.Once);
             }
             catch (Exception ex)
             {
@@ -799,11 +799,11 @@
                 var courseId = Guid.NewGuid();
 
                 _mockRepository
-                    .Setup(r => r.SoftDeleteAsync(courseId))
+                    .Setup(r => r.SoftDeleteAsync(courseId, Guid.NewGuid()))
                     .ReturnsAsync(true);
 
                 // Act
-                var result = await _service.DeleteAsync(courseId);
+                var result = await _service.DeleteAsync(courseId, Guid.NewGuid());
 
                 // Assert
                 Assert.NotNull(result);
@@ -811,7 +811,7 @@
                 Assert.Equal("Course deleted successfully", result.Message);
                 Assert.True(result.Data);
 
-                _mockRepository.Verify(r => r.SoftDeleteAsync(courseId), Times.Once);
+                _mockRepository.Verify(r => r.SoftDeleteAsync(courseId, Guid.NewGuid()),  Times.Once);
             }
             catch (Exception ex)
             {
@@ -833,18 +833,18 @@
                 var courseId = Guid.NewGuid();
 
                 _mockRepository
-                    .Setup(r => r.SoftDeleteAsync(courseId))
+                    .Setup(r => r.SoftDeleteAsync(courseId, Guid.NewGuid()))
                     .ReturnsAsync(false);
 
                 // Act
-                var result = await _service.DeleteAsync(courseId);
+                var result = await _service.DeleteAsync(courseId, Guid.NewGuid());
 
                 // Assert
                 Assert.NotNull(result);
                 Assert.False(result.Success);
                 Assert.Equal("Course not found or could not be deleted", result.Message);
 
-                _mockRepository.Verify(r => r.SoftDeleteAsync(courseId), Times.Once);
+                _mockRepository.Verify(r => r.SoftDeleteAsync(courseId, Guid.NewGuid()), Times.Once);
             }
             catch (Exception ex)
             {
@@ -866,14 +866,14 @@
                 var courseId = Guid.NewGuid();
 
                 _mockRepository
-                    .Setup(r => r.SoftDeleteAsync(courseId))
+                    .Setup(r => r.SoftDeleteAsync(courseId, Guid.NewGuid()))
                     .ThrowsAsync(new InvalidOperationException("Database error"));
 
                 // Act & Assert
                 await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => _service.DeleteAsync(courseId));
+                    () => _service.DeleteAsync(courseId, Guid.NewGuid()));
 
-                _mockRepository.Verify(r => r.SoftDeleteAsync(courseId), Times.Once);
+                _mockRepository.Verify(r => r.SoftDeleteAsync(courseId, Guid.NewGuid()), Times.Once);
             }
             catch (Exception ex)
             {

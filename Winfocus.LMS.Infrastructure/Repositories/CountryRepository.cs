@@ -28,7 +28,7 @@
         /// <returns>Country list.</returns>
         public async Task<IReadOnlyList<Country>> GetAllAsync()
         {
-            return await _db.Countries
+            return await _db.Countries.Where(x => !x.IsDeleted)
                 .Include(x => x.Centers)
                 .AsNoTracking()
                 .ToListAsync();
@@ -43,7 +43,7 @@
         {
             return await _db.Countries
                 .Include(x => x.Centers)
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
         }
 
         /// <summary>
@@ -85,6 +85,7 @@
 
             entity.UpdatedAt = DateTime.UtcNow;
             entity.IsActive = false;
+            entity.IsDeleted = true;
 
             _db.Countries.Update(entity);
             await _db.SaveChangesAsync();
@@ -98,7 +99,7 @@
         /// <returns>bool.</returns>
         public async Task<bool> ExistsByNameAsync(string name)
         {
-            return await _db.Countries.AnyAsync(x => x.Name == name);
+            return await _db.Countries.AnyAsync(x => x.Name == name && !x.IsDeleted);
         }
 
         /// <summary>
@@ -107,7 +108,7 @@
         /// <returns>Queryable Countries.</returns>
         public IQueryable<Country> Query()
         {
-            return _db.Countries
+            return _db.Countries.Where(x => !x.IsDeleted)
                 .AsNoTracking();
         }
     }

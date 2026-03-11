@@ -72,5 +72,12 @@
         /// <param name="email">The email to check.</param>
         /// <returns><c>true</c> if the email exists; otherwise, <c>false</c>.</returns>
         Task<bool> EmailExistsAsync(string email);
+
+        /// <summary>
+        /// Gets the by role permissions.
+        /// </summary>
+        /// <param name="roleid">The roleid.</param>
+        /// <returns>user.</returns>
+        Task<List<string>> GetByRoleAsync(Guid roleid);
     }
 }

@@ -14,8 +14,9 @@ namespace Winfocus.LMS.Application.Interfaces
         /// <summary>
         /// Gets all asynchronous.
         /// </summary>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>Batch.</returns>
-        Task<IReadOnlyList<Batch>> GetAllAsync();
+        Task<IReadOnlyList<Batch>> GetAllAsync(Guid centerId);
 
         /// <summary>
         /// Gets the by identifier asynchronous.
@@ -23,6 +24,14 @@ namespace Winfocus.LMS.Application.Interfaces
         /// <param name="id">The identifier.</param>
         /// <returns>Batch.</returns>
         Task<Batch?> GetByIdAsync(Guid id);
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <param name="centerId">The centerId.</param>
+        /// <returns>Batch.</returns>
+        Task<Batch?> GetByIdCenterIdAsync(Guid id, Guid centerId);
 
         /// <summary>
         /// Adds the asynchronous.
@@ -42,13 +51,15 @@ namespace Winfocus.LMS.Application.Interfaces
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>task.</returns>
-        Task<bool> DeleteAsync(Guid id);
+        Task<bool> DeleteAsync(Guid id, Guid centerId);
 
         /// <summary>
         /// Gets all asynchronous.
         /// </summary>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>batches.</returns>
-        IQueryable<Batch> Query();
+        IQueryable<Batch> Query(Guid centerId);
     }
 }

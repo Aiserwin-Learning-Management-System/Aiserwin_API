@@ -25,10 +25,11 @@
         /// <summary>
         /// Gets all asynchronous.
         /// </summary>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>Grade list.</returns>
-        public async Task<IReadOnlyList<Grade>> GetAllAsync()
+        public async Task<IReadOnlyList<Grade>> GetAllAsync(Guid centerId)
         {
-            return await _db.Grades
+            return await _db.Grades.Where(x => !x.IsDeleted && x.Syllabus.CenterId == centerId)
                 .Include(x => x.Syllabus)
                 .ThenInclude(x => x.Center)
                 .ThenInclude(x => x.State)
@@ -49,7 +50,23 @@
                 .ThenInclude(x => x.Center)
                 .ThenInclude(x => x.State)
                 .ThenInclude(x => x.Country)
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
+        }
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <param name="centerId">The centerId.</param>
+        /// <returns>Grade.</returns>
+        public async Task<Grade?> GetByIdCenterIdAsync(Guid id, Guid centerId)
+        {
+            return await _db.Grades
+                .Include(x => x.Syllabus)
+                .ThenInclude(x => x.Center)
+                .ThenInclude(x => x.State)
+                .ThenInclude(x => x.Country)
+                .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted && x.Syllabus.CenterId == centerId);
         }
 
         /// <summary>
@@ -80,16 +97,23 @@
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>task.</returns>
-        public async Task<bool> DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(Guid id, Guid centerId)
         {
-            var entity = await _db.Grades.FindAsync(id);
+            var entity = await _db.Grades.Include(x => x.Syllabus).FirstOrDefaultAsync(x => x.Id == id);
             if (entity == null)
             {
                 return false;
             }
 
+            if (entity.Syllabus.CenterId != centerId)
+            {
+                return false;
+            }
+
             entity.IsActive = false;
+            entity.IsDeleted = true;
 
             _db.Grades.Update(entity);
             await _db.SaveChangesAsync();
@@ -103,7 +127,7 @@
         /// <returns>bool.</returns>
         public async Task<bool> ExistsByCodeAsync(string code)
         {
-            return await _db.Grades.AnyAsync(x => x.Name == code);
+            return await _db.Grades.AnyAsync(x => x.Name == code && !x.IsDeleted);
         }
 
         /// <summary>
@@ -118,19 +142,20 @@
                 .ThenInclude(x => x.Center)
                 .ThenInclude(x => x.State)
                 .ThenInclude(x => x.Country)
-                .Where(x => x.SyllabusId == syllabusid)
+                .Where(x => x.SyllabusId == syllabusid && !x.IsDeleted)
                 .ToListAsync();
         }
 
         /// <summary>
         /// Gets all asynchronous.
         /// </summary>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>
         /// grade.
         /// </returns>
-        public IQueryable<Grade> Query()
+        public IQueryable<Grade> Query(Guid centerId)
         {
-            return _db.Grades.Include(x => x.Syllabus)
+            return _db.Grades.Where(x => !x.IsDeleted && x.Syllabus.CenterId == centerId).Include(x => x.Syllabus)
                 .ThenInclude(x => x.Center)
                 .ThenInclude(x => x.State)
                 .ThenInclude(x => x.Country)

@@ -32,7 +32,7 @@
         /// <returns>State list.</returns>
         public async Task<IReadOnlyList<State>> GetAllAsync()
         {
-            return await _dbContext.States
+            return await _dbContext.States.Where(x => !x.IsDeleted)
                 .Include(x => x.Country)
                 .Include(x => x.ModeOfStudy)
                 .Include(x => x.Centers)
@@ -44,13 +44,14 @@
         /// Gets the by identifier asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="countryId">The countryId.</param>
         /// <returns>State.</returns>
-        public async Task<State?> GetByIdAsync(Guid id)
+        public async Task<State?> GetByIdAsync(Guid id, Guid countryId)
         {
             return await _dbContext.States
                 .Include(x => x.Country)
                 .Include(x => x.ModeOfStudy)
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted && x.CountryId == countryId);
         }
 
         /// <summary>
@@ -83,8 +84,9 @@
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="countryId">The countryId.</param>
         /// <returns>task.</returns>
-        public async Task<bool> DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(Guid id, Guid countryId)
         {
             var entity = await _dbContext.States.FindAsync(id);
             if (entity == null)
@@ -92,7 +94,13 @@
                 return false;
             }
 
+            if (entity.CountryId != countryId)
+            {
+                return false;
+            }
+
             entity.IsActive = false;
+            entity.IsDeleted = true;
 
             _dbContext.States.Update(entity);
             await _dbContext.SaveChangesAsync();
@@ -106,7 +114,7 @@
         /// <returns>bool.</returns>
         public async Task<bool> ExistsByCodeAsync(string code)
         {
-            return await _dbContext.States.AnyAsync(x => x.Name == code);
+            return await _dbContext.States.AnyAsync(x => x.Name == code && !x.IsDeleted);
         }
 
         /// <summary>
@@ -119,19 +127,20 @@
             return await _dbContext.States
                 .Include(x => x.Country)
                 .Include(x => x.ModeOfStudy)
-                .Where(x => x.CountryId == countryid && x.IsActive == true)
+                .Where(x => x.CountryId == countryid && x.IsActive == true && !x.IsDeleted)
                 .ToListAsync();
         }
 
         /// <summary>
         /// Gets all asynchronous.
         /// </summary>
+        /// <param name="countryId">The countryId.</param>
         /// <returns>
         /// state Filter.
         /// </returns>
-        public IQueryable<State> Query()
+        public IQueryable<State> Query(Guid countryId)
         {
-            return _dbContext.States
+            return _dbContext.States.Where(x => !x.IsDeleted && x.CountryId == countryId)
                 .Include(x => x.Country)
                 .Include(x => x.ModeOfStudy)
                 .AsNoTracking();

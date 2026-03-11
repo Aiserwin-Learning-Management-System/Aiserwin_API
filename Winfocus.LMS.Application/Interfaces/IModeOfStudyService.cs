@@ -20,8 +20,9 @@
         /// Gets the by identifier asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="countryId">The countryId.</param>
         /// <returns>ModeOfStudyDto.</returns>
-        Task<CommonResponse<ModeOfStudyDto>> GetByIdAsync(Guid id);
+        Task<CommonResponse<ModeOfStudyDto>> GetByIdAsync(Guid id, Guid countryId);
 
         /// <summary>
         /// Creates the asynchronous.
@@ -42,8 +43,9 @@
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="countryId">The countryId.</param>
         /// <returns>id.</returns>
-        Task<CommonResponse<bool>> DeleteAsync(Guid id);
+        Task<CommonResponse<bool>> DeleteAsync(Guid id, Guid countryId);
 
         /// <summary>
         /// Gets the by identifier asynchronous.
@@ -56,7 +58,8 @@
         /// Gets filtered mode of study with pagination support.
         /// </summary>
         /// <param name="request">The paged request.</param>
+        /// <param name="countryId">The countryId.</param>
         /// <returns>Paginated mode of study result.</returns>
-        Task<CommonResponse<PagedResult<ModeOfStudyDto>>> GetFilteredAsync(PagedRequest request);
+        Task<CommonResponse<PagedResult<ModeOfStudyDto>>> GetFilteredAsync(PagedRequest request, Guid countryId);
     }
 }

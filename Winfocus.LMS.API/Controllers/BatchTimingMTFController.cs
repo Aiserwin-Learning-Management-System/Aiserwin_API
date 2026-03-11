@@ -20,34 +20,60 @@ namespace Winfocus.LMS.API.Controllers
     public class BatchTimingMTFController : BaseController
     {
         private readonly IBatchTimingMTFService _batchtimingmtfService;
+        private readonly ISubjectService _subjectService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BatchTimingMTFController"/> class.
         /// </summary>
         /// <param name="batchtimingmtfService">The batchtimingmtf service.</param>
-        public BatchTimingMTFController(IBatchTimingMTFService batchtimingmtfService)
+        /// <param name="subjectService">The subject service.</param>
+        public BatchTimingMTFController(IBatchTimingMTFService batchtimingmtfService, ISubjectService subjectService)
         {
             _batchtimingmtfService = batchtimingmtfService;
+            _subjectService = subjectService;
         }
 
         /// <summary>
         /// Gets all.
         /// </summary>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>BatchTimingMTFDto list.</returns>
-        [HttpGet]
-        public async Task<ActionResult<CommonResponse<BatchTimingMTFDto>>> GetAll()
-            => Ok(await _batchtimingmtfService.GetAllAsync());
+        [HttpGet("{centerId:guid?}")]
+        public async Task<ActionResult<CommonResponse<BatchTimingMTFDto>>> GetAll(Guid centerId)
+        {
+            if (User?.Identity?.IsAuthenticated == true)
+            {
+                if (UserId != Guid.Empty)
+                {
+                    return Ok(await _batchtimingmtfService.GetAllAsync(CenterId));
+                }
+            }
+
+            return Ok(await _batchtimingmtfService.GetAllAsync(centerId));
+        }
+           // => Ok(await _batchtimingmtfService.GetAllAsync());
 
         /// <summary>
         /// Creates the specified request.
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>BatchTimingMTFDto.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,CenterAdmin")]
         [HttpPost]
         public async Task<ActionResult<CommonResponse<BatchTimingMTFDto>>> Create(
             BatchTimingRequest request)
         {
+            var subject = await _subjectService.GetByIdAsync(request.subjectId);
+            if (subject?.Data == null)
+            {
+                return NotFound("Subject not found.");
+            }
+
+            if (CenterId != subject.Data.CenterId)
+            {
+                return StatusCode(403, "You are not allowed to create data for this center.");
+            }
+
             var updatedRequest = request with
             {
                 userId = UserId
@@ -60,12 +86,20 @@ namespace Winfocus.LMS.API.Controllers
         /// Gets the specified identifier.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="centerid">The centerId.</param>
         /// <returns>BatchTimingMTFDto by id.</returns>
-        [HttpGet("{id:guid}")]
-        public async Task<ActionResult<CommonResponse<BatchTimingMTFDto>>> Get(Guid id)
+        [HttpGet("{id:guid}/center/{centerid:guid?}")]
+        public async Task<ActionResult<CommonResponse<BatchTimingMTFDto>>> Get(Guid id, Guid centerid)
         {
-            var result = await _batchtimingmtfService.GetByIdAsync(id);
-            return Ok(result);
+            if (User?.Identity?.IsAuthenticated == true)
+            {
+                if (UserId != Guid.Empty)
+                {
+                    return Ok(await _batchtimingmtfService.GetByIdCenterIdAsync(id, CenterId));
+                }
+            }
+
+            return Ok(await _batchtimingmtfService.GetByIdCenterIdAsync(id, centerid));
         }
 
         /// <summary>
@@ -74,12 +108,23 @@ namespace Winfocus.LMS.API.Controllers
         /// <param name="id">The identifier.</param>
         /// <param name="request">The request.</param>
         /// <returns>result.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,CenterAdmin")]
         [HttpPut("{id:guid}")]
         public async Task<ActionResult<CommonResponse<BatchTimingMTFDto>>> Update(
             Guid id,
             BatchTimingRequest request)
         {
+            var subject = await _subjectService.GetByIdAsync(request.subjectId);
+            if (subject?.Data == null)
+            {
+                return NotFound("Subject not found.");
+            }
+
+            if (CenterId != subject.Data.CenterId)
+            {
+                return StatusCode(403, "You are not allowed to create data for this center.");
+            }
+
             var updatedRequest = request with
             {
                 userId = UserId
@@ -93,10 +138,10 @@ namespace Winfocus.LMS.API.Controllers
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>result.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,CenterAdmin")]
         [HttpDelete("{id:guid}")]
         public async Task<ActionResult<CommonResponse<bool>>> Delete(Guid id)
-        => Ok(await _batchtimingmtfService.DeleteAsync(id));
+        => Ok(await _batchtimingmtfService.DeleteAsync(id, CenterId));
 
         /// <summary>
         /// Gets the specified identifier.
@@ -133,12 +178,12 @@ namespace Winfocus.LMS.API.Controllers
         /// </summary>
         /// <param name="request">The paged request.</param>
         /// <returns>Paginated list of batches for monday to friday.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,CenterAdmin")]
         [HttpGet("filter")]
         public async Task<ActionResult<CommonResponse<PagedResult<BatchTimingMTFDto>>>> GetFiltered(
             [FromQuery] PagedRequest request)
         {
-            var result = await _batchtimingmtfService.GetFilteredAsync(request);
+            var result = await _batchtimingmtfService.GetFilteredAsync(request, CenterId);
             return Ok(result);
         }
     }
