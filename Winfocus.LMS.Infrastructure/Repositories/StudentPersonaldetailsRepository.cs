@@ -103,7 +103,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         public async Task<StudentPersonalDetails?> GetByEmailAsync(string email)
         {
             return await _dbContext.StudentPersonalDetails
-                .FirstOrDefaultAsync(x => x.EmailAddress == email);
+                .FirstOrDefaultAsync(x => x.EmailAddress == email && !x.IsDeleted);
         }
     }
 }
