@@ -33,7 +33,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// <returns>DoubtClearing list.</returns>
         public async Task<IReadOnlyList<DoubtClearing>> GetAllAsync()
         {
-            return await _dbContext.DoubtClearing
+            return await _dbContext.DoubtClearing.Where(x => !x.IsDeleted)
                .Include(x => x.Subject)
                   .ThenInclude(s => s.Course)
                      .ThenInclude(s => s.Stream)
@@ -53,7 +53,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             return await _dbContext.DoubtClearing
                 .FirstOrDefaultAsync(x =>
                     x.ScheduleTime <= date &&
-                    x.ScheduleEndTime >= date);
+                    x.ScheduleEndTime >= date && !x.IsDeleted);
         }
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         public async Task<DoubtClearing?> GetByIdAsync(Guid id)
         {
             return await _dbContext.DoubtClearing
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
         }
 
         /// <summary>
@@ -106,6 +106,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             }
 
             entity.IsActive = false;
+            entity.IsDeleted = true;
 
             _dbContext.DoubtClearing.Update(entity);
             await _dbContext.SaveChangesAsync();
@@ -125,7 +126,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
                      .ThenInclude(s => s.Stream)
                       .ThenInclude(s => s.Grade)
                        .ThenInclude(s => s.Syllabus)
-                .Where(x => x.SubjectId == subjectid)
+                .Where(x => x.SubjectId == subjectid && !x.IsDeleted)
                 .ToListAsync();
         }
 
@@ -135,7 +136,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// <returns>Queryable DoubtClearing.</returns>
         public IQueryable<DoubtClearing> Query()
         {
-            return _dbContext.DoubtClearing
+            return _dbContext.DoubtClearing.Where(x => !x.IsDeleted)
                 .AsNoTracking();
         }
 

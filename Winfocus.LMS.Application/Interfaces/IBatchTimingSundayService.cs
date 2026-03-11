@@ -3,6 +3,7 @@
     using Winfocus.LMS.Application.DTOs;
     using Winfocus.LMS.Application.DTOs.Common;
     using Winfocus.LMS.Application.DTOs.Masters;
+    using Winfocus.LMS.Domain.Entities;
 
     /// <summary>
     /// Defines business operations for <see cref="BatchTimingSunday"/> entities.
@@ -12,8 +13,9 @@
         /// <summary>
         /// Gets all asynchronous.
         /// </summary>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>BatchTimingSundayDto.</returns>
-        Task<CommonResponse<List<BatchTimingSundayDto>>> GetAllAsync();
+        Task<CommonResponse<List<BatchTimingSundayDto>>> GetAllAsync(Guid centerId);
 
         /// <summary>
         /// Gets the by identifier asynchronous.
@@ -21,6 +23,14 @@
         /// <param name="id">The identifier.</param>
         /// <returns>BatchTimingSundayDto.</returns>
         Task<CommonResponse<BatchTimingSundayDto>> GetByIdAsync(Guid id);
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <param name="centerId">The centerId.</param>
+        /// <returns>BatchTimingSundayDto.</returns>
+        Task<CommonResponse<BatchTimingSundayDto>> GetByIdCenterIdAsync(Guid id, Guid centerId);
 
         /// <summary>
         /// Creates the asynchronous.
@@ -41,8 +51,9 @@
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>id.</returns>
-        Task<CommonResponse<bool>> DeleteAsync(Guid id);
+        Task<CommonResponse<bool>> DeleteAsync(Guid id, Guid centerId);
 
         /// <summary>
         /// Gets the by identifier asynchronous.
@@ -62,7 +73,8 @@
         /// Gets filtered batch timing for saturday with pagination support.
         /// </summary>
         /// <param name="request">The paged request.</param>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>Paginated batch timing for saturday result.</returns>
-        Task<CommonResponse<PagedResult<BatchTimingSundayDto>>> GetFilteredAsync(PagedRequest request);
+        Task<CommonResponse<PagedResult<BatchTimingSundayDto>>> GetFilteredAsync(PagedRequest request, Guid centerId);
     }
 }

@@ -19,8 +19,9 @@
         /// Gets the by identifier asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="countryId">The countryId.</param>
         /// <returns>ModeOfStudy.</returns>
-        Task<ModeOfStudy?> GetByIdAsync(Guid id);
+        Task<ModeOfStudy?> GetByIdAsync(Guid id, Guid countryId);
 
         /// <summary>
         /// Adds the asynchronous.
@@ -40,8 +41,9 @@
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="countryId">The countryId.</param>
         /// <returns>task.</returns>
-        Task<bool> DeleteAsync(Guid id);
+        Task<bool> DeleteAsync(Guid id, Guid countryId);
 
         /// <summary>
         /// Existses the by code asynchronous.
@@ -60,7 +62,8 @@
         /// <summary>
         /// Gets all asynchronous.
         /// </summary>
+        /// <param name="countryId">The identifier.</param>
         /// <returns>modeofstudy.</returns>
-        IQueryable<ModeOfStudy> Query();
+        IQueryable<ModeOfStudy> Query(Guid countryId);
     }
 }

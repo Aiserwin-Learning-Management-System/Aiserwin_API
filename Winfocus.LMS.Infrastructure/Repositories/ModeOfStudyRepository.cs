@@ -34,7 +34,7 @@
         /// <returns>Mode of study list.</returns>
         public async Task<IReadOnlyList<ModeOfStudy>> GetAllAsync()
         {
-            return await _dbContext.ModeOfStudies
+            return await _dbContext.ModeOfStudies.Where(x => !x.IsDeleted)
                 .Include(x => x.Country)
                 .AsNoTracking()
                 .ToListAsync();
@@ -44,12 +44,20 @@
         /// Gets the by identifier asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="countryId">The countryId.</param>
         /// <returns>Country.</returns>
-        public async Task<ModeOfStudy?> GetByIdAsync(Guid id)
+        public async Task<ModeOfStudy?> GetByIdAsync(Guid id, Guid countryId)
         {
-            return await _dbContext.ModeOfStudies
-                .Include(x => x.Country)
-                .FirstOrDefaultAsync(x => x.Id == id);
+            var query = _dbContext.ModeOfStudies
+         .Include(x => x.Country)
+         .Where(x => x.Id == id && !x.IsDeleted);
+
+            if (countryId != Guid.Empty)
+            {
+                query = query.Where(x => x.CountryId == countryId);
+            }
+
+            return await query.FirstOrDefaultAsync();
         }
 
         /// <summary>
@@ -80,8 +88,9 @@
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="countryId">The countryId.</param>
         /// <returns>task.</returns>
-        public async Task<bool> DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(Guid id, Guid countryId)
         {
             var entity = await _dbContext.ModeOfStudies.FindAsync(id);
             if (entity == null)
@@ -89,7 +98,13 @@
                 return false;
             }
 
+            if (entity.CountryId != countryId)
+            {
+                return false;
+            }
+
             entity.IsActive = false;
+            entity.IsDeleted = true;
 
             _dbContext.ModeOfStudies.Update(entity);
             await _dbContext.SaveChangesAsync();
@@ -103,7 +118,7 @@
         /// <returns>bool.</returns>
         public async Task<bool> ExistsByCodeAsync(string code)
         {
-            return await _dbContext.ModeOfStudies.AnyAsync(x => x.Name == code);
+            return await _dbContext.ModeOfStudies.AnyAsync(x => x.Name == code && !x.IsDeleted);
         }
 
         /// <summary>
@@ -115,19 +130,20 @@
         {
             return await _dbContext.ModeOfStudies
                 .Include(x => x.Country)
-                .Where(x => x.CountryId == countryid && x.IsActive == true)
+                .Where(x => x.CountryId == countryid && x.IsActive == true && !x.IsDeleted)
                 .ToListAsync();
         }
 
         /// <summary>
         /// Gets all asynchronous.
         /// </summary>
+        /// <param name="countryId">The identifier.</param>
         /// <returns>
         /// modeofstudy.
         /// </returns>
-        public IQueryable<ModeOfStudy> Query()
+        public IQueryable<ModeOfStudy> Query(Guid countryId)
         {
-            return _dbContext.ModeOfStudies
+            return _dbContext.ModeOfStudies.Where(x => !x.IsDeleted && x.CountryId == countryId)
                 .Include(x => x.Country)
                 .AsNoTracking();
         }

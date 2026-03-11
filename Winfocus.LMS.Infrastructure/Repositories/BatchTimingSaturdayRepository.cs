@@ -30,11 +30,12 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// <summary>
         /// Gets all asynchronous.
         /// </summary>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>BatchTimingSaturday list.</returns>
-        public async Task<IReadOnlyList<BatchTimingSaturday>> GetAllAsync()
+        public async Task<IReadOnlyList<BatchTimingSaturday>> GetAllAsync(Guid centerId)
         {
             return await _dbContext.BatchTimingSaturdays
-                .Where(x => x.IsActive)
+                .Where(x => x.IsActive && !x.IsDeleted && x.Subject.Course.Stream.Grade.Syllabus.CenterId == centerId)
                 .Include(x => x.Subject)
                   .ThenInclude(s => s.Course)
                      .ThenInclude(s => s.Stream)
@@ -57,7 +58,24 @@ namespace Winfocus.LMS.Infrastructure.Repositories
                      .ThenInclude(s => s.Stream)
                       .ThenInclude(s => s.Grade)
                        .ThenInclude(s => s.Syllabus)
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
+        }
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <param name="centerId">The centerId.</param>
+        /// <returns>BatchTimingSaturday.</returns>
+        public async Task<BatchTimingSaturday?> GetByIdCenterIdAsync(Guid id, Guid centerId)
+        {
+            return await _dbContext.BatchTimingSaturdays
+                .Include(x => x.Subject)
+                  .ThenInclude(s => s.Course)
+                     .ThenInclude(s => s.Stream)
+                      .ThenInclude(s => s.Grade)
+                       .ThenInclude(s => s.Syllabus)
+                .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted && x.Subject.Course.Stream.Grade.Syllabus.CenterId == centerId);
         }
 
         /// <summary>
@@ -89,16 +107,30 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>task.</returns>
-        public async Task<bool> DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(Guid id, Guid centerId)
         {
-            var entity = await _dbContext.BatchTimingSaturdays.FindAsync(id);
+            var entity = await _dbContext.BatchTimingSaturdays
+                .Include(x => x.Subject)
+                .ThenInclude(x => x.Course)
+                .ThenInclude(x => x.Stream)
+                .ThenInclude(x => x.Grade)
+                .ThenInclude(x => x.SyllabusId)
+                .FirstOrDefaultAsync(x => x.Id == id);
+
             if (entity == null)
             {
                 return false;
             }
 
+            if (entity.Subject.Course.Stream.Grade.Syllabus.CenterId == centerId)
+            {
+                return false;
+            }
+
             entity.IsActive = false;
+            entity.IsDeleted = true;
 
             _dbContext.BatchTimingSaturdays.Update(entity);
             await _dbContext.SaveChangesAsync();
@@ -118,7 +150,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
                      .ThenInclude(s => s.Stream)
                       .ThenInclude(s => s.Grade)
                        .ThenInclude(s => s.Syllabus)
-                .Where(x => x.SubjectId == subjectid)
+                .Where(x => x.SubjectId == subjectid && !x.IsDeleted)
                 .ToListAsync();
         }
 
@@ -137,10 +169,11 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// <summary>
         /// Gets queryable for filtering with full hierarchy.
         /// </summary>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>Queryable batches.</returns>
-        public IQueryable<BatchTimingSaturday> Query()
+        public IQueryable<BatchTimingSaturday> Query(Guid centerId)
         {
-            return _dbContext.BatchTimingSaturdays
+            return _dbContext.BatchTimingSaturdays.Where(x => x.Subject.Course.Stream.Grade.Syllabus.CenterId == centerId)
                .Include(x => x.Subject)
                    .ThenInclude(s => s.Course)
                       .ThenInclude(s => s.Stream)

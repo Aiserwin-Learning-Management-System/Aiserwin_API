@@ -12,8 +12,9 @@
         /// <summary>
         /// Gets all asynchronous.
         /// </summary>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>BatchTimingMTFDto.</returns>
-        Task<CommonResponse<List<BatchTimingMTFDto>>> GetAllAsync();
+        Task<CommonResponse<List<BatchTimingMTFDto>>> GetAllAsync(Guid centerId);
 
         /// <summary>
         /// Gets the by identifier asynchronous.
@@ -21,6 +22,14 @@
         /// <param name="id">The identifier.</param>
         /// <returns>BatchTimingMTFDto.</returns>
         Task<CommonResponse<BatchTimingMTFDto>> GetByIdAsync(Guid id);
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <param name="centerId">The centerId.</param>
+        /// <returns>BatchTimingMTFDto.</returns>
+        Task<CommonResponse<BatchTimingMTFDto>> GetByIdCenterIdAsync(Guid id, Guid centerId);
 
         /// <summary>
         /// Creates the asynchronous.
@@ -41,8 +50,9 @@
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>id.</returns>
-        Task<bool> DeleteAsync(Guid id);
+        Task<bool> DeleteAsync(Guid id, Guid centerId);
 
         /// <summary>
         /// Gets the by identifier asynchronous.
@@ -62,7 +72,8 @@
         /// Gets filtered batch timing for monday to friday with pagination support.
         /// </summary>
         /// <param name="request">The paged request.</param>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>Paginated batch timing for monday to frida result.</returns>
-        Task<CommonResponse<PagedResult<BatchTimingMTFDto>>> GetFilteredAsync(PagedRequest request);
+        Task<CommonResponse<PagedResult<BatchTimingMTFDto>>> GetFilteredAsync(PagedRequest request, Guid centerId);
     }
 }

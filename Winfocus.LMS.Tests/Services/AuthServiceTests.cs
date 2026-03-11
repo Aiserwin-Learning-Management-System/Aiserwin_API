@@ -65,7 +65,7 @@
         [Fact]
         public async Task RegisterAsync_WithValidRequest_ReturnsAuthResponse()
         {
-            var request = new RegisterRequestDto("testuser", "test@winfocus.com", new List<string> { "Student" });
+            var request = new RegisterRequestDto("testuser", "test@winfocus.com", new List<string> { "Student" }, Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid());
 
             _userRepositoryMock
                 .Setup(r => r.GetByNamesAsync(It.IsAny<IReadOnlyList<string>>()))
@@ -122,7 +122,8 @@
                 .Setup(t => t.GenerateToken(
                     It.IsAny<User>(),
                     It.IsAny<IReadOnlyList<string>>(),
-                    It.IsAny<string>()))
+                    It.IsAny<string>(),
+                    It.IsAny<IReadOnlyList<string>>()))
                 .Returns("mock-jwt-token");
 
             // Act
@@ -146,8 +147,10 @@
             var request = new RegisterRequestDto(
                 username: "testuser",
                 email: "test@winfocus.com",
-                roleNames: new List<string> { "InvalidRole" }
-            );
+                roleNames: new List<string> { "InvalidRole" }, 
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                Guid.NewGuid());
 
             _userRepositoryMock
                 .Setup(r => r.GetByUsernameAsync("testuser"))
@@ -245,8 +248,10 @@
             var request = new RegisterRequestDto(
                 username: "testuser",
                 email: "test@winfocus.com",
-                roleNames: null
-            );
+                roleNames: null,
+                countryid: Guid.NewGuid(),
+                centerid: Guid.NewGuid(),
+                staffcategoryid: Guid.NewGuid());
 
             _userRepositoryMock
                 .Setup(r => r.EmailExistsAsync("test@winfocus.com"))
@@ -271,8 +276,10 @@
             var request = new RegisterRequestDto(
                 username: "student1",
                 email: "student@winfocus.com",
-                roleNames: null
-            );
+                roleNames: null,
+                countryid: Guid.NewGuid(),
+                centerid: Guid.NewGuid(),
+                staffcategoryid: Guid.NewGuid());
 
             _userRepositoryMock
                 .Setup(r => r.GetByUsernameAsync("student1"))
@@ -286,7 +293,8 @@
                 .Setup(t => t.GenerateToken(
                     It.IsAny<User>(),
                     It.IsAny<IReadOnlyList<string>>(),
-                    It.IsAny<string>()))
+                    It.IsAny<string>(),
+                    It.IsAny<IReadOnlyList<string>>()))
                 .Returns("mock-jwt-token");
 
             // Act
@@ -308,7 +316,10 @@
             var request = new RegisterRequestDto(
                 "adminuser",
                 "admin@winfocus.com",
-                new List<string> { "Admin", "Teacher" }
+                new List<string> { "Admin", "Teacher" },
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                Guid.NewGuid()
             );
 
             _userRepositoryMock

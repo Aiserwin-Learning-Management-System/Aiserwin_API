@@ -12,8 +12,9 @@
         /// <summary>
         /// Gets all asynchronous.
         /// </summary>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>GradeDto.</returns>
-        Task<CommonResponse<List<GradeDto>>> GetAllAsync();
+        Task<CommonResponse<List<GradeDto>>> GetAllAsync(Guid centerId);
 
         /// <summary>
         /// Gets the by identifier asynchronous.
@@ -21,6 +22,14 @@
         /// <param name="id">The identifier.</param>
         /// <returns>GradeDto.</returns>
         Task<CommonResponse<GradeDto>> GetByIdAsync(Guid id);
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <param name="centerId">The centerId.</param>
+        /// <returns>GradeDto.</returns>
+        Task<CommonResponse<GradeDto>> GetByIdCenterIdAsync(Guid id, Guid centerId);
 
         /// <summary>
         /// Creates the asynchronous.
@@ -41,8 +50,9 @@
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>id.</returns>
-        Task<CommonResponse<bool>> DeleteAsync(Guid id);
+        Task<CommonResponse<bool>> DeleteAsync(Guid id, Guid centerId);
 
         /// <summary>
         /// Gets the by identifier asynchronous.
@@ -55,7 +65,8 @@
         /// Gets filtered grades with pagination support.
         /// </summary>
         /// <param name="request">The paged request.</param>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>Paginated grade result.</returns>
-        Task<CommonResponse<PagedResult<GradeDto>>> GetFilteredAsync(PagedRequest request);
+        Task<CommonResponse<PagedResult<GradeDto>>> GetFilteredAsync(PagedRequest request, Guid centerId);
     }
 }

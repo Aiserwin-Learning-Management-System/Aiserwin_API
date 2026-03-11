@@ -234,6 +234,16 @@
         public DbSet<FeePlanDiscount> FeePlanDiscount { get; set; }
 
         /// <summary>
+        /// Gets or sets stores all available system permissions.
+        /// </summary>
+        public DbSet<Permission> Permissions { get; set; }
+
+        /// <summary>
+        /// Gets or sets stores the mapping between roles and permissions.
+        /// </summary>
+        public DbSet<RolePermission> RolePermissions { get; set; }
+
+        /// <summary>
         /// Gets the user login logs.
         /// </summary>
         /// <value>
@@ -534,6 +544,21 @@
                  .WithMany()
                  .HasForeignKey(bts => bts.SubjectId)
                  .OnDelete(DeleteBehavior.NoAction);
+            });
+
+            modelBuilder.Entity<RolePermission>(entity =>
+            {
+                entity.HasKey(rp => new { rp.RoleId, rp.PermissionId });
+
+                entity.HasOne(rp => rp.Role)
+                      .WithMany(r => r.RolePermissions)
+                      .HasForeignKey(rp => rp.RoleId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(rp => rp.Permission)
+                      .WithMany(p => p.RolePermissions)
+                      .HasForeignKey(rp => rp.PermissionId)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
 
             base.OnModelCreating(modelBuilder);

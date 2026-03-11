@@ -46,5 +46,63 @@ namespace Winfocus.LMS.API.Controllers
                 return userId;
             }
         }
+
+        /// <summary>
+        /// Gets the authenticated user's country from the JWT token.
+        /// Returns empty string if user is not authenticated.
+        /// </summary>
+        protected Guid CountryId
+        {
+            get
+            {
+                if (User?.Identity?.IsAuthenticated != true)
+                {
+                    throw new UnauthorizedAccessException("User is not authenticated.");
+                }
+
+                var countryIdString = User.FindFirst("countryId")?.Value;
+
+                if (string.IsNullOrWhiteSpace(countryIdString))
+                {
+                    throw new UnauthorizedAccessException("Country ID claim is missing.");
+                }
+
+                if (!Guid.TryParse(countryIdString, out Guid countryId))
+                {
+                    throw new UnauthorizedAccessException("Invalid Country ID claim.");
+                }
+
+                return countryId;
+            }
+        }
+
+        /// <summary>
+        /// Gets the authenticated user's center from the JWT token.
+        /// Returns empty string if user is not authenticated.
+        /// </summary>
+        protected Guid CenterId
+        {
+            get
+            {
+                if (User?.Identity?.IsAuthenticated != true)
+                {
+                    throw new UnauthorizedAccessException("User is not authenticated.");
+                }
+
+                var centerIdString = User.FindFirst("centerId")?.Value;
+
+                if (string.IsNullOrWhiteSpace(centerIdString))
+                {
+                    throw new UnauthorizedAccessException("Center ID claim is missing.");
+                }
+
+                if (!Guid.TryParse(centerIdString, out Guid centerId))
+                {
+                    throw new UnauthorizedAccessException("Invalid Center ID claim.");
+                }
+
+                return centerId;
+            }
+        }
     }
 }

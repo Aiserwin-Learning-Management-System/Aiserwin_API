@@ -45,6 +45,7 @@
         /// Gets all.
         /// </summary>
         /// <returns>StudentDto list.</returns>
+        [Authorize(Policy = "CanViewStudent")]
         [HttpGet]
         public async Task<ActionResult<IReadOnlyList<StudentDto>>> GetAll()
             => Ok(await _studentService.GetAllAsync());
@@ -54,6 +55,7 @@
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>StudentDto.</returns>
+        [Authorize(Policy = "CanCreateStudent")]
         [HttpPost]
         public async Task<CommonResponse<StudentDto>> Create([FromForm] StudentRequest request)
         {
@@ -106,6 +108,7 @@
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>StudentDto by id.</returns>
+        [Authorize(Policy = "CanViewStudent")]
         [HttpGet("{id:guid}")]
         public async Task<CommonResponse<StudentDto>> Get(Guid id)
         {
@@ -124,6 +127,7 @@
         /// <param name="request">The request.</param>
         /// <returns>Filtered StudentDto list.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Policy = "CanViewStudent")]
         [HttpGet("student-filter")]
         public async Task<ActionResult<PagedResult<StudentDto>>> GetFiltered([FromQuery] StudentFilterRequest request)
         {
@@ -138,6 +142,7 @@
         /// <param name="id">The identifier.</param>
         /// <returns>result.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Policy = "CanDeleteStudent")]
         [HttpDelete("{id:guid}")]
         public async Task<CommonResponse<bool>> Delete(Guid id)
         {
@@ -149,6 +154,7 @@
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>result.</returns>
+        [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPost("{id:guid}/confirm")]
         public async Task<CommonResponse<bool>> StudentConfirm(Guid id)
         {
@@ -164,6 +170,7 @@
         /// <response code="200">Student updated successfully.</response>
         /// <response code="404">Student not found.</response>
         /// <response code="400">Invalid request data.</response>
+        [Authorize(Policy = "CanUpdateStudent")]
         [HttpPut("{id:guid}")]
         public async Task<ActionResult<StudentDto>> Update(Guid id, [FromForm] StudentRequest request)
         {
@@ -204,6 +211,7 @@
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>result.</returns>
+        [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPost("{id:guid}/approve")]
         public async Task<CommonResponse<bool>> StudentApprove(Guid id)
         {
@@ -220,7 +228,7 @@
                 RegisterRequestDto obj = new RegisterRequestDto(
                     username,
                     student.PersonalDetails.EmailAddress,
-                    new List<string> { "Student" });
+                    new List<string> { "Student" }, student.AcademicDetails.CountryId, student.AcademicDetails.CenterId, null);
 
                 var result = await _authService.RegisterAsync(obj);
             }

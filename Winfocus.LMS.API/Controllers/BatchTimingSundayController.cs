@@ -21,34 +21,60 @@ namespace Winfocus.LMS.API.Controllers
     public class BatchTimingSundayController : BaseController
     {
         private readonly IBatchTimingSundayService _batchtimingsundayService;
+        private readonly ISubjectService _subjectService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BatchTimingSundayController"/> class.
         /// </summary>
         /// <param name="batchtimingsundayService">The BatchTimingSunday service.</param>
-        public BatchTimingSundayController(IBatchTimingSundayService batchtimingsundayService)
+        /// <param name="subjectService">The subject Service.</param>
+        public BatchTimingSundayController(IBatchTimingSundayService batchtimingsundayService, ISubjectService subjectService)
         {
             _batchtimingsundayService = batchtimingsundayService;
+            _subjectService = subjectService;
         }
 
         /// <summary>
         /// Gets all.
         /// </summary>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>BatchTimingSundayDto list.</returns>
-        [HttpGet]
-        public async Task<ActionResult<CommonResponse<BatchTimingSundayDto>>> GetAll()
-            => Ok(await _batchtimingsundayService.GetAllAsync());
+        [HttpGet("{centerId:guid?}")]
+        public async Task<ActionResult<CommonResponse<BatchTimingSundayDto>>> GetAll(Guid centerId)
+        {
+            if (User?.Identity?.IsAuthenticated == true)
+            {
+                if (UserId != Guid.Empty)
+                {
+                    return Ok(await _batchtimingsundayService.GetAllAsync(CenterId));
+                }
+            }
+
+            return Ok(await _batchtimingsundayService.GetAllAsync(centerId));
+        }
+
+            //=> Ok(await _batchtimingsundayService.GetAllAsync(centerId));
 
         /// <summary>
         /// Creates the specified request.
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>BatchTimingSundayDto.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,CenterAdmin")]
         [HttpPost]
         public async Task<ActionResult<CommonResponse<BatchTimingSundayDto>>> Create(
             BatchTimingRequest request)
         {
+            var subject = await _subjectService.GetByIdAsync(request.subjectId);
+            if (subject?.Data == null)
+            {
+                return NotFound("Subject not found.");
+            }
+
+            if (CenterId != subject.Data.CenterId)
+            {
+                return StatusCode(403, "You are not allowed to create data for this center.");
+            }
             var updatedRequest = request with
             {
                 userId = UserId
@@ -61,12 +87,20 @@ namespace Winfocus.LMS.API.Controllers
         /// Gets the specified identifier.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="centerid">The centerid.</param>
         /// <returns>BatchTimingSundayDto by id.</returns>
-        [HttpGet("{id:guid}")]
-        public async Task<ActionResult<CommonResponse<BatchTimingSundayDto>>> Get(Guid id)
+        [HttpGet("{id:guid}/center/{centerid:guid?}")]
+        public async Task<ActionResult<CommonResponse<BatchTimingSundayDto>>> Get(Guid id, Guid centerid)
         {
-            var result = await _batchtimingsundayService.GetByIdAsync(id);
-            return result;
+            if (User?.Identity?.IsAuthenticated == true)
+            {
+                if (UserId != Guid.Empty)
+                {
+                    return Ok(await _batchtimingsundayService.GetByIdCenterIdAsync(id, CenterId));
+                }
+            }
+
+            return Ok(await _batchtimingsundayService.GetByIdCenterIdAsync(id, centerid));
         }
 
         /// <summary>
@@ -75,12 +109,23 @@ namespace Winfocus.LMS.API.Controllers
         /// <param name="id">The identifier.</param>
         /// <param name="request">The request.</param>
         /// <returns>result.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,CenterAdmin")]
         [HttpPut("{id:guid}")]
         public async Task<ActionResult<CommonResponse<BatchTimingSundayDto>>> Update(
             Guid id,
             BatchTimingRequest request)
         {
+            var subject = await _subjectService.GetByIdAsync(request.subjectId);
+            if (subject?.Data == null)
+            {
+                return NotFound("Subject not found.");
+            }
+
+            if (CenterId != subject.Data.CenterId)
+            {
+                return StatusCode(403, "You are not allowed to create data for this center.");
+            }
+
             var updatedRequest = request with
             {
                 userId = UserId
@@ -94,10 +139,10 @@ namespace Winfocus.LMS.API.Controllers
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>result.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,CenterAdmin")]
         [HttpDelete("{id:guid}")]
         public async Task<ActionResult<CommonResponse<bool>>> Delete(Guid id)
-        => Ok(await _batchtimingsundayService.DeleteAsync(id));
+        => Ok(await _batchtimingsundayService.DeleteAsync(id, CenterId));
 
         /// <summary>
         /// Gets the specified identifier.
@@ -134,12 +179,12 @@ namespace Winfocus.LMS.API.Controllers
         /// </summary>
         /// <param name="request">The paged request.</param>
         /// <returns>Paginated list of batches for sunday.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,CenterAdmin")]
         [HttpGet("filter")]
         public async Task<ActionResult<CommonResponse<PagedResult<BatchTimingSundayDto>>>> GetFiltered(
             [FromQuery] PagedRequest request)
         {
-            var result = await _batchtimingsundayService.GetFilteredAsync(request);
+            var result = await _batchtimingsundayService.GetFilteredAsync(request, CenterId);
             return Ok(result);
         }
     }

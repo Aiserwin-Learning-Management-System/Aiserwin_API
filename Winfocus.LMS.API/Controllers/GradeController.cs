@@ -7,6 +7,7 @@ using Winfocus.LMS.Application.DTOs.Common;
 using Winfocus.LMS.Application.DTOs.Masters;
 using Winfocus.LMS.Application.Interfaces;
 using Winfocus.LMS.Application.Services;
+using Winfocus.LMS.Domain.Entities;
 
 namespace Winfocus.LMS.API.Controllers
 {
@@ -19,34 +20,63 @@ namespace Winfocus.LMS.API.Controllers
     public class GradeController : BaseController
     {
         private readonly IGradeService _gradeService;
+        private readonly ISyllabusService _syllabusService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GradeController"/> class.
         /// </summary>
         /// <param name="gradeService">The state service.</param>
-        public GradeController(IGradeService gradeService)
+        /// <param name="syllabusService">The syllabus service.</param>
+        public GradeController(IGradeService gradeService, ISyllabusService syllabusService)
         {
             _gradeService = gradeService;
+            _syllabusService = syllabusService;
         }
 
         /// <summary>
         /// Gets all.
         /// </summary>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>GradeDto list.</returns>
-        [HttpGet]
-        public async Task<ActionResult<CommonResponse<GradeDto>>> GetAll()
-            => Ok(await _gradeService.GetAllAsync());
+        [HttpGet("{centerId:guid?}")]
+        public async Task<ActionResult<CommonResponse<GradeDto>>> GetAll(Guid centerId)
+        {
+            if (User?.Identity?.IsAuthenticated == true)
+            {
+                var userId = UserId;
+
+                if (userId != Guid.Empty)
+                {
+                    var countryIdFromToken = CenterId;
+                    return Ok(await _gradeService.GetAllAsync(countryIdFromToken));
+                }
+            }
+
+            return Ok(await _gradeService.GetAllAsync(centerId));
+        }
+          //  => Ok(await _gradeService.GetAllAsync());
 
         /// <summary>
         /// Creates the specified request.
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>GradeDto.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,CenterAdmin")]
         [HttpPost]
         public async Task<ActionResult<CommonResponse<GradeDto>>> Create(
             GradeRequest request)
         {
+            var syllabus = await _syllabusService.GetByIdAsync(request.syllabusid, CenterId);
+            if (syllabus?.Data == null)
+            {
+                return NotFound("syllabus not found.");
+            }
+
+            if (CenterId != syllabus.Data.CeneterId)
+            {
+                return StatusCode(403, "You are not allowed to create data for this center.");
+            }
+
             var updatedRequest = request with
             {
                 userId = UserId
@@ -59,10 +89,25 @@ namespace Winfocus.LMS.API.Controllers
         /// Gets the specified identifier.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="centerid">The centerid.</param>
         /// <returns>GradeDto by id.</returns>
-        [HttpGet("{id:guid}")]
-        public async Task<ActionResult<CommonResponse<GradeDto>>> Get(Guid id)
-           => Ok(await _gradeService.GetByIdAsync(id));
+        [HttpGet("{id:guid}/center/{centerid:guid?}")]
+        public async Task<ActionResult<CommonResponse<GradeDto>>> Get(Guid id, Guid centerid)
+        {
+            if (User?.Identity?.IsAuthenticated == true)
+            {
+                var userId = UserId;
+
+                if (userId != Guid.Empty)
+                {
+                    var countryIdFromToken = CenterId;
+                    return Ok(await _gradeService.GetByIdCenterIdAsync(id,countryIdFromToken));
+                }
+            }
+
+            return Ok(await _gradeService.GetByIdCenterIdAsync(id, centerid));
+        }
+           //=> Ok(await _gradeService.GetByIdAsync(id));
 
         /// <summary>
         /// Updates the specified identifier.
@@ -70,12 +115,23 @@ namespace Winfocus.LMS.API.Controllers
         /// <param name="id">The identifier.</param>
         /// <param name="request">The request.</param>
         /// <returns>result.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,CenterAdmin")]
         [HttpPut("{id:guid}")]
         public async Task<ActionResult<CommonResponse<GradeDto>>> Update(
             Guid id,
             GradeRequest request)
         {
+            var syllabus = await _syllabusService.GetByIdAsync(request.syllabusid, CenterId);
+            if (syllabus?.Data == null)
+            {
+                return NotFound("syllabus not found.");
+            }
+
+            if (CenterId != syllabus.Data.CeneterId)
+            {
+                return StatusCode(403, "You are not allowed to create data for this center.");
+            }
+
             var updatedRequest = request with
             {
                 userId = UserId
@@ -101,11 +157,11 @@ namespace Winfocus.LMS.API.Controllers
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>result.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,CenterAdmin")]
         [HttpDelete("{id:guid}")]
         public async Task<ActionResult<CommonResponse<bool>>> Delete(Guid id)
         {
-            var result = await _gradeService.DeleteAsync(id);
+            var result = await _gradeService.DeleteAsync(id, CenterId);
             return Ok(result);
         }
 
@@ -114,12 +170,12 @@ namespace Winfocus.LMS.API.Controllers
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>result.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,CenterAdmin")]
         [HttpGet("filter")]
         public async Task<ActionResult<CommonResponse<PagedResult<GradeDto>>>> GetFiltered(
         [FromQuery] PagedRequest request)
         {
-            var result = await _gradeService.GetFilteredAsync(request);
+            var result = await _gradeService.GetFilteredAsync(request, CenterId);
             return Ok(result);
         }
     }

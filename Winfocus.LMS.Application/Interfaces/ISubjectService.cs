@@ -12,8 +12,9 @@
         /// <summary>
         /// Gets all active subjects.
         /// </summary>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>A list of subject DTOs.</returns>
-        Task<CommonResponse<List<SubjectDto>>> GetAllAsync();
+        Task<CommonResponse<List<SubjectDto>>> GetAllAsync(Guid centerId);
 
         /// <summary>
         /// Gets a subject by identifier.
@@ -21,6 +22,14 @@
         /// <param name="id">The subject identifier.</param>
         /// <returns>The subject DTO if found; otherwise, null.</returns>
         Task<CommonResponse<SubjectDto>> GetByIdAsync(Guid id);
+
+        /// <summary>
+        /// Gets a subject by identifier.
+        /// </summary>
+        /// <param name="id">The subject identifier.</param>
+        /// <param name="centerId">The centerId.</param>
+        /// <returns>The subject DTO if found; otherwise, null.</returns>
+        Task<CommonResponse<SubjectDto>> GetByIdCenterIdAsync(Guid id, Guid centerId);
 
         /// <summary>
         /// Gets subjects by stream identifier.
@@ -55,8 +64,9 @@
         /// Soft deletes a subject.
         /// </summary>
         /// <param name="id">The subject identifier.</param>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        Task<CommonResponse<bool>> DeleteAsync(Guid id);
+        Task<CommonResponse<bool>> DeleteAsync(Guid id, Guid centerId);
 
         /// <summary>
         /// Gets filtered subjects with pagination support.

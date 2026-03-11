@@ -8,6 +8,7 @@
     using Winfocus.LMS.Application.DTOs.Masters;
     using Winfocus.LMS.Application.Interfaces;
     using Winfocus.LMS.Application.Services;
+    using Winfocus.LMS.Domain.Entities;
 
     /// <summary>
     /// Handles authentication endpoints.
@@ -31,21 +32,41 @@
         /// <summary>
         /// Gets all.
         /// </summary>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>SyllabusDto list.</returns>
-        [HttpGet]
-        public async Task<ActionResult<CommonResponse<SyllabusDto>>> GetAll()
-            => Ok(await _syllabusService.GetAllAsync());
+        [HttpGet("{centerId:guid?}")]
+        public async Task<ActionResult<CommonResponse<SyllabusDto>>> GetAll(Guid centerId)
+        {
+            if (User?.Identity?.IsAuthenticated == true)
+            {
+                if (UserId != Guid.Empty)
+                {
+                    var centerIdFromToken = CenterId;
+                    return Ok(await _syllabusService.GetByCenterIdAsync(centerIdFromToken));
+                }
+            }
+
+            return Ok(await _syllabusService.GetByCenterIdAsync(centerId));
+        }
+
+        //=> Ok(await _syllabusService.GetAllAsync());
 
         /// <summary>
         /// Creates the specified request.
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>SyllabusDto.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,CenterAdmin")]
         [HttpPost]
         public async Task<ActionResult<CommonResponse<SyllabusDto>>> Create(
             SyllabusRequest request)
         {
+
+            if (CenterId != request.CenterId)
+            {
+                return StatusCode(403, "You are not allowed to create data for this center.");
+            }
+
             var updatedRequest = request with
             {
                 UserId = UserId
@@ -58,12 +79,21 @@
         /// Gets the specified identifier.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="centerid">centerid.</param>
         /// <returns>SyllabusDto by id.</returns>
-        [HttpGet("{id:guid}")]
-        public async Task<ActionResult<CommonResponse<SyllabusDto>>> Get(Guid id)
+        [HttpGet("{id:guid}/center/{centerid:guid?}")]
+        public async Task<ActionResult<CommonResponse<SyllabusDto>>> Get(Guid id, Guid centerid)
         {
-            var result = await _syllabusService.GetByIdAsync(id);
-            return result;
+            if (User?.Identity?.IsAuthenticated == true)
+            {
+                if (UserId != Guid.Empty)
+                {
+                    return Ok(await _syllabusService.GetByIdAsync(id, CenterId));
+                }
+            }
+
+            var result = await _syllabusService.GetByIdAsync(id, centerid);
+            return Ok(result);
         }
 
         /// <summary>
@@ -72,12 +102,17 @@
         /// <param name="id">The identifier.</param>
         /// <param name="request">The request.</param>
         /// <returns>result.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,CenterAdmin")]
         [HttpPut("{id:guid}")]
         public async Task<ActionResult<CommonResponse<SyllabusDto>>> Update(
             Guid id,
             SyllabusRequest request)
         {
+            if (CenterId != request.CenterId)
+            {
+                return StatusCode(403, "You are not allowed to create data for this center.");
+            }
+
             var updatedRequest = request with
             {
                 UserId = UserId
@@ -91,11 +126,11 @@
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>result.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin, CenterAdmin")]
         [HttpDelete("{id:guid}")]
         public async Task<ActionResult<CommonResponse<bool>>> Delete(Guid id)
         {
-            var response = await _syllabusService.DeleteAsync(id);
+            var response = await _syllabusService.DeleteAsync(id, CenterId);
             return Ok(response);
         }
 
@@ -104,12 +139,12 @@
         /// </summary>
         /// <param name="request">The paged request.</param>
         /// <returns>Paginated list of syllabuses.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin, CenterAdmin")]
         [HttpGet("filter")]
         public async Task<ActionResult<CommonResponse<PagedResult<SyllabusDto>>>> GetFiltered(
             [FromQuery] PagedRequest request)
         {
-            var result = await _syllabusService.GetFilteredAsync(request);
+            var result = await _syllabusService.GetFilteredAsync(request, CenterId);
             return Ok(result);
         }
 

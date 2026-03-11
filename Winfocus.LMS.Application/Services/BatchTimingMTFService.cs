@@ -32,11 +32,12 @@
         /// <summary>
         /// Gets all asynchronous.
         /// </summary>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>BatchTimingMTFDto.</returns>
-        public async Task<CommonResponse<List<BatchTimingMTFDto>>> GetAllAsync()
+        public async Task<CommonResponse<List<BatchTimingMTFDto>>> GetAllAsync(Guid centerId)
         {
             _logger.LogInformation("Fetching all Batches monday to friday");
-            var batchtiming = await _repository.GetAllAsync();
+            var batchtiming = await _repository.GetAllAsync(centerId);
             _logger.LogInformation("Fetched {Count} Batches monday to friday", batchtiming.Count());
             var mappeddata = batchtiming.Select(Map).ToList();
             if (mappeddata.Any())
@@ -65,6 +66,28 @@
                 return CommonResponse<BatchTimingMTFDto>.SuccessResponse("batch timing monday to friday", mappeddata);
             }
              else
+            {
+                return CommonResponse<BatchTimingMTFDto>.FailureResponse("batch timing not found");
+            }
+        }
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <param name="centerId">The centerId.</param>
+        /// <returns>BatchTimingMTFDto.</returns>
+        public async Task<CommonResponse<BatchTimingMTFDto>> GetByIdCenterIdAsync(Guid id, Guid centerId)
+        {
+            _logger.LogInformation("Fetching batchtiming by Id: {Id}", id);
+            var batchtiming = await _repository.GetByIdCenterIdAsync(id,centerId);
+            _logger.LogInformation("batch fetched successfully for Id: {Id}", id);
+            var mappeddata = batchtiming == null ? null : Map(batchtiming);
+            if (mappeddata != null)
+            {
+                return CommonResponse<BatchTimingMTFDto>.SuccessResponse("batch timing monday to friday", mappeddata);
+            }
+            else
             {
                 return CommonResponse<BatchTimingMTFDto>.FailureResponse("batch timing not found");
             }
@@ -122,11 +145,12 @@
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>task.</returns>
-        public async Task<bool> DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(Guid id, Guid centerId)
         {
             _logger.LogInformation("Deleting BatchTiming Id: {Id}", id);
-            bool res = await _repository.DeleteAsync(id);
+            bool res = await _repository.DeleteAsync(id,centerId);
             if (res)
             {
                 _logger.LogInformation("BatchTiming deleted successfully. BatchTimingId: {BatchTimingId}", id);
@@ -177,9 +201,10 @@
         /// Search works on Subject name, Course Name, Stream Name, Grade Name, and Syllabus Name.
         /// </summary>
         /// <param name="request">The paged request.</param>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>Paginated batch timing for monday to frida result.</returns>
         public async Task<CommonResponse<PagedResult<BatchTimingMTFDto>>> GetFilteredAsync(
-            PagedRequest request)
+            PagedRequest request, Guid centerId)
         {
             try
             {
@@ -190,7 +215,7 @@
                     request.Active, request.SearchText, request.SortBy,
                     request.SortOrder, request.Limit, request.Offset);
 
-                var query = _repository.Query();
+                var query = _repository.Query(centerId);
 
                 // ── Filters ──
                 if (request.Active.HasValue)

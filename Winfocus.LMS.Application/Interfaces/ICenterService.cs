@@ -23,8 +23,9 @@ namespace Winfocus.LMS.Application.Interfaces
         /// Gets the by identifier asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="countryId">The countryId.</param>
         /// <returns>CentreDto.</returns>
-        Task<CommonResponse<CenterDto>> GetByIdAsync(Guid id);
+        Task<CommonResponse<CenterDto>> GetByIdAsync(Guid id, Guid countryId);
 
         /// <summary>
         /// Creates the asynchronous.
@@ -45,8 +46,9 @@ namespace Winfocus.LMS.Application.Interfaces
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="countryId">The countryId.</param>
         /// <returns>id.</returns>
-        Task<CommonResponse<bool>> DeleteAsync(Guid id);
+        Task<CommonResponse<bool>> DeleteAsync(Guid id, Guid countryId);
 
         /// <summary>
         /// Gets centre by mode of study and state.
@@ -61,7 +63,15 @@ namespace Winfocus.LMS.Application.Interfaces
         /// Gets filtered Center with pagination support.
         /// </summary>
         /// <param name="request">The paged request.</param>
+        /// <param name="countryId">countryId.</param>
         /// <returns>Paginated Center result.</returns>
-        Task<CommonResponse<PagedResult<CenterDto>>> GetFilteredAsync(PagedRequest request);
+        Task<CommonResponse<PagedResult<CenterDto>>> GetFilteredAsync(PagedRequest request, Guid countryId);
+
+        /// <summary>
+        /// Gets centre by mode of study and state.
+        /// </summary>
+        /// <param name="countryid">country identifier.</param>
+        /// <returns>CentreDto if found; otherwise null.</returns>
+        Task<CommonResponse<List<CenterDto>>> GetByCountryAsync(Guid countryid);
     }
 }

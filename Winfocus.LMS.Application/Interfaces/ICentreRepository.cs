@@ -21,8 +21,9 @@ namespace Winfocus.LMS.Application.Interfaces
         /// Gets the by identifier asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="countryId">The countryId.</param>
         /// <returns>Center.</returns>
-        Task<Center?> GetByIdAsync(Guid id);
+        Task<Center?> GetByIdAsync(Guid id, Guid countryId);
 
         /// <summary>
         /// Adds the asynchronous.
@@ -42,8 +43,9 @@ namespace Winfocus.LMS.Application.Interfaces
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="countryId">The countryId.</param>
         /// <returns>task.</returns>
-        Task<bool> DeleteAsync(Guid id);
+        Task<bool> DeleteAsync(Guid id, Guid countryId);
 
         /// <summary>
         /// Existses the by code asynchronous.
@@ -62,9 +64,17 @@ namespace Winfocus.LMS.Application.Interfaces
         Task<List<Center>> GetByFilterAsync(Guid? countryid, Guid? modeofid, Guid? stateid);
 
         /// <summary>
+        /// Gets centre by mode of study and state.
+        /// </summary>
+        /// <param name="countryid">country identifier.</param>
+        /// <returns>Centre entity if found; otherwise null.</returns>
+        Task<List<Center>> GetByCountryAsync(Guid countryid);
+
+        /// <summary>
         /// Gets all asynchronous.
         /// </summary>
+        /// <param name="countryId">countryId.</param>
         /// <returns>centers.</returns>
-        IQueryable<Center> Query();
+        IQueryable<Center> Query(Guid countryId);
     }
 }

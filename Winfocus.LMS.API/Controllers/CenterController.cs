@@ -8,6 +8,7 @@
     using Winfocus.LMS.Application.DTOs.Masters;
     using Winfocus.LMS.Application.Interfaces;
     using Winfocus.LMS.Application.Services;
+    using Winfocus.LMS.Domain.Entities;
 
     /// <summary>
     /// Handles authentication endpoints.
@@ -31,30 +32,67 @@
         /// <summary>
         /// Gets all.
         /// </summary>
+        /// <param name="countryId">The countryId.</param>
         /// <returns>CenterDto list.</returns>
-        [HttpGet]
-        public async Task<ActionResult<CommonResponse<List<CenterDto>>>> GetAll()
-           => Ok(await _centerService.GetAllAsync());
+        [HttpGet("{countryId:guid?}")]
+        public async Task<ActionResult<CommonResponse<List<CenterDto>>>> GetAll(Guid countryId)
+        {
+            if (User?.Identity?.IsAuthenticated == true)
+            {
+                var userId = UserId;
+
+                if (userId != Guid.Empty)
+                {
+                    var countryIdFromToken = CountryId;
+                    return Ok(await _centerService.GetByCountryAsync(countryIdFromToken));
+                }
+            }
+
+            return Ok(await _centerService.GetByCountryAsync(countryId));
+        }
+
+        // => Ok(await _centerService.GetAllAsync());
 
         /// <summary>
         /// Gets the specified identifier.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="countryid">The countryId.</param>
         /// <returns>CenterDto by id.</returns>
-        [HttpGet("{id:guid}")]
-        public async Task<ActionResult<CommonResponse<CenterDto>>> Get(Guid id)
-         => Ok(await _centerService.GetByIdAsync(id));
+        [HttpGet("{id:guid}/{countryid:guid?}")]
+        public async Task<ActionResult<CommonResponse<CenterDto>>> Get(Guid id, Guid countryid)
+        {
+            if (User?.Identity?.IsAuthenticated == true)
+            {
+                var userId = UserId;
+
+                if (userId != Guid.Empty)
+                {
+                    var countryIdFromToken = CountryId;
+                    return Ok(await _centerService.GetByIdAsync(id, countryIdFromToken));
+                }
+            }
+
+            return Ok(await _centerService.GetByIdAsync(id, countryid));
+        }
+
+        //=> Ok(await _centerService.GetByIdAsync(id));
 
         /// <summary>
         /// Creates the specified request.
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>CenterDto.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,CountryAdmin")]
         [HttpPost]
         public async Task<ActionResult<CommonResponse<CenterDto>>> Create(
             CenterRequestDto request)
         {
+            if (CountryId != request.countryid)
+            {
+                return StatusCode(403, "You are not allowed to create data for this center.");
+            }
+
             var updatedRequest = request with
             {
                 userId = UserId
@@ -69,7 +107,7 @@
         /// <param name="id">The identifier.</param>
         /// <param name="request">The request.</param>
         /// <returns>result.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,CountryAdmin")]
         [HttpPut("{id:guid}")]
         public async Task<ActionResult<CommonResponse<CenterDto>>> Update(
             Guid id,
@@ -79,6 +117,11 @@
             {
                 userId = UserId
             };
+            if (CountryId != request.countryid)
+            {
+                return StatusCode(403, "You are not allowed to create data for this center.");
+            }
+
             var updated = await _centerService.UpdateAsync(id, updatedRequest);
             return Ok(updated);
         }
@@ -88,11 +131,11 @@
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>result.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,CountryAdmin")]
         [HttpDelete("{id:guid}")]
         public async Task<ActionResult<CommonResponse<bool>>> Delete(Guid id)
         {
-            var result = await _centerService.DeleteAsync(id);
+            var result = await _centerService.DeleteAsync(id, CountryId);
             return Ok(result);
         }
 
@@ -115,12 +158,12 @@
         /// </summary>
         /// <param name="request">The paged request.</param>
         /// <returns>Paginated list of Center.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,CountryAdmin")]
         [HttpGet("filter")]
         public async Task<ActionResult<CommonResponse<PagedResult<CenterDto>>>> GetFiltered(
             [FromQuery] PagedRequest request)
         {
-            var result = await _centerService.GetFilteredAsync(request);
+            var result = await _centerService.GetFilteredAsync(request, CountryId);
             return Ok(result);
         }
     }

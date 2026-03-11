@@ -10,8 +10,9 @@
         /// <summary>
         /// Gets all asynchronous.
         /// </summary>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>BatchTimingSunday.</returns>
-        Task<IReadOnlyList<BatchTimingSunday>> GetAllAsync();
+        Task<IReadOnlyList<BatchTimingSunday>> GetAllAsync(Guid centerId);
 
         /// <summary>
         /// Gets the by identifier asynchronous.
@@ -19,6 +20,14 @@
         /// <param name="id">The identifier.</param>
         /// <returns>BatchTimingSunday.</returns>
         Task<BatchTimingSunday?> GetByIdAsync(Guid id);
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <param name="centerId">The centerId.</param>
+        /// <returns>BatchTimingSunday.</returns>
+        Task<BatchTimingSunday?> GetByIdCenterIdAsync(Guid id, Guid centerId);
 
         /// <summary>
         /// Adds the asynchronous.
@@ -38,8 +47,9 @@
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>task.</returns>
-        Task<bool> DeleteAsync(Guid id);
+        Task<bool> DeleteAsync(Guid id, Guid centerId);
 
         /// <summary>
         /// Gets the by identifier asynchronous.
@@ -58,7 +68,8 @@
         /// <summary>
         /// Gets all asynchronous.
         /// </summary>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>batch timing.</returns>
-        IQueryable<BatchTimingSunday> Query();
+        IQueryable<BatchTimingSunday> Query(Guid centerId);
     }
 }

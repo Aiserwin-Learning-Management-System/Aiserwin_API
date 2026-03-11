@@ -32,7 +32,7 @@
             return await _context.Students
                 .Include(x => x.StudentAcademicCouses)
                 .Include(x => x.AcademicDetails)
-                .FirstOrDefaultAsync(x => x.Id == studentId);
+                .FirstOrDefaultAsync(x => x.Id == studentId && !x.IsDeleted);
         }
 
         /// <summary>
@@ -45,7 +45,7 @@
             return await _context.Courses
                 .Include(c => c.Stream)
                 .Include(c => c.FeePlans)
-                .Where(c => c.Stream.GradeId == gradeId && c.IsActive)
+                .Where(c => c.Stream.GradeId == gradeId && c.IsActive && !c.IsDeleted)
                 .ToListAsync();
         }
 
@@ -68,7 +68,7 @@
             Guid selectionId)
         {
             return await _context.StudentFeeSelections
-                .FirstOrDefaultAsync(x => x.Id == selectionId);
+                .FirstOrDefaultAsync(x => x.Id == selectionId && !x.IsDeleted);
         }
 
         /// <summary>
@@ -80,7 +80,7 @@
             Guid studentId)
         {
             return await _context.StudentFeeSelections
-                .Where(x => x.StudentId == studentId && x.IsActive)
+                .Where(x => x.StudentId == studentId && x.IsActive && !x.IsDeleted)
                 .ToListAsync();
         }
 
@@ -92,7 +92,7 @@
         public async Task<FeePlan?> GetFeePlanByIdAsync(Guid feePlanId)
         {
             return await _context.FeePlans
-                .FirstOrDefaultAsync(x => x.Id == feePlanId);
+                .FirstOrDefaultAsync(x => x.Id == feePlanId && !x.IsDeleted);
         }
 
         /// <summary>
@@ -130,6 +130,7 @@
                 .ThenInclude(x => x.Center)
                  .ThenInclude(x => x.State)
                 .FirstOrDefaultAsync(x => x.Id == id);
+                .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
         }
 
         /// <summary>
@@ -138,7 +139,7 @@
         /// <returns>FeePlan.</returns>
         public async Task<List<FeePlan>> GetAllAsync()
         {
-            return await _context.FeePlans
+            return await _context.FeePlans.Where(x => !x.IsDeleted)
                 .Include(x => x.Discounts)
                 .Include(x => x.Installments)
                  .Include(x => x.Course)
@@ -184,6 +185,7 @@
             }
 
             entity.IsActive = false;
+            entity.IsDeleted = false;
 
             _context.FeePlans.Update(entity);
             await _context.SaveChangesAsync();
