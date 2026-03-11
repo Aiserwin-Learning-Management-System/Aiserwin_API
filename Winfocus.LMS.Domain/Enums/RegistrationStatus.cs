@@ -8,31 +8,31 @@
         /// <summary>
         /// The draft
         /// </summary>
-        Draft = 1,
+        Draft = 0,
 
         /// <summary>
         /// The submitted
         /// </summary>
-        Submitted = 2,
+        Submitted = 1,
 
         /// <summary>
         /// The pending
         /// </summary>
-        Pending = 3,
+        Pending = 2,
 
         /// <summary>
         /// The approved
         /// </summary>
-        Approved = 4,
+        Approved = 3,
 
         /// <summary>
-        /// The not approved
+        /// Rejected
         /// </summary>
-        Not_Approved = 5,
+        Rejected = 4,
 
         /// <summary>
         /// The disabled
         /// </summary>
-        Disabled = 6,
+        Disabled = 5,
     }
 }

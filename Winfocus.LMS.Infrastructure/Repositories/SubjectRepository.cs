@@ -96,6 +96,15 @@
         /// </returns>
         public async Task<IReadOnlyList<Subject>> GetByCourseIdsAsync(List<Guid> courseIds)
         {
+            return await _db.Subjects.
+                Include(s => s.Course)
+                .ThenInclude(c => c.Stream)
+                    .ThenInclude(st => st.Grade)
+                        .ThenInclude(g => g.Syllabus)
+                         .ThenInclude(x => x.Center)
+                            .ThenInclude(x => x.State)
+                            .ThenInclude(x => x.Country)
+                .Where(c => courseIds.Contains(c.CourseId) && c.IsActive)
             return await _db.Subjects
                 .Where(c => courseIds.Contains(c.Id) && c.IsActive && !c.IsDeleted)
                 .Distinct()

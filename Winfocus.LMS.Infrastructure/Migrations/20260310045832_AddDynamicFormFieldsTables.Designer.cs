@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Winfocus.LMS.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using Winfocus.LMS.Infrastructure.Data;
 namespace Winfocus.LMS.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260310045832_AddDynamicFormFieldsTables")]
+    partial class AddDynamicFormFieldsTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -797,21 +800,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.ToTable("ModeOfStudies");
                 });
 
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.Permission", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Permissions");
-                });
-
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.PreferredBatch", b =>
                 {
                     b.Property<Guid>("Id")
@@ -850,137 +838,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.ToTable("PreferredBatches");
                 });
 
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.RegistrationForm", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("NEWSEQUENTIALID()");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("FormName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<Guid>("StaffCategoryId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FormName")
-                        .HasDatabaseName("IX_RegistrationForms_FormName");
-
-                    b.HasIndex("StaffCategoryId")
-                        .IsUnique()
-                        .HasDatabaseName("IX_RegistrationForms_OneActivePerCategory")
-                        .HasFilter("[IsActive] = 1 AND [IsDeleted] = 0");
-
-                    b.ToTable("RegistrationForms", (string)null);
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.RegistrationFormField", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("NEWSEQUENTIALID()");
-
-                    b.Property<int>("DisplayOrder")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(0);
-
-                    b.Property<Guid>("FieldId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("FormGroupId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("FormId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsRequired")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FieldId");
-
-                    b.HasIndex("FormGroupId", "DisplayOrder")
-                        .HasDatabaseName("IX_RegFormFields_GroupId_DisplayOrder");
-
-                    b.HasIndex("FormId", "DisplayOrder")
-                        .HasDatabaseName("IX_RegFormFields_FormId_DisplayOrder");
-
-                    b.HasIndex("FormId", "FieldId")
-                        .IsUnique()
-                        .HasDatabaseName("IX_RegFormFields_FormId_FieldId_Unique");
-
-                    b.ToTable("RegistrationFormFields", (string)null);
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.RegistrationFormGroup", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("NEWSEQUENTIALID()");
-
-                    b.Property<int>("DisplayOrder")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(0);
-
-                    b.Property<Guid>("FieldGroupId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("FormId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FieldGroupId");
-
-                    b.HasIndex("FormId", "DisplayOrder")
-                        .HasDatabaseName("IX_RegFormGroups_FormId_DisplayOrder");
-
-                    b.HasIndex("FormId", "FieldGroupId")
-                        .IsUnique()
-                        .HasDatabaseName("IX_RegFormGroups_FormId_FieldGroupId_Unique");
-
-                    b.ToTable("RegistrationFormGroups", (string)null);
-                });
-
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.Role", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1013,21 +870,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Roles");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.RolePermission", b =>
-                {
-                    b.Property<Guid>("RoleId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("PermissionId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("RoleId", "PermissionId");
-
-                    b.HasIndex("PermissionId");
-
-                    b.ToTable("RolePermissions");
                 });
 
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.StaffCategory", b =>
@@ -1081,86 +923,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .HasFilter("[IsDeleted] = 0");
 
                     b.ToTable("StaffCategories", (string)null);
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.StaffRegistration", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("NEWSEQUENTIALID()");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("FormId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Remarks")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<Guid>("StaffCategoryId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("Status")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(0);
-
-                    b.Property<DateTime?>("SubmittedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FormId")
-                        .HasDatabaseName("IX_StaffRegistrations_FormId");
-
-                    b.HasIndex("StaffCategoryId")
-                        .HasDatabaseName("IX_StaffRegistrations_StaffCategoryId");
-
-                    b.HasIndex("Status")
-                        .HasDatabaseName("IX_StaffRegistrations_Status");
-
-                    b.ToTable("StaffRegistrations", (string)null);
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.StaffRegistrationValue", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("NEWSEQUENTIALID()");
-
-                    b.Property<Guid>("FieldId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("FieldName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<Guid>("RegistrationId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Value")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FieldId")
-                        .HasDatabaseName("IX_StaffRegValues_FieldId");
-
-                    b.HasIndex("RegistrationId", "FieldId")
-                        .IsUnique()
-                        .HasDatabaseName("IX_StaffRegValues_RegId_FieldId_Unique");
-
-                    b.ToTable("StaffRegistrationValues", (string)null);
                 });
 
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.State", b =>
@@ -1881,12 +1643,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("CenterId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("CountryId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -1907,9 +1663,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("StaffCategoryId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -1922,14 +1675,8 @@ namespace Winfocus.LMS.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CenterId");
-
-                    b.HasIndex("CountryId");
-
                     b.HasIndex("Email")
                         .IsUnique();
-
-                    b.HasIndex("StaffCategoryId");
 
                     b.HasIndex("Username")
                         .IsUnique();
@@ -2328,119 +2075,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.Navigation("Batch");
                 });
 
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.RegistrationForm", b =>
-                {
-                    b.HasOne("Winfocus.LMS.Domain.Entities.StaffCategory", "StaffCategory")
-                        .WithMany()
-                        .HasForeignKey("StaffCategoryId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("StaffCategory");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.RegistrationFormField", b =>
-                {
-                    b.HasOne("Winfocus.LMS.Domain.Entities.FormField", "FormField")
-                        .WithMany()
-                        .HasForeignKey("FieldId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Winfocus.LMS.Domain.Entities.RegistrationFormGroup", "RegistrationFormGroup")
-                        .WithMany("FormFields")
-                        .HasForeignKey("FormGroupId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.HasOne("Winfocus.LMS.Domain.Entities.RegistrationForm", "RegistrationForm")
-                        .WithMany("FormFields")
-                        .HasForeignKey("FormId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("FormField");
-
-                    b.Navigation("RegistrationForm");
-
-                    b.Navigation("RegistrationFormGroup");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.RegistrationFormGroup", b =>
-                {
-                    b.HasOne("Winfocus.LMS.Domain.Entities.FieldGroup", "FieldGroup")
-                        .WithMany()
-                        .HasForeignKey("FieldGroupId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Winfocus.LMS.Domain.Entities.RegistrationForm", "RegistrationForm")
-                        .WithMany("FormGroups")
-                        .HasForeignKey("FormId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("FieldGroup");
-
-                    b.Navigation("RegistrationForm");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.StaffRegistration", b =>
-                {
-                    b.HasOne("Winfocus.LMS.Domain.Entities.RegistrationForm", "RegistrationForm")
-                        .WithMany("Registrations")
-                        .HasForeignKey("FormId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Winfocus.LMS.Domain.Entities.StaffCategory", "StaffCategory")
-                        .WithMany()
-                        .HasForeignKey("StaffCategoryId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("RegistrationForm");
-
-                    b.Navigation("StaffCategory");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.StaffRegistrationValue", b =>
-                {
-                    b.HasOne("Winfocus.LMS.Domain.Entities.FormField", "FormField")
-                        .WithMany()
-                        .HasForeignKey("FieldId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Winfocus.LMS.Domain.Entities.StaffRegistration", "StaffRegistration")
-                        .WithMany("Values")
-                        .HasForeignKey("RegistrationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("FormField");
-
-                    b.Navigation("StaffRegistration");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.RolePermission", b =>
-                {
-                    b.HasOne("Winfocus.LMS.Domain.Entities.Permission", "Permission")
-                        .WithMany("RolePermissions")
-                        .HasForeignKey("PermissionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Winfocus.LMS.Domain.Entities.Role", "Role")
-                        .WithMany("RolePermissions")
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Permission");
-
-                    b.Navigation("Role");
-                });
-
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.State", b =>
                 {
                     b.HasOne("Winfocus.LMS.Domain.Entities.Country", "Country")
@@ -2770,27 +2404,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.Navigation("Center");
                 });
 
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.User", b =>
-                {
-                    b.HasOne("Winfocus.LMS.Domain.Entities.Center", "Center")
-                        .WithMany()
-                        .HasForeignKey("CenterId");
-
-                    b.HasOne("Winfocus.LMS.Domain.Entities.Country", "Country")
-                        .WithMany()
-                        .HasForeignKey("CountryId");
-
-                    b.HasOne("Winfocus.LMS.Domain.Entities.StaffCategory", "StaffCategory")
-                        .WithMany()
-                        .HasForeignKey("StaffCategoryId");
-
-                    b.Navigation("Center");
-
-                    b.Navigation("Country");
-
-                    b.Navigation("StaffCategory");
-                });
-
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.UserRole", b =>
                 {
                     b.HasOne("Winfocus.LMS.Domain.Entities.Role", "Role")
@@ -2842,35 +2455,9 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.Navigation("Streams");
                 });
 
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.RegistrationForm", b =>
-                {
-                    b.Navigation("FormFields");
-
-                    b.Navigation("FormGroups");
-
-                    b.Navigation("Registrations");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.RegistrationFormGroup", b =>
-                {
-                    b.Navigation("FormFields");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.Permission", b =>
-                {
-                    b.Navigation("RolePermissions");
-                });
-
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.Role", b =>
                 {
-                    b.Navigation("RolePermissions");
-
                     b.Navigation("UserRoles");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.StaffRegistration", b =>
-                {
-                    b.Navigation("Values");
                 });
 
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.State", b =>

@@ -30,11 +30,11 @@
         /// </summary>
         public DbSet<Center> Centres { get; set; } = null!;
 
-
         /// <summary>
         /// Gets or sets the Doubt Clearing in the database.
         /// </summary>
         public DbSet<DoubtClearing> DoubtClearing { get; set; } = null!;
+
         /// <summary>
         /// Gets or sets the users in the database.
         /// </summary>
@@ -265,6 +265,46 @@
         public DbSet<StaffCategory> StaffCategories { get; set; } = null!;
 
         /// <summary>
+        /// Gets or sets the field groups in the database.
+        /// </summary>
+        public DbSet<FieldGroup> FieldGroups { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the form fields in the database.
+        /// </summary>
+        public DbSet<FormField> FormFields { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the field options in the database.
+        /// </summary>
+        public DbSet<FieldOption> FieldOptions { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the registration forms in the database.
+        /// </summary>
+        public DbSet<RegistrationForm> RegistrationForms { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the registration form groups in the database.
+        /// </summary>
+        public DbSet<RegistrationFormGroup> RegistrationFormGroups { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the registration form fields in the database.
+        /// </summary>
+        public DbSet<RegistrationFormField> RegistrationFormFields { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the staff registrations in the database.
+        /// </summary>
+        public DbSet<StaffRegistration> StaffRegistrations { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the staff registration values in the database.
+        /// </summary>
+        public DbSet<StaffRegistrationValue> StaffRegistrationValues { get; set; } = null!;
+
+        /// <summary>
         /// Configures the model for the context.
         /// </summary>
         /// <param name="modelBuilder">The builder being used to construct the model for this context.</param>
@@ -277,6 +317,14 @@
             modelBuilder.ApplyConfiguration(new UserLoginLogConfiguration());
             modelBuilder.ApplyConfiguration(new UserActiveSessionConfiguration());
             modelBuilder.ApplyConfiguration(new StaffCategoryConfiguration());
+            modelBuilder.ApplyConfiguration(new FieldGroupConfiguration());
+            modelBuilder.ApplyConfiguration(new FormFieldConfiguration());
+            modelBuilder.ApplyConfiguration(new FieldOptionConfiguration());
+            modelBuilder.ApplyConfiguration(new RegistrationFormConfiguration());
+            modelBuilder.ApplyConfiguration(new RegistrationFormGroupConfiguration());
+            modelBuilder.ApplyConfiguration(new RegistrationFormFieldConfiguration());
+            modelBuilder.ApplyConfiguration(new StaffRegistrationConfiguration());
+            modelBuilder.ApplyConfiguration(new StaffRegistrationValueConfiguration());
 
             // User configuration
             modelBuilder.Entity<User>()
