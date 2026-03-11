@@ -110,7 +110,10 @@
         /// <returns>bool.</returns>
         public async Task<bool> DeleteAsync(Guid id, Guid centerId)
         {
-            var entity = await _db.Streams.FindAsync(id);
+            var entity = await _db.Streams
+                .Include(x => x.Grade)
+                .ThenInclude(x => x.Syllabus)
+                .FirstOrDefaultAsync(x => x.Id == id);
             if (entity == null)
             {
                 return false;

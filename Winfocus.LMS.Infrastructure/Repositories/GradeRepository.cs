@@ -101,13 +101,13 @@
         /// <returns>task.</returns>
         public async Task<bool> DeleteAsync(Guid id, Guid centerId)
         {
-            var entity = await _db.Grades.FindAsync(id);
+            var entity = await _db.Grades.Include(x => x.Syllabus).FirstOrDefaultAsync(x => x.Id == id);
             if (entity == null)
             {
                 return false;
             }
 
-            if (entity.Id != centerId)
+            if (entity.Syllabus.CenterId != centerId)
             {
                 return false;
             }

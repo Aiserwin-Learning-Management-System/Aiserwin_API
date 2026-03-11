@@ -19,14 +19,17 @@
     public class CourseController : BaseController
     {
         private readonly ICourseService _service;
+        private readonly IStreamService _streamService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CourseController"/> class.
         /// </summary>
         /// <param name="service">The service.</param>
-        public CourseController(ICourseService service)
+        /// <param name="streamService">The stream Service.</param>
+        public CourseController(ICourseService service, IStreamService streamService)
         {
             _service = service;
+            _streamService = streamService;
         }
 
         /// <summary>
@@ -34,7 +37,7 @@
         /// </summary>
         /// <param name="centerId">The centerId.</param>
         /// <returns>CourseDto list.</returns>
-        [HttpGet]
+        [HttpGet("{centerId:guid?}")]
         public async Task<ActionResult<CommonResponse<List<CourseDto>>>> GetAll(Guid centerId)
         {
             if (User?.Identity?.IsAuthenticated == true)
@@ -58,7 +61,7 @@
         /// <param name="id">The identifier.</param>
         /// <param name="centerId">The centerId.</param>
         /// <returns>CourseDto.</returns>
-        [HttpGet("{id:guid}")]
+        [HttpGet("{id:guid}/center/{centerid:guid?}")]
         public async Task<ActionResult<CommonResponse<CourseDto>>> Get(Guid id, Guid centerId)
         {
             if (User?.Identity?.IsAuthenticated == true)
@@ -102,11 +105,22 @@
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>CourseDto.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,CenterAdmin")]
         [HttpPost]
         public async Task<ActionResult<CommonResponse<CourseDto>>> Create(
             CourseRequest request)
         {
+            var stream = await _streamService.GetByIdAsync(request.streamid);
+            if (stream?.Data == null)
+            {
+                return NotFound("Grade not found.");
+            }
+
+            if (CenterId != stream.Data.CenterId)
+            {
+                return StatusCode(403, "You are not allowed to create data for this center.");
+            }
+
             var updatedRequest = request with { userId = UserId };
             var result = await _service.CreateAsync(updatedRequest);
             return Ok(result);
@@ -118,12 +132,22 @@
         /// <param name="id">The identifier.</param>
         /// <param name="request">The request.</param>
         /// <returns>CourseDto.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,CenterAdmin")]
         [HttpPut("{id:guid}")]
         public async Task<ActionResult<CommonResponse<CourseDto>>> Update(
             Guid id,
             CourseRequest request)
         {
+            var stream = await _streamService.GetByIdAsync(request.streamid);
+            if (stream?.Data == null)
+            {
+                return NotFound("Grade not found.");
+            }
+
+            if (CenterId != stream.Data.CenterId)
+            {
+                return StatusCode(403, "You are not allowed to create data for this center.");
+            }
             var updatedRequest = request with { userId = UserId };
             var result = await _service.UpdateAsync(id, updatedRequest);
             return Ok(result);
@@ -134,7 +158,7 @@
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>bool.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,CenterAdmin")]
         [HttpDelete("{id:guid}")]
         public async Task<ActionResult<CommonResponse<bool>>> Delete(Guid id)
             => Ok(await _service.DeleteAsync(id, CenterId));
@@ -144,7 +168,7 @@
         /// </summary>
         /// <param name="request">The paged request.</param>
         /// <returns>Paginated list of courses.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,CenterAdmin")]
         [HttpGet("filter")]
         public async Task<ActionResult<CommonResponse<PagedResult<CourseDto>>>> GetFiltered(
             [FromQuery] PagedRequest request)

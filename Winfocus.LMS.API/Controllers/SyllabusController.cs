@@ -56,11 +56,17 @@
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>SyllabusDto.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,CenterAdmin")]
         [HttpPost]
         public async Task<ActionResult<CommonResponse<SyllabusDto>>> Create(
             SyllabusRequest request)
         {
+
+            if (CenterId != request.CenterId)
+            {
+                return StatusCode(403, "You are not allowed to create data for this center.");
+            }
+
             var updatedRequest = request with
             {
                 UserId = UserId
@@ -82,8 +88,7 @@
             {
                 if (UserId != Guid.Empty)
                 {
-                    var countryIdFromToken = CountryId;
-                    return Ok(await _syllabusService.GetByIdAsync(id, CountryId));
+                    return Ok(await _syllabusService.GetByIdAsync(id, CenterId));
                 }
             }
 
@@ -97,12 +102,17 @@
         /// <param name="id">The identifier.</param>
         /// <param name="request">The request.</param>
         /// <returns>result.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,CenterAdmin")]
         [HttpPut("{id:guid}")]
         public async Task<ActionResult<CommonResponse<SyllabusDto>>> Update(
             Guid id,
             SyllabusRequest request)
         {
+            if (CenterId != request.CenterId)
+            {
+                return StatusCode(403, "You are not allowed to create data for this center.");
+            }
+
             var updatedRequest = request with
             {
                 UserId = UserId
@@ -116,7 +126,7 @@
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>result.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin, CenterAdmin")]
         [HttpDelete("{id:guid}")]
         public async Task<ActionResult<CommonResponse<bool>>> Delete(Guid id)
         {
@@ -129,7 +139,7 @@
         /// </summary>
         /// <param name="request">The paged request.</param>
         /// <returns>Paginated list of syllabuses.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin, CenterAdmin")]
         [HttpGet("filter")]
         public async Task<ActionResult<CommonResponse<PagedResult<SyllabusDto>>>> GetFiltered(
             [FromQuery] PagedRequest request)

@@ -19,14 +19,17 @@
     public class StreamController : BaseController
     {
         private readonly IStreamService _streamService;
+        private readonly IGradeService _gradeService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StreamController"/> class.
         /// </summary>
         /// <param name="streamService">The stream service.</param>
-        public StreamController(IStreamService streamService)
+        /// <param name="gradeService">The grade service.</param>
+        public StreamController(IStreamService streamService, IGradeService gradeService)
         {
             _streamService = streamService;
+            _gradeService = gradeService;
         }
 
         /// <summary>
@@ -58,11 +61,22 @@
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>StreamDto.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,CenterAdmin")]
         [HttpPost]
         public async Task<ActionResult<CommonResponse<StreamDto>>> Create(
             StreamRequest request)
         {
+            var grade = await _gradeService.GetByIdAsync(request.gradeid);
+            if (grade?.Data == null)
+            {
+                return NotFound("Grade not found.");
+            }
+
+            if (CenterId != grade.Data.CenterId)
+            {
+                return StatusCode(403, "You are not allowed to create data for this center.");
+            }
+
             var updatedRequest = request with { userId = UserId };
             var created = await _streamService.CreateAsync(updatedRequest);
             return Ok(created);
@@ -72,10 +86,10 @@
         /// Gets a stream by identifier.
         /// </summary>
         /// <param name="id">The identifier.</param>
-        /// <param name="centerId">The centerId.</param>
+        /// <param name="centerid">The centerId.</param>
         /// <returns>StreamDto.</returns>
         [HttpGet("{id:guid}/center/{centerid:guid?}")]
-        public async Task<ActionResult<CommonResponse<StreamDto>>> Get(Guid id, Guid centerId)
+        public async Task<ActionResult<CommonResponse<StreamDto>>> Get(Guid id, Guid centerid)
         {
             if (User?.Identity?.IsAuthenticated == true)
             {
@@ -83,12 +97,11 @@
 
                 if (userId != Guid.Empty)
                 {
-                    var countryIdFromToken = CenterId;
-                    return Ok(await _streamService.GetByIdCenterIdAsync(id, countryIdFromToken));
+                    return Ok(await _streamService.GetByIdCenterIdAsync(id, CenterId));
                 }
             }
 
-            return Ok(await _streamService.GetByIdCenterIdAsync(id, centerId));
+            return Ok(await _streamService.GetByIdCenterIdAsync(id, centerid));
         }
 
         /// <summary>
@@ -97,12 +110,23 @@
         /// <param name="id">The identifier.</param>
         /// <param name="request">The request.</param>
         /// <returns>StreamDto.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,CenterAdmin")]
         [HttpPut("{id:guid}")]
         public async Task<ActionResult<CommonResponse<StreamDto>>> Update(
             Guid id,
             StreamRequest request)
         {
+            var grade = await _gradeService.GetByIdAsync(request.gradeid);
+            if (grade?.Data == null)
+            {
+                return NotFound("Grade not found.");
+            }
+
+            if (CenterId != grade.Data.CenterId)
+            {
+                return StatusCode(403, "You are not allowed to create data for this center.");
+            }
+
             var updatedRequest = request with { userId = UserId };
             var updated = await _streamService.UpdateAsync(id, updatedRequest);
             return Ok(updated);
@@ -126,7 +150,7 @@
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>bool.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,CenterAdmin")]
         [HttpDelete("{id:guid}")]
         public async Task<ActionResult<CommonResponse<bool>>> Delete(Guid id)
         {
@@ -139,7 +163,7 @@
         /// </summary>
         /// <param name="request">The paged request.</param>
         /// <returns>Paginated list of streams.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,CenterAdmin")]
         [HttpGet("filter")]
         public async Task<ActionResult<CommonResponse<PagedResult<StreamDto>>>> GetFiltered(
             [FromQuery] PagedRequest request)

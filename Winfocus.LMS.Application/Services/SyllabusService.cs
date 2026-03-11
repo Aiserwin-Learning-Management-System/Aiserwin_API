@@ -99,7 +99,6 @@ namespace Winfocus.LMS.Application.Services
         {
             try
             {
-
                 var syllabus = new Syllabus
                 {
                     Name = request.Name,

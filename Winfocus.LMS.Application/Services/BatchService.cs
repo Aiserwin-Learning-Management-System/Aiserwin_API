@@ -33,13 +33,14 @@ namespace Winfocus.LMS.Application.Services
         /// <summary>
         /// Gets all asynchronous.
         /// </summary>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>BatchDto.</returns>
-        public async Task<CommonResponse<List<BatchDto>>> GetAllAsync()
+        public async Task<CommonResponse<List<BatchDto>>> GetAllAsync(Guid centerId)
         {
             try
             {
                 _logger.LogInformation("Fetching all Batches");
-                var batch = await _repository.GetAllAsync();
+                var batch = await _repository.GetAllAsync(centerId);
                 _logger.LogInformation("Fetched {Count} Batches", batch.Count());
                 var data = batch.Select(Map).ToList();
                 if (data.Any())
@@ -70,6 +71,37 @@ namespace Winfocus.LMS.Application.Services
             {
                 _logger.LogInformation("Fetching batch by Id: {Id}", id);
                 var batch = await _repository.GetByIdAsync(id);
+                _logger.LogInformation("batch fetched successfully for Id: {Id}", id);
+                var mappeddata = batch == null ? null : Map(batch);
+                if (mappeddata != null)
+                {
+                    return CommonResponse<BatchDto>.SuccessResponse("fetching batch by id", mappeddata);
+                }
+                else
+                {
+                    return CommonResponse<BatchDto>.FailureResponse("batch not found");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching batches.");
+                return CommonResponse<BatchDto>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <param name="centerId">The centerId.</param>
+        /// <returns>BatchTimingMTFDto.</returns>
+        public async Task<CommonResponse<BatchDto>> GetByIdCenterIdAsync(Guid id, Guid centerId)
+        {
+            try
+            {
+                _logger.LogInformation("Fetching batch by Id: {Id}", id);
+                var batch = await _repository.GetByIdCenterIdAsync(id, centerId);
                 _logger.LogInformation("batch fetched successfully for Id: {Id}", id);
                 var mappeddata = batch == null ? null : Map(batch);
                 if (mappeddata != null)
@@ -163,13 +195,14 @@ namespace Winfocus.LMS.Application.Services
         /// Deletes the asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>task.</returns>
-        public async Task<CommonResponse<bool>> DeleteAsync(Guid id)
+        public async Task<CommonResponse<bool>> DeleteAsync(Guid id, Guid centerId)
         {
             try
             {
                 _logger.LogInformation("Deleting batch Id: {Id}", id);
-                var result = await _repository.DeleteAsync(id);
+                var result = await _repository.DeleteAsync(id, centerId);
 
                 if (result)
                 {
@@ -193,9 +226,10 @@ namespace Winfocus.LMS.Application.Services
         /// Search works on Subject name, Course Name, Stream Name, Grade Name, and Syllabus Name.
         /// </summary>
         /// <param name="request">The paged request.</param>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>Paginated batches result.</returns>
         public async Task<CommonResponse<PagedResult<BatchDto>>> GetFilteredAsync(
-            PagedRequest request)
+            PagedRequest request, Guid centerId)
         {
             try
             {
@@ -206,7 +240,7 @@ namespace Winfocus.LMS.Application.Services
                     request.Active, request.SearchText, request.SortBy,
                     request.SortOrder, request.Limit, request.Offset);
 
-                var query = _repository.Query();
+                var query = _repository.Query(centerId);
 
                 // ── Filters ──
                 if (request.Active.HasValue)

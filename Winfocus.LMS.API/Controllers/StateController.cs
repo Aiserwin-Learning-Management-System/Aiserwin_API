@@ -56,11 +56,16 @@ namespace Winfocus.LMS.API.Controllers
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>StateDto.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,CountryAdmin")]
         [HttpPost]
         public async Task<ActionResult<CommonResponse<StateDto>>> Create(
             CreateMasterStateRequest request)
         {
+            if (CountryId != request.countryid)
+            {
+                return StatusCode(403, "You are not allowed to create data for this country.");
+            }
+
             var updatedRequest = request with
             {
                 userId = UserId
@@ -96,12 +101,16 @@ namespace Winfocus.LMS.API.Controllers
         /// <param name="id">The identifier.</param>
         /// <param name="request">The request.</param>
         /// <returns>result.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,CountryAdmin")]
         [HttpPut("{id:guid}")]
         public async Task<ActionResult<CommonResponse<StateDto>>> Update(
             Guid id,
             CreateMasterStateRequest request)
         {
+            if (CountryId != request.countryid)
+            {
+                return StatusCode(403, "You are not allowed to create data for this country.");
+            }
             var updatedRequest = request with
             {
                 userId = UserId
@@ -127,7 +136,7 @@ namespace Winfocus.LMS.API.Controllers
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>result.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,CountryAdmin")]
         [HttpDelete("{id:guid}")]
         public async Task<CommonResponse<bool>> Delete(Guid id)
         {
@@ -142,7 +151,7 @@ namespace Winfocus.LMS.API.Controllers
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>Result.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,CountryAdmin")]
         [HttpGet("filter")]
         public async Task<ActionResult<CommonResponse<PagedResult<StateDto>>>> GetFiltered(
         [FromQuery] PagedRequest request)

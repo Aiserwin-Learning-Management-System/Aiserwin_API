@@ -42,28 +42,49 @@ namespace Winfocus.LMS.Infrastructure.DataSeeders
         private static void SeedRolePermissions(AppDbContext context)
         {
             var superAdminRole = context.Roles.FirstOrDefault(r => r.Name == "SuperAdmin");
-
-            if (superAdminRole == null)
-                return;
+            var adminRole = context.Roles.FirstOrDefault(r => r.Name == "Admin");
 
             var permissions = context.Permissions.ToList();
 
-            foreach (var permission in permissions)
+            // Assign all permissions to SuperAdmin
+            if (superAdminRole != null)
             {
-                bool exists = context.RolePermissions
-                    .Any(rp => rp.RoleId == superAdminRole.Id && rp.PermissionId == permission.Id);
-
-                if (!exists)
+                foreach (var permission in permissions)
                 {
-                    context.RolePermissions.Add(new RolePermission
+                    bool exists = context.RolePermissions
+                        .Any(rp => rp.RoleId == superAdminRole.Id && rp.PermissionId == permission.Id);
+
+                    if (!exists)
                     {
-                        RoleId = superAdminRole.Id,
-                        PermissionId = permission.Id
-                    });
+                        context.RolePermissions.Add(new RolePermission
+                        {
+                            RoleId = superAdminRole.Id,
+                            PermissionId = permission.Id
+                        });
+                    }
                 }
             }
 
-            context.SaveChangesAsync();
+            // Assign permissions to Admin
+            if (adminRole != null)
+            {
+                foreach (var permission in permissions)
+                {
+                    bool exists = context.RolePermissions
+                        .Any(rp => rp.RoleId == adminRole.Id && rp.PermissionId == permission.Id);
+
+                    if (!exists)
+                    {
+                        context.RolePermissions.Add(new RolePermission
+                        {
+                            RoleId = adminRole.Id,
+                            PermissionId = permission.Id
+                        });
+                    }
+                }
+            }
+
+            context.SaveChanges();
         }
     }
 }

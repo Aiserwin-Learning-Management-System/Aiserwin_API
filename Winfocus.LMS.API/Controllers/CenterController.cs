@@ -57,10 +57,10 @@
         /// Gets the specified identifier.
         /// </summary>
         /// <param name="id">The identifier.</param>
-        /// <param name="countryId">The countryId.</param>
+        /// <param name="countryid">The countryId.</param>
         /// <returns>CenterDto by id.</returns>
         [HttpGet("{id:guid}/{countryid:guid?}")]
-        public async Task<ActionResult<CommonResponse<CenterDto>>> Get(Guid id, Guid countryId)
+        public async Task<ActionResult<CommonResponse<CenterDto>>> Get(Guid id, Guid countryid)
         {
             if (User?.Identity?.IsAuthenticated == true)
             {
@@ -73,7 +73,7 @@
                 }
             }
 
-            return Ok(await _centerService.GetByIdAsync(id,countryId));
+            return Ok(await _centerService.GetByIdAsync(id, countryid));
         }
 
         //=> Ok(await _centerService.GetByIdAsync(id));
@@ -83,11 +83,16 @@
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>CenterDto.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,CountryAdmin")]
         [HttpPost]
         public async Task<ActionResult<CommonResponse<CenterDto>>> Create(
             CenterRequestDto request)
         {
+            if (CountryId != request.countryid)
+            {
+                return StatusCode(403, "You are not allowed to create data for this center.");
+            }
+
             var updatedRequest = request with
             {
                 userId = UserId
@@ -102,7 +107,7 @@
         /// <param name="id">The identifier.</param>
         /// <param name="request">The request.</param>
         /// <returns>result.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,CountryAdmin")]
         [HttpPut("{id:guid}")]
         public async Task<ActionResult<CommonResponse<CenterDto>>> Update(
             Guid id,
@@ -112,6 +117,11 @@
             {
                 userId = UserId
             };
+            if (CountryId != request.countryid)
+            {
+                return StatusCode(403, "You are not allowed to create data for this center.");
+            }
+
             var updated = await _centerService.UpdateAsync(id, updatedRequest);
             return Ok(updated);
         }
@@ -121,7 +131,7 @@
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>result.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,CountryAdmin")]
         [HttpDelete("{id:guid}")]
         public async Task<ActionResult<CommonResponse<bool>>> Delete(Guid id)
         {
@@ -148,7 +158,7 @@
         /// </summary>
         /// <param name="request">The paged request.</param>
         /// <returns>Paginated list of Center.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,CountryAdmin")]
         [HttpGet("filter")]
         public async Task<ActionResult<CommonResponse<PagedResult<CenterDto>>>> GetFiltered(
             [FromQuery] PagedRequest request)

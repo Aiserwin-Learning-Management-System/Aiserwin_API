@@ -141,7 +141,11 @@
         /// </returns>
         public async Task<bool> SoftDeleteAsync(Guid id, Guid centerId)
         {
-            var entity = await _db.Subjects.FindAsync(id);
+            var entity = await _db.Subjects
+                .Include(x => x.Course)
+                .ThenInclude(x => x.Grade)
+                .ThenInclude(x => x.SyllabusId)
+                .FirstOrDefaultAsync(x => x.Id == id);
             if (entity == null)
             {
                 return false;

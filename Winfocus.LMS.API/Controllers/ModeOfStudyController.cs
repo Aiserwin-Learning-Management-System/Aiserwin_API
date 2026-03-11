@@ -59,14 +59,13 @@ namespace Winfocus.LMS.API.Controllers
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>ModeOfStudyDto.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,CountryAdmin")]
         [HttpPost]
         public async Task<ActionResult<CommonResponse<ModeOfStudyDto>>> Create(
             ModeOfStudyRequest request)
         {
-            var countryId = CountryId;
 
-            if (countryId != request.countryid)
+            if (CountryId != request.countryid)
             {
                 return StatusCode(403, "You are not allowed to create data for this country.");
             }
@@ -84,10 +83,10 @@ namespace Winfocus.LMS.API.Controllers
         /// Gets the specified identifier.
         /// </summary>
         /// <param name="id">The identifier.</param>
-        /// <param name="countryId">The countryId.</param>
+        /// <param name="countryid">The countryId.</param>
         /// <returns>ModeOfStudyDto by id.</returns>
         [HttpGet("{id:guid}/country/{countryid:guid?}")]
-        public async Task<ActionResult<CommonResponse<ModeOfStudyDto>>> Get(Guid id, Guid countryId)
+        public async Task<ActionResult<CommonResponse<ModeOfStudyDto>>> Get(Guid id, Guid countryid)
         {
             if (User?.Identity?.IsAuthenticated == true)
             {
@@ -98,7 +97,7 @@ namespace Winfocus.LMS.API.Controllers
                 }
             }
 
-            var result = await _modeofstudyService.GetByIdAsync(id, countryId);
+            var result = await _modeofstudyService.GetByIdAsync(id, countryid);
             return Ok(result);
         }
 
@@ -108,7 +107,7 @@ namespace Winfocus.LMS.API.Controllers
         /// <param name="id">The identifier.</param>
         /// <param name="request">The request.</param>
         /// <returns>result.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,CountryAdmin")]
         [HttpPut("{id:guid}")]
         public async Task<ActionResult<CommonResponse<ModeOfStudyDto>>> Update(
             Guid id,
@@ -118,6 +117,11 @@ namespace Winfocus.LMS.API.Controllers
             {
                 userId = UserId
             };
+            if (CountryId != request.countryid)
+            {
+                return StatusCode(403, "You are not allowed to create data for this center.");
+            }
+
             var updated = await _modeofstudyService.UpdateAsync(id, updatedRequest);
             return Ok(updated);
         }
@@ -139,7 +143,7 @@ namespace Winfocus.LMS.API.Controllers
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>result.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,CountryAdmin")]
         [HttpDelete("{id:guid}")]
         public async Task<ActionResult<CommonResponse<bool>>> Delete(Guid id)
         {
@@ -161,7 +165,7 @@ namespace Winfocus.LMS.API.Controllers
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>result.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,CountryAdmin")]
         [HttpGet("filter")]
         public async Task<ActionResult<CommonResponse<PagedResult<ModeOfStudyDto>>>> GetFiltered(
         [FromQuery] PagedRequest request)

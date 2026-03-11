@@ -20,14 +20,17 @@ namespace Winfocus.LMS.API.Controllers
     public class GradeController : BaseController
     {
         private readonly IGradeService _gradeService;
+        private readonly ISyllabusService _syllabusService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GradeController"/> class.
         /// </summary>
         /// <param name="gradeService">The state service.</param>
-        public GradeController(IGradeService gradeService)
+        /// <param name="syllabusService">The syllabus service.</param>
+        public GradeController(IGradeService gradeService, ISyllabusService syllabusService)
         {
             _gradeService = gradeService;
+            _syllabusService = syllabusService;
         }
 
         /// <summary>
@@ -58,11 +61,22 @@ namespace Winfocus.LMS.API.Controllers
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>GradeDto.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,CenterAdmin")]
         [HttpPost]
         public async Task<ActionResult<CommonResponse<GradeDto>>> Create(
             GradeRequest request)
         {
+            var syllabus = await _syllabusService.GetByIdAsync(request.syllabusid, CenterId);
+            if (syllabus?.Data == null)
+            {
+                return NotFound("syllabus not found.");
+            }
+
+            if (CenterId != syllabus.Data.CeneterId)
+            {
+                return StatusCode(403, "You are not allowed to create data for this center.");
+            }
+
             var updatedRequest = request with
             {
                 userId = UserId
@@ -101,12 +115,23 @@ namespace Winfocus.LMS.API.Controllers
         /// <param name="id">The identifier.</param>
         /// <param name="request">The request.</param>
         /// <returns>result.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,CenterAdmin")]
         [HttpPut("{id:guid}")]
         public async Task<ActionResult<CommonResponse<GradeDto>>> Update(
             Guid id,
             GradeRequest request)
         {
+            var syllabus = await _syllabusService.GetByIdAsync(request.syllabusid, CenterId);
+            if (syllabus?.Data == null)
+            {
+                return NotFound("syllabus not found.");
+            }
+
+            if (CenterId != syllabus.Data.CeneterId)
+            {
+                return StatusCode(403, "You are not allowed to create data for this center.");
+            }
+
             var updatedRequest = request with
             {
                 userId = UserId
@@ -132,7 +157,7 @@ namespace Winfocus.LMS.API.Controllers
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>result.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,CenterAdmin")]
         [HttpDelete("{id:guid}")]
         public async Task<ActionResult<CommonResponse<bool>>> Delete(Guid id)
         {
@@ -145,7 +170,7 @@ namespace Winfocus.LMS.API.Controllers
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>result.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,CenterAdmin")]
         [HttpGet("filter")]
         public async Task<ActionResult<CommonResponse<PagedResult<GradeDto>>>> GetFiltered(
         [FromQuery] PagedRequest request)
