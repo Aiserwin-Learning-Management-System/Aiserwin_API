@@ -82,5 +82,23 @@
             var result = await _service.GetFilteredAsync(request);
             return Ok(result);
         }
+
+        /// <summary>
+        /// UpdateStatus.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        [HttpPatch("{id}/status")]
+        public async Task<IActionResult> UpdateStatus(Guid id, [FromBody] UpdateRegistrationStatusDto dto)
+        {
+            var result = await _service.UpdateStatusAsync(id, dto);
+
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
     }
 }

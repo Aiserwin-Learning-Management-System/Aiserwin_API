@@ -305,6 +305,14 @@
         public DbSet<StaffRegistrationValue> StaffRegistrationValues { get; set; } = null!;
 
         /// <summary>
+        /// Gets or sets the page headings.
+        /// </summary>
+        /// <value>
+        /// The page headings.
+        /// </value>
+        public DbSet<PageHeading> PageHeadings { get; set; } = null!;
+
+        /// <summary>
         /// Configures the model for the context.
         /// </summary>
         /// <param name="modelBuilder">The builder being used to construct the model for this context.</param>
@@ -325,6 +333,7 @@
             modelBuilder.ApplyConfiguration(new RegistrationFormFieldConfiguration());
             modelBuilder.ApplyConfiguration(new StaffRegistrationConfiguration());
             modelBuilder.ApplyConfiguration(new StaffRegistrationValueConfiguration());
+            modelBuilder.ApplyConfiguration(new PageHeadingConfiguration());
 
             // User configuration
             modelBuilder.Entity<User>()

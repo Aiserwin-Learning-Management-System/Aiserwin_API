@@ -450,6 +450,76 @@
             }
         }
 
+        /// <summary>
+        /// UpdateStatusAsync.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public async Task<CommonResponse<string>> UpdateStatusAsync(Guid id, UpdateRegistrationStatusDto dto)
+        {
+            try
+            {
+                var registration = await _repository.GetByIdWithDetailsAsync(id);
+
+                if (registration == null)
+                {
+                    return CommonResponse<string>
+                        .FailureResponse("Staff registration not found.");
+                }
+
+                ValidateStatusTransition(registration.Status, dto.Status);
+
+                registration.Status = dto.Status;
+                registration.Remarks = dto.Remarks;
+
+                if (dto.Status == RegistrationStatus.Submitted)
+                {
+                    registration.SubmittedAt = DateTime.UtcNow;
+                }
+
+                await _repository.UpdateStatusAsync(registration);
+
+                return CommonResponse<string>.SuccessResponse(
+                    "Registration status updated successfully.", dto.Remarks);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Error updating registration status {RegistrationId}",
+                    id);
+
+                return CommonResponse<string>.FailureResponse(
+                    $"An error occurred while updating registration status: {ex.Message}");
+            }
+        }
+
+        private void ValidateStatusTransition(
+            RegistrationStatus currentStatus,
+            RegistrationStatus newStatus)
+        {
+            if (currentStatus == RegistrationStatus.Draft &&
+                newStatus != RegistrationStatus.Submitted)
+            {
+                throw new Exception("Draft can only move to Submitted");
+            }
+
+            if (currentStatus == RegistrationStatus.Submitted &&
+                newStatus != RegistrationStatus.Approved &&
+                newStatus != RegistrationStatus.Rejected)
+            {
+                throw new Exception("Submitted can only move to Approved or Rejected");
+            }
+
+            if (currentStatus == RegistrationStatus.Approved ||
+                currentStatus == RegistrationStatus.Rejected)
+            {
+                throw new Exception("Final status cannot be changed");
+            }
+        }
+
         private static RegistrationResponseDto MapToResponse(StaffRegistration sr) =>
             new ()
             {

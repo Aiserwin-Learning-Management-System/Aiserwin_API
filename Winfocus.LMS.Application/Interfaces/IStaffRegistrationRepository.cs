@@ -37,5 +37,12 @@
         /// <returns>
         /// The queryable registrations.
         IQueryable<StaffRegistration> Query();
+
+        /// <summary>
+        /// UpdateStatusAsync.
+        /// </summary>
+        /// <param name="registration"></param>
+        /// <returns></returns>
+        Task UpdateStatusAsync(StaffRegistration registration);
     }
 }
