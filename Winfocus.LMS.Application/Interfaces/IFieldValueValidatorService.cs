@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Winfocus.LMS.Domain.Entities;
-
-namespace Winfocus.LMS.Application.Interfaces
+﻿namespace Winfocus.LMS.Application.Interfaces
 {
     using Winfocus.LMS.Domain.Entities;
 
