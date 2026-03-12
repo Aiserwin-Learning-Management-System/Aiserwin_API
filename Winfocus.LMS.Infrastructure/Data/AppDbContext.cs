@@ -485,20 +485,7 @@
                  .HasForeignKey(s => s.AcademicYearId)
                  .OnDelete(DeleteBehavior.NoAction);
             });
-            modelBuilder.Entity<StudentAcademicCouses>(e =>
-            {
-                e.HasKey(x => new { x.StudentId, x.CourseId });
 
-                e.HasOne(x => x.Student)
-                 .WithMany()
-                 .HasForeignKey(x => x.StudentId)
-                 .OnDelete(DeleteBehavior.NoAction);
-
-                e.HasOne(x => x.Course)
-                 .WithMany()
-                 .HasForeignKey(x => x.CourseId)
-                 .OnDelete(DeleteBehavior.Cascade);
-            });
             modelBuilder.Entity<StudentFeeSelection>(e =>
             {
                 e.HasIndex(x => new { x.StudentId, x.CourseId }).IsUnique();

@@ -144,6 +144,7 @@ builder.Services.AddScoped<IStaffRegistrationService, StaffRegistrationService>(
 
 builder.Services.AddScoped<IFormFieldRepository, FormFieldRepository>();
 builder.Services.AddScoped<IFormFieldService, FormFieldService>();
+builder.Services.AddScoped<IFieldValueValidatorService, FieldValueValidatorService>();
 
 #endregion
 

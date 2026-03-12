@@ -95,5 +95,11 @@
         /// <param name="id">The identifier.</param>
         /// <returns>task.</returns>
         Task<bool> DeleteAsync(Guid id);
+
+        /// <summary>
+        /// Gets all asynchronous.
+        /// </summary>
+        /// <returns>fees.</returns>
+        IQueryable<FeePlan> Query();
     }
 }

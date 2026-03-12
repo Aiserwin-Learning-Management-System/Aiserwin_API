@@ -190,5 +190,25 @@
             await _context.SaveChangesAsync();
             return true;
         }
+
+        /// <summary>
+        /// Gets queryable for filtering with full hierarchy.
+        /// </summary>
+        /// <returns>Queryable fees.</returns>
+        public IQueryable<FeePlan> Query()
+        {
+            return _context.FeePlans.Where(x => !x.IsDeleted)
+                 .Include(x => x.Discounts)
+                .Include(x => x.Installments)
+                 .Include(x => x.Course)
+                .ThenInclude(x => x.Stream)
+                 .Include(x => x.Course)
+                .ThenInclude(s => s.Grade)
+                .ThenInclude(g => g.Syllabus)
+                 .ThenInclude(x => x.Center)
+                 .ThenInclude(x => x.State)
+                 .ThenInclude(x => x.Country)
+                        .AsNoTracking();
+        }
     }
 }

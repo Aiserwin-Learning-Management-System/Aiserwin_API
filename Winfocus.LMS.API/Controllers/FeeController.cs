@@ -4,7 +4,9 @@
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Winfocus.LMS.Application.DTOs;
+    using Winfocus.LMS.Application.DTOs.Common;
     using Winfocus.LMS.Application.DTOs.Fees;
+    using Winfocus.LMS.Application.DTOs.Masters;
     using Winfocus.LMS.Application.Interfaces;
     using Winfocus.LMS.Application.Services;
     using Winfocus.LMS.Domain.Enums;
@@ -248,6 +250,20 @@
         public async Task<ActionResult<CommonResponse<bool>>> Delete(Guid id)
         {
             var result = await _service.DeleteAsync(id);
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Retrieves filtered fee with pagination.
+        /// </summary>
+        /// <param name="request">The paged request.</param>
+        /// <returns>Paginated list of fees.</returns>
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        [HttpGet("filter")]
+        public async Task<ActionResult<CommonResponse<PagedResult<FeePlanDto>>>> GetFiltered(
+            [FromQuery] PagedRequest request)
+        {
+            var result = await _service.GetFilteredAsync(request);
             return Ok(result);
         }
     }

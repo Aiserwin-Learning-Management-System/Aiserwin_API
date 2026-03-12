@@ -1,10 +1,12 @@
 ﻿namespace Winfocus.LMS.Application.Services
 {
-    using System.Text.RegularExpressions;
-    using Winfocus.LMS.Application.Interfaces;
-    using Winfocus.LMS.Domain.Entities;
-    using Winfocus.LMS.Domain.Enums;
+using System.Text.RegularExpressions;
+using Winfocus.LMS.Application.Interfaces;
+using Winfocus.LMS.Domain.Entities;
+using Winfocus.LMS.Domain.Enums;
 
+namespace Winfocus.LMS.Application.Services
+{
     /// <summary>
     /// Validates submitted field values against their type rules.
     /// </summary>
@@ -68,7 +70,7 @@
             }
 
             return errors;
-        }
+            }
 
         private void ValidateLength(FormField field, string value, List<string> errors)
         {
@@ -76,10 +78,10 @@
             {
                 errors.Add(
                     $"{field.DisplayLabel} must be at least {field.MinLength.Value} characters.");
-            }
+        }
 
             if (field.MaxLength.HasValue && value.Length > field.MaxLength.Value)
-            {
+        {
                 errors.Add(
                     $"{field.DisplayLabel} must not exceed {field.MaxLength.Value} characters.");
             }
@@ -91,11 +93,13 @@
             {
                 try
                 {
-                    if (!Regex.IsMatch(value, field.ValidationRegex))
+                if (!Regex.IsMatch(value, field.ValidationRegex))
                     {
                         errors.Add($"{field.DisplayLabel} format is invalid.");
-                    }
-                }
+            }
+
+            return true;
+        }
                 catch (RegexParseException)
                 {
                     errors.Add($"{field.DisplayLabel} has an invalid validation pattern configured.");
@@ -118,7 +122,7 @@
         private void ValidateDate(FormField field, string value, List<string> errors)
         {
             if (!DateTime.TryParse(value, out _))
-            {
+        {
                 errors.Add($"{field.DisplayLabel} must be a valid date.");
             }
         }
@@ -135,11 +139,11 @@
                 {
                     errors.Add($"{field.DisplayLabel} must be a valid email address.");
                 }
-            }
+        }
             catch (RegexParseException)
             {
                 if (!Regex.IsMatch(value, _defaultEmailPattern))
-                {
+        {
                     errors.Add($"{field.DisplayLabel} must be a valid email address.");
                 }
             }
@@ -195,7 +199,7 @@
             if (validOptions.Count == 0)
             {
                 return;
-            }
+        }
 
             foreach (var selected in selectedValues)
             {

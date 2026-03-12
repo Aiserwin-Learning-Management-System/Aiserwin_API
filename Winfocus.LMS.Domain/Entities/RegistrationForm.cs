@@ -16,7 +16,7 @@
         /// <summary>
         /// Gets or sets the display name of the registration form.
         /// </summary>
-        /// <example>Teacher Registration Form 2025</example>
+        /// <example>Teacher Registration Form 2025.</example>
         public string FormName { get; set; } = string.Empty;
 
         /// <summary>
