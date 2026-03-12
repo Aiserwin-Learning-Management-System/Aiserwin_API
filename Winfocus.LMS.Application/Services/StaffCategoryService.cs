@@ -143,9 +143,11 @@ namespace Winfocus.LMS.Application.Services
                         "Staff category with the same name already exists");
                 }
 
+                var placeHolderText = string.IsNullOrWhiteSpace(request.placeholder) ? $"Enter {request.name}" : request.placeholder;
+
                 staff_category.Name = request.name;
                 staff_category.Description = request.description;
-                staff_category.PlaceholderText = request.placeholder;
+                staff_category.PlaceholderText = placeHolderText;
                 staff_category.UpdatedAt = DateTime.UtcNow;
                 staff_category.UpdatedBy = request.userId;
 
