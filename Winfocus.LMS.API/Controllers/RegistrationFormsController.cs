@@ -80,7 +80,6 @@ namespace Winfocus.LMS.API.Controllers
         public async Task<IActionResult> GetById(Guid id)
         {
             var form = await _service.GetByIdAsync(id);
-
             return Ok(form);
         }
 

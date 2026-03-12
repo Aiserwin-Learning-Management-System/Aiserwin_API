@@ -37,30 +37,8 @@ namespace Winfocus.LMS.Application.Services
         }
 
         /// <inheritdoc/>
-        //public async Task<CommonResponse<RegistrationFormResponseDto>> CreateAsync(CreateRegistrationFormDto dto)
-        //{
-        //    var form = new RegistrationForm
-        //    {
-        //        Id = Guid.NewGuid(),
-        //        StaffCategoryId = dto.StaffCategoryId,
-        //        FormName = dto.FormName,
-        //        Description = dto.Description,
-        //        IsActive = true,
-        //        CreatedAt = DateTime.UtcNow,
-        //    };
-
-        //    var created = await _repository.AddAsync(form);
-        //    _logger.LogInformation(
-        //  "Batch created successfully. Id: {Id}",
-        //  created.Id);
-        //    return CommonResponse<RegistrationFormResponseDto>.SuccessResponse(
-        //      "batch created successfully", Map(created));
-        //}
-
-
         public async Task<CommonResponse<Guid>> CreateAsync(CreateRegistrationFormDto dto)
         {
-            // 1️⃣ Create the main form
             var form = new RegistrationForm
             {
                 Id = Guid.NewGuid(),
@@ -91,7 +69,6 @@ namespace Winfocus.LMS.Application.Services
                 }
             }
 
-            // 4️⃣ Save standalone fields
             if (dto.StandaloneFields != null)
             {
                 foreach (var field in dto.StandaloneFields)
@@ -107,7 +84,6 @@ namespace Winfocus.LMS.Application.Services
                 }
             }
 
-            // 5️⃣ Save groups and fields
             await _repository.AddGroupsAsync(formGroups);
             await _repository.AddFieldsAsync(formFields);
 
@@ -115,7 +91,7 @@ namespace Winfocus.LMS.Application.Services
 "registration form created successfully. Id: {Id}",
 form.Id);
             return CommonResponse<Guid>.SuccessResponse(
-              "batch created successfully", form.Id);
+              "registration form created successfully", form.Id);
         }
 
         /// <inheritdoc/>
@@ -133,21 +109,11 @@ form.Id);
         }
 
         /// <inheritdoc/>
-        public async Task<List<RegistrationFormListDto>> GetAllAsync()
+        public async Task<List<RegistrationFormResponseDto>> GetAllAsync()
         {
             var forms = await _repository.GetAllAsync();
-
-            var result = forms.Select(form => new RegistrationFormListDto
-            {
-                Id = form.Id,
-                FormName = form.FormName,
-                StaffCategoryId = form.StaffCategoryId,
-                IsActive = form.IsActive,
-                GroupCount = form.FormGroups?.Count ?? 0,
-                FieldCount = form.FormFields?.Count ?? 0,
-            }).ToList();
-
-            return result;
+            var data = forms.Select(Map).ToList();
+            return data;
         }
 
         /// <inheritdoc/>
@@ -158,10 +124,58 @@ form.Id);
             if (form == null)
                 throw new Exception("Registration form not found.");
 
+            // Update basic details
             form.FormName = dto.FormName;
             form.Description = dto.Description;
 
             await _repository.UpdateAsync(form);
+
+            // Remove existing groups and fields (replace strategy)
+            await _repository.DeleteGroupsByFormIdAsync(id);
+            await _repository.DeleteFieldsByFormIdAsync(id);
+
+            var formGroups = new List<RegistrationFormGroup>();
+            var formFields = new List<RegistrationFormField>();
+
+            // Add groups
+            if (dto.Groups != null)
+            {
+                foreach (var group in dto.Groups)
+                {
+                    var formGroup = new RegistrationFormGroup
+                    {
+                        Id = Guid.NewGuid(),
+                        FormId = form.Id,
+                        FieldGroupId = group.FieldGroupId,
+                        DisplayOrder = group.DisplayOrder
+                    };
+
+                    formGroups.Add(formGroup);
+                }
+            }
+
+            // Add standalone fields
+            if (dto.StandaloneFields != null)
+            {
+                foreach (var field in dto.StandaloneFields)
+                {
+                    formFields.Add(new RegistrationFormField
+                    {
+                        Id = Guid.NewGuid(),
+                        FormId = form.Id,
+                        FieldId = field.FieldId,
+                        DisplayOrder = field.DisplayOrder,
+                        IsRequired = field.IsRequired
+                    });
+                }
+            }
+
+            await _repository.AddGroupsAsync(formGroups);
+            await _repository.AddFieldsAsync(formFields);
+
+            _logger.LogInformation(
+                "Registration form updated successfully. Id: {Id}",
+                form.Id);
         }
 
         /// <inheritdoc/>

@@ -66,5 +66,19 @@ namespace Winfocus.LMS.Application.Interfaces
         /// <param name="groupId">Field group identifier.</param>
         /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
         Task<List<FormField>> GetByGroupIdAsync(Guid groupId);
+
+        /// <summary>
+        /// Soft deletes a form.
+        /// </summary>
+        /// <param name="formId">The id.</param>
+        /// <returns>.</returns>
+        Task DeleteGroupsByFormIdAsync(Guid formId);
+
+        /// <summary>
+        /// Soft deletes a form.
+        /// </summary>
+        /// <param name="formId">The id.</param>
+        /// <returns>.</returns>
+        Task DeleteFieldsByFormIdAsync(Guid formId);
     }
 }

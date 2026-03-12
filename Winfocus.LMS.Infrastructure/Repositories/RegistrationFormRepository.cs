@@ -104,7 +104,13 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// </remarks>
         public async Task<List<RegistrationForm>> GetAllAsync()
         {
-            return await _context.RegistrationForms.ToListAsync();
+            return await _context.RegistrationForms
+                .Include(x => x.FormGroups)
+                   .ThenInclude(g => g.FieldGroup)
+               .Include(x => x.FormFields)
+                   .ThenInclude(f => f.FormField)
+                       .ThenInclude(field => field.FieldOptions)
+               .Include(x => x.StaffCategory).ToListAsync();
         }
 
         /// <summary>
@@ -172,6 +178,28 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             return await _context.FormFields
                 .Where(x => x.FieldGroupId == groupId && x.IsActive)
                 .ToListAsync();
+        }
+
+        /// <inheritdoc/>
+        public async Task DeleteGroupsByFormIdAsync(Guid formId)
+        {
+            var groups = await _context.RegistrationFormGroups
+                .Where(x => x.FormId == formId)
+                .ToListAsync();
+
+            _context.RegistrationFormGroups.RemoveRange(groups);
+            await _context.SaveChangesAsync();
+        }
+
+        /// <inheritdoc/>
+        public async Task DeleteFieldsByFormIdAsync(Guid formId)
+        {
+            var fields = await _context.RegistrationFormFields
+                .Where(x => x.FormId == formId)
+                .ToListAsync();
+
+            _context.RegistrationFormFields.RemoveRange(fields);
+            await _context.SaveChangesAsync();
         }
     }
 }

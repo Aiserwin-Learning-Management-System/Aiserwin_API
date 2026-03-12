@@ -41,7 +41,7 @@ namespace Winfocus.LMS.Application.Interfaces
         /// <returns>
         /// A list of registration form summaries.
         /// </returns>
-        Task<List<RegistrationFormListDto>> GetAllAsync();
+        Task<List<RegistrationFormResponseDto>> GetAllAsync();
 
         /// <summary>
         /// Updates an existing registration form.
