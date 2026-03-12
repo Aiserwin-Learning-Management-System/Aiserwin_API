@@ -65,6 +65,17 @@
                 .FirstOrDefaultAsync(sr => sr.Id == id);
         }
 
+        /// <summary>
+        /// UpdateStatusAsync.
+        /// </summary>
+        /// <param name="registration"></param>
+        /// <returns></returns>
+        public async Task UpdateStatusAsync(StaffRegistration registration)
+        {
+            _db.StaffRegistrations.Update(registration);
+            await _db.SaveChangesAsync();
+        }
+
         /// <inheritdoc/>
         public IQueryable<StaffRegistration> Query()
         {

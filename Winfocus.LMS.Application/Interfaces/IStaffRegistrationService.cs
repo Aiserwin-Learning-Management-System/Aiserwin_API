@@ -35,5 +35,13 @@
         /// The filtered asynchronous.
         Task<CommonResponse<PagedResult<RegistrationResponseDto>>> GetFilteredAsync(
             StaffRegistrationFilterRequest request);
+
+        /// <summary>
+        /// UpdateStatusAsync.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        Task<CommonResponse<string>> UpdateStatusAsync(Guid id, UpdateRegistrationStatusDto dto);
     }
 }
