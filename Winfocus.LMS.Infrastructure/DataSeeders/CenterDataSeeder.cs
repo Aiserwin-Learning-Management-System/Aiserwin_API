@@ -51,9 +51,9 @@
             var center = new Center
             {
                 Id = Guid.NewGuid(),
-                Name = "India Online Center",
+                Name = "Kottayam Online Center",
                 CenterType = CentreType.Online,
-                CenterCode = "IN-OL-001",
+                CenterCode = "IN-KTM-001",
                 ModeOfStudyId = onlineMode.Id,
                 CountryId = india.Id,
                 StateId = null,
