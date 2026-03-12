@@ -145,7 +145,7 @@
             if (modeOfStudyId.HasValue)
                 query = query.Where(x => x.ModeOfStudyId == modeOfStudyId.Value);
 
-            if (stateId.HasValue)
+            if (stateId.HasValue && stateId != Guid.Empty)
                 query = query.Where(x => x.StateId == stateId.Value);
 
             return await query.ToListAsync();
