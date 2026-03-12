@@ -138,6 +138,9 @@ builder.Services.AddScoped<IStaffCategoryRepository, StaffCategoryRepository>();
 builder.Services.AddScoped<IStaffCategoryService, StaffCategoryService>();
 builder.Services.AddScoped<IFieldGroupRepository, FieldGroupRepository>();
 builder.Services.AddScoped<IFieldGroupServices, FieldGroupsService>();
+builder.Services.AddScoped<IFieldValueValidatorService, FieldValueValidatorService>();
+builder.Services.AddScoped<IStaffRegistrationRepository, StaffRegistrationRepository>();
+builder.Services.AddScoped<IStaffRegistrationService, StaffRegistrationService>();
 
 builder.Services.AddScoped<IFormFieldRepository, FormFieldRepository>();
 builder.Services.AddScoped<IFormFieldService, FormFieldService>();

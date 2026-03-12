@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿namespace Winfocus.LMS.Application.Services
+{
 using System.Text.RegularExpressions;
 using Winfocus.LMS.Application.Interfaces;
 using Winfocus.LMS.Domain.Entities;
@@ -10,140 +8,207 @@ using Winfocus.LMS.Domain.Enums;
 namespace Winfocus.LMS.Application.Services
 {
     /// <summary>
-    /// Service responsible for managing Validations form fields.
+    /// Validates submitted field values against their type rules.
     /// </summary>
     public class FieldValueValidatorService : IFieldValueValidatorService
     {
-        private const int MaxFileSize = 5 * 1024 * 1024; // 5MB
+        private const string _defaultEmailPattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
+        private const string _defaultPhonePattern = @"^\+?[\d\s\-]{7,15}$";
 
-        /// <summary>
-        /// ValidateAsync.
-        /// </summary>
-        /// <param name="field"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public async Task<bool> ValidateAsync(FormField field, object? value)
+        /// <inheritdoc/>
+        public List<string> Validate(FormField field, string? value, bool isRequired)
         {
-            if (value == null)
-                return !field.IsRequired;
+            var errors = new List<string>();
+            var isEmpty = string.IsNullOrWhiteSpace(value);
+
+            if (isRequired && isEmpty)
+            {
+                errors.Add($"{field.DisplayLabel} is required.");
+                return errors;
+            }
+
+            if (isEmpty)
+            {
+                return errors;
+            }
 
             switch (field.FieldType)
             {
                 case FieldType.Text:
-                    return ValidateText(field, value.ToString());
+                case FieldType.Textarea:
+                    ValidateLength(field, value!, errors);
+                    ValidateRegex(field, value!, errors);
+                    break;
 
                 case FieldType.Number:
-                    return ValidateNumber(value.ToString());
+                    ValidateNumber(field, value!, errors);
+                    break;
 
                 case FieldType.Date:
-                    return ValidateDate(value.ToString());
+                    ValidateDate(field, value!, errors);
+                    break;
 
                 case FieldType.Email:
-                    return ValidateEmail(value.ToString());
+                    ValidateEmail(field, value!, errors);
+                    break;
 
                 case FieldType.Phone:
-                    return ValidatePhone(value.ToString());
+                    ValidatePhone(field, value!, errors);
+                    break;
 
                 case FieldType.Dropdown:
                 case FieldType.Radio:
-                    return ValidateOption(field, value.ToString());
+                    ValidateSingleOption(field, value!, errors);
+                    break;
 
                 case FieldType.Checkbox:
-                    return ValidateCheckbox(field, value);
+                    ValidateMultipleOptions(field, value!, errors);
+                    break;
 
                 case FieldType.FileUpload:
-                    return ValidateFile(value);
+                    break;
+            }
 
-                default:
-                    return false;
+            return errors;
+            }
+
+        private void ValidateLength(FormField field, string value, List<string> errors)
+        {
+            if (field.MinLength.HasValue && value.Length < field.MinLength.Value)
+            {
+                errors.Add(
+                    $"{field.DisplayLabel} must be at least {field.MinLength.Value} characters.");
+        }
+
+            if (field.MaxLength.HasValue && value.Length > field.MaxLength.Value)
+        {
+                errors.Add(
+                    $"{field.DisplayLabel} must not exceed {field.MaxLength.Value} characters.");
             }
         }
 
-        private bool ValidateText(FormField field, string? value)
+        private void ValidateRegex(FormField field, string value, List<string> errors)
         {
-            if (string.IsNullOrWhiteSpace(value))
-                return false;
-
-            if (field.MinLength.HasValue && value.Length < field.MinLength)
-                return false;
-
-            if (field.MaxLength.HasValue && value.Length > field.MaxLength)
-                return false;
-
             if (!string.IsNullOrEmpty(field.ValidationRegex))
             {
+                try
+                {
                 if (!Regex.IsMatch(value, field.ValidationRegex))
-                    return false;
+                    {
+                        errors.Add($"{field.DisplayLabel} format is invalid.");
             }
 
             return true;
         }
-
-        private bool ValidateNumber(string? value)
-        {
-            return decimal.TryParse(value, out _);
+                catch (RegexParseException)
+                {
+                    errors.Add($"{field.DisplayLabel} has an invalid validation pattern configured.");
+                }
+            }
         }
 
-        private bool ValidateDate(string? value)
+        private void ValidateNumber(FormField field, string value, List<string> errors)
         {
-            return DateTime.TryParse(value, out _);
+            if (!decimal.TryParse(value, out _))
+            {
+                errors.Add($"{field.DisplayLabel} must be a valid number.");
+            }
+            else
+            {
+                ValidateRegex(field, value, errors);
+            }
         }
 
-        private bool ValidateEmail(string? value)
+        private void ValidateDate(FormField field, string value, List<string> errors)
         {
-            if (string.IsNullOrEmpty(value))
-                return false;
-
-            return Regex.IsMatch(value,
-                @"^[^@\s]+@[^@\s]+\.[^@\s]+$",
-                RegexOptions.IgnoreCase);
+            if (!DateTime.TryParse(value, out _))
+        {
+                errors.Add($"{field.DisplayLabel} must be a valid date.");
+            }
         }
 
-        private bool ValidatePhone(string? value)
+        private void ValidateEmail(FormField field, string value, List<string> errors)
         {
-            return Regex.IsMatch(value ?? "", @"^\+?[0-9]{10,15}$");
+            var pattern = !string.IsNullOrEmpty(field.ValidationRegex)
+                ? field.ValidationRegex
+                : _defaultEmailPattern;
+
+            try
+            {
+                if (!Regex.IsMatch(value, pattern))
+                {
+                    errors.Add($"{field.DisplayLabel} must be a valid email address.");
+                }
+        }
+            catch (RegexParseException)
+            {
+                if (!Regex.IsMatch(value, _defaultEmailPattern))
+        {
+                    errors.Add($"{field.DisplayLabel} must be a valid email address.");
+                }
+            }
         }
 
-        private bool ValidateOption(FormField field, string? value)
+        private void ValidatePhone(FormField field, string value, List<string> errors)
         {
-            if (string.IsNullOrEmpty(value))
-                return false;
+            var pattern = !string.IsNullOrEmpty(field.ValidationRegex)
+                ? field.ValidationRegex
+                : _defaultPhonePattern;
 
-            return field.FieldOptions.Any(o => o.OptionValue == value);
+            try
+            {
+                if (!Regex.IsMatch(value, pattern))
+                {
+                    errors.Add($"{field.DisplayLabel} must be a valid phone number.");
+                }
+            }
+            catch (RegexParseException)
+            {
+                if (!Regex.IsMatch(value, _defaultPhonePattern))
+                {
+                    errors.Add($"{field.DisplayLabel} must be a valid phone number.");
+                }
+            }
         }
 
-        private bool ValidateCheckbox(FormField field, object value)
+        private void ValidateSingleOption(FormField field, string value, List<string> errors)
         {
-            var values = value as IEnumerable<string>;
+            var validOptions = field.FieldOptions
+                .Where(o => o.IsActive)
+                .Select(o => o.OptionValue)
+                .ToList();
 
-            if (values == null)
-                return false;
-
-            return values.All(v =>
-                field.FieldOptions.Any(o => o.OptionValue == v));
+            if (validOptions.Count > 0 && !validOptions.Contains(value))
+            {
+                errors.Add(
+                    $"{field.DisplayLabel}: '{value}' is not a valid option. " +
+                    $"Valid options: {string.Join(", ", validOptions)}");
+            }
         }
 
-        private bool ValidateFile(object value)
+        private void ValidateMultipleOptions(FormField field, string value, List<string> errors)
         {
-            var file = value as IFormFile;
+            var selectedValues = value
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
-            if (file == null)
-                return false;
+            var validOptions = field.FieldOptions
+                .Where(o => o.IsActive)
+                .Select(o => o.OptionValue)
+                .ToHashSet();
 
-            var allowedExtensions = new[] { ".jpg", ".png", ".pdf" };
-
-            var extension = Path.GetExtension(file.FileName).ToLower();
-
-            if (!allowedExtensions.Contains(extension))
-                return false;
-
-            if (file.Length > MaxFileSize)
-                return false;
-
-            return true;
+            if (validOptions.Count == 0)
+            {
+                return;
         }
 
-
-
+            foreach (var selected in selectedValues)
+            {
+                if (!validOptions.Contains(selected))
+                {
+                    errors.Add(
+                        $"{field.DisplayLabel}: '{selected}' is not a valid option.");
+                }
+            }
+        }
     }
 }
