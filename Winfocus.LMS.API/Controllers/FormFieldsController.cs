@@ -1,4 +1,5 @@
 ﻿using Asp.Versioning;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Winfocus.LMS.Application.DTOs;
 using Winfocus.LMS.Application.Interfaces;
@@ -34,6 +35,7 @@ namespace Winfocus.LMS.API.Controllers
         /// <returns>The created form field with group and option details.</returns>
         /// <response code="200">Form field created successfully.</response>
         /// <response code="400">Invalid request data or group identifier.</response>
+        [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPost]
         public async Task<IActionResult> Create(CreateFormFieldDto dto)
         {
@@ -85,6 +87,7 @@ namespace Winfocus.LMS.API.Controllers
         /// <response code="200">Form field updated successfully.</response>
         /// <response code="404">Form field not found.</response>
         /// <response code="400">Invalid update request.</response>
+        [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(Guid id, UpdateFormFieldDto dto)
         {
@@ -101,6 +104,7 @@ namespace Winfocus.LMS.API.Controllers
         /// <returns>No content if deletion is successful.</returns>
         /// <response code="204">Form field deleted successfully.</response>
         /// <response code="404">Form field not found.</response>
+        [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {

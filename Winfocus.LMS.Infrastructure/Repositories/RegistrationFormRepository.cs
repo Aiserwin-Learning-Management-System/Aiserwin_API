@@ -49,10 +49,11 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// <remarks>
         /// This method saves the form immediately by calling <c>SaveChangesAsync()</c>.
         /// </remarks>
-        public async Task AddAsync(RegistrationForm form)
+        public async Task<RegistrationForm> AddAsync(RegistrationForm form)
         {
             await _context.RegistrationForms.AddAsync(form);
             await _context.SaveChangesAsync();
+            return form;
         }
 
         /// <summary>
@@ -75,10 +76,20 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// </remarks>
         public async Task<RegistrationForm> GetByIdAsync(Guid id)
         {
+            //return await _context.RegistrationForms
+            //    .Include(x => x.StaffCategory)
+            //    .Include(x => x.FormGroups)
+            //    .Include(x => x.FormFields)
+            //    .FirstOrDefaultAsync(x => x.Id == id);
+
             return await _context.RegistrationForms
-                .Include(x => x.FormGroups)
-                .Include(x => x.FormFields)
-                .FirstOrDefaultAsync(x => x.Id == id);
+               .Include(x => x.FormGroups)
+                   .ThenInclude(g => g.FieldGroup)
+               .Include(x => x.FormFields)
+                   .ThenInclude(f => f.FormField)
+                       .ThenInclude(field => field.FieldOptions)
+               .Include(x => x.StaffCategory)
+               .FirstOrDefaultAsync(x => x.Id == id);
         }
 
         /// <summary>
@@ -139,6 +150,28 @@ namespace Winfocus.LMS.Infrastructure.Repositories
                 form.IsDeleted = true;
                 await _context.SaveChangesAsync();
             }
+        }
+
+        /// <inheritdoc/>
+        public async Task AddGroupsAsync(List<RegistrationFormGroup> groups)
+        {
+            await _context.RegistrationFormGroups.AddRangeAsync(groups);
+            await _context.SaveChangesAsync();
+        }
+
+        /// <inheritdoc/>
+        public async Task AddFieldsAsync(List<RegistrationFormField> fields)
+        {
+            await _context.RegistrationFormFields.AddRangeAsync(fields);
+            await _context.SaveChangesAsync();
+        }
+
+        /// <inheritdoc/>
+        public async Task<List<FormField>> GetByGroupIdAsync(Guid groupId)
+        {
+            return await _context.FormFields
+                .Where(x => x.FieldGroupId == groupId && x.IsActive)
+                .ToListAsync();
         }
     }
 }

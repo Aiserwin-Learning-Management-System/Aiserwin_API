@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Winfocus.LMS.Application.DTOs.Masters;
+using Winfocus.LMS.Domain.Entities;
 
 namespace Winfocus.LMS.Application.DTOs
 {
@@ -10,13 +12,8 @@ namespace Winfocus.LMS.Application.DTOs
     /// lightweight information about registration forms
     /// without including full group and field details.
     /// </summary>
-    public class RegistrationFormListDto
+    public class RegistrationFormListDto : BaseClassDTO
     {
-        /// <summary>
-        /// Gets or sets the unique identifier of the registration form.
-        /// </summary>
-        public Guid Id { get; set; }
-
         /// <summary>
         /// Gets or sets the name of the registration form.
         /// </summary>
@@ -32,13 +29,9 @@ namespace Winfocus.LMS.Application.DTOs
         public Guid StaffCategoryId { get; set; }
 
         /// <summary>
-        /// Gets or sets the name of the staff category associated with the form.
+        /// Gets or sets the staff category this form belongs to.
         /// </summary>
-        /// <remarks>
-        /// This value indicates which staff type the form belongs to
-        /// (e.g., Teacher, Accountant, Administrator).
-        /// </remarks>
-        public string StaffCategoryName { get; set; }
+        public StaffCategoryDto StaffCategory { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the total number of field groups included in the form.
@@ -58,14 +51,5 @@ namespace Winfocus.LMS.Application.DTOs
         /// - Standalone fields added directly to the form.
         /// </remarks>
         public int FieldCount { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the form is active.
-        /// </summary>
-        /// <remarks>
-        /// If <c>true</c>, the form is currently available for use.
-        /// If <c>false</c>, the form has been soft deleted or disabled.
-        /// </remarks>
-        public bool IsActive { get; set; }
     }
 }

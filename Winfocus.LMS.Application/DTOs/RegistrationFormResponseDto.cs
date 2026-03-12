@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Winfocus.LMS.Application.DTOs.Masters;
+using Winfocus.LMS.Domain.Entities;
 
 namespace Winfocus.LMS.Application.DTOs
 {
@@ -20,9 +22,9 @@ namespace Winfocus.LMS.Application.DTOs
         public Guid StaffCategoryId { get; set; }
 
         /// <summary>
-        /// Gets or sets the StaffCategoryId.
+        /// Gets or sets the staff category this form belongs to.
         /// </summary>
-        public string StaffCategoryName { get; set; } = null!;
+        public StaffCategoryDto StaffCategory { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the FormName.

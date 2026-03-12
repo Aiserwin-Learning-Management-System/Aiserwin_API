@@ -15,7 +15,7 @@ namespace Winfocus.LMS.Application.Interfaces
         /// </summary>
         /// <param name="form">The form.</param>
         /// <returns>.</returns>
-        Task AddAsync(RegistrationForm form);
+        Task<RegistrationForm> AddAsync(RegistrationForm form);
 
         /// <summary>
         /// Gets a registration form by id.
@@ -44,5 +44,27 @@ namespace Winfocus.LMS.Application.Interfaces
         /// <param name="id">The id.</param>
         /// <returns>.</returns>
         Task DeleteAsync(Guid id);
+
+        /// <summary>
+        /// Adds registration form groups.
+        /// </summary>
+        /// <param name="groups">List of groups to save.</param>
+        /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
+        Task AddGroupsAsync(List<RegistrationFormGroup> groups);
+
+        /// <summary>
+        /// Adds registration form fields.
+        /// </summary>
+        /// <param name="fields">List of fields to save.</param>
+        /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
+        Task AddFieldsAsync(List<RegistrationFormField> fields);
+
+        /// <summary>
+        /// Gets fields belonging to a field group.
+        /// Used when auto-populating fields during form creation.
+        /// </summary>
+        /// <param name="groupId">Field group identifier.</param>
+        /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
+        Task<List<FormField>> GetByGroupIdAsync(Guid groupId);
     }
 }

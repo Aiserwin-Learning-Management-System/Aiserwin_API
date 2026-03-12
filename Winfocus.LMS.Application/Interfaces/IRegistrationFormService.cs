@@ -21,7 +21,7 @@ namespace Winfocus.LMS.Application.Interfaces
         /// <returns>
         /// The unique identifier of the newly created registration form.
         /// </returns>
-        Task<Guid> CreateAsync(CreateRegistrationFormDto dto);
+        Task<CommonResponse<Guid>> CreateAsync(CreateRegistrationFormDto dto);
 
         /// <summary>
         /// Retrieves a registration form by its identifier.

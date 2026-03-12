@@ -1,4 +1,5 @@
 ﻿using Asp.Versioning;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Winfocus.LMS.Application.DTOs;
 using Winfocus.LMS.Application.Interfaces;
@@ -41,6 +42,7 @@ namespace Winfocus.LMS.API.Controllers
         /// </returns>
         /// <response code="201">Form created successfully.</response>
         /// <response code="400">Invalid request data.</response>
+        [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPost]
         public async Task<IActionResult> Create(CreateRegistrationFormDto dto)
         {
@@ -96,6 +98,7 @@ namespace Winfocus.LMS.API.Controllers
         /// </returns>
         /// <response code="204">Form updated successfully.</response>
         /// <response code="404">Form not found.</response>
+        [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(Guid id, CreateRegistrationFormDto dto)
         {
@@ -115,6 +118,7 @@ namespace Winfocus.LMS.API.Controllers
         /// </returns>
         /// <response code="204">Form deleted successfully.</response>
         /// <response code="404">Form not found.</response>
+        [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {

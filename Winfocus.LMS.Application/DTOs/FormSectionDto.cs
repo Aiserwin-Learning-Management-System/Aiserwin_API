@@ -33,6 +33,11 @@ namespace Winfocus.LMS.Application.DTOs
         /// <summary>
         /// Gets or sets section type (group / standalone).
         /// </summary>
-        public List<FormFieldListDto> Fields { get; set; } = null!;
+        public List<FormFieldResponseDto> Formfields { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets section type (group / standalone).
+        /// </summary>
+        public List<FieldGroupDto> FormGroups { get; set; } = null!;
     }
 }
