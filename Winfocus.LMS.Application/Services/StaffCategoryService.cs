@@ -96,9 +96,9 @@ namespace Winfocus.LMS.Application.Services
                 {
                     Name = request.name,
                     Description = request.description,
-                    PlaceholderText = placeHolderText,
                     CreatedBy = request.userId,
                     CreatedAt = DateTime.UtcNow,
+                    PlaceholderText = placeHolderText,
                 };
 
                 var created = await _repository.AddAsync(staffcategory);
@@ -147,9 +147,9 @@ namespace Winfocus.LMS.Application.Services
 
                 staff_category.Name = request.name;
                 staff_category.Description = request.description;
-                staff_category.PlaceholderText = placeHolderText;
                 staff_category.UpdatedAt = DateTime.UtcNow;
                 staff_category.UpdatedBy = request.userId;
+                staff_category.PlaceholderText = placeHolderText;
 
                 var updated = await _repository.UpdateAsync(staff_category);
 
