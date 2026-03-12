@@ -32,6 +32,11 @@
                 .HasMaxLength(500)
                 .HasColumnType("nvarchar(500)");
 
+            builder.Property(sc => sc.PlaceholderText)
+               .IsRequired(false)
+               .HasMaxLength(200)
+               .HasColumnType("nvarchar(200)");
+
             // ── Indexes ──────────────────────────────────────────
             builder.HasIndex(sc => sc.Name)
                 .IsUnique()

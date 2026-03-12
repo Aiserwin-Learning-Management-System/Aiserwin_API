@@ -19,5 +19,13 @@
         /// about what this staff category represents.
         /// </summary>
         public string? Description { get; set; }
+
+        /// <summary>
+        /// Gets or sets the placeholder text shown in the input field
+        /// on the Create User page. Optional — if null, frontend can
+        /// default to "Enter {Name}" or similar.
+        /// </summary>
+        /// <example>Enter Teacher Name, Select Driver, Enter DTP Operator</example>
+        public string? PlaceholderText { get; set; }
     }
 }
