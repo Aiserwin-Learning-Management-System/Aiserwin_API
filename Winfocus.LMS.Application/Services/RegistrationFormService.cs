@@ -454,7 +454,6 @@ namespace Winfocus.LMS.Application.Services
                     Type = "standalone",
                     GroupId = null,
                     GroupName = "Additional Fields",
-                    DisplayOrder = 99,
                     Formfields = standaloneFields
                 });
             }
