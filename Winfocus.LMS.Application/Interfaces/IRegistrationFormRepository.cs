@@ -43,7 +43,7 @@ namespace Winfocus.LMS.Application.Interfaces
         /// </summary>
         /// <param name="id">The id.</param>
         /// <returns>.</returns>
-        Task DeleteAsync(Guid id);
+        Task<bool> DeleteAsync(Guid id);
 
         /// <summary>
         /// Adds registration form groups.
@@ -80,5 +80,18 @@ namespace Winfocus.LMS.Application.Interfaces
         /// <param name="formId">The id.</param>
         /// <returns>.</returns>
         Task DeleteFieldsByFormIdAsync(Guid formId);
+
+        /// <summary>
+        /// </summary>
+        /// <param name="staffCategoryId">staffCategoryId.</param>
+        /// <returns>.</returns>
+        Task<RegistrationForm> GetByStaffCategoryIdAsync(Guid staffCategoryId);
+
+        /// <summary>
+        /// Queries this instance.
+        /// </summary>
+        /// <returns>
+        /// The queryable registrations.
+        IQueryable<RegistrationForm> Query();
     }
 }

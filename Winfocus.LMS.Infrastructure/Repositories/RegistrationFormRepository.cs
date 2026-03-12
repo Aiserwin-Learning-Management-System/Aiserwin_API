@@ -146,7 +146,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// this method sets the <c>IsActive</c> flag to <c>false</c>.
         /// This preserves historical data and relationships.
         /// </remarks>
-        public async Task DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
             var form = await _context.RegistrationForms.FindAsync(id);
 
@@ -155,6 +155,11 @@ namespace Winfocus.LMS.Infrastructure.Repositories
                 form.IsActive = false;
                 form.IsDeleted = true;
                 await _context.SaveChangesAsync();
+                return true;
+            }
+            else
+            {
+               return false;
             }
         }
 
@@ -200,6 +205,26 @@ namespace Winfocus.LMS.Infrastructure.Repositories
 
             _context.RegistrationFormFields.RemoveRange(fields);
             await _context.SaveChangesAsync();
+        }
+
+        /// <inheritdoc/>
+        public async Task<RegistrationForm> GetByStaffCategoryIdAsync(Guid staffCategoryId)
+        {
+            return await _context.RegistrationForms
+                .FirstOrDefaultAsync(x => x.StaffCategoryId == staffCategoryId && !x.IsDeleted && x.IsActive);
+        }
+
+        /// <inheritdoc/>
+        public IQueryable<RegistrationForm> Query()
+        {
+            return _context.RegistrationForms
+                .Include(x => x.FormGroups)
+                   .ThenInclude(g => g.FieldGroup)
+               .Include(x => x.FormFields)
+                   .ThenInclude(f => f.FormField)
+                       .ThenInclude(field => field.FieldOptions)
+               .Include(x => x.StaffCategory)
+                .AsNoTracking();
         }
     }
 }

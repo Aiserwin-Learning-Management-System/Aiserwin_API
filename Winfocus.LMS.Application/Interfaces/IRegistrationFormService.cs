@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 using Winfocus.LMS.Application.DTOs;
+using Winfocus.LMS.Application.DTOs.Common;
+using Winfocus.LMS.Application.DTOs.Registration;
 
 namespace Winfocus.LMS.Application.Interfaces
 {
@@ -33,7 +35,7 @@ namespace Winfocus.LMS.Application.Interfaces
         /// A <see cref="RegistrationFormResponseDto"/> containing
         /// the form details and section structure.
         /// </returns>
-        Task<RegistrationFormResponseDto> GetByIdAsync(Guid id);
+        Task<CommonResponse<RegistrationFormResponseDto>> GetByIdAsync(Guid id);
 
         /// <summary>
         /// Retrieves all registration forms.
@@ -41,7 +43,7 @@ namespace Winfocus.LMS.Application.Interfaces
         /// <returns>
         /// A list of registration form summaries.
         /// </returns>
-        Task<List<RegistrationFormResponseDto>> GetAllAsync();
+        Task<CommonResponse<List<RegistrationFormResponseDto>>> GetAllAsync();
 
         /// <summary>
         /// Updates an existing registration form.
@@ -55,7 +57,7 @@ namespace Winfocus.LMS.Application.Interfaces
         /// <returns>
         /// A task representing the asynchronous operation.
         /// </returns>
-        Task UpdateAsync(Guid id, CreateRegistrationFormDto dto);
+        Task<CommonResponse<Guid>> UpdateAsync(Guid id, CreateRegistrationFormDto dto);
 
         /// <summary>
         /// Performs a soft delete on a registration form.
@@ -66,6 +68,15 @@ namespace Winfocus.LMS.Application.Interfaces
         /// <returns>
         /// A task representing the asynchronous delete operation.
         /// </returns>
-        Task DeleteAsync(Guid id);
+        Task<CommonResponse<bool>> DeleteAsync(Guid id);
+
+        /// <summary>
+        /// Gets the filtered asynchronous.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <returns>
+        /// The filtered asynchronous.
+        Task<CommonResponse<PagedResult<RegistrationFormResponseDto>>> GetFilteredAsync(
+            StaffRegistrationFilterRequest request);
     }
 }
