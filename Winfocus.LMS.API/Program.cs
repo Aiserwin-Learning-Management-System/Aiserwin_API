@@ -334,6 +334,8 @@ if (!app.Environment.IsEnvironment("Testing"))
         RoleDataSeeder.Seed(db);
         StaffTypeDataSeeder.Seed(db);
         PermissionSeeder.Seed(db);
+        CenterDataSeeder.Seed(db);
+        AdminUserSeeder.Seed(db);
     }
     catch (Exception ex)
     {
