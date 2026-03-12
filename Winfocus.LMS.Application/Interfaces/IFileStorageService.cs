@@ -43,5 +43,14 @@
         /// <param name="filePath">The relative file path returned by UploadAsync.</param>
         /// <returns>URL-formatted path suitable for API responses.</returns>
         string GetFileUrl(string filePath);
+
+        /// <summary>
+        /// SaveFileBase64Async.
+        /// </summary>
+        /// <param name="base64File"></param>
+        /// <param name="folderName"></param>
+        /// <param name="fileNamePrefix"></param>
+        /// <returns></returns>
+        Task<string> SaveFileBase64Async(string base64File, string folderName, string fileNamePrefix);
     }
 }

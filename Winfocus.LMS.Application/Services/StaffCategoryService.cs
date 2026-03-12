@@ -90,10 +90,13 @@ namespace Winfocus.LMS.Application.Services
                         "Staff category with the same name already exists");
                 }
 
+                var placeHolderText = string.IsNullOrWhiteSpace(request.placeholder) ? $"Enter {request.name}" : request.placeholder;
+
                 var staffcategory = new StaffCategory
                 {
                     Name = request.name,
                     Description = request.description,
+                    PlaceholderText = placeHolderText,
                     CreatedBy = request.userId,
                     CreatedAt = DateTime.UtcNow,
                 };
@@ -142,6 +145,7 @@ namespace Winfocus.LMS.Application.Services
 
                 staff_category.Name = request.name;
                 staff_category.Description = request.description;
+                staff_category.PlaceholderText = request.placeholder;
                 staff_category.UpdatedAt = DateTime.UtcNow;
                 staff_category.UpdatedBy = request.userId;
 
@@ -297,6 +301,7 @@ namespace Winfocus.LMS.Application.Services
         Id = c.Id,
         Name = c.Name,
         Description = c.Description,
+        PlaceHolder = c.PlaceholderText,
         IsActive = c.IsActive,
     };
     }
