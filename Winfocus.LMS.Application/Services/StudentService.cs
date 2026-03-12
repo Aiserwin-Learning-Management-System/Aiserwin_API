@@ -360,6 +360,7 @@
              PastSchoolName = c.AcademicDetails.PastSchoolName,
              Emirates = c.AcademicDetails.Emirates,
              AcademicYearId = c.AcademicDetails.AcademicYearId,
+             PreferredBatchTime = c.AcademicDetails.PreferredTime,
          },
          PersonalDetails = new StudentPersonaldetailsdto
          {

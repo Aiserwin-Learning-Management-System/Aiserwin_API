@@ -120,7 +120,7 @@
         /// <summary>
         /// Gets or sets the identifier of the preferred batch time selection.
         /// </summary>
-        public Guid PreferredBatchTime { get; set; }
+        public string PreferredBatchTime { get; set; }
 
         /// <summary>
         /// Gets or sets the identifier of the preferred batch time selection.
