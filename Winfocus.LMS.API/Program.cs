@@ -138,9 +138,13 @@ builder.Services.AddScoped<IStaffCategoryRepository, StaffCategoryRepository>();
 builder.Services.AddScoped<IStaffCategoryService, StaffCategoryService>();
 builder.Services.AddScoped<IFieldGroupRepository, FieldGroupRepository>();
 builder.Services.AddScoped<IFieldGroupServices, FieldGroupsService>();
+builder.Services.AddScoped<IFieldValueValidatorService, FieldValueValidatorService>();
+builder.Services.AddScoped<IStaffRegistrationRepository, StaffRegistrationRepository>();
+builder.Services.AddScoped<IStaffRegistrationService, StaffRegistrationService>();
 
 builder.Services.AddScoped<IFormFieldRepository, FormFieldRepository>();
 builder.Services.AddScoped<IFormFieldService, FormFieldService>();
+builder.Services.AddScoped<IFieldValueValidatorService, FieldValueValidatorService>();
 
 #endregion
 
@@ -330,6 +334,8 @@ if (!app.Environment.IsEnvironment("Testing"))
         RoleDataSeeder.Seed(db);
         StaffTypeDataSeeder.Seed(db);
         PermissionSeeder.Seed(db);
+        CenterDataSeeder.Seed(db);
+        AdminUserSeeder.Seed(db);
     }
     catch (Exception ex)
     {
