@@ -1,12 +1,16 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using Winfocus.LMS.Application.DTOs;
+using Winfocus.LMS.Application.DTOs.Common;
 using Winfocus.LMS.Application.DTOs.Masters;
+using Winfocus.LMS.Application.DTOs.Registration;
 using Winfocus.LMS.Application.Interfaces;
 using Winfocus.LMS.Domain.Entities;
+using Winfocus.LMS.Domain.Enums;
 
 namespace Winfocus.LMS.Application.Services
 {
@@ -37,144 +41,369 @@ namespace Winfocus.LMS.Application.Services
         }
 
         /// <inheritdoc/>
-        //public async Task<CommonResponse<RegistrationFormResponseDto>> CreateAsync(CreateRegistrationFormDto dto)
-        //{
-        //    var form = new RegistrationForm
-        //    {
-        //        Id = Guid.NewGuid(),
-        //        StaffCategoryId = dto.StaffCategoryId,
-        //        FormName = dto.FormName,
-        //        Description = dto.Description,
-        //        IsActive = true,
-        //        CreatedAt = DateTime.UtcNow,
-        //    };
-
-        //    var created = await _repository.AddAsync(form);
-        //    _logger.LogInformation(
-        //  "Batch created successfully. Id: {Id}",
-        //  created.Id);
-        //    return CommonResponse<RegistrationFormResponseDto>.SuccessResponse(
-        //      "batch created successfully", Map(created));
-        //}
-
-
         public async Task<CommonResponse<Guid>> CreateAsync(CreateRegistrationFormDto dto)
         {
-            // 1️⃣ Create the main form
-            var form = new RegistrationForm
+            try
             {
-                Id = Guid.NewGuid(),
-                StaffCategoryId = dto.StaffCategoryId,
-                FormName = dto.FormName,
-                Description = dto.Description,
-                IsActive = true
-            };
+                _logger.LogInformation("Creating registration form for StaffCategoryId: {StaffCategoryId}", dto.StaffCategoryId);
 
-            await _repository.AddAsync(form);
+                // Check if form already exists for this StaffCategoryId
+                var existingForm = await _repository.GetByStaffCategoryIdAsync(dto.StaffCategoryId);
 
-            var formGroups = new List<RegistrationFormGroup>();
-            var formFields = new List<RegistrationFormField>();
-
-            if (dto.Groups != null)
-            {
-                foreach (var group in dto.Groups)
+                if (existingForm != null)
                 {
-                    var formGroup = new RegistrationFormGroup
-                    {
-                        Id = Guid.NewGuid(),
-                        FormId = form.Id,
-                        FieldGroupId = group.FieldGroupId,
-                        DisplayOrder = group.DisplayOrder
-                    };
+                    _logger.LogWarning("Registration form already exists for StaffCategoryId: {StaffCategoryId}", dto.StaffCategoryId);
 
-                    formGroups.Add(formGroup);
+                    return CommonResponse<Guid>.FailureResponse(
+                        "Registration form already exists for this staff category");
                 }
-            }
 
-            // 4️⃣ Save standalone fields
-            if (dto.StandaloneFields != null)
-            {
-                foreach (var field in dto.StandaloneFields)
+                var form = new RegistrationForm
                 {
-                    formFields.Add(new RegistrationFormField
+                    Id = Guid.NewGuid(),
+                    StaffCategoryId = dto.StaffCategoryId,
+                    FormName = dto.FormName,
+                    Description = dto.Description,
+                    IsActive = true
+                };
+
+                await _repository.AddAsync(form);
+
+                var formGroups = new List<RegistrationFormGroup>();
+                var formFields = new List<RegistrationFormField>();
+
+                if (dto.Groups != null)
+                {
+                    foreach (var group in dto.Groups)
                     {
-                        Id = Guid.NewGuid(),
-                        FormId = form.Id,
-                        FieldId = field.FieldId,
-                        DisplayOrder = field.DisplayOrder,
-                        IsRequired = field.IsRequired
-                    });
+                        var formGroup = new RegistrationFormGroup
+                        {
+                            Id = Guid.NewGuid(),
+                            FormId = form.Id,
+                            FieldGroupId = group.FieldGroupId,
+                            DisplayOrder = group.DisplayOrder
+                        };
+
+                        formGroups.Add(formGroup);
+                    }
                 }
+
+                if (dto.StandaloneFields != null)
+                {
+                    foreach (var field in dto.StandaloneFields)
+                    {
+                        formFields.Add(new RegistrationFormField
+                        {
+                            Id = Guid.NewGuid(),
+                            FormId = form.Id,
+                            FieldId = field.FieldId,
+                            DisplayOrder = field.DisplayOrder,
+                            IsRequired = field.IsRequired
+                        });
+                    }
+                }
+
+                if (formGroups.Any())
+                    await _repository.AddGroupsAsync(formGroups);
+
+                if (formFields.Any())
+                    await _repository.AddFieldsAsync(formFields);
+
+                _logger.LogInformation("Registration form created successfully. FormId: {FormId}", form.Id);
+
+                return CommonResponse<Guid>.SuccessResponse(
+                    "Registration form created successfully", form.Id);
             }
-
-            // 5️⃣ Save groups and fields
-            await _repository.AddGroupsAsync(formGroups);
-            await _repository.AddFieldsAsync(formFields);
-
-            _logger.LogInformation(
-"registration form created successfully. Id: {Id}",
-form.Id);
-            return CommonResponse<Guid>.SuccessResponse(
-              "batch created successfully", form.Id);
-        }
-
-        /// <inheritdoc/>
-        public async Task<RegistrationFormResponseDto> GetByIdAsync(Guid id)
-        {
-            var form = await _repository.GetByIdAsync(id);
-
-            if (form == null)
-                return null;
-
-            _logger.LogInformation("registration form data fetched successfully for Id: {Id}", id);
-            var mappeddata = form == null ? null : Map(form);
-
-            return mappeddata;
-        }
-
-        /// <inheritdoc/>
-        public async Task<List<RegistrationFormListDto>> GetAllAsync()
-        {
-            var forms = await _repository.GetAllAsync();
-
-            var result = forms.Select(form => new RegistrationFormListDto
+            catch (Exception ex)
             {
-                Id = form.Id,
-                FormName = form.FormName,
-                StaffCategoryId = form.StaffCategoryId,
-                IsActive = form.IsActive,
-                GroupCount = form.FormGroups?.Count ?? 0,
-                FieldCount = form.FormFields?.Count ?? 0,
-            }).ToList();
+                _logger.LogError(ex, "Error occurred while creating registration form for StaffCategoryId: {StaffCategoryId}", dto.StaffCategoryId);
 
-            return result;
+                return CommonResponse<Guid>.FailureResponse(
+                    "An error occurred while creating the registration form.");
+            }
         }
 
         /// <inheritdoc/>
-        public async Task UpdateAsync(Guid id, CreateRegistrationFormDto dto)
+        public async Task<CommonResponse<RegistrationFormResponseDto>> GetByIdAsync(Guid id)
         {
-            var form = await _repository.GetByIdAsync(id);
+            try
+            {
+                _logger.LogInformation("Fetching registration form for Id: {Id}", id);
 
-            if (form == null)
-                throw new Exception("Registration form not found.");
+                var form = await _repository.GetByIdAsync(id);
 
-            form.FormName = dto.FormName;
-            form.Description = dto.Description;
+                if (form == null)
+                {
+                    _logger.LogWarning("Registration form not found for Id: {Id}", id);
+                    return CommonResponse<RegistrationFormResponseDto>.FailureResponse("Registration form not found");
+                }
 
-            await _repository.UpdateAsync(form);
+                var mappedData = Map(form);
+
+                _logger.LogInformation("Registration form data fetched successfully for Id: {Id}", id);
+
+                return CommonResponse<RegistrationFormResponseDto>.SuccessResponse(
+                    "Registration form fetched successfully",
+                    mappedData);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while fetching registration form for Id: {Id}", id);
+
+                return CommonResponse<RegistrationFormResponseDto>.FailureResponse(
+                    "An error occurred while fetching the registration form");
+            }
         }
 
         /// <inheritdoc/>
-        public async Task DeleteAsync(Guid id)
+        public async Task<CommonResponse<List<RegistrationFormResponseDto>>> GetAllAsync()
         {
-            var form = await _repository.GetByIdAsync(id);
+            try
+            {
+                _logger.LogInformation("Fetching all registration forms");
 
-            if (form == null)
-                throw new Exception("Registration form not found.");
+                var forms = await _repository.GetAllAsync();
 
-            await _repository.DeleteAsync(id);
+                var data = forms.Select(Map).ToList();
+
+                _logger.LogInformation("Registration forms fetched successfully. Count: {Count}", data.Count);
+
+                return CommonResponse<List<RegistrationFormResponseDto>>.SuccessResponse(
+                    "Registration forms fetched successfully",
+                    data);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while fetching registration forms");
+
+                return CommonResponse<List<RegistrationFormResponseDto>>.FailureResponse(
+                    "An error occurred while fetching registration forms");
+            }
         }
 
+        /// <inheritdoc/>
+        public async Task<CommonResponse<Guid>> UpdateAsync(Guid id, CreateRegistrationFormDto dto)
+        {
+            try
+            {
+                _logger.LogInformation("Updating registration form for Id: {Id}", id);
+
+                var form = await _repository.GetByIdAsync(id);
+
+                if (form == null)
+                {
+                    _logger.LogWarning("Registration form not found for Id: {Id}", id);
+
+                    return CommonResponse<Guid>.FailureResponse("Registration form not found");
+                }
+
+                // Check if another form already uses this StaffCategoryId
+                var existingForm = await _repository.GetByStaffCategoryIdAsync(dto.StaffCategoryId);
+
+                if (existingForm != null && existingForm.Id != id)
+                {
+                    _logger.LogWarning(
+                        "Registration form already exists for StaffCategoryId: {StaffCategoryId}",
+                        dto.StaffCategoryId);
+
+                    return CommonResponse<Guid>.FailureResponse(
+                        "Registration form already exists for this staff category");
+                }
+
+                // Update basic details
+                form.FormName = dto.FormName;
+                form.Description = dto.Description;
+
+                await _repository.UpdateAsync(form);
+
+                // Remove existing groups and fields
+                await _repository.DeleteGroupsByFormIdAsync(id);
+                await _repository.DeleteFieldsByFormIdAsync(id);
+
+                var formGroups = new List<RegistrationFormGroup>();
+                var formFields = new List<RegistrationFormField>();
+
+                // Add groups
+                if (dto.Groups != null)
+                {
+                    foreach (var group in dto.Groups)
+                    {
+                        formGroups.Add(new RegistrationFormGroup
+                        {
+                            Id = Guid.NewGuid(),
+                            FormId = form.Id,
+                            FieldGroupId = group.FieldGroupId,
+                            DisplayOrder = group.DisplayOrder
+                        });
+                    }
+                }
+
+                // Add standalone fields
+                if (dto.StandaloneFields != null)
+                {
+                    foreach (var field in dto.StandaloneFields)
+                    {
+                        formFields.Add(new RegistrationFormField
+                        {
+                            Id = Guid.NewGuid(),
+                            FormId = form.Id,
+                            FieldId = field.FieldId,
+                            DisplayOrder = field.DisplayOrder,
+                            IsRequired = field.IsRequired
+                        });
+                    }
+                }
+
+                if (formGroups.Any())
+                    await _repository.AddGroupsAsync(formGroups);
+
+                if (formFields.Any())
+                    await _repository.AddFieldsAsync(formFields);
+
+                _logger.LogInformation("Registration form updated successfully. Id: {Id}", form.Id);
+
+                return CommonResponse<Guid>.SuccessResponse(
+                    "Registration form updated successfully",
+                    form.Id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while updating registration form for Id: {Id}", id);
+
+                return CommonResponse<Guid>.FailureResponse(
+                    "An error occurred while updating the registration form");
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<CommonResponse<bool>> DeleteAsync(Guid id)
+        {
+            try
+            {
+                _logger.LogInformation("Deleting registration form for Id: {Id}", id);
+
+                var form = await _repository.GetByIdAsync(id);
+
+                if (form == null)
+                {
+                    _logger.LogWarning("Registration form not found for Id: {Id}", id);
+
+                    return CommonResponse<bool>.FailureResponse("Registration form not found");
+                }
+
+                bool result = await _repository.DeleteAsync(id);
+
+                _logger.LogInformation("Registration form deleted successfully for Id: {Id}", id);
+
+                return CommonResponse<bool>.SuccessResponse(
+                    "Registration form deleted successfully",
+                    result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while deleting registration form for Id: {Id}", id);
+
+                return CommonResponse<bool>.FailureResponse(
+                    "An error occurred while deleting the registration form");
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<CommonResponse<PagedResult<RegistrationFormResponseDto>>> GetFilteredAsync(
+            StaffRegistrationFilterRequest request)
+        {
+            try
+            {
+                var query = _repository.Query();
+
+                // ── Filters ──────────────────────────────────────
+                if (request.StaffCategoryId.HasValue)
+                {
+                    query = query.Where(sr =>
+                        sr.StaffCategoryId == request.StaffCategoryId.Value);
+                }
+
+                if (request.StartDate.HasValue)
+                {
+                    query = query.Where(sr =>
+                        sr.CreatedAt >= request.StartDate.Value);
+                }
+
+                if (request.EndDate.HasValue)
+                {
+                    query = query.Where(sr =>
+                        sr.CreatedAt <= request.EndDate.Value);
+                }
+
+                if (!string.IsNullOrWhiteSpace(request.SearchText))
+                {
+                    var search = request.SearchText.Trim().ToLower();
+                    query = query.Where(sr =>
+                        sr.FormName.ToLower().Contains(search) ||
+                        sr.StaffCategory.Name.ToLower().Contains(search));
+                }
+
+                // ── Total count ──────────────────────────────────
+                var totalCount = await query.CountAsync();
+
+                if (totalCount == 0)
+                {
+                    return CommonResponse<PagedResult<RegistrationFormResponseDto>>
+                        .SuccessResponse(
+                            "No registrations found.",
+                            new PagedResult<RegistrationFormResponseDto>(
+                                new List<RegistrationFormResponseDto>(),
+                                0, request.Limit, request.Offset));
+                }
+
+                // ── Sorting ──────────────────────────────────────
+                var isDesc = request.SortOrder
+                    .Equals("desc", StringComparison.OrdinalIgnoreCase);
+
+                query = request.SortBy?.ToLower() switch
+                {
+                    "formname" => isDesc
+                        ? query.OrderByDescending(sr => sr.FormName)
+                        : query.OrderBy(sr => sr.FormName),
+
+                    "staffcategory" => isDesc
+                        ? query.OrderByDescending(sr => sr.StaffCategory.Name)
+                        : query.OrderBy(sr => sr.StaffCategory.Name),
+
+
+                    _ => isDesc
+                        ? query.OrderByDescending(sr => sr.CreatedAt)
+                        : query.OrderBy(sr => sr.CreatedAt),
+                };
+
+                // ── Pagination ───────────────────────────────────
+                var registrations = await query
+                    .Skip(request.Offset)
+                    .Take(request.Limit)
+                    .ToListAsync();
+
+                var dtoList = registrations.Select(Map).ToList();
+
+                _logger.LogInformation(
+                    "Returning {Count} of {Total} registrations",
+                    dtoList.Count,
+                    totalCount);
+
+                return CommonResponse<PagedResult<RegistrationFormResponseDto>>
+                    .SuccessResponse(
+                        "Registration form fetched successfully.",
+                        new PagedResult<RegistrationFormResponseDto>(
+                            dtoList, totalCount, request.Limit, request.Offset));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching filtered registration form.");
+
+                return CommonResponse<PagedResult<RegistrationFormResponseDto>>
+                    .FailureResponse(
+                        $"An error occurred: {ex.Message}");
+            }
+        }
 
         private static RegistrationFormResponseDto Map(RegistrationForm c)
         {
@@ -225,7 +454,6 @@ form.Id);
                     Type = "standalone",
                     GroupId = null,
                     GroupName = "Additional Fields",
-                    DisplayOrder = 99,
                     Formfields = standaloneFields
                 });
             }

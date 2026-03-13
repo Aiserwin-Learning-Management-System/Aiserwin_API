@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Winfocus.LMS.Application.DTOs;
+using Winfocus.LMS.Application.DTOs.Common;
+using Winfocus.LMS.Application.DTOs.Registration;
 using Winfocus.LMS.Application.Interfaces;
 
 namespace Winfocus.LMS.API.Controllers
@@ -80,7 +82,6 @@ namespace Winfocus.LMS.API.Controllers
         public async Task<IActionResult> GetById(Guid id)
         {
             var form = await _service.GetByIdAsync(id);
-
             return Ok(form);
         }
 
@@ -102,9 +103,9 @@ namespace Winfocus.LMS.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(Guid id, CreateRegistrationFormDto dto)
         {
-            await _service.UpdateAsync(id, dto);
+            var form = await _service.UpdateAsync(id, dto);
 
-            return NoContent();
+            return Ok(form);
         }
 
         /// <summary>
@@ -122,9 +123,22 @@ namespace Winfocus.LMS.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            await _service.DeleteAsync(id);
+          var form = await _service.DeleteAsync(id);
+          return Ok(form);
+        }
 
-            return NoContent();
+        /// <summary>
+        /// Lists registrations with pagination and filters.
+        /// </summary>
+        /// <param name="request">Filter and pagination parameters.</param>
+        /// <returns>Paginated list of registrations.</returns>
+        [HttpGet("filter")]
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        public async Task<ActionResult<CommonResponse<PagedResult<RegistrationFormResponseDto>>>>
+            GetFiltered([FromQuery] StaffRegistrationFilterRequest request)
+        {
+            var result = await _service.GetFilteredAsync(request);
+            return Ok(result);
         }
     }
 }
