@@ -112,6 +112,47 @@
             return relativePath;
         }
 
+        /// <summary>
+        /// SaveFileBase64Async.
+        /// </summary>
+        /// <param name="base64File"></param>
+        /// <param name="folderName"></param>
+        /// <param name="fileNamePrefix"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public async Task<string> SaveFileBase64Async(string base64File, string folderName, string fileNamePrefix)
+        {
+            if (string.IsNullOrWhiteSpace(base64File))
+            {
+                throw new ArgumentException("File content is empty.");
+            }
+
+            // Remove base64 metadata if exists (data:image/png;base64,)
+            var parts = base64File.Split(',');
+            var base64Data = parts.Length > 1 ? parts[1] : parts[0];
+
+            byte[] fileBytes = Convert.FromBase64String(base64Data);
+
+            var uploadsFolder = Path.Combine(
+                _environment.ContentRootPath,
+                "StudentFiles",
+                folderName);
+
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+
+            var fileName = $"{fileNamePrefix}_{Guid.NewGuid()}.png";
+
+            var filePath = Path.Combine(uploadsFolder, fileName);
+
+            await File.WriteAllBytesAsync(filePath, fileBytes);
+
+            return Path.Combine("StudentFiles", folderName, fileName)
+                .Replace("\\", "/");
+        }
+
         /// <inheritdoc/>
         public Task DeleteAsync(string filePath)
         {

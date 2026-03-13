@@ -43,7 +43,7 @@ namespace Winfocus.LMS.Application.Interfaces
         /// </summary>
         /// <param name="id">The id.</param>
         /// <returns>.</returns>
-        Task DeleteAsync(Guid id);
+        Task<bool> DeleteAsync(Guid id);
 
         /// <summary>
         /// Adds registration form groups.
@@ -66,5 +66,32 @@ namespace Winfocus.LMS.Application.Interfaces
         /// <param name="groupId">Field group identifier.</param>
         /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
         Task<List<FormField>> GetByGroupIdAsync(Guid groupId);
+
+        /// <summary>
+        /// Soft deletes a form.
+        /// </summary>
+        /// <param name="formId">The id.</param>
+        /// <returns>.</returns>
+        Task DeleteGroupsByFormIdAsync(Guid formId);
+
+        /// <summary>
+        /// Soft deletes a form.
+        /// </summary>
+        /// <param name="formId">The id.</param>
+        /// <returns>.</returns>
+        Task DeleteFieldsByFormIdAsync(Guid formId);
+
+        /// <summary>
+        /// </summary>
+        /// <param name="staffCategoryId">staffCategoryId.</param>
+        /// <returns>.</returns>
+        Task<RegistrationForm> GetByStaffCategoryIdAsync(Guid staffCategoryId);
+
+        /// <summary>
+        /// Queries this instance.
+        /// </summary>
+        /// <returns>
+        /// The queryable registrations.
+        IQueryable<RegistrationForm> Query();
     }
 }

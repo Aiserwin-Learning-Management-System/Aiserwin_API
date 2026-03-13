@@ -25,6 +25,10 @@ namespace Winfocus.LMS.Application.Validators
             RuleFor(x => x.description)
                 .MaximumLength(500)
                 .WithMessage("Description must not exceed 500 characters");
+
+            RuleFor(x => x.placeholder)
+                .MaximumLength(200)
+                .WithMessage("Placeholder must not exceed 200 characters");
         }
     }
 }

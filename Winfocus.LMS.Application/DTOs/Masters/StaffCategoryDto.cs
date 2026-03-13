@@ -17,5 +17,9 @@
         /// </summary>
         public string Description { get; set; } = null!;
 
+        /// <summary>
+        ///  Gets or sets the display PlaceHolder of the staff category.
+        /// </summary>
+        public string? PlaceHolder { get; set; }
     }
 }
