@@ -151,7 +151,6 @@ builder.Services.AddScoped<IPageHeadingRepository, PageHeadingRepository>();
 builder.Services.AddScoped<IPageHeadingService, PageHeadingService>();
 
 builder.Services.AddMemoryCache();
-builder.Services.AddMemoryCache();
 builder.Services.AddScoped<INavigationService, NavigationService>();
 
 #endregion
