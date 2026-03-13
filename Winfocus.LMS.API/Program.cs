@@ -346,13 +346,25 @@ if (!app.Environment.IsEnvironment("Testing"))
         throw;
     }
 
-    var webRootPath = app.Environment.WebRootPath
-       ?? Path.Combine(app.Environment.ContentRootPath, "wwwroot");
-    var uploadsPath = Path.Combine(webRootPath, "uploads", "registrations");
-    if (!Directory.Exists(uploadsPath))
-    {
-        Directory.CreateDirectory(uploadsPath);
-    }
+    var fileSettings = app.Configuration
+        .GetSection(FileUploadSettings.SectionName)
+        .Get<FileUploadSettings>();
+
+    var persistentRoot = string.IsNullOrEmpty(fileSettings?.StorageRootPath)
+        ? app.Environment.ContentRootPath // Local dev
+        : fileSettings.StorageRootPath; // Azure: D:\home\data
+
+    // Create StudentFiles directories in persistent location
+    var studentFilesPath = Path.Combine(persistentRoot, "StudentFiles");
+    var photosPath = Path.Combine(studentFilesPath, "Photos");
+    var signaturesPath = Path.Combine(studentFilesPath, "Signatures");
+
+    Directory.CreateDirectory(studentFilesPath);
+    Directory.CreateDirectory(photosPath);
+    Directory.CreateDirectory(signaturesPath);
+
+    logger.LogInformation(
+        "Student file directories ensured at: {Path}", studentFilesPath);
 }
 
 #endregion
@@ -384,6 +396,27 @@ if (app.Environment.IsDevelopment())
 app.UseCors("AllowAngularApp");
 
 app.UseStaticFiles();
+
+var fileUploadConfig = app.Configuration
+    .GetSection(FileUploadSettings.SectionName)
+    .Get<FileUploadSettings>();
+
+var fileRoot = string.IsNullOrEmpty(fileUploadConfig?.StorageRootPath)
+    ? app.Environment.ContentRootPath
+    : fileUploadConfig.StorageRootPath;
+
+var studentFilesDir = Path.Combine(fileRoot, "StudentFiles");
+
+if (Directory.Exists(studentFilesDir))
+{
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        FileProvider = new Microsoft.Extensions.FileProviders
+            .PhysicalFileProvider(studentFilesDir),
+        RequestPath = "/StudentFiles",
+    });
+}
+
 app.UseAuthentication();
 
 app.UseMiddleware<SessionValidationMiddleware>();

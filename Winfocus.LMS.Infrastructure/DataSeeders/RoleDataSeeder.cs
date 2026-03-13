@@ -20,7 +20,8 @@
                 new Role { Name = "SuperAdmin", CreatedAt = DateTime.UtcNow, IsActive = true },
                 new Role { Name = "CountryAdmin", CreatedAt = DateTime.UtcNow, IsActive = true },
                 new Role { Name = "CenterAdmin", CreatedAt = DateTime.UtcNow, IsActive = true },
-                new Role { Name = "Staff", CreatedAt = DateTime.UtcNow, IsActive = true });
+                new Role { Name = "Staff", CreatedAt = DateTime.UtcNow, IsActive = true },
+                new Role { Name = "Student", CreatedAt = DateTime.UtcNow, IsActive = true });
                 db.SaveChanges();
             }
         }
