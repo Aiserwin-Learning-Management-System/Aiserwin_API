@@ -26,6 +26,9 @@ namespace Winfocus.LMS.Application.Services
         /// </summary>
         private readonly IRegistrationFormRepository _repository;
         private readonly ILogger<RegistrationFormService> _logger;
+        private readonly IStaffCategoryRepository _staffCategoryRepository;
+        private readonly IFormFieldRepository _formFieldRepository;
+        private readonly IFieldGroupRepository _fieldGroupRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RegistrationFormService"/> class.
@@ -34,10 +37,16 @@ namespace Winfocus.LMS.Application.Services
         /// The repository responsible for registration form persistence.
         /// </param>
         /// <param name="logger">Logger.</param>
-        public RegistrationFormService(IRegistrationFormRepository repository, ILogger<RegistrationFormService> logger)
+        /// <param name="staffCategoryRepository">staffCategoryRepository.</param>
+        /// <param name="formFieldRepository">formFieldRepository.</param>
+        /// <param name="fieldGroupRepository">fieldGroupRepository.</param>
+        public RegistrationFormService(IRegistrationFormRepository repository, ILogger<RegistrationFormService> logger, IStaffCategoryRepository staffCategoryRepository, IFormFieldRepository formFieldRepository, IFieldGroupRepository fieldGroupRepository)
         {
             _repository = repository;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _staffCategoryRepository = staffCategoryRepository;
+            _formFieldRepository = formFieldRepository;
+            _fieldGroupRepository = fieldGroupRepository;
         }
 
         /// <inheritdoc/>
@@ -45,6 +54,15 @@ namespace Winfocus.LMS.Application.Services
         {
             try
             {
+                //bool hasGroups = dto.Groups?.Any() == true;
+                //bool hasStandaloneFields = dto.StandaloneFields?.Any() == true;
+
+                //if (!hasGroups && !hasStandaloneFields)
+                //{
+                //    return CommonResponse<Guid>.FailureResponse(
+                //        "Either form groups or standalone fields must be provided.");
+                //}
+
                 _logger.LogInformation("Creating registration form for StaffCategoryId: {StaffCategoryId}", dto.StaffCategoryId);
 
                 // Check if form already exists for this StaffCategoryId
@@ -405,11 +423,119 @@ namespace Winfocus.LMS.Application.Services
             }
         }
 
+        /// <inheritdoc/>
+        public async Task<CommonResponse<RegistrationFormResponseDto>> GetByStaffCategoryAsync(Guid staffcategoryid)
+        {
+            try
+            {
+                _logger.LogInformation("Fetching registration form for staffcategoryid: {staffcategoryid}", staffcategoryid);
+
+                var form = await _repository.GetByStaffCategoryIdAsync(staffcategoryid);
+
+                if (form == null)
+                {
+                    _logger.LogWarning("Registration form not found for staffcategoryid: {staffcategoryid}", staffcategoryid);
+                    return CommonResponse<RegistrationFormResponseDto>.FailureResponse("Registration form not found");
+                }
+
+                var mappedData = Map(form);
+
+                _logger.LogInformation("Registration form data fetched successfully for staffcategoryid: {staffcategoryid}", staffcategoryid);
+
+                return CommonResponse<RegistrationFormResponseDto>.SuccessResponse(
+                    "Registration form fetched successfully",
+                    mappedData);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while fetching registration form for staffcategoryid: {staffcategoryid}", staffcategoryid);
+
+                return CommonResponse<RegistrationFormResponseDto>.FailureResponse(
+                    "An error occurred while fetching the registration form");
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<CommonResponse<RegistrationFormResponseDto>> CreatePreview(CreateRegistrationFormDto dto)
+        {
+            try
+            {
+                _logger.LogInformation("Preview registration form");
+
+                // Check if form already exists for this StaffCategoryId
+                var staffCategory = await _staffCategoryRepository.GetByIdAsync(dto.StaffCategoryId);
+
+                if (staffCategory == null)
+                {
+                    return CommonResponse<RegistrationFormResponseDto>.FailureResponse(
+                        "Invalid staff category.");
+                }
+
+
+                var formGroups = new List<RegistrationFormGroup>();
+                var formFields = new List<RegistrationFormField>();
+
+                if (dto.Groups != null)
+                {
+                    foreach (var group in dto.Groups)
+                    {
+                        FieldGroup? fieldgroupobj = await _fieldGroupRepository.GetByIdAsync(group.FieldGroupId);
+                        var formGroup = new RegistrationFormGroup
+                        {
+                            FieldGroupId = group.FieldGroupId,
+                            DisplayOrder = group.DisplayOrder,
+                            FieldGroup = fieldgroupobj
+                        };
+
+                        formGroups.Add(formGroup);
+                    }
+                }
+
+                if (dto.StandaloneFields != null)
+                {
+                    foreach (var field in dto.StandaloneFields)
+                    {
+                        FormField? obj = await _formFieldRepository.GetByIdAsync(field.FieldId);
+                        formFields.Add(new RegistrationFormField
+                        {
+                            FieldId = field.FieldId,
+                            DisplayOrder = field.DisplayOrder,
+                            IsRequired = field.IsRequired,
+                            FormField = obj
+                        });
+                    }
+                }
+
+                var form = new RegistrationForm
+                {
+                    StaffCategoryId = dto.StaffCategoryId,
+                    FormName = dto.FormName,
+                    Description = dto.Description,
+                    IsActive = true,
+                    StaffCategory = staffCategory,
+                    FormGroups = formGroups,
+                    FormFields = formFields
+                };
+
+                _logger.LogInformation("Registration form preview generated successfully.");
+
+                return CommonResponse<RegistrationFormResponseDto>.SuccessResponse(
+                    "Preview generated successfully",
+                    Map(form));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while creating registration form for StaffCategoryId: {StaffCategoryId}", dto.StaffCategoryId);
+
+                return CommonResponse<RegistrationFormResponseDto>.FailureResponse(
+                    "An error occurred while creating the registration form.");
+            }
+        }
+
         private static RegistrationFormResponseDto Map(RegistrationForm c)
         {
             var sections = new List<FormSectionDto>();
 
-            // GROUP SECTIONS
             if (c.FormGroups != null && c.FormGroups.Any())
             {
                 var groupSections = c.FormGroups.OrderBy(g => g.DisplayOrder).
@@ -425,7 +551,6 @@ namespace Winfocus.LMS.Application.Services
                 sections.AddRange(groupSections);
             }
 
-            // STANDALONE FIELDS
             var standaloneFields = c.FormFields
                 .OrderBy(f => f.DisplayOrder)
                 .Select(f => new FormFieldResponseDto

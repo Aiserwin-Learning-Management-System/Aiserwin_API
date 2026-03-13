@@ -211,6 +211,12 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         public async Task<RegistrationForm> GetByStaffCategoryIdAsync(Guid staffCategoryId)
         {
             return await _context.RegistrationForms
+                .Include(x => x.FormGroups)
+                   .ThenInclude(g => g.FieldGroup)
+               .Include(x => x.FormFields)
+                   .ThenInclude(f => f.FormField)
+                       .ThenInclude(field => field.FieldOptions)
+               .Include(x => x.StaffCategory)
                 .FirstOrDefaultAsync(x => x.StaffCategoryId == staffCategoryId && !x.IsDeleted && x.IsActive);
         }
 

@@ -147,6 +147,9 @@ builder.Services.AddScoped<IFormFieldService, FormFieldService>();
 builder.Services.AddScoped<IFieldValueValidatorService, FieldValueValidatorService>();
 builder.Services.AddScoped<IRegistrationFormRepository, RegistrationFormRepository>();
 builder.Services.AddScoped<IRegistrationFormService, RegistrationFormService>();
+builder.Services.AddScoped<IPageHeadingRepository, PageHeadingRepository>();
+builder.Services.AddScoped<IPageHeadingService, PageHeadingService>();
+
 builder.Services.AddMemoryCache();
 builder.Services.AddScoped<INavigationService, NavigationService>();
 
