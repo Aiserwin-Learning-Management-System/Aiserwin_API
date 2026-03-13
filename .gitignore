@@ -27,7 +27,7 @@ _ReSharper*/
 .vscode/
 
 # Secrets and config
-# appsettings.*.json
+appsettings.*.json
 secrets.json
 **/secrets.json
 
