@@ -97,5 +97,12 @@
         /// </value>
         public bool IsScholershipStudent { get; set; }
 
+        /// <summary>
+        /// Gets or sets the DoubtClearingDtos.
+        /// </summary>
+        /// <value>
+        /// The DoubtClearingDtos.
+        /// </value>
+        public List<DoubtClearingDto> DoubtClearingDtos { get; set; } = new();
     }
 }
