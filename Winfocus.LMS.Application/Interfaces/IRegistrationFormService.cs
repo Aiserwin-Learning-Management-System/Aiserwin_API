@@ -90,5 +90,17 @@ namespace Winfocus.LMS.Application.Interfaces
         /// The filtered asynchronous.
         Task<CommonResponse<PagedResult<RegistrationFormResponseDto>>> GetFilteredAsync(
             StaffRegistrationFilterRequest request);
+
+        /// <summary>
+        /// Creates a new registration form.
+        /// </summary>
+        /// <param name="dto">
+        /// Data transfer object containing form information,
+        /// selected groups, and standalone fields.
+        /// </param>
+        /// <returns>
+        /// The unique identifier of the newly created registration form.
+        /// </returns>
+        Task<CommonResponse<RegistrationFormResponseDto>> CreatePreview(CreateRegistrationFormDto dto);
     }
 }

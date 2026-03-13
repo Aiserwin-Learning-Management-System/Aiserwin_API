@@ -158,5 +158,25 @@ namespace Winfocus.LMS.API.Controllers
             var form = await _service.GetByStaffCategoryAsync(staffcategoryid);
             return Ok(form);
         }
+
+        /// <summary>
+        /// Creates a new registration form.
+        /// </summary>
+        /// <param name="dto">
+        /// Data transfer object containing form details,
+        /// selected field groups, and standalone fields.
+        /// </param>
+        /// <returns>
+        /// Returns the preview details.
+        /// </returns>
+        /// <response code="201">Form preview successfully.</response>
+        /// <response code="400">Invalid request data.</response>
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        [HttpPost("Preview")]
+        public async Task<IActionResult> CreatePreview(CreateRegistrationFormDto dto)
+        {
+            var response = await _service.CreatePreview(dto);
+            return Ok(response);
+        }
     }
 }
