@@ -147,6 +147,8 @@ builder.Services.AddScoped<IFormFieldService, FormFieldService>();
 builder.Services.AddScoped<IFieldValueValidatorService, FieldValueValidatorService>();
 builder.Services.AddScoped<IRegistrationFormRepository, RegistrationFormRepository>();
 builder.Services.AddScoped<IRegistrationFormService, RegistrationFormService>();
+builder.Services.AddMemoryCache();
+builder.Services.AddScoped<INavigationService, NavigationService>();
 
 #endregion
 
