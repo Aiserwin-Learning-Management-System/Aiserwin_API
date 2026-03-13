@@ -1,10 +1,18 @@
-﻿namespace Winfocus.LMS.Application.DTOs.Registration
+﻿using Winfocus.LMS.Application.DTOs.MenuItem;
+
+namespace Winfocus.LMS.Application.DTOs.Registration
 {
     /// <summary>
     /// Summary view of a staff registration (used in list + submit response).
     /// </summary>
     public class RegistrationResponseDto
     {
+
+        /// <summary>
+        /// Gets or sets page heading information.
+        /// </summary>
+        public PageHeadingDto PageHeading { get; set; } = new();
+
         /// <summary>
         /// Gets or sets the identifier.
         /// </summary>

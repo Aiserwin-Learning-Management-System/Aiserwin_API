@@ -4,6 +4,7 @@
     using Microsoft.Extensions.Logging;
     using Winfocus.LMS.Application.DTOs;
     using Winfocus.LMS.Application.DTOs.Common;
+    using Winfocus.LMS.Application.DTOs.MenuItem;
     using Winfocus.LMS.Application.DTOs.Registration;
     using Winfocus.LMS.Application.Interfaces;
     using Winfocus.LMS.Domain.Entities;
@@ -524,6 +525,11 @@
             new ()
             {
                 Id = sr.Id,
+                PageHeading = new PageHeadingDto
+                {
+                    MainHeading = "User Management",
+                    SubHeading = "Staff Registration Form"
+                },
                 FormId = sr.FormId,
                 FormName = sr.RegistrationForm.FormName,
                 StaffCategory = sr.StaffCategory.Name,
