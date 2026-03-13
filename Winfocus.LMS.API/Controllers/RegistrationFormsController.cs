@@ -132,7 +132,7 @@ namespace Winfocus.LMS.API.Controllers
         /// </summary>
         /// <param name="request">Filter and pagination parameters.</param>
         /// <returns>Paginated list of registrations.</returns>
-        [HttpGet]
+        [HttpGet("filter")]
         [Authorize(Roles = "Admin,SuperAdmin")]
         public async Task<ActionResult<CommonResponse<PagedResult<RegistrationFormResponseDto>>>>
             GetFiltered([FromQuery] StaffRegistrationFilterRequest request)
