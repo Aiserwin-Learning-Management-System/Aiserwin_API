@@ -38,6 +38,18 @@ namespace Winfocus.LMS.Application.Interfaces
         Task<CommonResponse<RegistrationFormResponseDto>> GetByIdAsync(Guid id);
 
         /// <summary>
+        /// Retrieves a registration form by staffcategoryid.
+        /// </summary>
+        /// <param name="staffcategoryid">
+        /// The unique staffcategoryid of the registration form.
+        /// </param>
+        /// <returns>
+        /// A <see cref="RegistrationFormResponseDto"/> containing
+        /// the form details and section structure.
+        /// </returns>
+        Task<CommonResponse<RegistrationFormResponseDto>> GetByStaffCategoryAsync(Guid staffcategoryid);
+
+        /// <summary>
         /// Retrieves all registration forms.
         /// </summary>
         /// <returns>

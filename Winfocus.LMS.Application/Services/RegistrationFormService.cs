@@ -45,6 +45,15 @@ namespace Winfocus.LMS.Application.Services
         {
             try
             {
+                //bool hasGroups = dto.Groups?.Any() == true;
+                //bool hasStandaloneFields = dto.StandaloneFields?.Any() == true;
+
+                //if (!hasGroups && !hasStandaloneFields)
+                //{
+                //    return CommonResponse<Guid>.FailureResponse(
+                //        "Either form groups or standalone fields must be provided.");
+                //}
+
                 _logger.LogInformation("Creating registration form for StaffCategoryId: {StaffCategoryId}", dto.StaffCategoryId);
 
                 // Check if form already exists for this StaffCategoryId
@@ -402,6 +411,38 @@ namespace Winfocus.LMS.Application.Services
                 return CommonResponse<PagedResult<RegistrationFormResponseDto>>
                     .FailureResponse(
                         $"An error occurred: {ex.Message}");
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<CommonResponse<RegistrationFormResponseDto>> GetByStaffCategoryAsync(Guid staffcategoryid)
+        {
+            try
+            {
+                _logger.LogInformation("Fetching registration form for staffcategoryid: {staffcategoryid}", staffcategoryid);
+
+                var form = await _repository.GetByStaffCategoryIdAsync(staffcategoryid);
+
+                if (form == null)
+                {
+                    _logger.LogWarning("Registration form not found for staffcategoryid: {staffcategoryid}", staffcategoryid);
+                    return CommonResponse<RegistrationFormResponseDto>.FailureResponse("Registration form not found");
+                }
+
+                var mappedData = Map(form);
+
+                _logger.LogInformation("Registration form data fetched successfully for staffcategoryid: {staffcategoryid}", staffcategoryid);
+
+                return CommonResponse<RegistrationFormResponseDto>.SuccessResponse(
+                    "Registration form fetched successfully",
+                    mappedData);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while fetching registration form for staffcategoryid: {staffcategoryid}", staffcategoryid);
+
+                return CommonResponse<RegistrationFormResponseDto>.FailureResponse(
+                    "An error occurred while fetching the registration form");
             }
         }
 

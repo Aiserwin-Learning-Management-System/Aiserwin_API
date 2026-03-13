@@ -140,5 +140,23 @@ namespace Winfocus.LMS.API.Controllers
             var result = await _service.GetFilteredAsync(request);
             return Ok(result);
         }
+
+        /// <summary>
+        /// Retrieves a specific registration form including its groups and fields.
+        /// </summary>
+        /// <param name="staffcategoryid">
+        /// Unique identifier of the registration form.
+        /// </param>
+        /// <returns>
+        /// Detailed form structure including grouped and standalone fields.
+        /// </returns>
+        /// <response code="200">Form retrieved successfully.</response>
+        /// <response code="404">Form not found.</response>
+        [HttpGet("staff-category/{staffCategoryId}")]
+        public async Task<IActionResult> GetByStaffcategory(Guid staffcategoryid)
+        {
+            var form = await _service.GetByStaffCategoryAsync(staffcategoryid);
+            return Ok(form);
+        }
     }
 }
