@@ -33,6 +33,16 @@
         public string UploadBasePath { get; set; } = "uploads/registrations";
 
         /// <summary>
+        /// Gets or sets the storage root path.
+        /// </summary>
+        /// <value>
+        /// Persistent root path for file storage.
+        /// Empty = use ContentRootPath (local dev).
+        /// Set to "D:\home\data" on Azure App Service.
+        /// </value>
+        public string StorageRootPath { get; set; } = string.Empty;
+
+        /// <summary>
         /// Gets the maximum file size bytes.
         /// </summary>
         /// <value>
