@@ -16,16 +16,21 @@
     {
         private readonly IStudentRepository _repository;
         private readonly ILogger<StateService> _logger;
+        private readonly IDoubtClearingRepository _doubtClearingRepository;
+
+        private List<DoubtClearing>? _doubtClear;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StudentService"/> class.
         /// </summary>
         /// <param name="repository">Repository used for data access.</param>
         /// <param name="logger">Logger.</param>
-        public StudentService(IStudentRepository repository, ILogger<StateService> logger)
+        /// <param name="doubtClearingRepository">doubtClearingRepository.</param>
+        public StudentService(IStudentRepository repository, ILogger<StateService> logger, IDoubtClearingRepository doubtClearingRepository)
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _doubtClearingRepository = doubtClearingRepository;
         }
 
         /// <summary>
@@ -37,8 +42,9 @@
             _logger.LogInformation("Fetching all students.");
 
             var students = await _repository.GetAllAsync();
+            List<DoubtClearing>? doubtClear;
 
-            var result = students.Select(Map).ToList();
+            var result = students.Select(s=>Map(s,null)).ToList();
 
             _logger.LogInformation(
                 "Fetched {Count} students successfully.",
@@ -59,6 +65,12 @@
                 "Fetching student by Id: {Id}", id);
 
             var student = await _repository.GetByIdAsync(id);
+            var subjectId = student.StudentBatchTimingMTFs.Select(x => x.BatchTimingMTF.SubjectId).FirstOrDefault();
+            var doubtClear = await _doubtClearingRepository.GetBySubjectIdAsync(subjectId);
+
+            if (doubtClear != null) {
+                _doubtClear = doubtClear;
+            }
 
             if (student == null)
             {
@@ -71,7 +83,7 @@
             _logger.LogInformation(
                 "Student fetched successfully. Id: {Id}", id);
 
-            return Map(student);
+            return Map(student, doubtClear);
         }
 
         /// <summary>
@@ -300,7 +312,7 @@
             };
         }
 
-        private static StudentDto Map(Student c) =>
+        private static StudentDto Map(Student c, List<DoubtClearing>? doubtClear) =>
      new StudentDto
      {
          Id = c.Id,
@@ -395,6 +407,11 @@
             {
                 Id = x.BatchTimingMTFId,
                 BatchTime = x.BatchTimingMTF.BatchTime.ToString("dd/MM/yyyy hh:mm tt"),
+                Subject = new SubjectDto
+                {
+                    Id = x.BatchTimingMTF.Subject.Id,
+                    Name = x.BatchTimingMTF.Subject.Name
+                }
             }).ToList() ?? new List<BatchTimingMTFDto>(),
          BatchTimingSaturdays = c.StudentBatchTimingSaturdays?
             .Select(x => new BatchTimingSaturdayDto
@@ -408,6 +425,19 @@
                 Id = x.BatchTimingSundayId,
                 BatchTime = x.BatchTimingSunday.BatchTime.ToString("dd/MM/yyyy hh:mm tt"),
             }).ToList() ?? new List<BatchTimingSundayDto>(),
+         DoubtClearingDtos = doubtClear?
+    .Select(d => new DoubtClearingDto
+    {
+        Id = d.Id,
+        ScheduleStartDate = d.ScheduleTime.ToString("dd/MM/yyyy hh:mm tt"),
+        ScheduleEndDate = d.ScheduleEndTime.ToString("dd/MM/yyyy hh:mm tt"),
+        SubjectId = d.SubjectId,
+        Subject = new SubjectDto
+        {
+            Id = d.Subject.Id,
+            Name = d.Subject.Name
+        }
+    }).ToList() ?? new List<DoubtClearingDto>(),
          StudentAcademicId = c.StudentAcademicDetailsId,
          StudentDocumentsId = c.StudentDocumentsId,
          StudentPersonalId = c.StudentPersonalDetailsId,
@@ -418,6 +448,9 @@
          CreatedAt = c.CreatedAt,
          UpdatedAt = c.UpdatedAt,
          UpdatedBy = c.UpdatedBy,
+        
+
+
      };
 
         private static StudentDto MapCreate(Student c) =>
