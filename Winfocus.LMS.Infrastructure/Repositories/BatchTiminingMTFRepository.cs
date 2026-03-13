@@ -34,14 +34,19 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// <returns>BatchTimingMTF list.</returns>
         public async Task<IReadOnlyList<BatchTimingMTF>> GetAllAsync(Guid centerId)
         {
-            return await _dbContext.BatchTimingMTFs.Where(x => !x.IsDeleted && x.Subject.Course.Stream.Grade.Syllabus.CenterId == centerId)
+            var res = _dbContext.BatchTimingMTFs.Where(x => !x.IsDeleted)
                .Include(x => x.Subject)
                   .ThenInclude(s => s.Course)
                      .ThenInclude(s => s.Stream)
                       .ThenInclude(s => s.Grade)
                        .ThenInclude(s => s.Syllabus)
-                .AsNoTracking()
-                .ToListAsync();
+                .AsNoTracking();
+            if (centerId != Guid.Empty)
+            {
+                res = res.Where(x => x.Subject.Course.Stream.Grade.Syllabus.CenterId == centerId);
+            }
+
+            return await res.ToListAsync();
         }
 
         /// <summary>
@@ -123,7 +128,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
                 return false;
             }
 
-            if (entity.Subject.Course.Stream.Grade.Syllabus.CenterId != centerId)
+            if (centerId != Guid.Empty && centerId != Guid.Empty && entity.Subject.Course.Stream.Grade.Syllabus.CenterId != centerId)
             {
                 return false;
             }
@@ -172,13 +177,18 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// <returns>Queryable batches.</returns>
         public IQueryable<BatchTimingMTF> Query(Guid centerId)
         {
-            return _dbContext.BatchTimingMTFs.Where(x => !x.IsDeleted && x.Subject.Course.Stream.Grade.Syllabus.CenterId == centerId)
+            var res = _dbContext.BatchTimingMTFs.Where(x => !x.IsDeleted)
                .Include(x => x.Subject)
                    .ThenInclude(s => s.Course)
                       .ThenInclude(s => s.Stream)
                        .ThenInclude(s => s.Grade)
                         .ThenInclude(s => s.Syllabus)
                 .AsNoTracking();
+            if (centerId != Guid.Empty)
+            {
+                res = res.Where(x => x.Subject.Course.Stream.Grade.Syllabus.CenterId == centerId);
+            }
+            return res;
         }
     }
 }

@@ -45,9 +45,16 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// <returns>Syllabus.</returns>
         public async Task<Syllabus?> GetByIdAsync(Guid id, Guid centerId)
         {
-            return await _db.Syllabuses
-                 .Include(x => x.Center)
-                .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted && x.CenterId == centerId);
+            var query = _db.Syllabuses
+                  .Include(x => x.Center)
+                  .Where(x => x.Id == id && !x.IsDeleted);
+
+            if (centerId != Guid.Empty)
+            {
+                query = query.Where(x => x.CenterId == centerId);
+            }
+
+            return await query.FirstOrDefaultAsync();
         }
 
         /// <summary>
@@ -144,10 +151,16 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// <returns>Syllabus.</returns>
         public async Task<List<Syllabus>> GetByCenterIdAsync(Guid centerId)
         {
-            return await _db.Syllabuses
-                .Include(x => x.Center)
-                .Where(x => x.CenterId == centerId && !x.IsDeleted)
-                .ToListAsync();
+            var query = _db.Syllabuses
+        .Include(x => x.Center)
+        .Where(x => !x.IsDeleted);
+
+            if (centerId != Guid.Empty)
+            {
+                query = query.Where(x => x.CenterId == centerId);
+            }
+
+            return await query.ToListAsync();
         }
     }
 }

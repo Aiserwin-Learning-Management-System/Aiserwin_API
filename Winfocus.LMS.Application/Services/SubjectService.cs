@@ -314,9 +314,10 @@
         /// Search works on Course Name, Stream Name, Grade Name, and Syllabus Name.
         /// </summary>
         /// <param name="request">The paged request.</param>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>Paginated subject result.</returns>
         public async Task<CommonResponse<PagedResult<SubjectDto>>> GetFilteredAsync(
-            PagedRequest request)
+            PagedRequest request, Guid centerId)
         {
             try
             {
@@ -327,7 +328,7 @@
                     request.Active, request.SearchText, request.SortBy,
                     request.SortOrder, request.Limit, request.Offset);
 
-                var query = _repo.Query();
+                var query = _repo.Query(centerId);
 
                 // ── Filters ──
                 if (request.Active.HasValue)

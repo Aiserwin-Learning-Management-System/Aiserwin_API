@@ -39,12 +39,14 @@
         {
             if (User?.Identity?.IsAuthenticated == true)
             {
-                var userId = UserId;
-
-                if (userId != Guid.Empty)
+                if (User.IsInRole("SuperAdmin"))
                 {
-                    var countryIdFromToken = CountryId;
-                    return Ok(await _centerService.GetByCountryAsync(countryIdFromToken));
+                    return Ok(await _centerService.GetAllAsync());
+                }
+
+                if (UserId != Guid.Empty)
+                {
+                    return Ok(await _centerService.GetByCountryAsync(CountryId));
                 }
             }
 
@@ -64,12 +66,14 @@
         {
             if (User?.Identity?.IsAuthenticated == true)
             {
-                var userId = UserId;
-
-                if (userId != Guid.Empty)
+                if (User.IsInRole("SuperAdmin"))
                 {
-                    var countryIdFromToken = CountryId;
-                    return Ok(await _centerService.GetByIdAsync(id, countryIdFromToken));
+                    return Ok(await _centerService.GetByIdAsync(id, Guid.Empty));
+                }
+
+                if (UserId != Guid.Empty)
+                {
+                    return Ok(await _centerService.GetByIdAsync(id, CountryId));
                 }
             }
 
@@ -88,7 +92,8 @@
         public async Task<ActionResult<CommonResponse<CenterDto>>> Create(
             CenterRequestDto request)
         {
-            if (CountryId != request.countryid)
+            var isSuperAdmin = User.IsInRole("SuperAdmin");
+            if (!isSuperAdmin && CountryId != request.countryid)
             {
                 return StatusCode(403, "You are not allowed to create data for this center.");
             }
@@ -117,7 +122,8 @@
             {
                 userId = UserId
             };
-            if (CountryId != request.countryid)
+            var isSuperAdmin = User.IsInRole("SuperAdmin");
+            if (!isSuperAdmin && CountryId != request.countryid)
             {
                 return StatusCode(403, "You are not allowed to create data for this center.");
             }
@@ -135,6 +141,12 @@
         [HttpDelete("{id:guid}")]
         public async Task<ActionResult<CommonResponse<bool>>> Delete(Guid id)
         {
+            var isSuperAdmin = User.IsInRole("SuperAdmin");
+            if (isSuperAdmin)
+            {
+                return await _centerService.DeleteAsync(id, Guid.Empty);
+            }
+
             var result = await _centerService.DeleteAsync(id, CountryId);
             return Ok(result);
         }
@@ -163,6 +175,12 @@
         public async Task<ActionResult<CommonResponse<PagedResult<CenterDto>>>> GetFiltered(
             [FromQuery] PagedRequest request)
         {
+            var isSuperAdmin = User.IsInRole("SuperAdmin");
+            if (isSuperAdmin)
+            {
+                return Ok(await _centerService.GetFilteredAsync(request, Guid.Empty));
+            }
+
             var result = await _centerService.GetFilteredAsync(request, CountryId);
             return Ok(result);
         }

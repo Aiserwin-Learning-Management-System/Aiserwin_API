@@ -48,6 +48,7 @@
         public Task<User?> GetByUsernameAsync(string username)
         {
             return _dbContext.Users
+                .Include(x => x.Center)
                 .Include(u => u.UserRoles)
                 .ThenInclude(ur => ur.Role)
                 .FirstOrDefaultAsync(u => (u.Username == username || u.Email == username) && u.IsActive);

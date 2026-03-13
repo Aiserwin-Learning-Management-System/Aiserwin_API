@@ -48,10 +48,17 @@
         /// <returns>State.</returns>
         public async Task<State?> GetByIdAsync(Guid id, Guid countryId)
         {
-            return await _dbContext.States
+            var res = _dbContext.States
                 .Include(x => x.Country)
                 .Include(x => x.ModeOfStudy)
-                .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted && x.CountryId == countryId);
+                .Where(x => x.Id == id && !x.IsDeleted);
+
+            if (countryId != Guid.Empty)
+            {
+                res = res.Where(x => x.CountryId == countryId);
+            }
+
+            return await res.FirstOrDefaultAsync();
         }
 
         /// <summary>
@@ -94,7 +101,7 @@
                 return false;
             }
 
-            if (entity.CountryId != countryId)
+            if (countryId != Guid.Empty && entity.CountryId != countryId)
             {
                 return false;
             }
@@ -140,10 +147,16 @@
         /// </returns>
         public IQueryable<State> Query(Guid countryId)
         {
-            return _dbContext.States.Where(x => !x.IsDeleted && x.CountryId == countryId)
+            var res = _dbContext.States.Where(x => !x.IsDeleted)
                 .Include(x => x.Country)
                 .Include(x => x.ModeOfStudy)
                 .AsNoTracking();
+            if (countryId != Guid.Empty)
+            {
+                res = res.Where(x => x.CountryId == countryId);
+            }
+
+            return res;
         }
     }
 }

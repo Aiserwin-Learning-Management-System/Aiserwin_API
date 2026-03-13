@@ -28,7 +28,7 @@
         /// <returns>Stream list.</returns>
         public async Task<IReadOnlyList<Streams>> GetAllAsync(Guid centerId)
         {
-            return await _db.Streams
+            var res = _db.Streams
                 .Include(x => x.Grade)
                     .ThenInclude(g => g.Syllabus)
                     .ThenInclude(s => s.Center)
@@ -36,9 +36,15 @@
                     .ThenInclude(s => s.ModeOfStudy)
                     .ThenInclude(s => s.Country)
                 .Include(x => x.Courses)
-                .Where(x => x.IsActive && !x.IsDeleted && x.Grade.Syllabus.CenterId == centerId)
-                .AsNoTracking()
-                .ToListAsync();
+                .Where(x => x.IsActive && !x.IsDeleted)
+                .AsNoTracking();
+
+            if (centerId == Guid.Empty)
+            {
+                res = res.Where(x => x.Grade.Syllabus.CenterId == centerId);
+            }
+
+            return await res.ToListAsync();
         }
 
         /// <summary>
@@ -119,7 +125,7 @@
                 return false;
             }
 
-            if (entity.Grade.Syllabus.CenterId != centerId)
+            if (centerId != Guid.Empty && entity.Grade.Syllabus.CenterId != centerId)
             {
                 return false;
             }
@@ -186,7 +192,7 @@
         /// <returns>Queryable streams.</returns>
         public IQueryable<Streams> Query(Guid centerId)
         {
-            return _db.Streams.Where(x => !x.IsDeleted && x.Grade.Syllabus.CenterId == centerId)
+            var res = _db.Streams.Where(x => !x.IsDeleted )
                 .Include(s => s.Grade)
                     .ThenInclude(g => g.Syllabus)
                     .ThenInclude(s => s.Center)
@@ -194,6 +200,13 @@
                     .ThenInclude(s => s.ModeOfStudy)
                     .ThenInclude(s => s.Country)
                 .AsNoTracking();
+
+            if (centerId != Guid.Empty)
+            {
+                res = res.Where(x => x.Grade.Syllabus.CenterId == centerId);
+            }
+
+            return res;
         }
     }
 }

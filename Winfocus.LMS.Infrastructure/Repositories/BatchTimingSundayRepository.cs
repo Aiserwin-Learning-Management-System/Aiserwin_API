@@ -117,8 +117,13 @@ namespace Winfocus.LMS.Infrastructure.Repositories
                      .ThenInclude(s => s.Stream)
                       .ThenInclude(s => s.Grade)
                        .ThenInclude(s => s.Syllabus)
-                .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted && x.Subject.Course.Stream.Grade.Syllabus.CenterId == centerId);
+                .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
             if (entity == null)
+            {
+                return false;
+            }
+
+            if (centerId != Guid.Empty && entity.Subject.Course.Stream.Grade.Syllabus.CenterId == centerId)
             {
                 return false;
             }
@@ -167,13 +172,19 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// <returns>Queryable batches.</returns>
         public IQueryable<BatchTimingSunday> Query(Guid centerId)
         {
-            return _dbContext.BatchTimingSundays.Where(x => !x.IsDeleted && x.Subject.Course.Stream.Grade.Syllabus.CenterId == centerId)
+            var res =  _dbContext.BatchTimingSundays.Where(x => !x.IsDeleted)
                .Include(x => x.Subject)
                    .ThenInclude(s => s.Course)
                       .ThenInclude(s => s.Stream)
                        .ThenInclude(s => s.Grade)
                         .ThenInclude(s => s.Syllabus)
                 .AsNoTracking();
+            if (centerId != Guid.Empty)
+            {
+                res = res.Where(x => x.Subject.Course.Stream.Grade.Syllabus.CenterId == centerId);
+            }
+
+            return res;
         }
     }
 }
