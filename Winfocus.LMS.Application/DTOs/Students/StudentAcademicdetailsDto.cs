@@ -1,4 +1,4 @@
-﻿namespace Winfocus.LMS.Application.DTOs.Students
+namespace Winfocus.LMS.Application.DTOs.Students
 {
     using Winfocus.LMS.Application.DTOs.Masters;
 
@@ -143,9 +143,14 @@
         public string PastSchoolLocation { get; set; } = null!;
 
         /// <summary>
-        /// Gets or sets the emirate associated with the student's record.
+        /// Gets or sets the identifier of the emirate associated with the student's record.
         /// </summary>
-        public string Emirates { get; set; } = null!;
+        public string EmiratesId { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the populated emirate details (same structure as State).
+        /// </summary>
+        public StateDto? Emirates { get; set; }
 
         /// <summary>
         /// Gets or sets the identifier of the academic year id.

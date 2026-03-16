@@ -1,4 +1,4 @@
-﻿namespace Winfocus.LMS.Application.Services
+namespace Winfocus.LMS.Application.Services
 {
     using Microsoft.Extensions.Logging;
     using Winfocus.LMS.Application.DTOs;
@@ -17,6 +17,7 @@
         private readonly IStudentRepository _repository;
         private readonly ILogger<StateService> _logger;
         private readonly IDoubtClearingRepository _doubtClearingRepository;
+        private readonly IStateRepository _stateRepository;
 
         private List<DoubtClearing>? _doubtClear;
 
@@ -26,11 +27,17 @@
         /// <param name="repository">Repository used for data access.</param>
         /// <param name="logger">Logger.</param>
         /// <param name="doubtClearingRepository">doubtClearingRepository.</param>
-        public StudentService(IStudentRepository repository, ILogger<StateService> logger, IDoubtClearingRepository doubtClearingRepository)
+        /// <param name="stateRepository">Repository for state/emirate lookups.</param>
+        public StudentService(
+            IStudentRepository repository,
+            ILogger<StateService> logger,
+            IDoubtClearingRepository doubtClearingRepository,
+            IStateRepository stateRepository)
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _doubtClearingRepository = doubtClearingRepository;
+            _doubtClearingRepository = doubtClearingRepository ?? throw new ArgumentNullException(nameof(doubtClearingRepository));
+            _stateRepository = stateRepository ?? throw new ArgumentNullException(nameof(stateRepository));
         }
 
         /// <summary>
@@ -68,7 +75,8 @@
             var subjectId = student.StudentBatchTimingMTFs.Select(x => x.BatchTimingMTF.SubjectId).FirstOrDefault();
             var doubtClear = await _doubtClearingRepository.GetBySubjectIdAsync(subjectId);
 
-            if (doubtClear != null) {
+            if (doubtClear != null)
+            {
                 _doubtClear = doubtClear;
             }
 
@@ -83,7 +91,32 @@
             _logger.LogInformation(
                 "Student fetched successfully. Id: {Id}", id);
 
-            return Map(student, doubtClear);
+            // Base mapping to DTO (includes emiratesId from entity)
+            var dto = Map(student, doubtClear);
+
+            // Populate academic emirates details using the same State model
+            if (!string.IsNullOrWhiteSpace(student.AcademicDetails.Emirates)
+                && Guid.TryParse(student.AcademicDetails.Emirates, out var academicEmiratesId))
+            {
+                var emirateState = await _stateRepository.GetByIdAsync(academicEmiratesId, student.AcademicDetails.CountryId);
+                if (emirateState != null)
+                {
+                    dto.AcademicDetails.Emirates = MapStateToDto(emirateState);
+                }
+            }
+
+            // Populate personal emirates details using the same State model
+            if (!string.IsNullOrWhiteSpace(student.StudentPersonalDetails.Emirates)
+                && Guid.TryParse(student.StudentPersonalDetails.Emirates, out var personalEmiratesId))
+            {
+                var emirateState = await _stateRepository.GetByIdAsync(personalEmiratesId, student.AcademicDetails.CountryId);
+                if (emirateState != null)
+                {
+                    dto.PersonalDetails.Emirates = MapStateToDto(emirateState);
+                }
+            }
+
+            return dto;
         }
 
         /// <summary>
@@ -274,7 +307,7 @@
                     PastYearPerformance = entity.AcademicDetails.PastYearPerformance,
                     PastSchoolName = entity.AcademicDetails.PastSchoolName,
                     PastSchoolLocation = entity.AcademicDetails.PastSchoolLocation,
-                    Emirates = entity.AcademicDetails.Emirates,
+                    EmiratesId = entity.AcademicDetails.Emirates,
                 },
 
                 StudentPersonalId = entity.StudentPersonalDetailsId,
@@ -289,7 +322,7 @@
                     MobileComera = entity.StudentPersonalDetails.MobileComera,
                     AreaName = entity.StudentPersonalDetails.AreaName,
                     DistrictOrLocation = entity.StudentPersonalDetails.DistrictOrLocation,
-                    Emirates = entity.StudentPersonalDetails.Emirates,
+                    EmiratesId = entity.StudentPersonalDetails.Emirates,
                     Gender = entity.StudentPersonalDetails.Gender,
                 },
 
@@ -311,6 +344,25 @@
                     }).ToList() ?? new List<CourseDto>(),
             };
         }
+
+        private static StateDto MapStateToDto(State state) =>
+            new StateDto
+            {
+                Id = state.Id,
+                Name = state.Name,
+                CountryId = state.CountryId,
+                Country = new CountryDto
+                {
+                    Id = state.CountryId,
+                    Name = state.Country.Name,
+                },
+                ModeOfStudyId = state.ModeOfStudyId,
+                ModeOfStudy = new ModeOfStudyDto
+                {
+                    Id = state.ModeOfStudyId,
+                    Name = state.ModeOfStudy.Name,
+                },
+            };
 
         private static StudentDto Map(Student c, List<DoubtClearing>? doubtClear) =>
      new StudentDto
@@ -370,7 +422,7 @@
              PastYearPerformance = c.AcademicDetails.PastYearPerformance,
              PastSchoolLocation = c.AcademicDetails.PastSchoolLocation,
              PastSchoolName = c.AcademicDetails.PastSchoolName,
-             Emirates = c.AcademicDetails.Emirates,
+             EmiratesId = c.AcademicDetails.Emirates,
              AcademicYearId = c.AcademicDetails.AcademicYearId,
              PreferredBatchTime = c.AcademicDetails.PreferredTime,
          },
@@ -385,7 +437,7 @@
              MobileComera = c.StudentPersonalDetails.MobileComera,
              AreaName = c.StudentPersonalDetails.AreaName,
              DistrictOrLocation = c.StudentPersonalDetails.DistrictOrLocation,
-             Emirates = c.StudentPersonalDetails.Emirates,
+             EmiratesId = c.StudentPersonalDetails.Emirates,
              Gender = c.StudentPersonalDetails.Gender,
          },
          StudentDocuments = new StudentDocumentsDto
