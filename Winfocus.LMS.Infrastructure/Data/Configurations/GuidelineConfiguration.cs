@@ -19,32 +19,19 @@
         {
             builder.ToTable("Guidelines");
 
-            // ── Title ────────────────────────────────────────────
             builder.Property(g => g.Title)
                 .IsRequired()
                 .HasMaxLength(200)
                 .HasColumnType("nvarchar(200)");
 
-            // ── Content (HTML) ───────────────────────────────────
             builder.Property(g => g.Content)
                 .IsRequired()
                 .HasColumnType("nvarchar(max)");
 
-            // ── Category ─────────────────────────────────────────
             builder.Property(g => g.Category)
                 .IsRequired(false)
                 .HasMaxLength(100)
                 .HasColumnType("nvarchar(100)");
-
-            // ── DisplayOrder ─────────────────────────────────────
-            builder.Property(g => g.DisplayOrder)
-                .IsRequired()
-                .HasDefaultValue(0)
-                .HasColumnType("int");
-
-            // ── Indexes ──────────────────────────────────────────
-            builder.HasIndex(g => new { g.Category, g.DisplayOrder })
-                .HasDatabaseName("IX_Guidelines_Category_DisplayOrder");
 
             builder.HasIndex(g => g.Title)
                 .HasDatabaseName("IX_Guidelines_Title");
