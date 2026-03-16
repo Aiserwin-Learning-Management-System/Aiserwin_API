@@ -1,11 +1,8 @@
 ﻿namespace Winfocus.LMS.Infrastructure.Data.Configurations
 {
-    using System;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Metadata.Builders;
     using Winfocus.LMS.Domain.Entities;
-    using Winfocus.LMS.Domain.Enums;
-    using Winfocus.LMS.Infrastructure.Data.Configurations;
 
     /// <summary>
     /// TaskAssignmentConfiguration.
@@ -22,55 +19,80 @@
         {
             builder.ToTable("TaskAssignments");
 
-            // ── OperatorId ───────────────────────────────────────
+            // ── Operator FK ──────────────────────────────────────
             builder.Property(t => t.OperatorId)
                 .IsRequired()
                 .HasColumnType("uniqueidentifier");
 
-            // ── AssignedBy (business field, separate from CreatedBy) ──
+            // ── AssignedBy (Guid — user ID) ──────────────────────
             builder.Property(t => t.AssignedBy)
                 .IsRequired()
-                .HasMaxLength(100)
-                .HasColumnType("nvarchar(100)");
+                .HasColumnType("uniqueidentifier");
 
-            // ── QuestionType ─────────────────────────────────────
+            // ── ResourceTypeId FK (required) ─────────────────────
+            builder.Property(t => t.ResourceTypeId)
+                .IsRequired()
+                .HasColumnType("uniqueidentifier");
+
+            // ── QuestionType (int) ───────────────────────────────
             builder.Property(t => t.QuestionType)
                 .IsRequired()
-                .HasConversion<int>()
                 .HasColumnType("int");
 
-            // ── Academic context ─────────────────────────────────
-            builder.Property(t => t.Year).IsRequired(false).HasColumnType("int");
-            builder.Property(t => t.Syllabus).IsRequired(false).HasMaxLength(100).HasColumnType("nvarchar(100)");
-            builder.Property(t => t.Grade).IsRequired(false).HasMaxLength(50).HasColumnType("nvarchar(50)");
-            builder.Property(t => t.Stream).IsRequired(false).HasMaxLength(100).HasColumnType("nvarchar(100)");
-            builder.Property(t => t.Course).IsRequired(false).HasMaxLength(100).HasColumnType("nvarchar(100)");
-            builder.Property(t => t.Subject).IsRequired(false).HasMaxLength(100).HasColumnType("nvarchar(100)");
-            builder.Property(t => t.Chapter).IsRequired(false).HasMaxLength(200).HasColumnType("nvarchar(200)");
+            // ── Year (optional) ──────────────────────────────────
+            builder.Property(t => t.Year)
+                .IsRequired(false)
+                .HasColumnType("int");
 
-            // ── Progress ─────────────────────────────────────────
-            builder.Property(t => t.TotalQuestions).IsRequired().HasColumnType("int");
-            builder.Property(t => t.CompletedCount).IsRequired().HasDefaultValue(0).HasColumnType("int");
+            // ── Master FKs (required) ────────────────────────────
+            builder.Property(t => t.SyllabusId)
+                .IsRequired()
+                .HasColumnType("uniqueidentifier");
 
-            // ── Deadline & Priority ──────────────────────────────
-            builder.Property(t => t.Deadline).IsRequired().HasColumnType("datetime2");
+            builder.Property(t => t.GradeId)
+                .IsRequired()
+                .HasColumnType("uniqueidentifier");
+
+            builder.Property(t => t.SubjectId)
+                .IsRequired()
+                .HasColumnType("uniqueidentifier");
+
+            // ── Master FKs (nullable) ────────────────────────────
+            builder.Property(t => t.UnitId)
+                .IsRequired(false)
+                .HasColumnType("uniqueidentifier");
+
+            builder.Property(t => t.ChapterId)
+                .IsRequired(false)
+                .HasColumnType("uniqueidentifier");
+
+            // ── Task Details ─────────────────────────────────────
+            builder.Property(t => t.TotalQuestions)
+                .IsRequired()
+                .HasColumnType("int");
+
+            builder.Property(t => t.CompletedCount)
+                .IsRequired()
+                .HasDefaultValue(0)
+                .HasColumnType("int");
+
+            builder.Property(t => t.Deadline)
+                .IsRequired()
+                .HasColumnType("datetime2");
+
             builder.Property(t => t.Priority)
                 .IsRequired()
-                .HasConversion<int>()
-                .HasDefaultValue(TaskPriority.Medium)
+                .HasDefaultValue(1) // Medium
                 .HasColumnType("int");
 
-            // ── Instructions ─────────────────────────────────────
             builder.Property(t => t.Instructions)
                 .IsRequired(false)
                 .HasMaxLength(2000)
                 .HasColumnType("nvarchar(2000)");
 
-            // ── Status ───────────────────────────────────────────
             builder.Property(t => t.Status)
                 .IsRequired()
-                .HasConversion<int>()
-                .HasDefaultValue(Domain.Enums.TaskStatus.Pending)
+                .HasDefaultValue(0) // Pending
                 .HasColumnType("int");
 
             // ── Indexes ──────────────────────────────────────────
@@ -80,21 +102,66 @@
             builder.HasIndex(t => t.Deadline)
                 .HasDatabaseName("IX_TaskAssignments_Deadline");
 
-            builder.HasIndex(t => t.Priority)
-                .HasDatabaseName("IX_TaskAssignments_Priority");
+            builder.HasIndex(t => t.SyllabusId)
+                .HasDatabaseName("IX_TaskAssignments_SyllabusId");
+
+            builder.HasIndex(t => t.SubjectId)
+                .HasDatabaseName("IX_TaskAssignments_SubjectId");
 
             // ── Relationships ────────────────────────────────────
+
+            // → StaffRegistration (operator)
             builder.HasOne(t => t.Operator)
                 .WithMany()
                 .HasForeignKey(t => t.OperatorId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // → ContentResourceType
+            builder.HasOne(t => t.ResourceType)
+                .WithMany()
+                .HasForeignKey(t => t.ResourceTypeId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // → ExamSyllabus
+            builder.HasOne(t => t.Syllabus)
+                .WithMany()
+                .HasForeignKey(t => t.SyllabusId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // → ExamGrade
+            builder.HasOne(t => t.Grade)
+                .WithMany()
+                .HasForeignKey(t => t.GradeId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            // → ExamSubject
+            builder.HasOne(t => t.Subject)
+                .WithMany()
+                .HasForeignKey(t => t.SubjectId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            // → ExamUnit (nullable)
+            builder.HasOne(t => t.Unit)
+                .WithMany()
+                .HasForeignKey(t => t.UnitId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            // → ExamChapter (nullable)
+            builder.HasOne(t => t.Chapter)
+                .WithMany()
+                .HasForeignKey(t => t.ChapterId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            // → Questions
             builder.HasMany(t => t.Questions)
                 .WithOne(q => q.TaskAssignment)
                 .HasForeignKey(q => q.TaskId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            builder.HasMany(t => t.DailyReports)
+            // → DailyActivityReports
+            builder.HasMany(t => t.DailyActivityReports)
                 .WithOne(d => d.TaskAssignment)
                 .HasForeignKey(d => d.TaskId)
                 .IsRequired(false)

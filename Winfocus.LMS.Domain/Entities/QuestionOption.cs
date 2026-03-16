@@ -38,14 +38,6 @@
         public string OptionText { get; set; } = string.Empty;
 
         /// <summary>
-        /// Gets or sets the display order.
-        /// </summary>
-        /// <value>
-        /// The display order.
-        /// </value>
-        public int DisplayOrder { get; set; } = 0;
-
-        /// <summary>
         /// Gets or sets a value indicating whether this instance is correct.
         /// </summary>
         /// <value>

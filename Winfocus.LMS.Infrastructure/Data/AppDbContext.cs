@@ -312,6 +312,54 @@
         /// </value>
         public DbSet<PageHeading> PageHeadings { get; set; } = null!;
 
+        /// <summary>
+        /// Gets or sets the exam syllabuses.
+        /// </summary>
+        /// <value>
+        /// The exam syllabuses.
+        /// </value>
+        public DbSet<ExamSyllabus> ExamSyllabuses { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the exam grades.
+        /// </summary>
+        /// <value>
+        /// The exam grades.
+        /// </value>
+        public DbSet<ExamGrade> ExamGrades { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the exam subjects.
+        /// </summary>
+        /// <value>
+        /// The exam subjects.
+        /// </value>
+        public DbSet<ExamSubject> ExamSubjects { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the exam units.
+        /// </summary>
+        /// <value>
+        /// The exam units.
+        /// </value>
+        public DbSet<ExamUnit> ExamUnits { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the exam chapters.
+        /// </summary>
+        /// <value>
+        /// The exam chapters.
+        /// </value>
+        public DbSet<ExamChapter> ExamChapters { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the content resource types.
+        /// </summary>
+        /// <value>
+        /// The content resource types.
+        /// </value>
+        public DbSet<ContentResourceType> ContentResourceTypes { get; set; } = null!;
+
         /// <summary>Gets or sets the task assignments.</summary>
         public DbSet<TaskAssignment> TaskAssignments { get; set; } = null!;
 
@@ -352,6 +400,12 @@
             modelBuilder.ApplyConfiguration(new StaffRegistrationConfiguration());
             modelBuilder.ApplyConfiguration(new StaffRegistrationValueConfiguration());
             modelBuilder.ApplyConfiguration(new PageHeadingConfiguration());
+            modelBuilder.ApplyConfiguration(new ExamSyllabusConfiguration());
+            modelBuilder.ApplyConfiguration(new ExamGradeConfiguration());
+            modelBuilder.ApplyConfiguration(new ExamSubjectConfiguration());
+            modelBuilder.ApplyConfiguration(new ExamUnitConfiguration());
+            modelBuilder.ApplyConfiguration(new ExamChapterConfiguration());
+            modelBuilder.ApplyConfiguration(new ContentResourceTypeConfiguration());
             modelBuilder.ApplyConfiguration(new TaskAssignmentConfiguration());
             modelBuilder.ApplyConfiguration(new QuestionConfiguration());
             modelBuilder.ApplyConfiguration(new QuestionOptionConfiguration());

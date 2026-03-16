@@ -3,8 +3,6 @@
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Metadata.Builders;
     using Winfocus.LMS.Domain.Entities;
-    using Winfocus.LMS.Domain.Enums;
-    using Winfocus.LMS.Infrastructure.Data.Configurations;
 
     /// <summary>
     /// QuestionConfiguration.
@@ -21,27 +19,26 @@
         {
             builder.ToTable("Questions");
 
-            // ── FKs ──────────────────────────────────────────────
-            builder.Property(q => q.TaskId).IsRequired().HasColumnType("uniqueidentifier");
-            builder.Property(q => q.OperatorId).IsRequired().HasColumnType("uniqueidentifier");
+            builder.Property(q => q.TaskId)
+                .IsRequired()
+                .HasColumnType("uniqueidentifier");
 
-            // ── QuestionType ─────────────────────────────────────
+            builder.Property(q => q.OperatorId)
+                .IsRequired()
+                .HasColumnType("uniqueidentifier");
+
             builder.Property(q => q.QuestionType)
                 .IsRequired()
-                .HasConversion<int>()
                 .HasColumnType("int");
 
-            // ── QuestionText ─────────────────────────────────────
             builder.Property(q => q.QuestionText)
                 .IsRequired()
                 .HasColumnType("nvarchar(max)");
 
-            // ── Marks ────────────────────────────────────────────
             builder.Property(q => q.Marks)
                 .IsRequired(false)
                 .HasColumnType("decimal(5,2)");
 
-            // ── Answers ──────────────────────────────────────────
             builder.Property(q => q.CorrectAnswer)
                 .IsRequired(false)
                 .HasMaxLength(10)
@@ -51,17 +48,14 @@
                 .IsRequired(false)
                 .HasColumnType("nvarchar(max)");
 
-            // ── Reference ────────────────────────────────────────
             builder.Property(q => q.Reference)
                 .IsRequired(false)
                 .HasMaxLength(500)
                 .HasColumnType("nvarchar(500)");
 
-            // ── Status ───────────────────────────────────────────
             builder.Property(q => q.Status)
                 .IsRequired()
-                .HasConversion<int>()
-                .HasDefaultValue(QuestionStatus.Draft)
+                .HasDefaultValue(0) // Draft
                 .HasColumnType("int");
 
             // ── Indexes ──────────────────────────────────────────
@@ -72,16 +66,20 @@
                 .HasDatabaseName("IX_Questions_OperatorId_Status");
 
             // ── Relationships ────────────────────────────────────
+
+            // → StaffRegistration (operator)
             builder.HasOne(q => q.Operator)
                 .WithMany()
                 .HasForeignKey(q => q.OperatorId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // → QuestionOptions (CASCADE DELETE)
             builder.HasMany(q => q.Options)
                 .WithOne(o => o.Question)
                 .HasForeignKey(o => o.QuestionId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // → QuestionReviews
             builder.HasMany(q => q.Reviews)
                 .WithOne(r => r.Question)
                 .HasForeignKey(r => r.QuestionId)

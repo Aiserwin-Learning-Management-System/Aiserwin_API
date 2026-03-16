@@ -18,32 +18,29 @@
         {
             builder.ToTable("QuestionOptions");
 
-            builder.HasKey(o => o.Id);
-            builder.Property(o => o.Id)
-                .HasColumnType("uniqueidentifier")
-                .HasDefaultValueSql("NEWSEQUENTIALID()")
-                .ValueGeneratedOnAdd();
-
-            builder.Property(o => o.QuestionId).IsRequired().HasColumnType("uniqueidentifier");
+            builder.Property(o => o.QuestionId)
+                .IsRequired()
+                .HasColumnType("uniqueidentifier");
 
             builder.Property(o => o.OptionLabel)
-                .IsRequired().HasMaxLength(10).HasColumnType("nvarchar(10)");
+                .IsRequired()
+                .HasMaxLength(10)
+                .HasColumnType("nvarchar(10)");
 
             builder.Property(o => o.OptionText)
-                .IsRequired().HasColumnType("nvarchar(max)");
-
-            builder.Property(o => o.DisplayOrder)
-                .IsRequired().HasDefaultValue(0).HasColumnType("int");
+                .IsRequired()
+                .HasColumnType("nvarchar(max)");
 
             builder.Property(o => o.IsCorrect)
-                .IsRequired().HasDefaultValue(false).HasColumnType("bit");
+                .IsRequired()
+                .HasDefaultValue(false)
+                .HasColumnType("bit");
 
-            builder.HasIndex(o => new { o.QuestionId, o.DisplayOrder })
-                .HasDatabaseName("IX_QuestionOptions_QuestionId_DisplayOrder");
-
+            // Prevent duplicate labels per question
             builder.HasIndex(o => new { o.QuestionId, o.OptionLabel })
                 .IsUnique()
-                .HasDatabaseName("IX_QuestionOptions_QuestionId_Label_Unique");
+                .HasFilter("[IsDeleted] = 0")
+                .HasDatabaseName("IX_QuestionOptions_QuestionId_Label_WhereNotDeleted");
         }
     }
 }
