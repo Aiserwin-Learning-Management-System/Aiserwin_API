@@ -312,6 +312,24 @@
         /// </value>
         public DbSet<PageHeading> PageHeadings { get; set; } = null!;
 
+        /// <summary>Gets or sets the task assignments.</summary>
+        public DbSet<TaskAssignment> TaskAssignments { get; set; } = null!;
+
+        /// <summary>Gets or sets the questions.</summary>
+        public DbSet<Question> Questions { get; set; } = null!;
+
+        /// <summary>Gets or sets the question options.</summary>
+        public DbSet<QuestionOption> QuestionOptions { get; set; } = null!;
+
+        /// <summary>Gets or sets the question reviews.</summary>
+        public DbSet<QuestionReview> QuestionReviews { get; set; } = null!;
+
+        /// <summary>Gets or sets the daily activity reports.</summary>
+        public DbSet<DailyActivityReport> DailyActivityReports { get; set; } = null!;
+
+        /// <summary>Gets or sets the guidelines.</summary>
+        public DbSet<Guideline> Guidelines { get; set; } = null!;
+
         /// <summary>
         /// Configures the model for the context.
         /// </summary>
@@ -334,6 +352,12 @@
             modelBuilder.ApplyConfiguration(new StaffRegistrationConfiguration());
             modelBuilder.ApplyConfiguration(new StaffRegistrationValueConfiguration());
             modelBuilder.ApplyConfiguration(new PageHeadingConfiguration());
+            modelBuilder.ApplyConfiguration(new TaskAssignmentConfiguration());
+            modelBuilder.ApplyConfiguration(new QuestionConfiguration());
+            modelBuilder.ApplyConfiguration(new QuestionOptionConfiguration());
+            modelBuilder.ApplyConfiguration(new QuestionReviewConfiguration());
+            modelBuilder.ApplyConfiguration(new DailyActivityReportConfiguration());
+            modelBuilder.ApplyConfiguration(new GuidelineConfiguration());
 
             // User configuration
             modelBuilder.Entity<User>()
