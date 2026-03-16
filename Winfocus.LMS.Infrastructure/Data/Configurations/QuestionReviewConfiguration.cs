@@ -17,31 +17,36 @@
         /// <param name="builder">The builder to be used to configure the entity type.</param>
         public void Configure(EntityTypeBuilder<QuestionReview> builder)
         {
+
             builder.ToTable("QuestionReviews");
 
-            builder.HasKey(r => r.Id);
-            builder.Property(r => r.Id)
-                .HasColumnType("uniqueidentifier")
-                .HasDefaultValueSql("NEWSEQUENTIALID()")
-                .ValueGeneratedOnAdd();
-
-            builder.Property(r => r.QuestionId).IsRequired().HasColumnType("uniqueidentifier");
+            builder.Property(r => r.QuestionId)
+                .IsRequired()
+                .HasColumnType("uniqueidentifier");
 
             builder.Property(r => r.ReviewerId)
-                .IsRequired().HasMaxLength(100).HasColumnType("nvarchar(100)");
+                .IsRequired()
+                .HasColumnType("uniqueidentifier");
 
             builder.Property(r => r.ReviewerRole)
-                .IsRequired().HasMaxLength(50).HasColumnType("nvarchar(50)");
+                .IsRequired()
+                .HasMaxLength(50)
+                .HasColumnType("nvarchar(50)");
 
             builder.Property(r => r.Action)
-                .IsRequired().HasConversion<int>().HasColumnType("int");
+                .IsRequired()
+                .HasColumnType("int");
 
             builder.Property(r => r.Feedback)
-                .IsRequired(false).HasMaxLength(2000).HasColumnType("nvarchar(2000)");
+                .IsRequired(false)
+                .HasMaxLength(2000)
+                .HasColumnType("nvarchar(2000)");
 
             builder.Property(r => r.ReviewedAt)
-                .IsRequired().HasDefaultValueSql("GETUTCDATE()").HasColumnType("datetime2");
+                .IsRequired()
+                .HasColumnType("datetime2");
 
+            // ── Indexes ──────────────────────────────────────────
             builder.HasIndex(r => r.QuestionId)
                 .HasDatabaseName("IX_QuestionReviews_QuestionId");
 
