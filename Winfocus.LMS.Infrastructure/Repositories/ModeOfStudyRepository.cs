@@ -98,7 +98,7 @@
                 return false;
             }
 
-            if (entity.CountryId != countryId)
+            if (countryId != Guid.Empty && entity.CountryId != countryId)
             {
                 return false;
             }
@@ -143,9 +143,15 @@
         /// </returns>
         public IQueryable<ModeOfStudy> Query(Guid countryId)
         {
-            return _dbContext.ModeOfStudies.Where(x => !x.IsDeleted && x.CountryId == countryId)
+           var res = _dbContext.ModeOfStudies.Where(x => !x.IsDeleted)
                 .Include(x => x.Country)
                 .AsNoTracking();
+           if (Guid.Empty != countryId)
+            {
+                res = res.Where(x => x.CountryId == countryId);
+            }
+
+           return res;
         }
     }
 }

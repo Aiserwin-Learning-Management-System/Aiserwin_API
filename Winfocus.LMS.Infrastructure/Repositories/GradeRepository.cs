@@ -29,13 +29,19 @@
         /// <returns>Grade list.</returns>
         public async Task<IReadOnlyList<Grade>> GetAllAsync(Guid centerId)
         {
-            return await _db.Grades.Where(x => !x.IsDeleted && x.Syllabus.CenterId == centerId)
+            var res = _db.Grades.Where(x => !x.IsDeleted)
                 .Include(x => x.Syllabus)
                 .ThenInclude(x => x.Center)
                 .ThenInclude(x => x.State)
                 .ThenInclude(x => x.Country)
-                .AsNoTracking()
-                .ToListAsync();
+                .AsNoTracking();
+
+            if (centerId != Guid.Empty)
+            {
+                res = res.Where(x => x.Syllabus.CenterId == centerId);
+            }
+
+            return await res.ToListAsync();
         }
 
         /// <summary>
@@ -107,7 +113,7 @@
                 return false;
             }
 
-            if (entity.Syllabus.CenterId != centerId)
+            if (centerId != Guid.Empty && entity.Syllabus.CenterId != centerId)
             {
                 return false;
             }
@@ -155,11 +161,17 @@
         /// </returns>
         public IQueryable<Grade> Query(Guid centerId)
         {
-            return _db.Grades.Where(x => !x.IsDeleted && x.Syllabus.CenterId == centerId).Include(x => x.Syllabus)
+            var res = _db.Grades.Where(x => !x.IsDeleted).Include(x => x.Syllabus)
                 .ThenInclude(x => x.Center)
                 .ThenInclude(x => x.State)
                 .ThenInclude(x => x.Country)
                 .AsNoTracking();
+            if (centerId != Guid.Empty)
+            {
+                res.Where(x => x.Syllabus.CenterId == centerId);
+            }
+
+            return res;
         }
     }
 }

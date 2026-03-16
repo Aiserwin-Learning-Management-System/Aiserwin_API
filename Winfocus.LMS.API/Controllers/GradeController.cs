@@ -43,9 +43,12 @@ namespace Winfocus.LMS.API.Controllers
         {
             if (User?.Identity?.IsAuthenticated == true)
             {
-                var userId = UserId;
+                if (User.IsInRole("SuperAdmin"))
+                {
+                    return Ok(await _gradeService.GetAllAsync(Guid.Empty));
+                }
 
-                if (userId != Guid.Empty)
+                if (UserId != Guid.Empty)
                 {
                     var countryIdFromToken = CenterId;
                     return Ok(await _gradeService.GetAllAsync(countryIdFromToken));
@@ -72,7 +75,8 @@ namespace Winfocus.LMS.API.Controllers
                 return NotFound("syllabus not found.");
             }
 
-            if (CenterId != syllabus.Data.CeneterId)
+            var isSuperAdmin = User.IsInRole("SuperAdmin");
+            if (!isSuperAdmin && CenterId != syllabus.Data.CeneterId)
             {
                 return StatusCode(403, "You are not allowed to create data for this center.");
             }
@@ -81,6 +85,7 @@ namespace Winfocus.LMS.API.Controllers
             {
                 userId = UserId
             };
+
             var created = await _gradeService.CreateAsync(updatedRequest);
             return Ok(created);
         }
@@ -96,17 +101,20 @@ namespace Winfocus.LMS.API.Controllers
         {
             if (User?.Identity?.IsAuthenticated == true)
             {
-                var userId = UserId;
-
-                if (userId != Guid.Empty)
+                if (User.IsInRole("SuperAdmin"))
                 {
-                    var countryIdFromToken = CenterId;
-                    return Ok(await _gradeService.GetByIdCenterIdAsync(id,countryIdFromToken));
+                    return Ok(await _gradeService.GetByIdAsync(id));
+                }
+
+                if (UserId != Guid.Empty)
+                {
+                    return Ok(await _gradeService.GetByIdCenterIdAsync(id, CenterId));
                 }
             }
 
             return Ok(await _gradeService.GetByIdCenterIdAsync(id, centerid));
         }
+
            //=> Ok(await _gradeService.GetByIdAsync(id));
 
         /// <summary>
@@ -127,7 +135,8 @@ namespace Winfocus.LMS.API.Controllers
                 return NotFound("syllabus not found.");
             }
 
-            if (CenterId != syllabus.Data.CeneterId)
+            var isSuperAdmin = User.IsInRole("SuperAdmin");
+            if (!isSuperAdmin && CenterId != syllabus.Data.CeneterId)
             {
                 return StatusCode(403, "You are not allowed to create data for this center.");
             }
@@ -161,6 +170,12 @@ namespace Winfocus.LMS.API.Controllers
         [HttpDelete("{id:guid}")]
         public async Task<ActionResult<CommonResponse<bool>>> Delete(Guid id)
         {
+            var isSuperAdmin = User.IsInRole("SuperAdmin");
+            if (isSuperAdmin)
+            {
+                return await _gradeService.DeleteAsync(id, Guid.Empty);
+            }
+
             var result = await _gradeService.DeleteAsync(id, CenterId);
             return Ok(result);
         }
@@ -175,6 +190,12 @@ namespace Winfocus.LMS.API.Controllers
         public async Task<ActionResult<CommonResponse<PagedResult<GradeDto>>>> GetFiltered(
         [FromQuery] PagedRequest request)
         {
+            var isSuperAdmin = User.IsInRole("SuperAdmin");
+            if (isSuperAdmin)
+            {
+                return Ok(await _gradeService.GetFilteredAsync(request, Guid.Empty));
+            }
+
             var result = await _gradeService.GetFilteredAsync(request, CenterId);
             return Ok(result);
         }

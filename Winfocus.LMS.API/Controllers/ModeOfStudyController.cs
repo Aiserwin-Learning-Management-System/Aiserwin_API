@@ -40,9 +40,12 @@ namespace Winfocus.LMS.API.Controllers
         {
             if (User?.Identity?.IsAuthenticated == true)
             {
-                var userId = UserId;
+                if (User.IsInRole("SuperAdmin"))
+                {
+                    return Ok(await _modeofstudyService.GetAllAsync());
+                }
 
-                if (userId != Guid.Empty)
+                if (UserId != Guid.Empty)
                 {
                     var countryIdFromToken = CountryId;
                     return Ok(await _modeofstudyService.GetByCountryIdAsync(countryIdFromToken));
@@ -64,8 +67,8 @@ namespace Winfocus.LMS.API.Controllers
         public async Task<ActionResult<CommonResponse<ModeOfStudyDto>>> Create(
             ModeOfStudyRequest request)
         {
-
-            if (CountryId != request.countryid)
+            var isSuperAdmin = User.IsInRole("SuperAdmin");
+            if (!isSuperAdmin && CountryId != request.countryid)
             {
                 return StatusCode(403, "You are not allowed to create data for this country.");
             }
@@ -90,6 +93,11 @@ namespace Winfocus.LMS.API.Controllers
         {
             if (User?.Identity?.IsAuthenticated == true)
             {
+                if (User.IsInRole("SuperAdmin"))
+                {
+                    return Ok(await _modeofstudyService.GetByIdAsync(id, Guid.Empty));
+                }
+
                 if (UserId != Guid.Empty)
                 {
                     var countryIdFromToken = CountryId;
@@ -117,7 +125,8 @@ namespace Winfocus.LMS.API.Controllers
             {
                 userId = UserId
             };
-            if (CountryId != request.countryid)
+            var isSuperAdmin = User.IsInRole("SuperAdmin");
+            if (!isSuperAdmin && CountryId != request.countryid)
             {
                 return StatusCode(403, "You are not allowed to create data for this center.");
             }
@@ -149,10 +158,10 @@ namespace Winfocus.LMS.API.Controllers
         {
             if (User?.Identity?.IsAuthenticated == true)
             {
-                if (UserId != Guid.Empty)
+                var isSuperAdmin = User.IsInRole("SuperAdmin");
+                if (isSuperAdmin)
                 {
-                    var countryIdFromToken = CountryId;
-                    return Ok(await _modeofstudyService.DeleteAsync(id, countryIdFromToken));
+                    return Ok(await _modeofstudyService.DeleteAsync(id, Guid.Empty));
                 }
             }
 
@@ -170,6 +179,12 @@ namespace Winfocus.LMS.API.Controllers
         public async Task<ActionResult<CommonResponse<PagedResult<ModeOfStudyDto>>>> GetFiltered(
         [FromQuery] PagedRequest request)
         {
+            var isSuperAdmin = User.IsInRole("SuperAdmin");
+            if (isSuperAdmin)
+            {
+                return Ok(await _modeofstudyService.GetFilteredAsync(request, Guid.Empty));
+            }
+
             var result = await _modeofstudyService.GetFilteredAsync(request, CountryId);
             return Ok(result);
         }

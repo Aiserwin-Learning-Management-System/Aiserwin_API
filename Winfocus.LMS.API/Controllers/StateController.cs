@@ -40,6 +40,11 @@ namespace Winfocus.LMS.API.Controllers
         {
             if (User?.Identity?.IsAuthenticated == true)
             {
+                if (User.IsInRole("SuperAdmin"))
+                {
+                    return Ok(await _stateService.GetAllAsync());
+                }
+
                 if (UserId != Guid.Empty)
                 {
                     return Ok(await _stateService.GetByCountryIdAsync(CountryId));
@@ -61,7 +66,8 @@ namespace Winfocus.LMS.API.Controllers
         public async Task<ActionResult<CommonResponse<StateDto>>> Create(
             CreateMasterStateRequest request)
         {
-            if (CountryId != request.countryid)
+            var isSuperAdmin = User.IsInRole("SuperAdmin");
+            if (!isSuperAdmin && CountryId != request.countryid)
             {
                 return StatusCode(403, "You are not allowed to create data for this country.");
             }
@@ -85,6 +91,11 @@ namespace Winfocus.LMS.API.Controllers
         {
             if (User?.Identity?.IsAuthenticated == true)
             {
+                if (User.IsInRole("SuperAdmin"))
+                {
+                    return Ok(await _stateService.GetByIdAsync(id, Guid.Empty));
+                }
+
                 if (UserId != Guid.Empty)
                 {
                     return Ok(await _stateService.GetByIdAsync(id, CountryId));
@@ -107,10 +118,12 @@ namespace Winfocus.LMS.API.Controllers
             Guid id,
             CreateMasterStateRequest request)
         {
-            if (CountryId != request.countryid)
+            var isSuperAdmin = User.IsInRole("SuperAdmin");
+            if (!isSuperAdmin && CountryId != request.countryid)
             {
                 return StatusCode(403, "You are not allowed to create data for this country.");
             }
+
             var updatedRequest = request with
             {
                 userId = UserId
@@ -140,6 +153,12 @@ namespace Winfocus.LMS.API.Controllers
         [HttpDelete("{id:guid}")]
         public async Task<CommonResponse<bool>> Delete(Guid id)
         {
+            var isSuperAdmin = User.IsInRole("SuperAdmin");
+            if (isSuperAdmin)
+            {
+                return await _stateService.DeleteAsync(id, Guid.Empty);
+            }
+
             return await _stateService.DeleteAsync(id, CountryId);
         }
 
@@ -156,6 +175,12 @@ namespace Winfocus.LMS.API.Controllers
         public async Task<ActionResult<CommonResponse<PagedResult<StateDto>>>> GetFiltered(
         [FromQuery] PagedRequest request)
         {
+            var isSuperAdmin = User.IsInRole("SuperAdmin");
+            if (isSuperAdmin)
+            {
+                return Ok(await _stateService.GetFilteredAsync(request, Guid.Empty));
+            }
+
             var result = await _stateService.GetFilteredAsync(request, CountryId);
             return Ok(result);
         }
