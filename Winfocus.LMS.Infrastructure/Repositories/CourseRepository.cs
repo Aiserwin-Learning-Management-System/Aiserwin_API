@@ -175,7 +175,7 @@
                 return false;
             }
 
-            if (entity.Grade.Syllabus.CenterId != centerId)
+            if (centerId != Guid.Empty && entity.Grade.Syllabus.CenterId != centerId)
             {
                 return false;
             }
@@ -206,7 +206,7 @@
         /// <returns>Queryable courses.</returns>
         public IQueryable<Course> Query(Guid centerId)
         {
-            return _db.Courses.Where(x => !x.IsDeleted && x.Grade.Syllabus.CenterId == centerId)
+            var res = _db.Courses.Where(x => !x.IsDeleted)
                 .Include(c => c.Stream)
                 .ThenInclude(s => s.Grade)
                 .ThenInclude(g => g.Syllabus)
@@ -217,6 +217,12 @@
                 .ThenInclude(g => g.Syllabus)
                 .ThenInclude(x => x.Center)
                         .AsNoTracking();
+            if (centerId != Guid.Empty)
+            {
+                res = res.Where(x => x.Grade.Syllabus.CenterId == centerId);
+            }
+
+            return res;
         }
     }
 }

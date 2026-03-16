@@ -44,6 +44,11 @@ namespace Winfocus.LMS.API.Controllers
         {
             if (User?.Identity?.IsAuthenticated == true)
             {
+                if (User.IsInRole("SuperAdmin"))
+                {
+                    return Ok(await _batchtimingsundayService.GetAllAsync(Guid.Empty));
+                }
+
                 if (UserId != Guid.Empty)
                 {
                     return Ok(await _batchtimingsundayService.GetAllAsync(CenterId));
@@ -71,10 +76,12 @@ namespace Winfocus.LMS.API.Controllers
                 return NotFound("Subject not found.");
             }
 
-            if (CenterId != subject.Data.CenterId)
+            var isSuperAdmin = User.IsInRole("SuperAdmin");
+            if (!isSuperAdmin && CenterId != subject.Data.CenterId)
             {
                 return StatusCode(403, "You are not allowed to create data for this center.");
             }
+
             var updatedRequest = request with
             {
                 userId = UserId
@@ -98,6 +105,10 @@ namespace Winfocus.LMS.API.Controllers
                 {
                     return Ok(await _batchtimingsundayService.GetByIdCenterIdAsync(id, CenterId));
                 }
+                if (User.IsInRole("SuperAdmin"))
+                {
+                    return Ok(await _batchtimingsundayService.GetByIdAsync(id));
+                }
             }
 
             return Ok(await _batchtimingsundayService.GetByIdCenterIdAsync(id, centerid));
@@ -120,8 +131,8 @@ namespace Winfocus.LMS.API.Controllers
             {
                 return NotFound("Subject not found.");
             }
-
-            if (CenterId != subject.Data.CenterId)
+            var isSuperAdmin = User.IsInRole("SuperAdmin");
+            if (!isSuperAdmin && CenterId != subject.Data.CenterId)
             {
                 return StatusCode(403, "You are not allowed to create data for this center.");
             }
@@ -142,7 +153,17 @@ namespace Winfocus.LMS.API.Controllers
         [Authorize(Roles = "Admin,SuperAdmin,CenterAdmin")]
         [HttpDelete("{id:guid}")]
         public async Task<ActionResult<CommonResponse<bool>>> Delete(Guid id)
-        => Ok(await _batchtimingsundayService.DeleteAsync(id, CenterId));
+        {
+            var isSuperAdmin = User.IsInRole("SuperAdmin");
+            if (isSuperAdmin)
+            {
+                return await _batchtimingsundayService.DeleteAsync(id, Guid.Empty);
+            }
+
+            var result = await _batchtimingsundayService.DeleteAsync(id, CenterId);
+            return Ok(result);
+        }
+       // => Ok(await _batchtimingsundayService.DeleteAsync(id, CenterId));
 
         /// <summary>
         /// Gets the specified identifier.
@@ -184,6 +205,13 @@ namespace Winfocus.LMS.API.Controllers
         public async Task<ActionResult<CommonResponse<PagedResult<BatchTimingSundayDto>>>> GetFiltered(
             [FromQuery] PagedRequest request)
         {
+
+            var isSuperAdmin = User.IsInRole("SuperAdmin");
+            if (isSuperAdmin)
+            {
+                return Ok(await _batchtimingsundayService.GetFilteredAsync(request, Guid.Empty));
+            }
+
             var result = await _batchtimingsundayService.GetFilteredAsync(request, CenterId);
             return Ok(result);
         }

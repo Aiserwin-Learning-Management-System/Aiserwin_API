@@ -68,8 +68,9 @@
         /// <summary>
         /// Gets all asynchronous.
         /// </summary>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>subject.</returns>
-        IQueryable<Subject> Query();
+        IQueryable<Subject> Query(Guid centerId);
 
         /// <summary>
         /// Existses the by code asynchronous.

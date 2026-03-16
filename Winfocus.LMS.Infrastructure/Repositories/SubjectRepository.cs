@@ -30,10 +30,17 @@
         /// Subject list.
         /// </returns>
         public async Task<IReadOnlyList<Subject>> GetAllAsync(Guid centerId)
-            => await _db.Subjects
-                .Where(x => x.IsActive && !x.IsDeleted && x.Course.Grade.Syllabus.CenterId == centerId)
-                .AsNoTracking()
-                .ToListAsync();
+        {
+             var res = _db.Subjects
+                .Where(x => x.IsActive && !x.IsDeleted )
+                .AsNoTracking();
+             if (centerId != Guid.Empty)
+             {
+                res = res.Where(x => x.Course.Grade.Syllabus.CenterId == centerId);
+             }
+
+             return await res.ToListAsync();
+        }
 
         /// <summary>
         /// Gets the by identifier asynchronous.
@@ -158,7 +165,7 @@
                 return false;
             }
 
-            if (entity.Course.Grade.Syllabus.CenterId != centerId)
+            if (centerId != Guid.Empty && entity.Course.Grade.Syllabus.CenterId != centerId)
             {
                 return false;
             }
@@ -175,10 +182,11 @@
         /// <summary>
         /// Gets queryable for filtering with full hierarchy.
         /// </summary>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>Queryable subjects.</returns>
-        public IQueryable<Subject> Query()
+        public IQueryable<Subject> Query(Guid centerId)
         {
-            return _db.Subjects.Where(x => !x.IsDeleted)
+            var res = _db.Subjects.Where(x => !x.IsDeleted)
                 .Include(c => c.Course)
                     .ThenInclude(g => g.Stream)
                      .ThenInclude(s => s.Grade)
@@ -187,6 +195,11 @@
                              .ThenInclude(x => x.State)
                              .ThenInclude(x => x.Country)
                 .AsNoTracking();
+            if (centerId != Guid.Empty)
+            {
+                res = res.Where(x => x.Course.Grade.Syllabus.CenterId == centerId);
+            }
+            return res;
         }
 
         /// <summary>

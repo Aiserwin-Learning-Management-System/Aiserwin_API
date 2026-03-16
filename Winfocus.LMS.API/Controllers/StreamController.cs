@@ -42,12 +42,14 @@
         {
             if (User?.Identity?.IsAuthenticated == true)
             {
-                var userId = UserId;
-
-                if (userId != Guid.Empty)
+                if (User.IsInRole("SuperAdmin"))
                 {
-                    var centerIdFromToken = CenterId;
-                    return Ok(await _streamService.GetAllAsync(centerIdFromToken));
+                    return Ok(await _streamService.GetAllAsync(Guid.Empty));
+                }
+
+                if (UserId != Guid.Empty)
+                {
+                    return Ok(await _streamService.GetAllAsync(CenterId));
                 }
             }
 
@@ -72,7 +74,8 @@
                 return NotFound("Grade not found.");
             }
 
-            if (CenterId != grade.Data.CenterId)
+            var isSuperAdmin = User.IsInRole("SuperAdmin");
+            if (!isSuperAdmin && CenterId != grade.Data.CenterId)
             {
                 return StatusCode(403, "You are not allowed to create data for this center.");
             }
@@ -93,9 +96,12 @@
         {
             if (User?.Identity?.IsAuthenticated == true)
             {
-                var userId = UserId;
+                if (User.IsInRole("SuperAdmin"))
+                {
+                    return Ok(await _streamService.GetByIdAsync(id));
+                }
 
-                if (userId != Guid.Empty)
+                if (UserId != Guid.Empty)
                 {
                     return Ok(await _streamService.GetByIdCenterIdAsync(id, CenterId));
                 }
@@ -122,7 +128,8 @@
                 return NotFound("Grade not found.");
             }
 
-            if (CenterId != grade.Data.CenterId)
+            var isSuperAdmin = User.IsInRole("SuperAdmin");
+            if (!isSuperAdmin && CenterId != grade.Data.CenterId)
             {
                 return StatusCode(403, "You are not allowed to create data for this center.");
             }
@@ -154,6 +161,12 @@
         [HttpDelete("{id:guid}")]
         public async Task<ActionResult<CommonResponse<bool>>> Delete(Guid id)
         {
+            var isSuperAdmin = User.IsInRole("SuperAdmin");
+            if (isSuperAdmin)
+            {
+                return await _streamService.DeleteAsync(id, Guid.Empty);
+            }
+
             var result = await _streamService.DeleteAsync(id, CenterId);
             return Ok(result);
         }
@@ -168,6 +181,12 @@
         public async Task<ActionResult<CommonResponse<PagedResult<StreamDto>>>> GetFiltered(
             [FromQuery] PagedRequest request)
         {
+            var isSuperAdmin = User.IsInRole("SuperAdmin");
+            if (isSuperAdmin)
+            {
+                return Ok(await _streamService.GetFilteredAsync(request, Guid.Empty));
+            }
+
             var result = await _streamService.GetFilteredAsync(request, CenterId);
             return Ok(result);
         }

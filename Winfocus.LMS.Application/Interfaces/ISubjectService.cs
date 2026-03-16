@@ -72,7 +72,8 @@
         /// Gets filtered subjects with pagination support.
         /// </summary>
         /// <param name="request">The paged request.</param>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>Paginated subjects result.</returns>
-        Task<CommonResponse<PagedResult<SubjectDto>>> GetFilteredAsync(PagedRequest request);
+        Task<CommonResponse<PagedResult<SubjectDto>>> GetFilteredAsync(PagedRequest request, Guid centerId);
     }
 }

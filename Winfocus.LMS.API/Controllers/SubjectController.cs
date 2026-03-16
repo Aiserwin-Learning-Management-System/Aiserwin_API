@@ -45,12 +45,14 @@
         {
             if (User?.Identity?.IsAuthenticated == true)
             {
-                var userId = UserId;
-
-                if (userId != Guid.Empty)
+                if (User.IsInRole("SuperAdmin"))
                 {
-                    var centerIdFromToken = CenterId;
-                    return Ok(await _service.GetAllAsync(centerIdFromToken));
+                    return Ok(await _service.GetAllAsync(Guid.Empty));
+                }
+
+                if (UserId != Guid.Empty)
+                {
+                    return Ok(await _service.GetAllAsync(CenterId));
                 }
             }
 
@@ -70,17 +72,20 @@
         {
             if (User?.Identity?.IsAuthenticated == true)
             {
-                var userId = UserId;
-
-                if (userId != Guid.Empty)
+                if (User.IsInRole("SuperAdmin"))
                 {
-                    var centerIdFromToken = CenterId;
-                    return Ok(await _service.GetByIdCenterIdAsync(id, centerIdFromToken));
+                    return Ok(await _service.GetByIdAsync(id));
+                }
+
+                if (UserId != Guid.Empty)
+                {
+                    return Ok(await _service.GetByIdCenterIdAsync(id, CenterId));
                 }
             }
 
             return Ok(await _service.GetByIdCenterIdAsync(id, centerid));
         }
+
            // => Ok(await _service.GetByIdAsync(id));
 
         /// <summary>
@@ -116,10 +121,12 @@
                 return NotFound("Course not found.");
             }
 
-            if (CenterId != course.Data.CenterId)
+            var isSuperAdmin = User.IsInRole("SuperAdmin");
+            if (!isSuperAdmin && CenterId != course.Data.CenterId)
             {
                 return StatusCode(403, "You are not allowed to create data for this center.");
             }
+
             var updatedRequest = request with { userid = UserId };
             var created = await _service.CreateAsync(request);
             return Ok(created);
@@ -140,8 +147,8 @@
             {
                 return NotFound("Course not found.");
             }
-
-            if (CenterId != course.Data.CenterId)
+            var isSuperAdmin = User.IsInRole("SuperAdmin");
+            if (!isSuperAdmin && CenterId != course.Data.CenterId)
             {
                 return StatusCode(403, "You are not allowed to create data for this center.");
             }
@@ -159,7 +166,16 @@
         [Authorize(Roles = "Admin,SuperAdmin,CenterAdmin")]
         [HttpDelete("{id:guid}")]
         public async Task<ActionResult<CommonResponse<bool>>> Delete(Guid id)
-              => Ok(await _service.DeleteAsync(id, CenterId));
+        {
+            var isSuperAdmin = User.IsInRole("SuperAdmin");
+            if (isSuperAdmin)
+            {
+                return await _service.DeleteAsync(id, Guid.Empty);
+            }
+
+            var result = await _service.DeleteAsync(id, CenterId);
+            return Ok(result);
+        }
 
         /// <summary>
         /// Retrieves filtered subjects with pagination.
@@ -171,7 +187,13 @@
         public async Task<ActionResult<CommonResponse<PagedResult<SubjectDto>>>> GetFiltered(
             [FromQuery] PagedRequest request)
         {
-            var result = await _service.GetFilteredAsync(request);
+            var isSuperAdmin = User.IsInRole("SuperAdmin");
+            if (isSuperAdmin)
+            {
+                return Ok(await _service.GetFilteredAsync(request, Guid.Empty));
+            }
+
+            var result = await _service.GetFilteredAsync(request, CenterId);
             return Ok(result);
         }
     }

@@ -57,7 +57,9 @@
                 new Claim("session_id", sessionId),
                 new Claim("countryId", user.CountryId.ToString() ?? string.Empty),
                 new Claim("centerId", user.CenterId.ToString() ?? string.Empty),
-                new Claim("StaffCategoryId", user.StaffCategoryId?.ToString() ?? ""),
+                new Claim("StaffCategoryId", user.StaffCategoryId?.ToString() ?? string.Empty),
+                new Claim("modeofstudyid", user.Center.ModeOfStudyId.ToString() ?? string.Empty),
+                new Claim("stateid", user.Center.StateId?.ToString() ?? string.Empty),
             };
 
             foreach (var role in roles)

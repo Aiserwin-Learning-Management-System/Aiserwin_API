@@ -52,11 +52,18 @@
         /// <returns>Center.</returns>
         public async Task<Center?> GetByIdAsync(Guid id, Guid countryId)
         {
-            return await _dbContext.Centres
+            var res = _dbContext.Centres
                 .Include(x => x.Country)
                 .Include(x => x.State)
                 .Include(x => x.modeOfStudy)
-                .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted && x.CountryId == countryId);
+                .Where(x => x.Id == id && !x.IsDeleted);
+
+            if (countryId != Guid.Empty)
+            {
+                res = res.Where(x => x.CountryId == countryId);
+            }
+
+            return await res.FirstOrDefaultAsync();
         }
 
         /// <summary>
@@ -97,7 +104,7 @@
                 return false;
             }
 
-            if (entity.CountryId == countryId)
+            if (countryId != Guid.Empty && entity.CountryId == countryId)
             {
                 return false;
             }
@@ -176,11 +183,18 @@
         /// <returns>Queryable center.</returns>
         public IQueryable<Center> Query(Guid countryId)
         {
-            return _dbContext.Centres.Where(x => !x.IsDeleted && x.CountryId == countryId)
+            var res = _dbContext.Centres.Where(x => !x.IsDeleted)
                 .Include(x => x.Country)
                 .Include(x => x.State)
                 .Include(x => x.modeOfStudy)
                 .AsNoTracking();
+
+            if (countryId != Guid.Empty)
+            {
+                res.Where(x => x.CountryId == countryId);
+            }
+
+            return res;
         }
     }
 }

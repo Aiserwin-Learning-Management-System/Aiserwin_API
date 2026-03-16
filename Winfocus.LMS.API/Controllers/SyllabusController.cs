@@ -39,6 +39,11 @@
         {
             if (User?.Identity?.IsAuthenticated == true)
             {
+                if (User.IsInRole("SuperAdmin"))
+                {
+                    return Ok(await _syllabusService.GetByCenterIdAsync(Guid.Empty));
+                }
+
                 if (UserId != Guid.Empty)
                 {
                     var centerIdFromToken = CenterId;
@@ -86,6 +91,11 @@
         {
             if (User?.Identity?.IsAuthenticated == true)
             {
+                if (User.IsInRole("SuperAdmin"))
+                {
+                    return Ok(await _syllabusService.GetByIdAsync(id, Guid.Empty));
+                }
+
                 if (UserId != Guid.Empty)
                 {
                     return Ok(await _syllabusService.GetByIdAsync(id, CenterId));
