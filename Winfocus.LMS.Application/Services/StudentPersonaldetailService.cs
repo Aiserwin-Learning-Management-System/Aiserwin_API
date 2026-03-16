@@ -1,4 +1,4 @@
-﻿namespace Winfocus.LMS.Application.Services
+namespace Winfocus.LMS.Application.Services
 {
     using System;
     using System.Collections.Generic;
@@ -172,7 +172,8 @@
         MobileWhatsapp = c.MobileWhatsapp,
         AreaName = c.AreaName,
         DistrictOrLocation = c.DistrictOrLocation,
-        Emirates = c.Emirates,
+        EmiratesId = c.Emirates,
+        Emirates = null,
         Gender = c.Gender,
     };
     }
