@@ -23,7 +23,15 @@
         /// <value>
         /// The assigned by.
         /// </value>
-        public string AssignedBy { get; set; } = string.Empty;
+        public Guid AssignedBy { get; set; }
+
+        /// <summary>
+        /// Gets or sets the resource type identifier.
+        /// </summary>
+        /// <value>
+        /// The resource type identifier.
+        /// </value>
+        public Guid ResourceTypeId { get; set; }
 
         /// <summary>
         /// Gets or sets the type of the question.
@@ -31,7 +39,7 @@
         /// <value>
         /// The type of the question.
         /// </value>
-        public QuestionType QuestionType { get; set; }
+        public int QuestionType { get; set; }
 
         /// <summary>
         /// Gets or sets the year.
@@ -42,52 +50,44 @@
         public int? Year { get; set; }
 
         /// <summary>
-        /// Gets or sets the syllabus.
+        /// Gets or sets the syllabus identifier.
         /// </summary>
         /// <value>
-        /// The syllabus.
+        /// The syllabus identifier.
         /// </value>
-        public string? Syllabus { get; set; }
+        public Guid SyllabusId { get; set; }
 
         /// <summary>
-        /// Gets or sets the grade.
+        /// Gets or sets the grade identifier.
         /// </summary>
         /// <value>
-        /// The grade.
+        /// The grade identifier.
         /// </value>
-        public string? Grade { get; set; }
+        public Guid GradeId { get; set; }
 
         /// <summary>
-        /// Gets or sets the stream.
+        /// Gets or sets the subject identifier.
         /// </summary>
         /// <value>
-        /// The stream.
+        /// The subject identifier.
         /// </value>
-        public string? Stream { get; set; }
+        public Guid SubjectId { get; set; }
 
         /// <summary>
-        /// Gets or sets the course.
+        /// Gets or sets the unit identifier.
         /// </summary>
         /// <value>
-        /// The course.
+        /// The unit identifier.
         /// </value>
-        public string? Course { get; set; }
+        public Guid? UnitId { get; set; }
 
         /// <summary>
-        /// Gets or sets the subject.
+        /// Gets or sets the chapter identifier.
         /// </summary>
         /// <value>
-        /// The subject.
+        /// The chapter identifier.
         /// </value>
-        public string? Subject { get; set; }
-
-        /// <summary>
-        /// Gets or sets the chapter.
-        /// </summary>
-        /// <value>
-        /// The chapter.
-        /// </value>
-        public string? Chapter { get; set; }
+        public Guid? ChapterId { get; set; }
 
         /// <summary>
         /// Gets or sets the total questions.
@@ -103,7 +103,7 @@
         /// <value>
         /// The completed count.
         /// </value>
-        public int CompletedCount { get; set; } = 0;
+        public int CompletedCount { get; set; }
 
         /// <summary>
         /// Gets or sets the deadline.
@@ -119,7 +119,7 @@
         /// <value>
         /// The priority.
         /// </value>
-        public TaskPriority Priority { get; set; } = TaskPriority.Medium;
+        public int Priority { get; set; }
 
         /// <summary>
         /// Gets or sets the instructions.
@@ -135,7 +135,7 @@
         /// <value>
         /// The status.
         /// </value>
-        public Enums.TaskStatus Status { get; set; } = Enums.TaskStatus.Pending;
+        public int Status { get; set; }
 
         /// <summary>
         /// Gets or sets the operator.
@@ -143,7 +143,55 @@
         /// <value>
         /// The operator.
         /// </value>
-        public StaffRegistration Operator { get; set; } = null!;
+        public StaffRegistration Operator { get; set; } = default!;
+
+        /// <summary>
+        /// Gets or sets the type of the resource.
+        /// </summary>
+        /// <value>
+        /// The type of the resource.
+        /// </value>
+        public ContentResourceType ResourceType { get; set; } = default!;
+
+        /// <summary>
+        /// Gets or sets the syllabus.
+        /// </summary>
+        /// <value>
+        /// The syllabus.
+        /// </value>
+        public ExamSyllabus Syllabus { get; set; } = default!;
+
+        /// <summary>
+        /// Gets or sets the grade.
+        /// </summary>
+        /// <value>
+        /// The grade.
+        /// </value>
+        public ExamGrade Grade { get; set; } = default!;
+
+        /// <summary>
+        /// Gets or sets the subject.
+        /// </summary>
+        /// <value>
+        /// The subject.
+        /// </value>
+        public ExamSubject Subject { get; set; } = default!;
+
+        /// <summary>
+        /// Gets or sets the unit.
+        /// </summary>
+        /// <value>
+        /// The unit.
+        /// </value>
+        public ExamUnit? Unit { get; set; }
+
+        /// <summary>
+        /// Gets or sets the chapter.
+        /// </summary>
+        /// <value>
+        /// The chapter.
+        /// </value>
+        public ExamChapter? Chapter { get; set; }
 
         /// <summary>
         /// Gets or sets the questions.
@@ -154,11 +202,11 @@
         public ICollection<Question> Questions { get; set; } = new List<Question>();
 
         /// <summary>
-        /// Gets or sets the daily reports.
+        /// Gets or sets the daily activity reports.
         /// </summary>
         /// <value>
-        /// The daily reports.
+        /// The daily activity reports.
         /// </value>
-        public ICollection<DailyActivityReport> DailyReports { get; set; } = new List<DailyActivityReport>();
+        public ICollection<DailyActivityReport> DailyActivityReports { get; set; } = new List<DailyActivityReport>();
     }
 }

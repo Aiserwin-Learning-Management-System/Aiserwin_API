@@ -29,7 +29,7 @@
         /// <value>
         /// The reviewer identifier.
         /// </value>
-        public string ReviewerId { get; set; } = string.Empty;
+        public Guid ReviewerId { get; set; }
 
         /// <summary>
         /// Gets or sets the reviewer role.
@@ -45,7 +45,7 @@
         /// <value>
         /// The action.
         /// </value>
-        public ReviewAction Action { get; set; }
+        public int Action { get; set; }
 
         /// <summary>
         /// Gets or sets the feedback.

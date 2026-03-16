@@ -31,7 +31,7 @@
         /// <value>
         /// The type of the question.
         /// </value>
-        public QuestionType QuestionType { get; set; }
+        public int QuestionType { get; set; }
 
         /// <summary>
         /// Gets or sets the question text.
@@ -79,7 +79,7 @@
         /// <value>
         /// The status.
         /// </value>
-        public QuestionStatus Status { get; set; } = QuestionStatus.Draft;
+        public int Status { get; set; }
 
         /// <summary>
         /// Gets or sets the task assignment.

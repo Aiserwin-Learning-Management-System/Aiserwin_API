@@ -31,13 +31,5 @@
         /// The category.
         /// </value>
         public string? Category { get; set; }
-
-        /// <summary>
-        /// Gets or sets the display order.
-        /// </summary>
-        /// <value>
-        /// The display order.
-        /// </value>
-        public int DisplayOrder { get; set; } = 0;
     }
 }
