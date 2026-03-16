@@ -54,9 +54,10 @@
                 .HasColumnType("nvarchar(1000)");
 
             builder.Property(d => d.Status)
-                .IsRequired()
-                .HasDefaultValue(0) // Draft
-                .HasColumnType("int");
+            .IsRequired()
+            .HasConversion<int>()
+            .HasDefaultValue(DarStatus.Draft)
+            .HasColumnType("int");
 
             // ── Indexes ──────────────────────────────────────────
             // One DAR per operator per date

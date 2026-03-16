@@ -3,6 +3,7 @@
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Metadata.Builders;
     using Winfocus.LMS.Domain.Entities;
+    using Winfocus.LMS.Domain.Enums;
 
     /// <summary>
     /// QuestionConfiguration.
@@ -54,9 +55,10 @@
                 .HasColumnType("nvarchar(500)");
 
             builder.Property(q => q.Status)
-                .IsRequired()
-                .HasDefaultValue(0) // Draft
-                .HasColumnType("int");
+                   .IsRequired()
+                    .HasConversion<int>()
+                    .HasDefaultValue(QuestionStatus.Draft)
+                    .HasColumnType("int");
 
             // ── Indexes ──────────────────────────────────────────
             builder.HasIndex(q => new { q.TaskId, q.Status })

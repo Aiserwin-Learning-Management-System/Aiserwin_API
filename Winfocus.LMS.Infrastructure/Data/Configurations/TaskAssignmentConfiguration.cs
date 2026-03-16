@@ -2,7 +2,9 @@
 {
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Metadata.Builders;
+    using System;
     using Winfocus.LMS.Domain.Entities;
+    using Winfocus.LMS.Domain.Enums;
 
     /// <summary>
     /// TaskAssignmentConfiguration.
@@ -81,8 +83,9 @@
                 .HasColumnType("datetime2");
 
             builder.Property(t => t.Priority)
-                .IsRequired()
-                .HasDefaultValue(1) // Medium
+                 .IsRequired()
+                .HasConversion<int>()
+                .HasDefaultValue(TaskPriority.Medium)
                 .HasColumnType("int");
 
             builder.Property(t => t.Instructions)
@@ -92,7 +95,8 @@
 
             builder.Property(t => t.Status)
                 .IsRequired()
-                .HasDefaultValue(0) // Pending
+                .HasConversion<int>()
+                .HasDefaultValue(TaskStatus.Pending)
                 .HasColumnType("int");
 
             // ── Indexes ──────────────────────────────────────────
