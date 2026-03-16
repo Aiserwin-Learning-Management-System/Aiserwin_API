@@ -1,10 +1,6 @@
 ﻿using AutoMapper;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Winfocus.LMS.Application.DTOs;
 using Winfocus.LMS.Domain.Entities;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Winfocus.LMS.Application.Mapping
 {
