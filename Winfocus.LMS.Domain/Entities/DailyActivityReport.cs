@@ -71,7 +71,7 @@
         /// <value>
         /// The status.
         /// </value>
-        public DarStatus Status { get; set; } = DarStatus.Draft;
+        public int Status { get; set; }
 
         /// <summary>
         /// Gets or sets the operator.

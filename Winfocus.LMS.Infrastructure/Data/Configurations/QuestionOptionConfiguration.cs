@@ -35,12 +35,6 @@
                 .IsRequired()
                 .HasDefaultValue(false)
                 .HasColumnType("bit");
-
-            // Prevent duplicate labels per question
-            builder.HasIndex(o => new { o.QuestionId, o.OptionLabel })
-                .IsUnique()
-                .HasFilter("[IsDeleted] = 0")
-                .HasDatabaseName("IX_QuestionOptions_QuestionId_Label_WhereNotDeleted");
         }
     }
 }

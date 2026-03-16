@@ -400,12 +400,14 @@
             modelBuilder.ApplyConfiguration(new StaffRegistrationConfiguration());
             modelBuilder.ApplyConfiguration(new StaffRegistrationValueConfiguration());
             modelBuilder.ApplyConfiguration(new PageHeadingConfiguration());
+
             modelBuilder.ApplyConfiguration(new ExamSyllabusConfiguration());
             modelBuilder.ApplyConfiguration(new ExamGradeConfiguration());
             modelBuilder.ApplyConfiguration(new ExamSubjectConfiguration());
             modelBuilder.ApplyConfiguration(new ExamUnitConfiguration());
             modelBuilder.ApplyConfiguration(new ExamChapterConfiguration());
             modelBuilder.ApplyConfiguration(new ContentResourceTypeConfiguration());
+
             modelBuilder.ApplyConfiguration(new TaskAssignmentConfiguration());
             modelBuilder.ApplyConfiguration(new QuestionConfiguration());
             modelBuilder.ApplyConfiguration(new QuestionOptionConfiguration());
