@@ -22,6 +22,8 @@ using Winfocus.LMS.Infrastructure.Data;
 using Winfocus.LMS.Infrastructure.DataSeeders;
 using Winfocus.LMS.Infrastructure.Repositories;
 using Winfocus.LMS.Infrastructure.Security;
+using Winfocus.LMS.Application.Mapping;
+using AutoMapper;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
@@ -76,7 +78,7 @@ if (!builder.Environment.IsEnvironment("Testing"))
 
 #region Dependency Injection
 
-builder.Services.AddAutoMapper(typeof(FormFieldProfile));
+builder.Services.AddAutoMapper(cfg => { }, AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, JwtTokenService>();
@@ -149,6 +151,8 @@ builder.Services.AddScoped<IRegistrationFormRepository, RegistrationFormReposito
 builder.Services.AddScoped<IRegistrationFormService, RegistrationFormService>();
 builder.Services.AddScoped<IPageHeadingRepository, PageHeadingRepository>();
 builder.Services.AddScoped<IPageHeadingService, PageHeadingService>();
+//builder.Services.AddScoped<ITaskAssignmentRepository, TaskAssignmentRepository>();
+//builder.Services.AddScoped<ITaskAssignmentService, TaskAssignmentService>();
 
 builder.Services.AddMemoryCache();
 builder.Services.AddScoped<INavigationService, NavigationService>();
