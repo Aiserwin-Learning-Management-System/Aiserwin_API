@@ -113,7 +113,6 @@
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>StudentDto by id.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin,CountryAdmin,CenterAdmin")]
         [HttpGet("{id:guid}")]
         public async Task<CommonResponse<StudentDto>> Get(Guid id)
         {
