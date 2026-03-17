@@ -1,18 +1,14 @@
 ﻿namespace Winfocus.LMS.Domain.Entities
 {
+    using Winfocus.LMS.Domain.Common;
     using Winfocus.LMS.Domain.Enums;
 
     /// <summary>
     /// Represents a single staff registration submission against a registration form.
     /// Tracks the submission lifecycle from draft to approval/rejection.
     /// </summary>
-    public class StaffRegistration
+    public class StaffRegistration : BaseEntity
     {
-        /// <summary>
-        /// Gets or sets the unique identifier.
-        /// </summary>
-        public Guid Id { get; set; }
-
         /// <summary>
         /// Gets or sets the registration form this submission is for.
         /// </summary>
@@ -38,16 +34,6 @@
         /// NULL if still in draft.
         /// </summary>
         public DateTime? SubmittedAt { get; set; }
-
-        /// <summary>
-        /// Gets or sets the date and time when the registration was created.
-        /// </summary>
-        public DateTime CreatedAt { get; set; }
-
-        /// <summary>
-        /// Gets or sets the identifier of the user who created the registration.
-        /// </summary>
-        public Guid CreatedBy { get; set; }
 
         /// <summary>
         /// Gets or sets the registration form this submission belongs to.

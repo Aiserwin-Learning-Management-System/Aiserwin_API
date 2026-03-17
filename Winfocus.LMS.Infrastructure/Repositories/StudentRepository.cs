@@ -118,7 +118,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         .Include(x => x.StudentBatchTimingSundays)
            .ThenInclude(sc => sc.BatchTimingSunday)
 
-        .FirstOrDefaultAsync(x => x.Id == id && x.IsActive == true && !x.IsDeleted);
+        .FirstOrDefaultAsync(x => x.UserId == id && x.IsActive == true && !x.IsDeleted);
         }
 
         /// <summary>
@@ -380,6 +380,20 @@ namespace Winfocus.LMS.Infrastructure.Repositories
 
             return CommonResponse<bool>
         .SuccessResponse("Student approved successfully", true);
+        }
+
+        /// <summary>
+        /// Gets the by user identifier asynchronous.
+        /// </summary>
+        /// <param name="userId">The user identifier.</param>
+        /// <returns></returns>
+        public async Task<Student?> GetByUserIdAsync(Guid userId)
+        {
+            return await _dbContext.Students
+                .Include(s => s.AcademicDetails)
+                .Include(s => s.StudentPersonalDetails)
+                .Include(s => s.StudentDocuments)
+                .FirstOrDefaultAsync(s => s.UserId == userId && !s.IsDeleted);
         }
     }
 }

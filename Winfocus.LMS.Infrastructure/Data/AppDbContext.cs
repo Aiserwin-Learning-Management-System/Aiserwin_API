@@ -622,6 +622,24 @@
                  .OnDelete(DeleteBehavior.NoAction);
             });
 
+            modelBuilder.Entity<Student>(e =>
+            {
+                e.Property(s => s.UserId)
+                    .IsRequired(false)
+                    .HasColumnType("uniqueidentifier");
+
+                e.HasIndex(s => s.UserId)
+                    .IsUnique()
+                    .HasFilter("[UserId] IS NOT NULL")
+                    .HasDatabaseName("IX_Students_UserId_Unique");
+
+                e.HasOne(s => s.User)
+                    .WithOne()
+                    .HasForeignKey<Student>(s => s.UserId)
+                    .IsRequired(false)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
             modelBuilder.Entity<RolePermission>(entity =>
             {
                 entity.HasKey(rp => new { rp.RoleId, rp.PermissionId });

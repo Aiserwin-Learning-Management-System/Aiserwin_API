@@ -325,6 +325,31 @@ namespace Winfocus.LMS.Application.Services
             return await _repository.StudentApprove(id);
         }
 
+        /// <inheritdoc/>
+        public async Task LinkUserAsync(Guid studentId, Guid userId)
+        {
+            _logger.LogInformation(
+                                   "Linking UserId {UserId} to StudentId {StudentId}",
+                                   userId,
+                                   studentId);
+
+            var student = await _repository.GetByIdAsync(studentId);
+            if (student == null)
+            {
+                _logger.LogWarning("Student not found for linking. Id: {Id}", studentId);
+                return;
+            }
+
+            student.UserId = userId;
+            student.UpdatedAt = DateTime.UtcNow;
+            await _repository.UpdateAsync(student);
+
+            _logger.LogInformation(
+                "Successfully linked UserId {UserId} to StudentId {StudentId}",
+                userId, 
+                studentId);
+        }
+
         private StudentDto MapToDto(Student entity)
         {
             return new StudentDto

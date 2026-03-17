@@ -82,5 +82,13 @@ namespace Winfocus.LMS.Application.Interfaces
         /// <param name="id">The identifier.</param>
         /// <returns>id.</returns>
         Task<CommonResponse<bool>> StudentApprove(Guid id);
+
+        /// <summary>
+        /// Links the user asynchronous.
+        /// </summary>
+        /// <param name="studentId">The student identifier.</param>
+        /// <param name="userId">The user identifier.</param>
+        /// <returns></returns>
+        Task LinkUserAsync(Guid studentId, Guid userId);
     }
 }
