@@ -104,5 +104,34 @@ namespace Winfocus.LMS.API.Controllers
                 return centerId;
             }
         }
+
+        /// <summary>
+        /// Gets the authenticated user's country from the JWT token.
+        /// Returns empty string if user is not authenticated.
+        /// </summary>
+        protected Guid StateId
+        {
+            get
+            {
+                if (User?.Identity?.IsAuthenticated != true)
+                {
+                    throw new UnauthorizedAccessException("User is not authenticated.");
+                }
+
+                var stateIdString = User.FindFirst("stateid")?.Value;
+
+                if (string.IsNullOrWhiteSpace(stateIdString))
+                {
+                    throw new UnauthorizedAccessException("State ID claim is missing.");
+                }
+
+                if (!Guid.TryParse(stateIdString, out Guid stateId))
+                {
+                    throw new UnauthorizedAccessException("Invalid State ID claim.");
+                }
+
+                return stateId;
+            }
+        }
     }
 }

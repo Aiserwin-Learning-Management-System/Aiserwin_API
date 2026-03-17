@@ -43,28 +43,43 @@ namespace Winfocus.LMS.Application.Services
         /// <summary>
         /// Gets all asynchronous.
         /// </summary>
+        /// <param name="countryid">The countryid.</param>
+        /// <param name="stateid">The stateid.</param>
+        /// <param name="centerid">The centerid.</param>
         /// <returns>StateDto.</returns>
-        public async Task<IReadOnlyList<StudentDto>> GetAllAsync()
+        public async Task<IReadOnlyList<StudentDto>> GetAllAsync(Guid? countryid, Guid? stateid, Guid? centerid)
         {
             _logger.LogInformation("Fetching all students.");
 
             var students = await _repository.GetAllAsync();
             List<DoubtClearing>? doubtClear;
 
-            var result = students.Select(s=>Map(s,null)).ToList();
+            // Apply filters
+            if (countryid.HasValue && countryid != Guid.Empty)
+                students = students.Where(s => s.AcademicDetails.CountryId == countryid.Value).ToList();
+
+            if (stateid.HasValue && stateid != Guid.Empty)
+                students = students.Where(s => s.AcademicDetails.StateId == stateid.Value).ToList();
+
+            if (centerid.HasValue && centerid != Guid.Empty)
+                students = students.Where(s => s.AcademicDetails.CenterId == centerid.Value).ToList();
+
+            var result = students.Select(s => Map(s, null)).ToList();
 
             _logger.LogInformation(
                 "Fetched {Count} students successfully.",
                 result.Count);
 
             return result;
-
         }
 
         /// <summary>
         /// Gets the by identifier asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
+        /// <param name="countryid">The countryid.</param>
+        /// <param name="stateid">The stateid.</param>
+        /// <param name="centerid">The centerid.</param>
         /// <returns>StudentDto.</returns>
         public async Task<StudentDto?> GetByIdAsync(Guid id)
         {
@@ -85,6 +100,75 @@ namespace Winfocus.LMS.Application.Services
                 _logger.LogWarning(
                     "Student not found. Id: {Id}", id);
 
+                return null;
+            }
+
+            _logger.LogInformation(
+                "Student fetched successfully. Id: {Id}", id);
+
+            // Base mapping to DTO (includes emiratesId from entity)
+            var dto = Map(student, doubtClear);
+
+            // Populate academic emirates details using the same State model
+            if (!string.IsNullOrWhiteSpace(student.AcademicDetails.Emirates)
+                && Guid.TryParse(student.AcademicDetails.Emirates, out var academicEmiratesId))
+            {
+                var emirateState = await _stateRepository.GetByIdAsync(academicEmiratesId, student.AcademicDetails.CountryId);
+                if (emirateState != null)
+                {
+                    dto.AcademicDetails.Emirates = MapStateToDto(emirateState);
+                }
+            }
+
+            // Populate personal emirates details using the same State model
+            if (!string.IsNullOrWhiteSpace(student.StudentPersonalDetails.Emirates)
+                && Guid.TryParse(student.StudentPersonalDetails.Emirates, out var personalEmiratesId))
+            {
+                var emirateState = await _stateRepository.GetByIdAsync(personalEmiratesId, student.AcademicDetails.CountryId);
+                if (emirateState != null)
+                {
+                    dto.PersonalDetails.Emirates = MapStateToDto(emirateState);
+                }
+            }
+
+            return dto;
+        }
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <param name="countryid">The countryid.</param>
+        /// <param name="stateid">The stateid.</param>
+        /// <param name="centerid">The centerid.</param>
+        /// <returns>StudentDto.</returns>
+        public async Task<StudentDto?> GetByIdsAsync(Guid id, Guid? countryid, Guid? stateid, Guid? centerid)
+        {
+            _logger.LogInformation(
+                "Fetching student by Id: {Id}", id);
+
+            var student = await _repository.GetByIdAsync(id);
+            var subjectId = student.StudentBatchTimingMTFs.Select(x => x.BatchTimingMTF.SubjectId).FirstOrDefault();
+            var doubtClear = await _doubtClearingRepository.GetBySubjectIdAsync(subjectId);
+
+            if (doubtClear != null)
+            {
+                _doubtClear = doubtClear;
+            }
+
+            if (student == null)
+            {
+                _logger.LogWarning(
+                    "Student not found. Id: {Id}", id);
+
+                return null;
+            }
+
+            if ((countryid.HasValue && countryid != Guid.Empty && student.AcademicDetails.CountryId != countryid) ||
+              (stateid.HasValue && stateid != Guid.Empty && student.AcademicDetails.StateId != stateid) ||
+              (centerid.HasValue && centerid != Guid.Empty && student.AcademicDetails.CenterId != centerid))
+            {
+                _logger.LogWarning("Student does not match filter criteria. Id: {Id}", id);
                 return null;
             }
 
