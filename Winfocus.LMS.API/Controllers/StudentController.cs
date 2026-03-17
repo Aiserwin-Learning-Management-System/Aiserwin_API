@@ -261,9 +261,17 @@
                 RegisterRequestDto obj = new RegisterRequestDto(
                     username,
                     student.PersonalDetails.EmailAddress,
-                    new List<string> { "Student" }, student.AcademicDetails.CountryId, student.AcademicDetails.CenterId, null);
+                    new List<string> { "Student" },
+                    student.AcademicDetails.CountryId,
+                    student.AcademicDetails.CenterId,
+                    null);
 
                 var result = await _authService.RegisterAsync(obj);
+
+                if (result != null && result.userId != Guid.Empty)
+                {
+                    await _studentService.LinkUserAsync(id, result.userId);
+                }
             }
 
             return response;

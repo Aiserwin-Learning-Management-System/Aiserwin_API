@@ -93,5 +93,18 @@
         /// </value>
         public ICollection<StudentBatchTimingSunday> StudentBatchTimingSundays { get; set; }
             = new List<StudentBatchTimingSunday>();
+
+        /// <summary>
+        /// Gets or sets the user identifier (FK to User).
+        /// </summary>
+        public Guid? UserId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the user.
+        /// </summary>
+        /// <value>
+        /// The user.
+        /// </value>
+        public User? User { get; set; } = null!;
     }
 }
