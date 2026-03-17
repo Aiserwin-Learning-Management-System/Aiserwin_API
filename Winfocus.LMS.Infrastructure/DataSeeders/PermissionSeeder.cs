@@ -43,6 +43,8 @@ namespace Winfocus.LMS.Infrastructure.DataSeeders
         {
             var superAdminRole = context.Roles.FirstOrDefault(r => r.Name == "SuperAdmin");
             var adminRole = context.Roles.FirstOrDefault(r => r.Name == "Admin");
+            var centerAdminRole = context.Roles.FirstOrDefault(r => r.Name == "CenterAdmin");
+            var countryadminRole = context.Roles.FirstOrDefault(r => r.Name == "CountryAdmin");
 
             var permissions = context.Permissions.ToList();
 
