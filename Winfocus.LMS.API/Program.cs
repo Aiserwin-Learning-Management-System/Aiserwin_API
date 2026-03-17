@@ -157,6 +157,8 @@ builder.Services.AddScoped<IOperatorDashboardRepository, OperatorDashboardReposi
 builder.Services.AddScoped<IOperatorDashboardService, OperatorDashboardService>();
 builder.Services.AddMemoryCache();
 builder.Services.AddScoped<INavigationService, NavigationService>();
+builder.Services.AddScoped<IStudentFeeSelectionService, StudentFeeSelectionService>();
+builder.Services.AddScoped<IStudentFeeSelectionRepository, StudentFeeSelectionRepository>();
 
 #endregion
 

@@ -45,17 +45,21 @@
         /// Gets all.
         /// </summary>
         /// <returns>StudentDto list.</returns>
-        [Authorize(Policy = "CanViewStudent")]
+        [Authorize(Roles = "Admin,SuperAdmin,CountryAdmin,CenterAdmin")]
         [HttpGet]
         public async Task<ActionResult<IReadOnlyList<StudentDto>>> GetAll()
-            => Ok(await _studentService.GetAllAsync());
+        {
+            var stateId = StateId;
+            var countryId = CountryId;
+            var centerId = CenterId;
+            return Ok(await _studentService.GetAllAsync(countryId, stateId, centerId));
+        }
 
         /// <summary>
         /// Creates the specified request.
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>StudentDto.</returns>
-        [Authorize(Policy = "CanCreateStudent")]
         [HttpPost]
         public async Task<CommonResponse<StudentDto>> Create([FromForm] StudentRequest request)
         {
@@ -109,11 +113,11 @@
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>StudentDto by id.</returns>
-        [Authorize(Policy = "CanViewStudent")]
+        [Authorize(Roles = "Admin,SuperAdmin,CountryAdmin,CenterAdmin")]
         [HttpGet("{id:guid}")]
         public async Task<CommonResponse<StudentDto>> Get(Guid id)
         {
-            var student = await _studentService.GetByIdAsync(id);
+            var student = await _studentService.GetByIdsAsync(id, CountryId, StateId, CenterId);
             if (student == null)
             {
                 return CommonResponse<StudentDto>.FailureResponse("Student not found");
@@ -127,11 +131,40 @@
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>Filtered StudentDto list.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
-        [Authorize(Policy = "CanViewStudent")]
+        [Authorize(Roles = "Admin,SuperAdmin,CountryAdmin,CenterAdmin")]
         [HttpGet("student-filter")]
         public async Task<ActionResult<PagedResult<StudentDto>>> GetFiltered([FromQuery] StudentFilterRequest request)
         {
+            var isSuperAdmin = User.IsInRole("SuperAdmin");
+            if (!isSuperAdmin)
+            {
+                if (request.CountryId.HasValue && request.CountryId != Guid.Empty &&
+                    request.CountryId != CountryId)
+                {
+                    return Forbid("You are not allowed to access this country data.");
+                }
+
+                if (request.StateId.HasValue && request.StateId != Guid.Empty &&
+                    request.StateId != StateId)
+                {
+                    return Forbid("You are not allowed to access this state data.");
+                }
+
+                if (request.CentreId.HasValue && request.CentreId != Guid.Empty &&
+                    request.CentreId != CenterId)
+                {
+                    return Forbid("You are not allowed to access this center data.");
+                }
+
+                request.CountryId = CountryId;
+
+                if (StateId != Guid.Empty)
+                    request.StateId = StateId;
+
+                if (CenterId != Guid.Empty)
+                    request.CentreId = CenterId;
+            }
+
             var result = await _studentService.GetFilteredAsync(request);
 
             return Ok(result);
@@ -171,7 +204,6 @@
         /// <response code="200">Student updated successfully.</response>
         /// <response code="404">Student not found.</response>
         /// <response code="400">Invalid request data.</response>
-        [Authorize(Policy = "CanUpdateStudent")]
         [HttpPut("{id:guid}")]
         public async Task<ActionResult<StudentDto>> Update(Guid id, [FromForm] StudentRequest request)
         {
