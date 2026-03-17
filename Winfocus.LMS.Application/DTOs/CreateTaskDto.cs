@@ -25,17 +25,25 @@ namespace Winfocus.LMS.Application.DTOs
         /// <value>
         /// The assigned by.
         /// </value>
-        public string AssignedBy { get; set; } = string.Empty;
+        public Guid AssignedBy { get; set; }
+
+        /// <summary>
+        /// Gets or sets the resource type identifier.
+        /// </summary>
+        /// <value>
+        /// The resource type identifier.
+        /// </value>
+        public Guid ResourceTypeId { get; set; }
 
         /// <summary>
         /// Gets or sets type of questions (MCQ, Numerical, Theory etc.)
         /// </summary>
-        public QuestionType QuestionType { get; set; }
+        public int QuestionType { get; set; }
 
         /// <summary>
         /// Gets or sets academic year for the questions.
         /// </summary>
-        public int Year { get; set; }
+        public int? Year { get; set; }
 
         /// <summary>
         /// Gets or sets syllabus id.
@@ -48,24 +56,25 @@ namespace Winfocus.LMS.Application.DTOs
         public Guid GradeId { get; set; }
 
         /// <summary>
-        /// Gets or sets academic stream (Science, Commerce, Arts).
+        /// Gets or sets the subject identifier.
         /// </summary>
-        public Guid StreamId { get; set; }
+        /// <value>
+        /// The subject identifier.
+        /// </value>
+        public Guid SubjectId { get; set; }
 
         /// <summary>
-        /// Gets or sets course name (Physics, Chemistry etc.)
+        /// Gets or sets the unit identifier.
         /// </summary>
-        public Guid CourseId { get; set; }
-
-        /// <summary>
-        /// Gets or sets subject name.
-        /// </summary>
-        public Guid Subject { get; set; }
+        /// <value>
+        /// The unit identifier.
+        /// </value>
+        public Guid? UnitId { get; set; }
 
         /// <summary>
         /// Gets or sets chapter or topic reference.
         /// </summary>
-        public string Chapter { get; set; } = null!;
+        public Guid ChapterId { get; set; }
 
         /// <summary>
         /// Gets or sets total number of questions assigned in the task.
@@ -86,9 +95,9 @@ namespace Winfocus.LMS.Application.DTOs
         public DateTime Deadline { get; set; }
 
         /// <summary>
-        /// Gets or sets task priority (Low, Medium, High).
+        /// Gets or sets task priority.
         /// </summary>
-        public TaskPriority Priority { get; set; } = TaskPriority.Medium;
+        public int Priority { get; set; }
 
         /// <summary>
         /// Gets or sets additional instructions for the operator.
@@ -101,7 +110,7 @@ namespace Winfocus.LMS.Application.DTOs
         /// <value>
         /// The status.
         /// </value>
-        public TaskStatus Status { get; set; } = TaskStatus.Pending;
+        public int Status { get; set; }
 
         /// <summary>
         /// Gets or sets Createdby.

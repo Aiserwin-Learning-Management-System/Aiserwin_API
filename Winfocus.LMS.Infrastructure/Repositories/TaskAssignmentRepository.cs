@@ -125,7 +125,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// <returns>bool.</returns>
         public async Task<bool> ExistsByNameAsync(string name)
         {
-            return await _db.TaskAssignments.AnyAsync(x => x.AssignedBy == name && !x.IsDeleted);
+            return await _db.TaskAssignments.AnyAsync(x => x.Operator.StaffCategory.Name == name && !x.IsDeleted);
         }
     }
 }

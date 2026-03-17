@@ -13,12 +13,12 @@ namespace Winfocus.LMS.Application.DTOs
     /// This DTO includes operator information, task progress, deadline metrics,
     /// and completion statistics used in task views and dashboards.
     /// </summary>
-    public class TaskResponseDto :BaseClassDTO
+    public class TaskResponseDto : BaseClassDTO
     {
         /// <summary>
         /// Gets or sets the AssignedBy.
         /// </summary>
-        public string AssignedBy { get; set; } = null!;
+        public Guid AssignedBy { get; set; }
 
         /// <summary>
         /// Gets or sets the name of the operator assigned to the task.
@@ -29,9 +29,17 @@ namespace Winfocus.LMS.Application.DTOs
         public Guid OperatorId { get; set; }
 
         /// <summary>
+        /// Gets or sets the resource type identifier.
+        /// </summary>
+        /// <value>
+        /// The resource type identifier.
+        /// </value>
+        public Guid ResourceTypeId { get; set; }
+
+        /// <summary>
         /// Gets or sets the type of question assigned in the task.
         /// </summary>
-        public QuestionType QuestionType { get; set; }
+        public int QuestionType { get; set; }
 
         /// <summary>
         /// Gets or sets the Year.
@@ -39,12 +47,44 @@ namespace Winfocus.LMS.Application.DTOs
         public int? Year { get; set; }
 
         /// <summary>
+        /// Gets or sets the syllabus identifier.
+        /// </summary>
+        /// <value>
+        /// The syllabus identifier.
+        /// </value>
+        public Guid SyllabusId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the grade identifier.
+        /// </summary>
+        /// <value>
+        /// The grade identifier.
+        /// </value>
+        public Guid GradeId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the subject identifier.
+        /// </summary>
+        /// <value>
+        /// The subject identifier.
+        /// </value>
+        public Guid SubjectId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the unit identifier.
+        /// </summary>
+        /// <value>
+        /// The unit identifier.
+        /// </value>
+        public Guid? UnitId { get; set; }
+
+        /// <summary>
         /// Gets or sets the chapter.
         /// </summary>
         /// <value>
         /// The chapter.
         /// </value>
-        public string? Chapter { get; set; }
+        public Guid? ChapterId { get; set; }
 
         /// <summary>
         /// Gets or sets the total number of questions assigned in the task.
@@ -79,12 +119,28 @@ namespace Winfocus.LMS.Application.DTOs
         public int DaysRemaining { get; set; }
 
         /// <summary>
+        /// Gets or sets the priority.
+        /// </summary>
+        /// <value>
+        /// The priority.
+        /// </value>
+        public int Priority { get; set; }
+
+        /// <summary>
+        /// Gets or sets the instructions.
+        /// </summary>
+        /// <value>
+        /// The instructions.
+        /// </value>
+        public string? Instructions { get; set; }
+
+        /// <summary>
         /// Gets or sets the status.
         /// </summary>
         /// <value>
         /// The status.
         /// </value>
-        public TaskStatus Status { get; set; } = TaskStatus.Pending;
+        public int Status { get; set; }
 
         /// <summary>
         /// Gets or sets the operator.
@@ -95,19 +151,51 @@ namespace Winfocus.LMS.Application.DTOs
         public StaffRegistration Operator { get; set; } = null!;
 
         /// <summary>
-        /// Gets or sets the priority.
+        /// Gets or sets the type of the resource.
         /// </summary>
         /// <value>
-        /// The priority.
+        /// The type of the resource.
         /// </value>
-        public TaskPriority Priority { get; set; }
+        public ContentResourceType ResourceType { get; set; } = default!;
 
         /// <summary>
-        /// Gets or sets the instructions.
+        /// Gets or sets the syllabus.
         /// </summary>
         /// <value>
-        /// The instructions.
+        /// The syllabus.
         /// </value>
-        public string? Instructions { get; set; }
+        public ExamSyllabus Syllabus { get; set; } = default!;
+
+        /// <summary>
+        /// Gets or sets the grade.
+        /// </summary>
+        /// <value>
+        /// The grade.
+        /// </value>
+        public ExamGrade Grade { get; set; } = default!;
+
+        /// <summary>
+        /// Gets or sets the subject.
+        /// </summary>
+        /// <value>
+        /// The subject.
+        /// </value>
+        public ExamSubject Subject { get; set; } = default!;
+
+        /// <summary>
+        /// Gets or sets the unit.
+        /// </summary>
+        /// <value>
+        /// The unit.
+        /// </value>
+        public ExamUnit? Unit { get; set; }
+
+        /// <summary>
+        /// Gets or sets the chapter.
+        /// </summary>
+        /// <value>
+        /// The chapter.
+        /// </value>
+        public ExamChapter? Chapter { get; set; }
     }
 }

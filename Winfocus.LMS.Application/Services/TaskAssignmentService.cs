@@ -105,13 +105,13 @@ namespace Winfocus.LMS.Application.Services
                     AssignedBy = request.AssignedBy,
                     QuestionType = request.QuestionType,
                     Year = request.Year,
-                    Chapter = request.Chapter,
+                    ChapterId = request.ChapterId,
                     TotalQuestions = request.TotalQuestions,
                     CompletedCount = request.CompletedCount,
                     Deadline = request.Deadline,
                     Priority = request.Priority,
                     Instructions = request.Instructions,
-                    Status = request.Status
+                    Status = request.Status,
                 };
 
                 var created = await _repository.AddAsync(taskassignment);
@@ -151,7 +151,7 @@ namespace Winfocus.LMS.Application.Services
                 task.QuestionType = request.QuestionType;
                 task.Status = request.Status;
                 task.Year = request.Year;
-                task.Chapter = request.Chapter;
+                task.ChapterId = request.ChapterId;
                 task.TotalQuestions = request.TotalQuestions;
                 task.CompletedCount = request.CompletedCount;
                 task.Deadline = request.Deadline;
@@ -224,7 +224,7 @@ namespace Winfocus.LMS.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error fetching tasks by Id: {Id}", id);
+                _logger.LogError(ex, "Error fetching tasks by Id: {Id}", operatorid);
                 return CommonResponse<TaskResponseDto>.FailureResponse($"An error occurred: {ex.Message}");
             }
         }
