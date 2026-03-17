@@ -14,5 +14,13 @@
   {
     "Name": "SupportStaff",
     "Description": "Provides administrative and support services"
+  },
+  {
+    "Name": "DTPOperator",
+    "Description": "Handles desktop publishing and question entry operations"
+  },
+  {
+    "Name": "DTPAdmin",
+    "Description": "Manages DTP operations, assigns tasks and reviews content"
   }
 ]
