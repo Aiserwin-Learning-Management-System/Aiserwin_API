@@ -55,7 +55,6 @@
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>StudentDto.</returns>
-        [Authorize(Policy = "CanCreateStudent")]
         [HttpPost]
         public async Task<CommonResponse<StudentDto>> Create([FromForm] StudentRequest request)
         {
@@ -171,7 +170,6 @@
         /// <response code="200">Student updated successfully.</response>
         /// <response code="404">Student not found.</response>
         /// <response code="400">Invalid request data.</response>
-        [Authorize(Policy = "CanUpdateStudent")]
         [HttpPut("{id:guid}")]
         public async Task<ActionResult<StudentDto>> Update(Guid id, [FromForm] StudentRequest request)
         {
