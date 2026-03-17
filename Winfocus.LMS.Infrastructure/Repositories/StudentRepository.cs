@@ -43,7 +43,40 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// <returns>Student list.</returns>
         public async Task<IReadOnlyList<Student>> GetAllAsync()
         {
-            return await _dbContext.Students.Where(x => !x.IsDeleted)
+            return await _dbContext.Students.
+                Include(x => x.AcademicDetails)
+           .ThenInclude(ad => ad.Country)
+        .Include(x => x.AcademicDetails)
+           .ThenInclude(ad => ad.State)
+        .Include(x => x.AcademicDetails)
+           .ThenInclude(ad => ad.ModeOfStudy)
+        .Include(x => x.AcademicDetails)
+           .ThenInclude(ad => ad.Center)
+        .Include(x => x.AcademicDetails)
+           .ThenInclude(ad => ad.Syllabus)
+        .Include(x => x.AcademicDetails)
+           .ThenInclude(ad => ad.Grade)
+        .Include(x => x.AcademicDetails)
+           .ThenInclude(ad => ad.Stream)
+        .Include(x => x.AcademicDetails)
+           .ThenInclude(ad => ad.Subject)
+        .Include(x => x.StudentPersonalDetails)
+        .Include(x => x.StudentDocuments)
+
+        .Include(x => x.StudentAcademicCouses)
+            .ThenInclude(sc => sc.Course)
+
+        .Include(x => x.StudentBatchTimingMTFs)
+           .ThenInclude(sc => sc.BatchTimingMTF)
+           .ThenInclude(sc => sc.Subject)
+        .Include(x => x.StudentBatchTimingSaturdays)
+           .ThenInclude(sc => sc.BatchTimingSaturday)
+           .ThenInclude(sc => sc.Subject)
+        .Include(x => x.StudentBatchTimingSundays)
+           .ThenInclude(sc => sc.BatchTimingSunday)
+           .ThenInclude(sc => sc.Subject)
+
+                .Where(x => !x.IsDeleted)
                 .AsNoTracking()
                 .ToListAsync();
         }
