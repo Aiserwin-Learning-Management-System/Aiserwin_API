@@ -153,7 +153,8 @@ builder.Services.AddScoped<IPageHeadingRepository, PageHeadingRepository>();
 builder.Services.AddScoped<IPageHeadingService, PageHeadingService>();
 //builder.Services.AddScoped<ITaskAssignmentRepository, TaskAssignmentRepository>();
 //builder.Services.AddScoped<ITaskAssignmentService, TaskAssignmentService>();
-
+builder.Services.AddScoped<IOperatorDashboardRepository, OperatorDashboardRepository>();
+builder.Services.AddScoped<IOperatorDashboardService, OperatorDashboardService>();
 builder.Services.AddMemoryCache();
 builder.Services.AddScoped<INavigationService, NavigationService>();
 

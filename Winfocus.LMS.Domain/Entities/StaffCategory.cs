@@ -25,7 +25,7 @@
         /// on the Create User page. Optional — if null, frontend can
         /// default to "Enter {Name}" or similar.
         /// </summary>
-        /// <example>Enter Teacher Name, Select Driver, Enter DTP Operator</example>
+        /// <example>Enter Teacher Name, Select Driver, Enter DTP Operator.</example>
         public string? PlaceholderText { get; set; }
     }
 }
