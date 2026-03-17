@@ -6,7 +6,6 @@ using Winfocus.LMS.Application.DTOs;
 using Winfocus.LMS.Application.DTOs.Common;
 using Winfocus.LMS.Application.DTOs.Masters;
 using Winfocus.LMS.Application.Interfaces;
-using Winfocus.LMS.Application.Services;
 
 namespace Winfocus.LMS.API.Controllers
 {
@@ -16,54 +15,55 @@ namespace Winfocus.LMS.API.Controllers
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
-    public class StudentFeeSelectionController : BaseController
+    public class ExamSyllabusController : BaseController
     {
-        private readonly IStudentFeeSelectionService _iStudentFeeSelectionService;
+        private readonly IExamSyllabusService _examsyllabusService;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="StudentFeeSelectionController"/> class.
+        /// Initializes a new instance of the <see cref="ExamSyllabusController"/> class.
         /// </summary>
-        /// <param name="istudentFeeSelection">The doubt_clear service.</param>
-        public StudentFeeSelectionController(IStudentFeeSelectionService istudentFeeSelection)
+        /// <param name="examsyllabusService">The examsyllabusService service.</param>
+        public ExamSyllabusController(IExamSyllabusService examsyllabusService)
         {
-            _iStudentFeeSelectionService = istudentFeeSelection;
+            _examsyllabusService = examsyllabusService;
         }
 
         /// <summary>
         /// Gets all.
         /// </summary>
-        /// <returns>StudentFeeSelectionDto list.</returns>
+        /// <returns>ExamSyllabusDto list.</returns>
         [HttpGet]
-        public async Task<ActionResult<CommonResponse<StudentFeeSelectionDto>>> GetAll()
-            => Ok(await _iStudentFeeSelectionService.GetAllAsync());
+        public async Task<ActionResult<CommonResponse<ExamSyllabusDto>>> GetAll()
+            => Ok(await _examsyllabusService.GetAllAsync());
 
         /// <summary>
         /// Creates the specified request.
         /// </summary>
         /// <param name="request">The request.</param>
-        /// <returns>StudentFeeSelectionDto.</returns>
+        /// <returns>ExamSyllabusDto.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPost]
-        public async Task<ActionResult<CommonResponse<StudentFeeSelectionDto>>> Create(
-            StudentFeeSelectionRequest request)
+        public async Task<ActionResult<CommonResponse<ExamSyllabusDto>>> Create(
+            ExamSyllabusRequestDto request)
         {
             var updatedRequest = request with
             {
-                userId = UserId
+                userid = UserId
             };
-            var created = await _iStudentFeeSelectionService.CreateAsync(updatedRequest);
+            var created = await _examsyllabusService.CreateAsync(updatedRequest);
             return Ok(created);
         }
 
         /// <summary>
         /// Gets the specified identifier.
         /// </summary>
-        /// <param name="studentid">The identifier.</param>
-        /// <returns>StudentFeeSelectionDto by id.</returns>
-        [HttpGet("{studentid:guid}")]
-        public async Task<ActionResult<CommonResponse<StudentFeeSelectionDto>>> Get(Guid studentid)
+        /// <param name="id">The identifier.</param>
+        /// <param name="accademicYearID">The identifier.</param>
+        /// <returns>ExamSyllabusDto by id.</returns>
+        [HttpGet("{id:guid}")]
+        public async Task<ActionResult<CommonResponse<ExamSyllabusDto>>> Get(Guid id, Guid accademicYearID)
         {
-            var result = await _iStudentFeeSelectionService.GetByIdAsync(studentid);
+            var result = await _examsyllabusService.GetByIdAsync(id, accademicYearID);
             return Ok(result);
         }
 
@@ -75,15 +75,15 @@ namespace Winfocus.LMS.API.Controllers
         /// <returns>result.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPut("{id:guid}")]
-        public async Task<ActionResult<CommonResponse<StudentFeeSelectionDto>>> Update(
+        public async Task<ActionResult<CommonResponse<ExamSyllabusDto>>> Update(
             Guid id,
-            StudentFeeSelectionRequest request)
+            ExamSyllabusRequestDto request)
         {
             var updatedRequest = request with
             {
-                userId = UserId
+                userid = UserId
             };
-            var updated = await _iStudentFeeSelectionService.UpdateAsync(id, updatedRequest);
+            var updated = await _examsyllabusService.UpdateAsync(id, updatedRequest);
             return Ok(updated);
         }
 
@@ -95,23 +95,20 @@ namespace Winfocus.LMS.API.Controllers
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpDelete("{id:guid}")]
         public async Task<ActionResult<CommonResponse<bool>>> Delete(Guid id)
-        => Ok(await _iStudentFeeSelectionService.DeleteAsync(id));
-
+        => Ok(await _examsyllabusService.DeleteAsync(id));
 
         /// <summary>
-        /// Retrieves filtered with pagination.
+        /// Retrieves filtered batches for monday to friday with pagination.
         /// </summary>
         /// <param name="request">The paged request.</param>
-        /// <returns>Paginated list of student fee selection.</returns>
+        /// <returns>Paginated list of doubt clearing.</returns>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpGet("filter")]
-        public async Task<ActionResult<CommonResponse<PagedResult<StudentFeeSelectionDto>>>> GetFiltered(
+        public async Task<ActionResult<CommonResponse<PagedResult<ExamSyllabusDto>>>> GetFiltered(
             [FromQuery] PagedRequest request)
         {
-            var result = await _iStudentFeeSelectionService.GetFilteredAsync(request);
+            var result = await _examsyllabusService.GetFilteredAsync(request);
             return Ok(result);
         }
-
-
     }
 }

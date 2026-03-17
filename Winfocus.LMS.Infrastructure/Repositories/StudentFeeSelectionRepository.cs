@@ -44,7 +44,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         {
             return await _context.StudentFeeSelections
                 .Include(x => x.Student)
-                .Include(x => x.FeePlan).FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
+                .Include(x => x.FeePlan).FirstOrDefaultAsync(x => x.Student.Id == id && !x.IsDeleted);
         }
 
         /// <summary>
