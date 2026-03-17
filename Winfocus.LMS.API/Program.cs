@@ -156,6 +156,8 @@ builder.Services.AddScoped<IPageHeadingService, PageHeadingService>();
 
 builder.Services.AddMemoryCache();
 builder.Services.AddScoped<INavigationService, NavigationService>();
+builder.Services.AddScoped<IStudentFeeSelectionService, StudentFeeSelectionService>();
+builder.Services.AddScoped<IStudentFeeSelectionRepository, StudentFeeSelectionRepository>();
 
 #endregion
 
