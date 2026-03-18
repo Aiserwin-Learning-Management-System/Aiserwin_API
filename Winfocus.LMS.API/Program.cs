@@ -167,6 +167,8 @@ builder.Services.AddScoped<IExamGradeService, ExamGradeService>();
 builder.Services.AddScoped<IQuestionReviewRepository, QuestionReviewRepository>();
 builder.Services.AddScoped<IQuestionReviewService, QuestionReviewService>();
 builder.Services.AddScoped<IQuestionCorrectionService, QuestionCorrectionService>();
+builder.Services.AddScoped<IQuestionConfigurationRepository, QuestionConfigurationRepository>();
+builder.Services.AddScoped<IQuestionConfigurationService, QuestionConfigurationService>();
 
 #endregion
 
