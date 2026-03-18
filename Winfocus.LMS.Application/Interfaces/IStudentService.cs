@@ -41,6 +41,16 @@ namespace Winfocus.LMS.Application.Interfaces
         Task<StudentDto?> GetByIdsAsync(Guid id, Guid? countryid, Guid? stateid, Guid? centerid);
 
         /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <param name="countryid">The countryid.</param>
+        /// <param name="stateid">The stateid.</param>
+        /// <param name="centerid">The centerid.</param>
+        /// <returns>StudentDto.</returns>
+        Task<StudentDto?> GetByUserIdsAsync(Guid id, Guid? countryid, Guid? stateid, Guid? centerid);
+
+        /// <summary>
         /// Creates the asynchronous.
         /// </summary>
         /// <param name="request">The request.</param>

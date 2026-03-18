@@ -28,6 +28,13 @@ namespace Winfocus.LMS.Application.Interfaces
         Task<Student?> GetByIdAsync(Guid id);
 
         /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>Student.</returns>
+        Task<Student?> GetByUserIdAsync(Guid id);
+
+        /// <summary>
         /// Adds the asynchronous.
         /// </summary>
         /// <param name="Student">The Student.</param>
