@@ -142,6 +142,12 @@
         public FeePlan FeePlan { get; private set; } = null!;
 
         /// <summary>
+        /// Gets the Course navigation property.
+        /// </summary>
+        /// <value>The fee plan.</value>
+        public Course Course { get; private set; } = null!;
+
+        /// <summary>
         /// Gets the installments collection.
         /// </summary>
         /// <value>The installments.</value>

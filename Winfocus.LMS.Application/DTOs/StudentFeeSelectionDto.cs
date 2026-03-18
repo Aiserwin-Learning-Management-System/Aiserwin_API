@@ -81,5 +81,10 @@ namespace Winfocus.LMS.Application.DTOs
         /// Gets or sets the identifier of the associated FeePlan.
         /// </summary>
         public FeePlanDto FeePlan { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the identifier of the associated course.
+        /// </summary>
+        public CourseDto Course { get; set; } = null!;
     }
 }
