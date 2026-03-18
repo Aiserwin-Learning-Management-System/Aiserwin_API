@@ -161,6 +161,8 @@ builder.Services.AddScoped<IStudentFeeSelectionService, StudentFeeSelectionServi
 builder.Services.AddScoped<IStudentFeeSelectionRepository, StudentFeeSelectionRepository>();
 builder.Services.AddScoped<IDtpAdminRepository, DtpAdminRepository>();
 builder.Services.AddScoped<IDtpAdminService, DtpAdminService>();
+builder.Services.AddScoped<IExamGradeRepository, ExamGradeRepository>();
+builder.Services.AddScoped<IExamGradeService, ExamGradeService>();
 
 builder.Services.AddScoped<IQuestionReviewRepository, QuestionReviewRepository>();
 builder.Services.AddScoped<IQuestionReviewService, QuestionReviewService>();
