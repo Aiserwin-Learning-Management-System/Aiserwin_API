@@ -12,8 +12,8 @@ using Winfocus.LMS.Infrastructure.Data;
 namespace Winfocus.LMS.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260318070716_RecreateStudentFeeSelection")]
-    partial class RecreateStudentFeeSelection
+    [Migration("20260318113909_FixStudentFeeSelectionCascade")]
+    partial class FixStudentFeeSelectionCascade
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -3587,7 +3587,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.HasOne("Winfocus.LMS.Domain.Entities.Course", "Course")
                         .WithMany()
                         .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("Winfocus.LMS.Domain.Entities.FeePlan", "FeePlan")

@@ -580,14 +580,19 @@
                 e.HasIndex(x => new { x.StudentId, x.CourseId }).IsUnique();
 
                 e.HasOne(sfs => sfs.Student)
-                 .WithMany()
-                 .HasForeignKey(sfs => sfs.StudentId)
-                 .OnDelete(DeleteBehavior.NoAction);
+                    .WithMany()
+                   .HasForeignKey(sfs => sfs.StudentId)
+                   .OnDelete(DeleteBehavior.NoAction);
 
                 e.HasOne(sfs => sfs.FeePlan)
-                 .WithMany()
-                 .HasForeignKey(sfs => sfs.FeePlanId)
-                 .OnDelete(DeleteBehavior.Cascade);
+                    .WithMany()
+                    .HasForeignKey(sfs => sfs.FeePlanId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                e.HasOne(sfs => sfs.Course)
+                    .WithMany()
+                    .HasForeignKey(sfs => sfs.CourseId)
+                    .OnDelete(DeleteBehavior.NoAction);
             });
 
             modelBuilder.Entity<Batch>(e =>

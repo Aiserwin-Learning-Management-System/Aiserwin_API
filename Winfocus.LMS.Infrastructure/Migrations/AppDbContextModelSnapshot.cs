@@ -3584,7 +3584,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.HasOne("Winfocus.LMS.Domain.Entities.Course", "Course")
                         .WithMany()
                         .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("Winfocus.LMS.Domain.Entities.FeePlan", "FeePlan")

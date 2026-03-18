@@ -5,7 +5,7 @@
 namespace Winfocus.LMS.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class RecreateStudentFeeSelection : Migration
+    public partial class FixStudentFeeSelectionCascade : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -20,8 +20,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                 table: "StudentFeeSelections",
                 column: "CourseId",
                 principalTable: "Courses",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Restrict);
+                principalColumn: "Id");
         }
 
         /// <inheritdoc />
