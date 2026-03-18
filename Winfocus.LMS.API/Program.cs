@@ -164,6 +164,10 @@ builder.Services.AddScoped<IDtpAdminService, DtpAdminService>();
 builder.Services.AddScoped<IExamGradeRepository, ExamGradeRepository>();
 builder.Services.AddScoped<IExamGradeService, ExamGradeService>();
 
+builder.Services.AddScoped<IQuestionReviewRepository, QuestionReviewRepository>();
+builder.Services.AddScoped<IQuestionReviewService, QuestionReviewService>();
+builder.Services.AddScoped<IQuestionCorrectionService, QuestionCorrectionService>();
+
 #endregion
 
 #region JWT Authentication
