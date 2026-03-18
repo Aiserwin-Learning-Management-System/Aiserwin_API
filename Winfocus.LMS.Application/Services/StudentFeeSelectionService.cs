@@ -20,16 +20,19 @@ namespace Winfocus.LMS.Application.Services
     {
         private readonly IStudentFeeSelectionRepository _repository;
         private readonly ILogger<StudentFeeSelectionService> _logger;
+        private readonly ICourseRepository _courseRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StudentFeeSelection"/> class.
         /// </summary>
         /// <param name="repository">Repository used for data access.</param>
         /// <param name="logger">Logger.</param>
-        public StudentFeeSelectionService(IStudentFeeSelectionRepository repository, ILogger<StudentFeeSelectionService> logger)
+        /// <param name="courseRepository">courseRepository.</param>
+        public StudentFeeSelectionService(IStudentFeeSelectionRepository repository, ILogger<StudentFeeSelectionService> logger, ICourseRepository courseRepository)
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _courseRepository = courseRepository;
         }
 
         /// <summary>
@@ -352,7 +355,14 @@ namespace Winfocus.LMS.Application.Services
            CourseId = c.CourseId,
            PlanName = c.FeePlan.PlanName,
            SubjectId =c.FeePlan.SubjectId
+       },
+       Course =c.Course == null ? null : new CourseDto
+       {
+           Id =c.CourseId,
+           Name = c.Course.Name,
+           CourseCode = c.Course.CourseCode
        }
+
    };
     }
 }
