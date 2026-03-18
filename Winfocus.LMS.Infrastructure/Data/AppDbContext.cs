@@ -3,6 +3,7 @@
     using Microsoft.EntityFrameworkCore;
     using Winfocus.LMS.Domain.Common;
     using Winfocus.LMS.Domain.Entities;
+    using Winfocus.LMS.Infrastructure.Configurations;
     using Winfocus.LMS.Infrastructure.Data.Configurations;
     using Winfocus.LMS.Infrastructure.Persistence.Configurations;
 
@@ -379,6 +380,14 @@
         public DbSet<Guideline> Guidelines { get; set; } = null!;
 
         /// <summary>
+        /// Gets or sets the question type configuration.
+        /// </summary>
+        /// <value>
+        /// The question type configuration.
+        /// </value>
+        public DbSet<QuestionTypeConfig> QuestionTypeConfigs { get; set; } = null!;
+
+        /// <summary>
         /// Configures the model for the context.
         /// </summary>
         /// <param name="modelBuilder">The builder being used to construct the model for this context.</param>
@@ -414,6 +423,7 @@
             modelBuilder.ApplyConfiguration(new QuestionReviewConfiguration());
             modelBuilder.ApplyConfiguration(new DailyActivityReportConfiguration());
             modelBuilder.ApplyConfiguration(new GuidelineConfiguration());
+            modelBuilder.ApplyConfiguration(new QuestionTypeConfigConfiguration());
 
             // User configuration
             modelBuilder.Entity<User>()

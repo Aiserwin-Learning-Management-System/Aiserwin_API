@@ -172,6 +172,8 @@ builder.Services.AddScoped<IExamUnitService, ExamUnitService>();
 builder.Services.AddScoped<IExamSubjectRepository, ExamSubjectRepository>();
 builder.Services.AddScoped<IExamSubjectService, ExamSubjectService>();
 
+builder.Services.AddScoped<IQuestionTypeConfigRepository, QuestionTypeConfigRepository>();
+builder.Services.AddScoped<IQuestionTypeConfigService, QuestionTypeConfigService>();
 
 #endregion
 
