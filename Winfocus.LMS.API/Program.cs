@@ -162,6 +162,10 @@ builder.Services.AddScoped<IStudentFeeSelectionRepository, StudentFeeSelectionRe
 builder.Services.AddScoped<IDtpAdminRepository, DtpAdminRepository>();
 builder.Services.AddScoped<IDtpAdminService, DtpAdminService>();
 
+builder.Services.AddScoped<IQuestionReviewRepository, QuestionReviewRepository>();
+builder.Services.AddScoped<IQuestionReviewService, QuestionReviewService>();
+builder.Services.AddScoped<IQuestionCorrectionService, QuestionCorrectionService>();
+
 #endregion
 
 #region JWT Authentication
