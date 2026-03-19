@@ -39,10 +39,18 @@
         IQueryable<StaffRegistration> Query();
 
         /// <summary>
-        /// UpdateStatusAsync.
+        /// Updates the status asynchronous.
         /// </summary>
-        /// <param name="registration"></param>
+        /// <param name="registration">The registration.</param>
         /// <returns></returns>
         Task UpdateStatusAsync(StaffRegistration registration);
+
+        /// <summary>
+        /// Gets a staff registration by the linked user account identifier.
+        /// Used when the logged-in operator wants their own data.
+        /// </summary>
+        /// <param name="userId">The user identifier from JWT.</param>
+        /// <returns>The registration if found; otherwise null.</returns>
+        Task<StaffRegistration?> GetByUserIdAsync(Guid userId);
     }
 }

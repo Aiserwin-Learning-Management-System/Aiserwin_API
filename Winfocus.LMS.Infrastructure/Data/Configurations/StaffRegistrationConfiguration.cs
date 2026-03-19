@@ -70,6 +70,14 @@
                 .WithOne(srv => srv.StaffRegistration)
                 .HasForeignKey(srv => srv.RegistrationId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Property(x => x.UserId)
+                .IsRequired(false);
+
+            // Optional: index for faster lookup by UserId
+            builder.HasIndex(x => x.UserId)
+                .IsUnique()
+                .HasFilter("UserId IS NOT NULL AND IsDeleted = 0");
         }
     }
 }
