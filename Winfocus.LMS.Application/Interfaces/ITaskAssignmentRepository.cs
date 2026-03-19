@@ -28,7 +28,7 @@ namespace Winfocus.LMS.Application.Interfaces
         /// </summary>
         /// <param name="operatorid">The identifier.</param>
         /// <returns>TaskAssignment.</returns>
-        Task<TaskAssignment?> GetByOperatorIdAsync(Guid operatorid);
+        Task<List<TaskAssignment?>> GetByOperatorIdAsync(Guid operatorid);
 
         /// <summary>
         /// Adds the asynchronous.
@@ -63,5 +63,14 @@ namespace Winfocus.LMS.Application.Interfaces
         /// </summary>
         /// <returns>TaskAssignment.</returns>
         IQueryable<TaskAssignment> Query();
+
+        /// <summary>
+        /// Retrieves all task assignments including related operator data
+        /// for dashboard overview calculations.
+        /// </summary>
+        /// <returns>
+        /// A list of <see cref="TaskAssignment"/> entities.
+        /// </returns>
+        Task<List<TaskAssignment>> GetAllForOverviewAsync();
     }
 }

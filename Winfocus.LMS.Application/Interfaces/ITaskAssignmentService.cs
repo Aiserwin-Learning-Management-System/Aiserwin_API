@@ -59,7 +59,14 @@ namespace Winfocus.LMS.Application.Interfaces
         /// </summary>
         /// <param name="operatorid">The identifier.</param>
         /// <returns>TaskResponseDto.</returns>
-        Task<CommonResponse<TaskResponseDto>> GetByOperatorIdAsync(Guid operatorid);
+        Task<CommonResponse<List<TaskResponseDto>>> GetByOperatorIdAsync(Guid operatorid);
 
+        /// <summary>
+        /// Retrieves overall task dashboard statistics including operator-wise performance.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="TaskOverviewDto"/> containing aggregated task data.
+        /// </returns>
+        Task<TaskOverviewDto> GetOverviewAsync();
     }
 }
