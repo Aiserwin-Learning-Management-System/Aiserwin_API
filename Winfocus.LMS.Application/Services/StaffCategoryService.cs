@@ -135,7 +135,8 @@ namespace Winfocus.LMS.Application.Services
                     return CommonResponse<StaffCategoryDto>.FailureResponse("staff category not found");
                 }
 
-                var exists = await _repository.Query().AnyAsync(x => x.Name.ToLower() == request.name.ToLower());
+                var exists = await _repository.Query()
+                    .AnyAsync(x => x.Name.ToLower() == request.name.ToLower() && x.Id != id);
 
                 if (exists)
                 {
