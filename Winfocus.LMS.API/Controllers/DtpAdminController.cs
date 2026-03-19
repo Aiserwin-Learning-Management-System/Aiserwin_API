@@ -1,15 +1,13 @@
-﻿// File: src/Winfocus.LMS.API/Controllers/DtpAdminController.cs
-
-using Asp.Versioning;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Winfocus.LMS.Application.DTOs;
-using Winfocus.LMS.Application.DTOs.Common;
-using Winfocus.LMS.Application.DTOs.DtpAdmin;
-using Winfocus.LMS.Application.Interfaces;
-
-namespace Winfocus.LMS.API.Controllers
+﻿namespace Winfocus.LMS.API.Controllers
 {
+    using Asp.Versioning;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+    using Winfocus.LMS.Application.DTOs;
+    using Winfocus.LMS.Application.DTOs.DtpAdmin;
+    using Winfocus.LMS.Application.DTOs.Stats;
+    using Winfocus.LMS.Application.Interfaces;
+
     /// <summary>
     /// DTP Admin — manage operators, view dynamic registration data.
     /// </summary>
@@ -20,14 +18,17 @@ namespace Winfocus.LMS.API.Controllers
     public sealed class DtpAdminController : BaseController
     {
         private readonly IDtpAdminService _service;
+        private readonly IOperatorStatsService _statsService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DtpAdminController"/> class.
         /// </summary>
         /// <param name="service">The service.</param>
-        public DtpAdminController(IDtpAdminService service)
+        /// <param name="statsService">The operator stats service.</param>
+        public DtpAdminController(IDtpAdminService service, IOperatorStatsService statsService)
         {
             _service = service;
+            _statsService = statsService;
         }
 
         /// <summary>
@@ -81,6 +82,38 @@ namespace Winfocus.LMS.API.Controllers
         {
             var result = await _service.ToggleOperatorAsync(registrationId, UserId);
             return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        /// <summary>
+        /// Gets comparison statistics for all DTP operators.
+        /// Admin-only endpoint.
+        /// </summary>
+        /// <param name="filter">Period filter parameters.</param>
+        /// <returns>All operators comparison statistics.</returns>
+        [HttpGet("stats/all-operators")]
+        public async Task<ActionResult<CommonResponse<AllOperatorsStatsDto>>> GetAllOperatorsStats(
+            [FromQuery] OperatorStatsFilterDto filter)
+        {
+            CommonResponse<AllOperatorsStatsDto> result =
+                await _statsService.GetAllOperatorsStatsAsync(filter);
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Gets detailed productivity statistics for a specific operator.
+        /// Admin-only endpoint.
+        /// </summary>
+        /// <param name="operatorId">The operator registration identifier.</param>
+        /// <param name="filter">Period filter parameters.</param>
+        /// <returns>Detailed productivity stats for the specified operator.</returns>
+        [HttpGet("stats/operator/{operatorId:guid}")]
+        public async Task<ActionResult<CommonResponse<OperatorProductivityDto>>> GetOperatorStats(
+            [FromRoute] Guid operatorId,
+            [FromQuery] OperatorStatsFilterDto filter)
+        {
+            CommonResponse<OperatorProductivityDto> result =
+                await _statsService.GetProductivityAsync(operatorId, filter);
+            return Ok(result);
         }
     }
 }

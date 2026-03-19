@@ -7,6 +7,7 @@
     using Winfocus.LMS.Application.DTOs.Common;
     using Winfocus.LMS.Application.DTOs.Dashboard;
     using Winfocus.LMS.Application.DTOs.Review;
+    using Winfocus.LMS.Application.DTOs.Stats;
     using Winfocus.LMS.Application.Interfaces;
 
     /// <summary>
@@ -22,18 +23,22 @@
     {
         private readonly IOperatorDashboardService _dashboardService;
         private readonly IQuestionCorrectionService _correctionService;
+        private readonly IOperatorStatsService _statsService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OperatorController"/> class.
         /// </summary>
         /// <param name="dashboardService">The dashboard service.</param>
         /// <param name="correctionService">The correction service.</param>
+        /// <param name="statsService">The operator stats service.</param>
         public OperatorController(
             IOperatorDashboardService dashboardService,
-            IQuestionCorrectionService correctionService)
+            IQuestionCorrectionService correctionService,
+            IOperatorStatsService statsService)
         {
             _dashboardService = dashboardService;
             _correctionService = correctionService;
+            _statsService = statsService;
         }
 
         /// <summary>
@@ -129,6 +134,22 @@
             var result = await _correctionService.FixAndResubmitAsync(
                 UserId, questionId, dto);
             return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        /// <summary>
+        /// Gets the current operator's productivity statistics.
+        /// Operator identified via JWT token.
+        /// </summary>
+        /// <param name="filter">Period filter parameters.</param>
+        /// <returns>Productivity statistics for the logged-in operator.</returns>
+        [Authorize(Roles = "Staff")]
+        [HttpGet("stats/productivity")]
+        public async Task<ActionResult<CommonResponse<OperatorProductivityDto>>> GetMyProductivity(
+            [FromQuery] OperatorStatsFilterDto filter)
+        {
+            CommonResponse<OperatorProductivityDto> result =
+                await _statsService.GetProductivityAsync(UserId, filter);
+            return Ok(result);
         }
     }
 }
