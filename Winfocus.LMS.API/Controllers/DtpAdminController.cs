@@ -82,5 +82,27 @@ namespace Winfocus.LMS.API.Controllers
             var result = await _service.ToggleOperatorAsync(registrationId, UserId);
             return result.Success ? Ok(result) : BadRequest(result);
         }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="registrationId">The registration ID.</param>
+        /// <returns></returns>
+        [HttpGet("{registrationId}")]
+        public async Task<IActionResult> Get(Guid registrationId)
+        {
+            return Ok(await _service.GetOperatorDetailAsync(registrationId));
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="registrationId">The registration ID.</param>
+        /// <param name="dto">The dto.</param>
+        /// <returns></returns>
+        [HttpPatch("{registrationId}/verify")]
+        public async Task<IActionResult> Verify(Guid registrationId, VerifyOperatorDto dto)
+        {
+            await _service.VerifyOperatorAsync(registrationId, dto, UserId);
+            return NoContent();
+        }
     }
 }
