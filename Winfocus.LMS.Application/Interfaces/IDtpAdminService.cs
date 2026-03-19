@@ -40,5 +40,20 @@
         /// </returns>
         Task<CommonResponse<OperatorToggleResponseDto>> ToggleOperatorAsync(
             Guid registrationId, Guid adminUserId);
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="registrationId"></param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+        Task<CommonResponse<OperatorDetailDto>> GetOperatorDetailAsync(Guid registrationId);
+
+        /// <summary>
+        /// </summary>
+        /// <param name="registrationId"></param>
+        /// <param name="dto"></param>
+        /// <param name="adminUserId"></param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+        Task<CommonResponse<bool>> VerifyOperatorAsync(Guid registrationId, VerifyOperatorDto dto, Guid adminUserId);
     }
 }

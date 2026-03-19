@@ -53,11 +53,11 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// </summary>
         /// <param name="operatorid">The identifier.</param>
         /// <returns>TaskAssignment.</returns>
-        public async Task<TaskAssignment?> GetByOperatorIdAsync(Guid operatorid)
+        public async Task<List<TaskAssignment?>> GetByOperatorIdAsync(Guid operatorid)
         {
             var query = _db.TaskAssignments
                   .Where(x => x.OperatorId == operatorid && !x.IsDeleted);
-            return await query.FirstOrDefaultAsync();
+            return await query.ToListAsync();
         }
 
         /// <summary>
@@ -126,6 +126,15 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         public async Task<bool> ExistsByNameAsync(string name)
         {
             return await _db.TaskAssignments.AnyAsync(x => x.Operator.StaffCategory.Name == name && !x.IsDeleted);
+        }
+
+        /// <inheritdoc/>
+        public async Task<List<TaskAssignment>> GetAllForOverviewAsync()
+        {
+            return await _db.TaskAssignments
+                .Include(x => x.Operator)
+                .Where(x => !x.IsDeleted)
+                .ToListAsync();
         }
     }
 }

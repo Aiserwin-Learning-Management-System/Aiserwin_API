@@ -174,6 +174,8 @@ builder.Services.AddScoped<IExamSubjectService, ExamSubjectService>();
 
 builder.Services.AddScoped<IQuestionTypeConfigRepository, QuestionTypeConfigRepository>();
 builder.Services.AddScoped<IQuestionTypeConfigService, QuestionTypeConfigService>();
+builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
+builder.Services.AddScoped<IQuestionService, QuestionService>();
 
 builder.Services.AddScoped<IOperatorStatsRepository, OperatorStatsRepository>();
 builder.Services.AddScoped<IOperatorStatsService, OperatorStatsService>();

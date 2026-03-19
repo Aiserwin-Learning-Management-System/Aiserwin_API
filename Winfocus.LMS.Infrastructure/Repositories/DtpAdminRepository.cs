@@ -77,5 +77,39 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         {
             await _db.SaveChangesAsync();
         }
+
+        /// <inheritdoc/>
+        public async Task<StaffRegistration?> GetRegistrationWithDetailsAsync(Guid id)
+        {
+            return await _db.StaffRegistrations
+
+                // VALUES
+                .Include(r => r.Values)
+                    .ThenInclude(v => v.FormField)
+                        .ThenInclude(f => f.FieldOptions)
+
+                // FORM
+                .Include(r => r.RegistrationForm)
+                    .ThenInclude(f => f.FormGroups)
+                        .ThenInclude(g => g.FieldGroup)
+
+                .Include(r => r.RegistrationForm)
+                    .ThenInclude(f => f.FormFields)
+                        .ThenInclude(ff => ff.FormField)
+                            .ThenInclude(f => f.FieldOptions)
+
+                // CATEGORY
+                .Include(r => r.StaffCategory)
+
+                .FirstOrDefaultAsync(r => r.Id == id);
+        }
+
+        /// <inheritdoc/>
+        public async Task<List<TaskAssignment>> GetTasksByOperatorIdAsync(Guid registrationId)
+        {
+            return await _db.TaskAssignments
+                .Where(t => t.OperatorId == registrationId)
+                .ToListAsync();
+        }
     }
 }

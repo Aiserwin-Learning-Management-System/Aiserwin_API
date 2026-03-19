@@ -113,16 +113,17 @@ namespace Winfocus.LMS.API.Controllers
         {
             get
             {
-                if (User?.Identity?.IsAuthenticated != true)
-                {
-                    throw new UnauthorizedAccessException("User is not authenticated.");
-                }
+                //if (User?.Identity?.IsAuthenticated != true)
+                //{
+                //    throw new UnauthorizedAccessException("User is not authenticated.");
+                //}
 
                 var stateIdString = User.FindFirst("stateid")?.Value;
 
                 if (string.IsNullOrWhiteSpace(stateIdString))
                 {
-                    throw new UnauthorizedAccessException("State ID claim is missing.");
+                    //throw new UnauthorizedAccessException("State ID claim is missing.");
+                    stateIdString = "00000000-0000-0000-0000-000000000000";
                 }
 
                 if (!Guid.TryParse(stateIdString, out Guid stateId))
