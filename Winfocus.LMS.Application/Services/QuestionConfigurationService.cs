@@ -21,7 +21,7 @@
         private readonly IExamUnitRepository _unitRepository;
         private readonly IExamChapterRepository _chapterRepository;
         private readonly IContentResourceTypeRepository _resourceTypeRepository;
-        private readonly IQuestionTypeRepository _questionTypeRepository;
+        private readonly IQuestionTypeConfigRepository _questionTypeRepository;
         private readonly ILogger<QuestionConfigurationService> _logger;
 
         /// <summary>
@@ -46,7 +46,7 @@
             IExamUnitRepository unitRepository,
             IExamChapterRepository chapterRepository,
             IContentResourceTypeRepository resourceTypeRepository,
-            IQuestionTypeRepository questionTypeRepository,
+            IQuestionTypeConfigRepository questionTypeRepository,
             ILogger<QuestionConfigurationService> logger)
         {
             _repository = repository;
