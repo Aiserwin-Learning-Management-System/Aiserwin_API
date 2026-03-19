@@ -990,7 +990,8 @@
                             DiscountPercent = totalDiscountPercent,
                             FeeAfterDiscount = totalFee,
                             IsSelected = selectedPlanIds.Contains(plan.Id),
-                            Discounts = discountBadges
+                            Discounts = discountBadges,
+
                         });
                     }
                 }
@@ -1010,6 +1011,10 @@
 
                 var studentName = student.StudentPersonalDetails?.FullName ?? "Unknown";
                 var regNumber = student.RegistrationNumber ?? "";
+                var gradeId = student.AcademicDetails?.GradeId ?? Guid.Empty;
+                var gradeName = student.AcademicDetails?.Grade?.Name ?? "N/A";
+                var syllabusId = student.AcademicDetails?.Grade?.SyllabusId ?? Guid.Empty;
+                var syllabusName = student.AcademicDetails?.Grade?.Syllabus?.Name ?? "N/A";
 
                 return CommonResponse<StudentFeePageDto>.SuccessResponse(
                     "Fee page loaded.",
@@ -1018,8 +1023,12 @@
                         StudentId = studentId,
                         StudentName = studentName,
                         RegistrationNumber = regNumber,
+                        GradeId = gradeId,
+                        GradeName = gradeName,
+                        SyllabusId = syllabusId,
+                        SyllabusName = syllabusName,
                         FeeListings = feeListings,
-                        SelectedFeePlanId = selectedPlanId
+                        SelectedFeePlanId = selectedPlanId,
                     });
             }
             catch (Exception ex)

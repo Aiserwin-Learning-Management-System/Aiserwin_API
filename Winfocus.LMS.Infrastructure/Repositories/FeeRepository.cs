@@ -32,6 +32,8 @@
             return await _context.Students
                 .Include(x => x.StudentAcademicCouses)
                 .Include(x => x.AcademicDetails)
+                    .ThenInclude(a => a.Grade)
+                        .ThenInclude(g => g.Syllabus)
                 .Include(x => x.StudentPersonalDetails)
                 .FirstOrDefaultAsync(x => x.Id == studentId && !x.IsDeleted);
         }
