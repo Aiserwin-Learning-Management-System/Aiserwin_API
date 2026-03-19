@@ -32,6 +32,7 @@
             return await _context.Students
                 .Include(x => x.StudentAcademicCouses)
                 .Include(x => x.AcademicDetails)
+                .Include(x => x.StudentPersonalDetails)
                 .FirstOrDefaultAsync(x => x.Id == studentId && !x.IsDeleted);
         }
 
@@ -44,7 +45,7 @@
         {
             return await _context.Courses
                 .Include(c => c.Stream)
-                .Include(c => c.FeePlans)
+                .Include(c => c.FeePlans).ThenInclude(fp => fp.Discounts)
                 .Where(c => c.Stream.GradeId == gradeId && c.IsActive && !c.IsDeleted)
                 .ToListAsync();
         }

@@ -118,5 +118,22 @@
         /// <param name="request">The paged request.</param>
         /// <returns>Paginated fee result.</returns>
         Task<CommonResponse<PagedResult<FeePlanDto>>> GetFilteredAsync(PagedRequest request);
+
+        /// <summary>
+        /// Gets the fee listing page for student portal.
+        /// Shows all available course + payment type + duration combinations.
+        /// </summary>
+        /// <param name="studentId">The student identifier.</param>
+        /// <returns>Fee page data for student portal.</returns>
+        Task<CommonResponse<StudentFeePageDto>> GetStudentFeePageAsync(Guid studentId);
+
+        /// <summary>
+        /// Student confirms their fee selection.
+        /// Creates StudentFeeSelection with applicable discounts auto-applied.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <returns>Summary of the confirmed fee selection, including final amount and applied discounts.</returns>
+        Task<CommonResponse<FeeSummaryDto>> ConfirmFeeSelectionAsync(
+            ConfirmFeeSelectionRequest request);
     }
 }
