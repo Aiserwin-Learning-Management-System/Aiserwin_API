@@ -905,6 +905,248 @@
             }
         }
 
+        /// <summary>
+        /// Builds the fee listing page for student portal.
+        /// Each row = Course + PaymentType + Duration combination.
+        /// Discounts from FeePlanDiscount table are auto-applied.
+        /// </summary>
+        /// <param name="studentId">The student identifier.</param>
+        /// <returns>
+        /// Fee page data for student portal.
+        /// </returns>
+        public async Task<CommonResponse<StudentFeePageDto>> GetStudentFeePageAsync(
+            Guid studentId)
+        {
+            try
+            {
+                _logger.LogInformation(
+                    "GetStudentFeePageAsync for StudentId: {StudentId}", studentId);
+
+                var student = await _repo.GetStudentWithCoursesAsync(studentId);
+
+                if (student == null)
+                {
+                    return CommonResponse<StudentFeePageDto>.FailureResponse(
+                        "Student not found.");
+                }
+
+                // Get student's enrolled course IDs
+                var enrolledCourseIds = student.StudentAcademicCouses
+                    .Select(x => x.CourseId)
+                    .ToHashSet();
+
+                // Get all courses for student's grade
+                var courses = await _repo.GetCoursesByGradeAsync(
+                    student.AcademicDetails.GradeId);
+
+                // Check existing selections
+                var existingSelections = await _repo
+                    .GetStudentFeeSelectionsByStudentAsync(studentId);
+                var selectedPlanIds = existingSelections
+                    .Select(s => s.FeePlanId)
+                    .ToHashSet();
+
+                // Build fee listing rows
+                var feeListings = new List<FeeListingRowDto>();
+
+                foreach (var course in courses)
+                {
+                    foreach (var plan in course.FeePlans.Where(fp => fp.IsActive))
+                    {
+                        // Calculate total discount from FeePlanDiscount table
+                        var totalDiscountPercent = plan.Discounts
+                            .Where(d => d.IsActive)
+                            .Sum(d => d.DiscountPercent);
+
+                        // Calculate fee after discount
+                        var yearlyFee = plan.TuitionFee;
+                        var feeAfterDiscount = yearlyFee;
+
+                        if (totalDiscountPercent > 0)
+                        {
+                            feeAfterDiscount = yearlyFee - (yearlyFee * totalDiscountPercent / 100m);
+                            feeAfterDiscount = Math.Max(feeAfterDiscount, 0);
+                        }
+
+                        // Total for full duration
+                        var totalFee = feeAfterDiscount * plan.DurationinYears;
+
+                        var discountBadges = plan.Discounts
+                            .Where(d => d.IsActive && d.DiscountPercent > 0)
+                            .Select(d => new DiscountBadgeDto
+                            {
+                                Name = d.DiscountName,
+                                Percent = d.DiscountPercent
+                            }).ToList();
+
+                        feeListings.Add(new FeeListingRowDto
+                        {
+                            FeePlanId = plan.Id,
+                            CourseId = course.Id,
+                            CourseName = course.Name,
+                            YearlyFee = yearlyFee,
+                            PaymentType = plan.PaymentType,
+                            DurationInYears = plan.DurationinYears,
+                            DiscountPercent = totalDiscountPercent,
+                            FeeAfterDiscount = totalFee,
+                            IsSelected = selectedPlanIds.Contains(plan.Id),
+                            Discounts = discountBadges
+                        });
+                    }
+                }
+
+                // Sort: enrolled courses first, then by course name
+                feeListings = feeListings
+                    .OrderByDescending(f => enrolledCourseIds.Contains(f.CourseId))
+                    .ThenBy(f => f.CourseName)
+                    .ThenBy(f => f.PaymentType)
+                    .ThenBy(f => f.DurationInYears)
+                    .ToList();
+
+                var selectedPlanId = existingSelections
+                    .OrderByDescending(s => s.CreatedAt)
+                    .Select(s => (Guid?)s.FeePlanId)
+                    .FirstOrDefault();
+
+                var studentName = student.StudentPersonalDetails?.FullName ?? "Unknown";
+                var regNumber = student.RegistrationNumber ?? "";
+
+                return CommonResponse<StudentFeePageDto>.SuccessResponse(
+                    "Fee page loaded.",
+                    new StudentFeePageDto
+                    {
+                        StudentId = studentId,
+                        StudentName = studentName,
+                        RegistrationNumber = regNumber,
+                        FeeListings = feeListings,
+                        SelectedFeePlanId = selectedPlanId
+                    });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex,
+                    "Error loading fee page for StudentId: {StudentId}", studentId);
+                return CommonResponse<StudentFeePageDto>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Student confirms fee selection. Creates StudentFeeSelection
+        /// with discounts from FeePlanDiscount auto-applied.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <returns>
+        /// Summary of the confirmed fee selection, including final amount and applied discounts.
+        /// </returns>
+        public async Task<CommonResponse<FeeSummaryDto>> ConfirmFeeSelectionAsync(
+            ConfirmFeeSelectionRequest request)
+        {
+            try
+            {
+                _logger.LogInformation(
+                    "ConfirmFeeSelection — Student: {StudentId}, Plan: {PlanId}",
+                    request.StudentId, request.FeePlanId);
+
+                var student = await _repo.GetStudentWithCoursesAsync(request.StudentId);
+                if (student == null)
+                {
+                    return CommonResponse<FeeSummaryDto>.FailureResponse(
+                        "Student not found.");
+                }
+
+                // Find the fee plan with discounts
+                var feePlan = await _repo.GetFeePlanByIdAsync(request.FeePlanId);
+                if (feePlan == null)
+                {
+                    return CommonResponse<FeeSummaryDto>.FailureResponse(
+                        "Fee plan not found.");
+                }
+
+                // Load discounts for this plan
+                var planWithDiscounts = await _repo.GetByIdAsync(request.FeePlanId);
+                if (planWithDiscounts == null)
+                {
+                    return CommonResponse<FeeSummaryDto>.FailureResponse(
+                        "Fee plan not found.");
+                }
+
+                // Check if student already has a selection for this course
+                var existingSelections = await _repo
+                    .GetStudentFeeSelectionsByStudentAsync(request.StudentId);
+
+                var existingForCourse = existingSelections
+                    .FirstOrDefault(s => s.CourseId == planWithDiscounts.CourseId);
+
+                if (existingForCourse != null)
+                {
+                    return CommonResponse<FeeSummaryDto>.FailureResponse(
+                        "A fee plan is already selected for this course. " +
+                        "Please contact admin to change.");
+                }
+
+                // Calculate discounts from FeePlanDiscount table
+                var baseFee = planWithDiscounts.TuitionFee;
+                var totalDiscountPercent = planWithDiscounts.Discounts
+                    .Where(d => d.IsActive)
+                    .Sum(d => d.DiscountPercent);
+
+                var feeAfterDiscount = baseFee;
+                if (totalDiscountPercent > 0)
+                {
+                    feeAfterDiscount = baseFee - (baseFee * totalDiscountPercent / 100m);
+                    feeAfterDiscount = Math.Max(feeAfterDiscount, 0);
+                }
+
+                // Total for full duration
+                var totalFee = feeAfterDiscount * planWithDiscounts.DurationinYears;
+
+                // Create StudentFeeSelection
+                var selection = new StudentFeeSelection(
+                    studentId: request.StudentId,
+                    courseId: planWithDiscounts.CourseId,
+                    feePlanId: planWithDiscounts.Id,
+                    scholarshipPercent: 0,
+                    isScholarshipActive: false,
+                    seasonalPercent: 0,
+                    isSeasonalActive: false,
+                    manualDiscountPercent: totalDiscountPercent,
+                    isManualDiscountActive: totalDiscountPercent > 0,
+                    baseFee: baseFee * planWithDiscounts.DurationinYears,
+                    finalAmount: totalFee);
+
+                selection.CreatedBy = request.StudentId;
+
+                await _repo.AddStudentFeeSelectionAsync(selection);
+                await _repo.SaveChangesAsync();
+
+                _logger.LogInformation(
+                    "Fee confirmed. SelectionId: {Id}, Final: {Amount}",
+                    selection.Id, totalFee);
+
+                var discountAmount = (baseFee * planWithDiscounts.DurationinYears) - totalFee;
+
+                return CommonResponse<FeeSummaryDto>.SuccessResponse(
+                    "Fee selection confirmed successfully.",
+                    new FeeSummaryDto
+                    {
+                        BaseFee = baseFee * planWithDiscounts.DurationinYears,
+                        ScholarshipDiscount = 0,
+                        SeasonalDiscount = 0,
+                        ManualDiscount = discountAmount,
+                        TotalPayable = totalFee
+                    });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex,
+                    "Error confirming fee selection for Student: {StudentId}",
+                    request.StudentId);
+                return CommonResponse<FeeSummaryDto>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
+            }
+        }
+
         private static FeePlanDto MapToDto(FeePlan feePlan)
         {
             return new FeePlanDto

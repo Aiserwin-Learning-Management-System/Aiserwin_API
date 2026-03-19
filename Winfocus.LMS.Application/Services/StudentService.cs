@@ -19,8 +19,6 @@ namespace Winfocus.LMS.Application.Services
         private readonly IDoubtClearingRepository _doubtClearingRepository;
         private readonly IStateRepository _stateRepository;
 
-        private List<DoubtClearing>? _doubtClear;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="StudentService"/> class.
         /// </summary>
@@ -56,13 +54,19 @@ namespace Winfocus.LMS.Application.Services
 
             // Apply filters
             if (countryid.HasValue && countryid != Guid.Empty)
+            {
                 students = students.Where(s => s.AcademicDetails.CountryId == countryid.Value).ToList();
+            }
 
             if (stateid.HasValue && stateid != Guid.Empty)
+            {
                 students = students.Where(s => s.AcademicDetails.StateId == stateid.Value).ToList();
+            }
 
             if (centerid.HasValue && centerid != Guid.Empty)
+            {
                 students = students.Where(s => s.AcademicDetails.CenterId == centerid.Value).ToList();
+            }
 
             var result = students.Select(s => Map(s, null)).ToList();
 
@@ -74,133 +78,80 @@ namespace Winfocus.LMS.Application.Services
         }
 
         /// <summary>
-        /// Gets the by identifier asynchronous.
+        /// Gets a student by the Student entity's primary key.
         /// </summary>
-        /// <param name="id">The identifier.</param>
-        /// <param name="countryid">The countryid.</param>
-        /// <param name="stateid">The stateid.</param>
-        /// <param name="centerid">The centerid.</param>
-        /// <returns>StudentDto.</returns>
+        /// <param name="id">The student entity identifier.</param>
+        /// <returns>StudentDto if found; otherwise null.</returns>
         public async Task<StudentDto?> GetByIdAsync(Guid id)
         {
-            _logger.LogInformation(
-                "Fetching student by Id: {Id}", id);
+            _logger.LogInformation("Fetching student by StudentId: {Id}", id);
 
-            var student = await _repository.GetByIdAsync(id);
-            var subjectId = student.StudentBatchTimingMTFs.Select(x => x.BatchTimingMTF.SubjectId).FirstOrDefault();
-            var doubtClear = await _doubtClearingRepository.GetBySubjectIdAsync(subjectId);
-
-            if (doubtClear != null)
-            {
-                _doubtClear = doubtClear;
-            }
-
+            Student? student = await _repository.GetByIdAsync(id);
             if (student == null)
             {
-                _logger.LogWarning(
-                    "Student not found. Id: {Id}", id);
-
+                _logger.LogWarning("Student not found. StudentId: {Id}", id);
                 return null;
             }
 
-            _logger.LogInformation(
-                "Student fetched successfully. Id: {Id}", id);
-
-            // Base mapping to DTO (includes emiratesId from entity)
-            var dto = Map(student, doubtClear);
-
-            // Populate academic emirates details using the same State model
-            if (!string.IsNullOrWhiteSpace(student.AcademicDetails.Emirates)
-                && Guid.TryParse(student.AcademicDetails.Emirates, out var academicEmiratesId))
-            {
-                var emirateState = await _stateRepository.GetByIdAsync(academicEmiratesId, student.AcademicDetails.CountryId);
-                if (emirateState != null)
-                {
-                    dto.AcademicDetails.Emirates = MapStateToDto(emirateState);
-                }
-            }
-
-            // Populate personal emirates details using the same State model
-            if (!string.IsNullOrWhiteSpace(student.StudentPersonalDetails.Emirates)
-                && Guid.TryParse(student.StudentPersonalDetails.Emirates, out var personalEmiratesId))
-            {
-                var emirateState = await _stateRepository.GetByIdAsync(personalEmiratesId, student.AcademicDetails.CountryId);
-                if (emirateState != null)
-                {
-                    dto.PersonalDetails.Emirates = MapStateToDto(emirateState);
-                }
-            }
-
-            return dto;
+            return await MapWithEmiratesAsync(student);
         }
 
         /// <summary>
-        /// Gets the by identifier asynchronous.
+        /// Gets a student by StudentId with optional scope filtering.
+        /// Used by admin endpoints where scope (country/state/center) is enforced.
         /// </summary>
-        /// <param name="id">The identifier.</param>
-        /// <param name="countryid">The countryid.</param>
-        /// <param name="stateid">The stateid.</param>
-        /// <param name="centerid">The centerid.</param>
-        /// <returns>StudentDto.</returns>
-        public async Task<StudentDto?> GetByIdsAsync(Guid id, Guid? countryid, Guid? stateid, Guid? centerid)
+        /// <param name="id">The student entity identifier.</param>
+        /// <param name="countryId">Optional country filter.</param>
+        /// <param name="stateId">Optional state filter.</param>
+        /// <param name="centerId">Optional center filter.</param>
+        /// <returns>StudentDto if found and passes filters; otherwise null.</returns>
+        public async Task<StudentDto?> GetByIdsAsync(Guid id, Guid? countryId, Guid? stateId, Guid? centerId)
         {
-            _logger.LogInformation(
-                "Fetching student by Id: {Id}", id);
+            _logger.LogInformation("Fetching student by StudentId with filters: {Id}", id);
 
-            var student = await _repository.GetByIdAsync(id);
-            var subjectId = student.StudentBatchTimingMTFs.Select(x => x.BatchTimingMTF.SubjectId).FirstOrDefault();
-            var doubtClear = await _doubtClearingRepository.GetBySubjectIdAsync(subjectId);
-
-            if (doubtClear != null)
-            {
-                _doubtClear = doubtClear;
-            }
-
+            Student? student = await _repository.GetByIdAsync(id);
             if (student == null)
             {
-                _logger.LogWarning(
-                    "Student not found. Id: {Id}", id);
-
+                _logger.LogWarning("Student not found. StudentId: {Id}", id);
                 return null;
             }
 
-            if ((countryid.HasValue && countryid != Guid.Empty && student.AcademicDetails.CountryId != countryid) ||
-              (stateid.HasValue && stateid != Guid.Empty && student.AcademicDetails.StateId != stateid) ||
-              (centerid.HasValue && centerid != Guid.Empty && student.AcademicDetails.CenterId != centerid))
+            if (!PassesScopeFilter(student, countryId, stateId, centerId))
             {
-                _logger.LogWarning("Student does not match filter criteria. Id: {Id}", id);
+                _logger.LogWarning("Student does not match scope filters. StudentId: {Id}", id);
                 return null;
             }
 
-            _logger.LogInformation(
-                "Student fetched successfully. Id: {Id}", id);
+            return await MapWithEmiratesAsync(student);
+        }
 
-            // Base mapping to DTO (includes emiratesId from entity)
-            var dto = Map(student, doubtClear);
+        /// <summary>
+        /// Gets a student by UserId with optional scope filtering.
+        /// Used when looking up a student by their linked auth user account.
+        /// </summary>
+        /// <param name="userId">The user identifier from auth system.</param>
+        /// <param name="countryId">Optional country filter.</param>
+        /// <param name="stateId">Optional state filter.</param>
+        /// <param name="centerId">Optional center filter.</param>
+        /// <returns>StudentDto if found and passes filters; otherwise null.</returns>
+        public async Task<StudentDto?> GetByUserIdsAsync(Guid userId, Guid? countryId, Guid? stateId, Guid? centerId)
+        {
+            _logger.LogInformation("Fetching student by UserId: {UserId}", userId);
 
-            // Populate academic emirates details using the same State model
-            if (!string.IsNullOrWhiteSpace(student.AcademicDetails.Emirates)
-                && Guid.TryParse(student.AcademicDetails.Emirates, out var academicEmiratesId))
+            Student? student = await _repository.GetByUserIdAsync(userId);
+            if (student == null)
             {
-                var emirateState = await _stateRepository.GetByIdAsync(academicEmiratesId, student.AcademicDetails.CountryId);
-                if (emirateState != null)
-                {
-                    dto.AcademicDetails.Emirates = MapStateToDto(emirateState);
-                }
+                _logger.LogWarning("Student not found for UserId: {UserId}", userId);
+                return null;
             }
 
-            // Populate personal emirates details using the same State model
-            if (!string.IsNullOrWhiteSpace(student.StudentPersonalDetails.Emirates)
-                && Guid.TryParse(student.StudentPersonalDetails.Emirates, out var personalEmiratesId))
+            if (!PassesScopeFilter(student, countryId, stateId, centerId))
             {
-                var emirateState = await _stateRepository.GetByIdAsync(personalEmiratesId, student.AcademicDetails.CountryId);
-                if (emirateState != null)
-                {
-                    dto.PersonalDetails.Emirates = MapStateToDto(emirateState);
-                }
+                _logger.LogWarning("Student does not match scope filters. UserId: {UserId}", userId);
+                return null;
             }
 
-            return dto;
+            return await MapWithEmiratesAsync(student);
         }
 
         /// <summary>
@@ -348,6 +299,82 @@ namespace Winfocus.LMS.Application.Services
                 "Successfully linked UserId {UserId} to StudentId {StudentId}",
                 userId, 
                 studentId);
+        }
+
+        /// <summary>
+        /// Maps a student entity to DTO and populates emirates details.
+        /// Reused by GetByIdAsync, GetByIdsAsync, and GetByUserIdsAsync.
+        /// </summary>
+        /// <param name="student">The student entity with navigations loaded.</param>
+        /// <returns>The mapped DTO with emirates details populated.</returns>
+        private async Task<StudentDto> MapWithEmiratesAsync(Student student)
+        {
+            Guid subjectId = student.StudentBatchTimingMTFs
+                .Select(x => x.BatchTimingMTF.SubjectId)
+                .FirstOrDefault();
+
+            List<DoubtClearing>? doubtClear = await _doubtClearingRepository
+                .GetBySubjectIdAsync(subjectId);
+
+            StudentDto dto = Map(student, doubtClear);
+
+            // Populate academic emirates.
+            if (!string.IsNullOrWhiteSpace(student.AcademicDetails.Emirates)
+                && Guid.TryParse(student.AcademicDetails.Emirates, out Guid academicEmiratesId))
+            {
+                State? emirateState = await _stateRepository
+                    .GetByIdAsync(academicEmiratesId, student.AcademicDetails.CountryId);
+                if (emirateState != null)
+                {
+                    dto.AcademicDetails.Emirates = MapStateToDto(emirateState);
+                }
+            }
+
+            // Populate personal emirates.
+            if (!string.IsNullOrWhiteSpace(student.StudentPersonalDetails.Emirates)
+                && Guid.TryParse(student.StudentPersonalDetails.Emirates, out Guid personalEmiratesId))
+            {
+                State? emirateState = await _stateRepository
+                    .GetByIdAsync(personalEmiratesId, student.AcademicDetails.CountryId);
+                if (emirateState != null)
+                {
+                    dto.PersonalDetails.Emirates = MapStateToDto(emirateState);
+                }
+            }
+
+            return dto;
+        }
+
+        /// <summary>
+        /// Applies optional scope filters (country, state, center) on a student entity.
+        /// Returns false if student does not match any provided filter.
+        /// </summary>
+        /// <param name="student">The student entity.</param>
+        /// <param name="countryId">Optional country filter.</param>
+        /// <param name="stateId">Optional state filter.</param>
+        /// <param name="centerId">Optional center filter.</param>
+        /// <returns>True if student passes all filters; otherwise false.</returns>
+        private bool PassesScopeFilter(Student student, Guid? countryId, Guid? stateId, Guid? centerId)
+        {
+            if (countryId.HasValue && countryId != Guid.Empty
+                && student.AcademicDetails.CountryId != countryId)
+            {
+                return false;
+            }
+
+            if (stateId.HasValue && stateId != Guid.Empty
+                && student.AcademicDetails.StateId != stateId)
+            {
+                return false;
+            }
+
+            if (centerId.HasValue && centerId != Guid.Empty
+                && student.AcademicDetails.CenterId != centerId)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         private StudentDto MapToDto(Student entity)

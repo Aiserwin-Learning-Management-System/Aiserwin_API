@@ -266,5 +266,33 @@
             var result = await _service.GetFilteredAsync(request);
             return Ok(result);
         }
+
+        /// <summary>
+        /// Gets the fee listing page for student portal.
+        /// Shows all courses with payment types, durations, and discounts.
+        /// </summary>
+        /// <param name="studentId">The student identifier.</param>
+        /// <returns>Fee listing page data.</returns>
+        [HttpGet("student-page/{studentId:guid}")]
+        public async Task<ActionResult<CommonResponse<StudentFeePageDto>>> GetStudentFeePage(
+            Guid studentId)
+        {
+            var result = await _service.GetStudentFeePageAsync(studentId);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        /// <summary>
+        /// Student confirms their fee selection.
+        /// Auto-applies discounts from the selected fee plan.
+        /// </summary>
+        /// <param name="request">Student ID + selected FeePlan ID.</param>
+        /// <returns>Fee summary with final amount.</returns>
+        [HttpPost("confirm")]
+        public async Task<ActionResult<CommonResponse<FeeSummaryDto>>> ConfirmFeeSelection(
+            [FromBody] ConfirmFeeSelectionRequest request)
+        {
+            var result = await _service.ConfirmFeeSelectionAsync(request);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
     }
 }

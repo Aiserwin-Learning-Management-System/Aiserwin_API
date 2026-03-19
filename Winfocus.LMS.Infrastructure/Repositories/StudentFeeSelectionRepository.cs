@@ -44,7 +44,9 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         {
             return await _context.StudentFeeSelections
                 .Include(x => x.Student)
-                .Include(x => x.FeePlan).FirstOrDefaultAsync(x => x.Student.Id == id && !x.IsDeleted);
+                .Include(x => x.FeePlan)
+                .Include(x => x.Course)
+                .FirstOrDefaultAsync(x => x.Student.Id == id && !x.IsDeleted);
         }
 
         /// <summary>
@@ -56,6 +58,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             return await _context.StudentFeeSelections.Where(x => !x.IsDeleted)
                 .Include(x => x.Student)
                 .Include(x => x.FeePlan)
+                .Include(x => x.Course)
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -114,6 +117,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         {
             return _context.StudentFeeSelections.Where(x => !x.IsDeleted).Include(x => x.Student)
                   .Include(s => s.FeePlan)
+                .Include(x => x.Course)
                 .AsNoTracking();
         }
 
