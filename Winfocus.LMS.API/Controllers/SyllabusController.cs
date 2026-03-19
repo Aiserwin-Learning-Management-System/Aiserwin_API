@@ -66,8 +66,8 @@
         public async Task<ActionResult<CommonResponse<SyllabusDto>>> Create(
             SyllabusRequest request)
         {
-
-            if (CenterId != request.CenterId)
+            var isSuperAdmin = User.IsInRole("SuperAdmin");
+            if (!isSuperAdmin && CenterId != request.CenterId)
             {
                 return StatusCode(403, "You are not allowed to create data for this center.");
             }
@@ -118,7 +118,8 @@
             Guid id,
             SyllabusRequest request)
         {
-            if (CenterId != request.CenterId)
+            var isSuperAdmin = User.IsInRole("SuperAdmin");
+            if (!isSuperAdmin && CenterId != request.CenterId)
             {
                 return StatusCode(403, "You are not allowed to create data for this center.");
             }
