@@ -3,6 +3,7 @@
     using Microsoft.EntityFrameworkCore;
     using Winfocus.LMS.Domain.Common;
     using Winfocus.LMS.Domain.Entities;
+    using Winfocus.LMS.Infrastructure.Configurations;
     using Winfocus.LMS.Infrastructure.Data.Configurations;
     using Winfocus.LMS.Infrastructure.Persistence.Configurations;
 
@@ -379,6 +380,14 @@
         public DbSet<Guideline> Guidelines { get; set; } = null!;
 
         /// <summary>
+        /// Gets or sets the question type configuration.
+        /// </summary>
+        /// <value>
+        /// The question type configuration.
+        /// </value>
+        public DbSet<QuestionTypeConfig> QuestionTypeConfigs { get; set; } = null!;
+
+        /// <summary>
         /// Configures the model for the context.
         /// </summary>
         /// <param name="modelBuilder">The builder being used to construct the model for this context.</param>
@@ -414,6 +423,7 @@
             modelBuilder.ApplyConfiguration(new QuestionReviewConfiguration());
             modelBuilder.ApplyConfiguration(new DailyActivityReportConfiguration());
             modelBuilder.ApplyConfiguration(new GuidelineConfiguration());
+            modelBuilder.ApplyConfiguration(new QuestionTypeConfigConfiguration());
 
             // User configuration
             modelBuilder.Entity<User>()
@@ -580,14 +590,19 @@
                 e.HasIndex(x => new { x.StudentId, x.CourseId }).IsUnique();
 
                 e.HasOne(sfs => sfs.Student)
-                 .WithMany()
-                 .HasForeignKey(sfs => sfs.StudentId)
-                 .OnDelete(DeleteBehavior.NoAction);
+                    .WithMany()
+                   .HasForeignKey(sfs => sfs.StudentId)
+                   .OnDelete(DeleteBehavior.NoAction);
 
                 e.HasOne(sfs => sfs.FeePlan)
-                 .WithMany()
-                 .HasForeignKey(sfs => sfs.FeePlanId)
-                 .OnDelete(DeleteBehavior.Cascade);
+                    .WithMany()
+                    .HasForeignKey(sfs => sfs.FeePlanId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                e.HasOne(sfs => sfs.Course)
+                    .WithMany()
+                    .HasForeignKey(sfs => sfs.CourseId)
+                    .OnDelete(DeleteBehavior.NoAction);
             });
 
             modelBuilder.Entity<Batch>(e =>

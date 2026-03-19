@@ -164,6 +164,17 @@ builder.Services.AddScoped<IDtpAdminService, DtpAdminService>();
 builder.Services.AddScoped<IExamGradeRepository, ExamGradeRepository>();
 builder.Services.AddScoped<IExamGradeService, ExamGradeService>();
 
+builder.Services.AddScoped<IQuestionReviewRepository, QuestionReviewRepository>();
+builder.Services.AddScoped<IQuestionReviewService, QuestionReviewService>();
+builder.Services.AddScoped<IQuestionCorrectionService, QuestionCorrectionService>();
+builder.Services.AddScoped<IExamUnitRepository, ExamUnitRepository>();
+builder.Services.AddScoped<IExamUnitService, ExamUnitService>();
+builder.Services.AddScoped<IExamSubjectRepository, ExamSubjectRepository>();
+builder.Services.AddScoped<IExamSubjectService, ExamSubjectService>();
+
+builder.Services.AddScoped<IQuestionTypeConfigRepository, QuestionTypeConfigRepository>();
+builder.Services.AddScoped<IQuestionTypeConfigService, QuestionTypeConfigService>();
+
 #endregion
 
 #region JWT Authentication

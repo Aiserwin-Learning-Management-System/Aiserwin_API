@@ -79,9 +79,6 @@
         public ICollection<FeePlanDiscount> Discounts { get; set; }
             = new List<FeePlanDiscount>();
 
-        /// <summary>
-        /// Required by EF Core.
-        /// </summary>
         private FeePlan()
         {
         }

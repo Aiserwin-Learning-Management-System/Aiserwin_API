@@ -12,8 +12,8 @@ using Winfocus.LMS.Infrastructure.Data;
 namespace Winfocus.LMS.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260318045939_AddCourseForeignKeyToStudentFeeSelection")]
-    partial class AddCourseForeignKeyToStudentFeeSelection
+    [Migration("20260318194447_AddedQuestionType")]
+    partial class AddedQuestionType
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1526,6 +1526,76 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .HasDatabaseName("IX_QuestionReviews_ReviewerId");
 
                     b.ToTable("QuestionReviews", (string)null);
+                });
+
+            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.QuestionTypeConfig", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ChapterId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<Guid>("GradeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<Guid>("ResourceTypeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SubjectId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SyllabusId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UnitId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChapterId");
+
+                    b.HasIndex("GradeId");
+
+                    b.HasIndex("ResourceTypeId");
+
+                    b.HasIndex("SubjectId");
+
+                    b.HasIndex("UnitId");
+
+                    b.HasIndex("SyllabusId", "GradeId", "SubjectId", "UnitId", "ChapterId", "ResourceTypeId", "Name")
+                        .IsUnique()
+                        .HasFilter("IsDeleted = 0");
+
+                    b.ToTable("QuestionTypeConfigs", (string)null);
                 });
 
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.RegistrationForm", b =>
@@ -3256,6 +3326,57 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.Navigation("Question");
                 });
 
+            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.QuestionTypeConfig", b =>
+                {
+                    b.HasOne("Winfocus.LMS.Domain.Entities.ExamChapter", "Chapter")
+                        .WithMany()
+                        .HasForeignKey("ChapterId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Winfocus.LMS.Domain.Entities.ExamGrade", "Grade")
+                        .WithMany()
+                        .HasForeignKey("GradeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Winfocus.LMS.Domain.Entities.ContentResourceType", "ResourceType")
+                        .WithMany()
+                        .HasForeignKey("ResourceTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Winfocus.LMS.Domain.Entities.ExamSubject", "Subject")
+                        .WithMany()
+                        .HasForeignKey("SubjectId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Winfocus.LMS.Domain.Entities.ExamSyllabus", "Syllabus")
+                        .WithMany()
+                        .HasForeignKey("SyllabusId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Winfocus.LMS.Domain.Entities.ExamUnit", "Unit")
+                        .WithMany()
+                        .HasForeignKey("UnitId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Chapter");
+
+                    b.Navigation("Grade");
+
+                    b.Navigation("ResourceType");
+
+                    b.Navigation("Subject");
+
+                    b.Navigation("Syllabus");
+
+                    b.Navigation("Unit");
+                });
+
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.RegistrationForm", b =>
                 {
                     b.HasOne("Winfocus.LMS.Domain.Entities.StaffCategory", "StaffCategory")
@@ -3587,7 +3708,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.HasOne("Winfocus.LMS.Domain.Entities.Course", "Course")
                         .WithMany()
                         .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("Winfocus.LMS.Domain.Entities.FeePlan", "FeePlan")

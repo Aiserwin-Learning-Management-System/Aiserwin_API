@@ -111,12 +111,29 @@
         /// <summary>
         /// Gets the specified identifier.
         /// </summary>
-        /// <param name="id">The identifier.</param>
+        /// <param name="studentId">The identifier.</param>
         /// <returns>StudentDto by id.</returns>
-        [HttpGet("{id:guid}")]
-        public async Task<CommonResponse<StudentDto>> Get(Guid id)
+        [HttpGet("{studentId:guid}")]
+        public async Task<CommonResponse<StudentDto>> Get(Guid studentId)
         {
-            var student = await _studentService.GetByIdsAsync(id, CountryId, StateId, CenterId);
+            var student = await _studentService.GetByIdsAsync(studentId, CountryId, StateId, CenterId);
+            if (student == null)
+            {
+                return CommonResponse<StudentDto>.FailureResponse("Student not found");
+            }
+
+            return CommonResponse<StudentDto>.SuccessResponse("Student details", student);
+        }
+
+        /// <summary>
+        /// Gets the specified identifier.
+        /// </summary>
+        /// <param name="userId">The identifier.</param>
+        /// <returns>StudentDto by id.</returns>
+        [HttpGet("by-user/{userId:guid}")]
+        public async Task<CommonResponse<StudentDto>> GetByUserId(Guid userId)
+        {
+            var student = await _studentService.GetByUserIdsAsync(userId, CountryId, StateId, CenterId);
             if (student == null)
             {
                 return CommonResponse<StudentDto>.FailureResponse("Student not found");

@@ -38,47 +38,39 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         }
 
         /// <summary>
+        /// Builds the base query with all navigation properties included.
+        /// Reused by GetByIdAsync, GetByUserIdAsync, GetAllAsync, and GetFilteredAsync.
+        /// </summary>
+        /// <returns>An IQueryable with all includes applied.</returns>
+        private IQueryable<Student> BuildFullQuery()
+        {
+            return _dbContext.Students
+                .Include(x => x.AcademicDetails).ThenInclude(ad => ad.Country)
+                .Include(x => x.AcademicDetails).ThenInclude(ad => ad.State)
+                .Include(x => x.AcademicDetails).ThenInclude(ad => ad.ModeOfStudy)
+                .Include(x => x.AcademicDetails).ThenInclude(ad => ad.Center)
+                .Include(x => x.AcademicDetails).ThenInclude(ad => ad.Syllabus)
+                .Include(x => x.AcademicDetails).ThenInclude(ad => ad.Grade)
+                .Include(x => x.AcademicDetails).ThenInclude(ad => ad.Stream)
+                .Include(x => x.AcademicDetails).ThenInclude(ad => ad.Subject)
+                .Include(x => x.StudentPersonalDetails)
+                .Include(x => x.StudentDocuments)
+                .Include(x => x.StudentAcademicCouses).ThenInclude(sc => sc.Course)
+                .Include(x => x.StudentBatchTimingMTFs).ThenInclude(sc => sc.BatchTimingMTF).ThenInclude(sc => sc.Subject)
+                .Include(x => x.StudentBatchTimingSaturdays).ThenInclude(sc => sc.BatchTimingSaturday).ThenInclude(sc => sc.Subject)
+                .Include(x => x.StudentBatchTimingSundays).ThenInclude(sc => sc.BatchTimingSunday).ThenInclude(sc => sc.Subject);
+        }
+
+        /// <summary>
         /// Gets all asynchronous.
         /// </summary>
         /// <returns>Student list.</returns>
         public async Task<IReadOnlyList<Student>> GetAllAsync()
         {
-            return await _dbContext.Students.
-                Include(x => x.AcademicDetails)
-           .ThenInclude(ad => ad.Country)
-        .Include(x => x.AcademicDetails)
-           .ThenInclude(ad => ad.State)
-        .Include(x => x.AcademicDetails)
-           .ThenInclude(ad => ad.ModeOfStudy)
-        .Include(x => x.AcademicDetails)
-           .ThenInclude(ad => ad.Center)
-        .Include(x => x.AcademicDetails)
-           .ThenInclude(ad => ad.Syllabus)
-        .Include(x => x.AcademicDetails)
-           .ThenInclude(ad => ad.Grade)
-        .Include(x => x.AcademicDetails)
-           .ThenInclude(ad => ad.Stream)
-        .Include(x => x.AcademicDetails)
-           .ThenInclude(ad => ad.Subject)
-        .Include(x => x.StudentPersonalDetails)
-        .Include(x => x.StudentDocuments)
-
-        .Include(x => x.StudentAcademicCouses)
-            .ThenInclude(sc => sc.Course)
-
-        .Include(x => x.StudentBatchTimingMTFs)
-           .ThenInclude(sc => sc.BatchTimingMTF)
-           .ThenInclude(sc => sc.Subject)
-        .Include(x => x.StudentBatchTimingSaturdays)
-           .ThenInclude(sc => sc.BatchTimingSaturday)
-           .ThenInclude(sc => sc.Subject)
-        .Include(x => x.StudentBatchTimingSundays)
-           .ThenInclude(sc => sc.BatchTimingSunday)
-           .ThenInclude(sc => sc.Subject)
-
-                .Where(x => !x.IsDeleted)
-                .AsNoTracking()
-                .ToListAsync();
+            return await BuildFullQuery()
+                            .Where(x => !x.IsDeleted)
+                            .AsNoTracking()
+                            .ToListAsync();
         }
 
         /// <summary>
@@ -88,37 +80,19 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// <returns>Student.</returns>
         public async Task<Student?> GetByIdAsync(Guid id)
         {
-            return await _dbContext.Students
-        .Include(x => x.AcademicDetails)
-           .ThenInclude(ad => ad.Country)
-        .Include(x => x.AcademicDetails)
-           .ThenInclude(ad => ad.State)
-        .Include(x => x.AcademicDetails)
-           .ThenInclude(ad => ad.ModeOfStudy)
-        .Include(x => x.AcademicDetails)
-           .ThenInclude(ad => ad.Center)
-        .Include(x => x.AcademicDetails)
-           .ThenInclude(ad => ad.Syllabus)
-        .Include(x => x.AcademicDetails)
-           .ThenInclude(ad => ad.Grade)
-        .Include(x => x.AcademicDetails)
-           .ThenInclude(ad => ad.Stream)
-        .Include(x => x.AcademicDetails)
-           .ThenInclude(ad => ad.Subject)
-        .Include(x => x.StudentPersonalDetails)
-        .Include(x => x.StudentDocuments)
+            return await BuildFullQuery()
+                    .FirstOrDefaultAsync(x => x.Id == id && x.IsActive && !x.IsDeleted);
+        }
 
-        .Include(x => x.StudentAcademicCouses)
-            .ThenInclude(sc => sc.Course)
-
-        .Include(x => x.StudentBatchTimingMTFs)
-           .ThenInclude(sc => sc.BatchTimingMTF)
-        .Include(x => x.StudentBatchTimingSaturdays)
-           .ThenInclude(sc => sc.BatchTimingSaturday)
-        .Include(x => x.StudentBatchTimingSundays)
-           .ThenInclude(sc => sc.BatchTimingSunday)
-
-        .FirstOrDefaultAsync(x => x.UserId == id && x.IsActive == true && !x.IsDeleted);
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="userId">The identifier.</param>
+        /// <returns>Student.</returns>
+        public async Task<Student?> GetByUserIdAsync(Guid userId)
+        {
+            return await BuildFullQuery()
+                .FirstOrDefaultAsync(x => x.UserId == userId && x.IsActive && !x.IsDeleted);
         }
 
         /// <summary>
@@ -218,29 +192,10 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         public async Task<PagedResult<Student>> GetFilteredAsync(StudentFilterRequest request)
         {
             // 1. Start with the query and include all necessary relationships
-            var query = _dbContext.Students.Where(x => !x.IsDeleted)
-         .Include(s => s.AcademicDetails)
-             .ThenInclude(ad => ad.Country)
-         .Include(s => s.AcademicDetails)
-             .ThenInclude(ad => ad.State)
-         .Include(s => s.AcademicDetails)
-             .ThenInclude(ad => ad.ModeOfStudy)
-         .Include(s => s.AcademicDetails)
-             .ThenInclude(ad => ad.Center)
-         .Include(s => s.AcademicDetails)
-             .ThenInclude(ad => ad.Syllabus)
-         .Include(s => s.AcademicDetails)
-             .ThenInclude(ad => ad.Grade)
-         .Include(s => s.AcademicDetails)
-             .ThenInclude(ad => ad.Stream)
-         .Include(s => s.AcademicDetails)
-             .ThenInclude(ad => ad.Subject)
-         .Include(s => s.StudentPersonalDetails)
-         .Include(s => s.StudentDocuments)
-         .Include(s => s.StudentAcademicCouses)
-             .ThenInclude(sc => sc.Course)
-         .AsNoTracking()
-         .AsQueryable();
+            var query = BuildFullQuery()
+                .Where(x => !x.IsDeleted)
+                .AsNoTracking()
+                .AsQueryable();
 
             if (request.CountryId.HasValue)
             {
@@ -380,20 +335,6 @@ namespace Winfocus.LMS.Infrastructure.Repositories
 
             return CommonResponse<bool>
         .SuccessResponse("Student approved successfully", true);
-        }
-
-        /// <summary>
-        /// Gets the by user identifier asynchronous.
-        /// </summary>
-        /// <param name="userId">The user identifier.</param>
-        /// <returns></returns>
-        public async Task<Student?> GetByUserIdAsync(Guid userId)
-        {
-            return await _dbContext.Students
-                .Include(s => s.AcademicDetails)
-                .Include(s => s.StudentPersonalDetails)
-                .Include(s => s.StudentDocuments)
-                .FirstOrDefaultAsync(s => s.UserId == userId && !s.IsDeleted);
         }
     }
 }
