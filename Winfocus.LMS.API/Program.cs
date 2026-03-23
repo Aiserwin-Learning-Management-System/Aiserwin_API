@@ -182,6 +182,9 @@ builder.Services.AddScoped<IExamChapterService, ExamChapterService>();
 builder.Services.AddScoped<IOperatorStatsRepository, OperatorStatsRepository>();
 builder.Services.AddScoped<IOperatorStatsService, OperatorStatsService>();
 
+builder.Services.AddScoped<IExamSyllabusRepository, ExamSyllabusRepository>();
+builder.Services.AddScoped<IExamSyllabusService, ExamSyllabusService>();
+
 #endregion
 
 #region JWT Authentication
