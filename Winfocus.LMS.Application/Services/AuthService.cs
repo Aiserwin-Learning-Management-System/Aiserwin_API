@@ -351,11 +351,10 @@
             string profileimage = string.Empty;
             if (roles.Any(r => r.Equals("Student", StringComparison.OrdinalIgnoreCase)))
             {
-                Student studentdata = await _studentRepository.GetByIdAsync(user.Id);
+                Student studentdata = await _studentRepository.GetByUserIdAsync(user.Id);
                 if (studentdata != null)
                 {
-                    StudentDocuments propicdata = await _studacademicrepository.DocsGetByIdAsync(studentdata.StudentDocumentsId);
-                    profileimage = propicdata.StudentPhotoPath;
+                    profileimage = studentdata.StudentDocuments.StudentPhotoPath;
                 }
             }
 
@@ -389,7 +388,7 @@
                 user.Id,
                 user.Username,
                 user.Email,
-                roles,"");
+                roles, profileimage);
         }
 
         /// <summary>
