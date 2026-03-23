@@ -11,7 +11,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
     /// <summary>
     /// ExamGradeRepository.
     /// </summary>
-    public sealed class ExamGradeRepository :IExamGradeRepository
+    public sealed class ExamGradeRepository : IExamGradeRepository
     {
         /// <summary>
         /// The application database context used to access persistence.

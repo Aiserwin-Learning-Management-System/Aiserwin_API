@@ -218,7 +218,7 @@ namespace Winfocus.LMS.Application.Services
                 if (totalCount == 0)
                 {
                     return CommonResponse<PagedResult<ExamSubjectDto>>.SuccessResponse(
-                        "No doubt clear session found.",
+                        "No exam subject found.",
                         new PagedResult<ExamSubjectDto>(
                             new List<ExamSubjectDto>(), 0, request.Limit, request.Offset));
                 }
@@ -252,7 +252,7 @@ namespace Winfocus.LMS.Application.Services
                 var dtoList = subjects.Select(Map).ToList();
 
                 _logger.LogInformation(
-                    "Returning {Count} of {Total} exam Subjects schedule session",
+                    "Returning {Count} of {Total} exam Subjects",
                     dtoList.Count, totalCount);
 
                 return CommonResponse<PagedResult<ExamSubjectDto>>.SuccessResponse(
@@ -274,23 +274,20 @@ namespace Winfocus.LMS.Application.Services
         }
 
         private static ExamSubjectDto Map(ExamSubject c) =>
-   new ExamSubjectDto
-   {
-       Id = c.Id,
-       Name = c.Name,
-       Description = c.Description,
-       GradeId = c.GradeId,
-       Code = c.Code,
-       IsActive = c.IsActive,
-       Grade = c.Grade == null ? null : new ExamGradeDto
+       new ExamSubjectDto
        {
-           Id = c.GradeId,
-           Name = c.Grade.Name,
-       }
-   };
-
-
-
-
+           Id = c.Id,
+           Name = c.Name,
+           Description = c.Description,
+           GradeId = c.GradeId,
+           Code = c.Code,
+           IsActive = c.IsActive,
+           Grade = c.Grade == null ? null : new ExamGradeDto
+           {
+               Id = c.GradeId,
+               Name = c.Grade.Name,
+               SyllabusName = c.Grade.Syllabus.Name,
+           }
+       };
     }
 }
