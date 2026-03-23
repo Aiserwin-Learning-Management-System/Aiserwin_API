@@ -146,6 +146,8 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         public IQueryable<ExamGrade> Query()
         {
             return _dbContext.ExamGrades.Where(x => !x.IsDeleted)
+                .Include(x => x.Syllabus)
+                .ThenInclude(x => x.AcademicYear)
                 .AsNoTracking();
         }
     }
