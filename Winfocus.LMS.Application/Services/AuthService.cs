@@ -30,6 +30,8 @@
         private readonly IUserLoginLogService _loginLogService;
         private readonly IUserSessionService _userSessionService;
         private readonly IConfiguration _configuration;
+        private readonly IStudentRepository _studentRepository;
+        private readonly IStudentAcademicdetailsRepository _studacademicrepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthService"/> class.
@@ -45,6 +47,8 @@
         /// <param name="loginLogService">The user login log service.</param>
         /// <param name="userSessionService">The user session service.</param>
         /// <param name="configuration">The configuration.</param>
+        /// <param name="studentRepository">The studentRepository.</param>
+        /// <param name="studacademicrepository">The _studacademicrepository.</param>
         public AuthService(
             IUserRepository userRepository,
             IRoleRepository roleRepository,
@@ -56,7 +60,9 @@
             IUsernameGeneratorService usernameGeneratorService,
             IUserLoginLogService loginLogService,
             IUserSessionService userSessionService,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            IStudentRepository studentRepository,
+            IStudentAcademicdetailsRepository studacademicrepository)
         {
             _userRepository = userRepository;
             _roleRepository = roleRepository;
@@ -69,6 +75,8 @@
             _loginLogService = loginLogService;
             _userSessionService = userSessionService;
             _configuration = configuration;
+            _studentRepository = studentRepository;
+            _studacademicrepository = studacademicrepository;
         }
 
         /// <summary>
@@ -208,7 +216,7 @@
                     user.Id,
                     generatedUsername,
                     user.Email,
-                    roles.Select(r => r.Name).ToList());
+                    roles.Select(r => r.Name).ToList(),"");
             }
             catch (Exception ex)
             {
@@ -340,6 +348,15 @@
                 .Where(ur => ur.Role != null)
                 .Select(ur => ur.Role!.Name)
                 .ToList();
+            string profileimage = string.Empty;
+            if (roles.Any(r => r.Equals("Student", StringComparison.OrdinalIgnoreCase)))
+            {
+                Student studentdata = await _studentRepository.GetByUserIdAsync(user.Id);
+                if (studentdata != null)
+                {
+                    profileimage = studentdata.StudentDocuments.StudentPhotoPath;
+                }
+            }
 
             var roleId = user.UserRoles
              .Select(ur => ur.RoleId)
@@ -371,7 +388,7 @@
                 user.Id,
                 user.Username,
                 user.Email,
-                roles);
+                roles, profileimage);
         }
 
         /// <summary>
