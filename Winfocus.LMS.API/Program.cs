@@ -40,7 +40,7 @@ Log.Logger = new LoggerConfiguration()
     .Enrich.FromLogContext()
     .WriteTo.Console()
     .WriteTo.File(
-        path: "Logs/lms-log-.txt",
+        path: "/home/logs/lms-log-.txt",
         rollingInterval: RollingInterval.Day,
         retainedFileCountLimit: 60,
         fileSizeLimitBytes: 10_000_000,
@@ -57,7 +57,11 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularApp", policy =>
     {
-        policy.WithOrigins("http://localhost:4200")
+        var allowedOrigins = builder.Environment.IsDevelopment()
+            ? new[] { "http://localhost:4200" }
+            : new[] { "https://portal.aiserwin.com", "http://localhost:4200" };
+
+        policy.WithOrigins(allowedOrigins)
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -70,8 +74,17 @@ builder.Services.AddCors(options =>
 
 if (!builder.Environment.IsEnvironment("Testing"))
 {
+    var connStr = config.GetConnectionString("DefaultConnection");
+    Log.Information("Connection string length: {Length}", connStr?.Length);
+    Log.Information(
+        "Contains server keyword: {HasServer}",
+        connStr?.Contains("aiserwin-sql-dev"));
+    Log.Information(
+        "Contains password end: {HasEnd}",
+        connStr?.Contains("SQL;"));
+
     builder.Services.AddDbContext<AppDbContext>(options =>
-        options.UseSqlServer(config.GetConnectionString("DefaultConnection")));
+        options.UseSqlServer(connStr));
 }
 
 #endregion
@@ -386,12 +399,29 @@ if (!app.Environment.IsEnvironment("Testing"))
     }
 
     var fileSettings = app.Configuration
-        .GetSection(FileUploadSettings.SectionName)
-        .Get<FileUploadSettings>();
+    .GetSection(FileUploadSettings.SectionName)
+    .Get<FileUploadSettings>();
 
-    var persistentRoot = string.IsNullOrEmpty(fileSettings?.StorageRootPath)
-        ? app.Environment.ContentRootPath // Local dev
-        : fileSettings.StorageRootPath; // Azure: D:\home\data
+    // Detect platform and choose correct root path
+    string persistentRoot;
+    if (string.IsNullOrEmpty(fileSettings?.StorageRootPath))
+    {
+        // Local dev fallback
+        persistentRoot = app.Environment.ContentRootPath;
+    }
+    else
+    {
+        // If running on Linux, use /home/data
+        if (Environment.OSVersion.Platform == PlatformID.Unix)
+        {
+            persistentRoot = "/home/data";
+        }
+        else
+        {
+            // Windows App Service
+            persistentRoot = fileSettings.StorageRootPath;
+        }
+    }
 
     // Create StudentFiles directories in persistent location
     var studentFilesPath = Path.Combine(persistentRoot, "StudentFiles");
@@ -402,15 +432,14 @@ if (!app.Environment.IsEnvironment("Testing"))
     Directory.CreateDirectory(photosPath);
     Directory.CreateDirectory(signaturesPath);
 
-    logger.LogInformation(
-        "Student file directories ensured at: {Path}", studentFilesPath);
+    logger.LogInformation("Student file directories ensured at: {Path}", studentFilesPath);
 }
 
 #endregion
 
 #region Swagger UI
 
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {
     app.UseSwagger();
 
