@@ -8,6 +8,6 @@
         Guid userId,
         string username,
         string email,
-        IReadOnlyList<string> roles
-    );
+        IReadOnlyList<string> roles,
+        string profilepicture);
 }
