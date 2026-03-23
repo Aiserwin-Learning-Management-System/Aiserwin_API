@@ -3,6 +3,7 @@
     using Asp.Versioning;
     using Azure.Core;
     using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Http.HttpResults;
     using Microsoft.AspNetCore.Mvc;
     using Winfocus.LMS.Application.DTOs;
     using Winfocus.LMS.Application.DTOs.Auth;
@@ -221,38 +222,39 @@
         /// <response code="404">Student not found.</response>
         /// <response code="400">Invalid request data.</response>
         [HttpPut("{id:guid}")]
-        public async Task<ActionResult<StudentDto>> Update(Guid id, [FromForm] StudentRequest request)
+        public async Task<CommonResponse<StudentDto>> Update(Guid id, [FromForm] StudentRequest request)
         {
             var student = await _studentService.GetByIdAsync(id);
             if (student == null)
                 {
-                return NotFound("Student not found.");
+                return CommonResponse<StudentDto>.FailureResponse("Student not found");
              }
 
             var personalDetails = await _studentPersonaldetailsService.UpdateAsync(student.StudentPersonalId, request.personaldetails);
             if (!personalDetails.Success || personalDetails.Data == null)
             {
-                return BadRequest(personalDetails.Message);
+                return CommonResponse<StudentDto>.FailureResponse(personalDetails.Message);
             }
 
             var academicDetails = await _studentAcademicdetailsService.UpdateAsync(student.StudentAcademicId, request.academicdetails);
             if (!academicDetails.Success || academicDetails.Data == null)
             {
-                return BadRequest(academicDetails.Message);
+                return CommonResponse<StudentDto>.FailureResponse(academicDetails.Message);
             }
 
             var uploaddocDetails = await _studentAcademicdetailsService.UpdateUploadedDocuments(student.StudentDocumentsId, request.docdetails);
             if (uploaddocDetails == null)
             {
-                return BadRequest();
+                return CommonResponse<StudentDto>.FailureResponse(" ");
             }
 
             await _studentAcademicdetailsService.UpdateCoursesAsync(student.Id, request.academicdetails.courseId);
             await _studentAcademicdetailsService.UpdateBatchTimingMTFsAsync(student.Id, request.academicdetails.batchTimingMTFIds);
             await _studentAcademicdetailsService.UpdateBatchTimingSaturdaysAsync(student.Id, request.academicdetails.batchTimingstaurdayIds);
             await _studentAcademicdetailsService.UpdateBatchTimingSundaysAsync(student.Id, request.academicdetails.batchTimingSundayIds);
-
-            return CreatedAtAction(nameof(Get), new { id = student.Id }, student);
+            var updatedstudent = await _studentService.GetByIdAsync(id);
+            return CommonResponse<StudentDto>.SuccessResponse("Student details", updatedstudent);
+            //return CreatedAtAction(nameof(Get), new { id = student.Id }, student);
         }
 
         /// <summary>
