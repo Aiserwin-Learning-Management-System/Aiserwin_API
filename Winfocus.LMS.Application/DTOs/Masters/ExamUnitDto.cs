@@ -34,5 +34,45 @@ namespace Winfocus.LMS.Application.DTOs.Masters
         ///  Gets or sets the Subject.
         /// </summary>
         public ExamSubjectDto? Subject { get; set; }
+
+        /// <summary>
+        /// Gets or sets the grade name.
+        /// </summary>
+        /// <value>
+        /// The name.
+        /// </value>
+        public string GradeName { get; set; } = default!;
+
+        /// <summary>
+        /// Gets or sets the subject name.
+        /// </summary>
+        /// <value>
+        /// The name.
+        /// </value>
+        public string SubjectName { get; set; } = default!;
+
+        /// <summary>
+        /// Gets or sets the syllabus name.
+        /// </summary>
+        /// <value>
+        /// The name.
+        /// </value>
+        public string SyllabusName { get; set; } = default!;
+
+        /// <summary>
+        /// Gets or sets the sayllabus identifier.
+        /// </summary>
+        /// <value>
+        /// The unit identifier.
+        /// </value>
+        public Guid SyllabusId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the grade identifier.
+        /// </summary>
+        /// <value>
+        /// The unit identifier.
+        /// </value>
+        public Guid GradeId { get; set; }
     }
 }
