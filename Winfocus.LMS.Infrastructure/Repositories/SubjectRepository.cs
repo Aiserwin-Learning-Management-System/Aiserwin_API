@@ -158,7 +158,7 @@
             var entity = await _db.Subjects
                 .Include(x => x.Course)
                 .ThenInclude(x => x.Grade)
-                .ThenInclude(x => x.SyllabusId)
+                .ThenInclude(x => x.Syllabus)
                 .FirstOrDefaultAsync(x => x.Id == id);
             if (entity == null)
             {
