@@ -296,7 +296,5 @@ namespace Winfocus.LMS.Application.Services
        SyllabusId = c.Subject.Grade.SyllabusId,
        SyllabusName = c.Subject.Grade.Syllabus.Name,
    };
-
-
     }
 }
