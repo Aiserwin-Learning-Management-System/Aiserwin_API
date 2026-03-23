@@ -279,12 +279,14 @@ namespace Winfocus.LMS.Application.Services
        Description = c.Description,
        AcademicYearId = c.AcademicYearId,
        IsActive = c.IsActive,
+       CreatedAt = c.CreatedAt,
+       CreatedBy = c.CreatedBy,
        AcademicYear = c.AcademicYear == null ? null : new AcademicYearDto
        {
            Id = c.AcademicYear.Id,
            Name = c.AcademicYear.Name,
            StartDate = c.AcademicYear.StartDate,
-           EndDate = c.AcademicYear.EndDate
+           EndDate = c.AcademicYear.EndDate,
        }
    };
 
