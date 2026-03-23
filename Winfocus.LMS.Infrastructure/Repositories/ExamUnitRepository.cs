@@ -73,7 +73,12 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         {
             _dbContext.ExamUnits.Add(ExamUnit);
             await _dbContext.SaveChangesAsync();
-            return ExamUnit;
+
+            return await _dbContext.ExamUnits
+                .Include(x => x.Subject)
+                        .ThenInclude(s => s.Grade)
+                            .ThenInclude(g => g.Syllabus)
+                .FirstOrDefaultAsync(x => x.Id == ExamUnit.Id && !x.IsDeleted);
         }
 
         /// <summary>
