@@ -36,6 +36,9 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             return await _dbContext.ExamChapters
                 .Where(x => x.IsActive && !x.IsDeleted)
                 .Include(x => x.Unit)
+                .ThenInclude(x => x.Subject)
+                .ThenInclude(x => x.Grade)
+                .ThenInclude(x => x.Syllabus)
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -50,6 +53,9 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         {
             var res = _dbContext.ExamChapters
                 .Include(x => x.Unit)
+                 .ThenInclude(x => x.Subject)
+                .ThenInclude(x => x.Grade)
+                .ThenInclude(x => x.Syllabus)
                 .Where(x => x.Id == id && !x.IsDeleted);
 
             if (unitid != Guid.Empty)
@@ -69,7 +75,13 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         {
             _dbContext.ExamChapters.Add(examchapter);
             await _dbContext.SaveChangesAsync();
-            return examchapter;
+
+            return await _dbContext.ExamChapters
+                .Include(x => x.Unit)
+                    .ThenInclude(u => u.Subject)
+                        .ThenInclude(s => s.Grade)
+                            .ThenInclude(g => g.Syllabus)
+                .FirstOrDefaultAsync(x => x.Id == examchapter.Id && !x.IsDeleted);
         }
 
         /// <summary>
@@ -96,6 +108,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             {
                 return false;
             }
+
             entity.IsActive = false;
             entity.IsDeleted = true;
 
@@ -115,6 +128,10 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             name = name.Trim();
 
             return await _dbContext.ExamChapters
+                .Include(x => x.Unit)
+                .ThenInclude(x => x.Subject)
+                .ThenInclude(x => x.Grade)
+                .ThenInclude(x => x.Syllabus)
                 .AnyAsync(x =>
                     x.UnitId == unitid &&
                     x.Name.Trim().ToLower() == name.ToLower());
@@ -131,6 +148,9 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             var query = _dbContext.ExamChapters.Where(x => !x.IsDeleted)
          .AsNoTracking()
          .Include(x => x.Unit)
+          .ThenInclude(x => x.Subject)
+                .ThenInclude(x => x.Grade)
+                .ThenInclude(x => x.Syllabus)
          .AsQueryable();
 
             if (unitid.HasValue)
@@ -146,6 +166,10 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         public IQueryable<ExamChapter> Query()
         {
             return _dbContext.ExamChapters.Where(x => !x.IsDeleted)
+                .Include(x => x.Unit)
+                 .ThenInclude(x => x.Subject)
+                .ThenInclude(x => x.Grade)
+                .ThenInclude(x => x.Syllabus)
                 .AsNoTracking();
         }
 

@@ -273,22 +273,21 @@ namespace Winfocus.LMS.Application.Services
         }
 
         private static ExamChapterDto Map(ExamChapter c) =>
-   new ExamChapterDto
-   {
-       Id = c.Id,
-       Name = c.Name,
-       Description = c.Description,
-       UnitId = c.UnitId,
-       ChapterNumber = c.ChapterNumber,
-       IsActive = c.IsActive,
-       Unit = c.Unit == null ? null : new ExamUnitDto
+       new ExamChapterDto
        {
-           Id = c.UnitId,
-           Name = c.Unit.Name,
-           UnitNumber = c.Unit.UnitNumber,
+           Id = c.Id,
+           Name = c.Name,
+           Description = c.Description,
+           UnitId = c.UnitId,
+           ChapterNumber = c.ChapterNumber,
+           IsActive = c.IsActive,
+           UnitName = c.Unit.Name,
            SubjectId = c.Unit.SubjectId,
-       }
-   };
-
+           SubjectName = c.Unit.Subject.Name,
+           GradeId = c.Unit.Subject.GradeId,
+           GradeName = c.Unit.Subject.Grade.Name,
+           SyllabusId = c.Unit.Subject.Grade.SyllabusId,
+           SyllabusName = c.Unit.Subject.Grade.Syllabus.Name,
+       };
     }
 }

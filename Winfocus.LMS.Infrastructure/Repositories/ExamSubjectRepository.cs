@@ -36,6 +36,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             return await _dbContext.ExamSubjects
                 .Where(x => x.IsActive && !x.IsDeleted)
                 .Include(x => x.Grade)
+                .ThenInclude(x => x.Syllabus)
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -50,6 +51,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         {
             var res = _dbContext.ExamSubjects
                 .Include(x => x.Grade)
+                .ThenInclude(x => x.Syllabus)
                 .Where(x => x.Id == id && !x.IsDeleted);
 
             if (gradeID != Guid.Empty)
@@ -115,6 +117,8 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             name = name.Trim();
 
             return await _dbContext.ExamSubjects
+                .Include(x => x.Grade)
+                .ThenInclude(x => x.Syllabus)
                 .AnyAsync(x =>
                     x.Grade.Id == gradeID &&
                     x.Name.Trim().ToLower() == name.ToLower());
@@ -131,6 +135,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             var query = _dbContext.ExamSubjects.Where(x => !x.IsDeleted)
          .AsNoTracking()
          .Include(x => x.Grade)
+         .ThenInclude(x => x.Syllabus)
          .AsQueryable();
 
             if (gradeID.HasValue)
@@ -146,6 +151,8 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         public IQueryable<ExamSubject> Query()
         {
             return _dbContext.ExamSubjects.Where(x => !x.IsDeleted)
+                .Include(x => x.Grade)
+                .ThenInclude(x => x.Syllabus)
                 .AsNoTracking();
         }
     }

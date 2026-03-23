@@ -197,6 +197,8 @@ builder.Services.AddScoped<IOperatorStatsService, OperatorStatsService>();
 
 builder.Services.AddScoped<IExamSyllabusRepository, ExamSyllabusRepository>();
 builder.Services.AddScoped<IExamSyllabusService, ExamSyllabusService>();
+builder.Services.AddScoped<IContentResourceTypeRepository, ContentResourceTypeRepository>();
+builder.Services.AddScoped<IContentResourceTypeService, ContentResourceTypeService>();
 
 #endregion
 
