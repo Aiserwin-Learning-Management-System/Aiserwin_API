@@ -133,11 +133,22 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// <summary>
         /// Gets queryable for filtering with full hierarchy.
         /// </summary>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>Queryable DoubtClearing.</returns>
-        public IQueryable<DoubtClearing> Query()
+        public IQueryable<DoubtClearing> Query(Guid centerId)
         {
-            return _dbContext.DoubtClearing.Where(x => !x.IsDeleted)
+            var res = _dbContext.DoubtClearing.Where(x => !x.IsDeleted)
+               .Include(x => x.Subject)
+                   .ThenInclude(s => s.Course)
+                      .ThenInclude(s => s.Stream)
+                       .ThenInclude(s => s.Grade)
+                        .ThenInclude(s => s.Syllabus)
                 .AsNoTracking();
+            if (centerId != Guid.Empty)
+            {
+                res = res.Where(x => x.Subject.Course.Stream.Grade.Syllabus.CenterId == centerId);
+            }
+            return res;
         }
 
     }

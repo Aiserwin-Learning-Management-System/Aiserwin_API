@@ -3,6 +3,7 @@
     using Winfocus.LMS.Application.DTOs;
     using Winfocus.LMS.Application.DTOs.Common;
     using Winfocus.LMS.Application.DTOs.Masters;
+    using Winfocus.LMS.Domain.Entities;
 
     /// <summary>
     /// Defines business operations for <see cref="DoubtClearing"/> entities.
@@ -54,8 +55,9 @@
         /// Gets filtered doubt clear result with pagination support.
         /// </summary>
         /// <param name="request">The paged request.</param>
+        /// <param name="centerId">The center id.</param>
         /// <returns>Paginated doubt clear result.</returns>
-        Task<CommonResponse<PagedResult<DoubtClearingDto>>> GetFilteredAsync(PagedRequest request);
+        Task<CommonResponse<PagedResult<DoubtClearingDto>>> GetFilteredAsync(PagedRequest request, Guid centerId);
 
     }
 }

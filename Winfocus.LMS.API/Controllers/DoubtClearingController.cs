@@ -110,7 +110,6 @@ namespace Winfocus.LMS.API.Controllers
             return Ok(result);
         }
 
-
         /// <summary>
         /// Retrieves filtered batches for monday to friday with pagination.
         /// </summary>
@@ -121,7 +120,12 @@ namespace Winfocus.LMS.API.Controllers
         public async Task<ActionResult<CommonResponse<PagedResult<DoubtClearingDto>>>> GetFiltered(
             [FromQuery] PagedRequest request)
         {
-            var result = await _doubtclearService.GetFilteredAsync(request);
+            var isSuperAdmin = User.IsInRole("SuperAdmin");
+            if (isSuperAdmin)
+            {
+                return Ok(await _doubtclearService.GetFilteredAsync(request, Guid.Empty));
+            }
+            var result = await _doubtclearService.GetFilteredAsync(request, CenterId);
             return Ok(result);
         }
     }
