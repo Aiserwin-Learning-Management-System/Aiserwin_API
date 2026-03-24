@@ -16,7 +16,7 @@
         /// Gets or sets the collection of <see cref="FeePlanDiscount"/> IDs
         /// that the admin selected (checked) for the student.
         /// </summary>
-        public List<Guid> SelectedDiscountIds { get; set; } = new();
+        public Guid? SelectedDiscountId { get; set; }
 
         /// <summary>
         /// Gets or sets an optional manual discount entered by the admin.

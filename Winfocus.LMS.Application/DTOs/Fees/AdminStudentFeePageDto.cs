@@ -33,7 +33,7 @@
 
     /// <summary>
     /// Represents a single course block on the admin fee management page,
-    /// including base fee, available discounts, manual discounts, and calculated fee.
+    /// including base fee, available discounts, assigned discount, and calculated fee.
     /// </summary>
     public sealed class CourseDiscountBlockDto
     {
@@ -47,24 +47,23 @@
         public decimal BaseYearlyFee { get; set; }
 
         /// <summary>
-        /// Gets or sets the collection of available discounts
-        /// (checkbox rows) for the course.
+        /// Gets or sets the available plan discounts (radio buttons — pick one).
         /// </summary>
         public List<AvailableDiscountDto> AvailableDiscounts { get; set; } = new();
 
         /// <summary>
-        /// Gets or sets the manual discount currently assigned, if any.
+        /// Gets or sets the currently assigned discount (only one).
         /// </summary>
-        public AssignedManualDiscountDto? ManualDiscount { get; set; }
+        public AssignedDiscountDto? AssignedDiscount { get; set; }
 
         /// <summary>
         /// Gets or sets the calculated fee after applying discounts.
         /// </summary>
-        public decimal CalculatedFeeAfterDiscounts { get; set; }
+        public decimal CalculatedFeeAfterDiscount { get; set; }
     }
 
     /// <summary>
-    /// Represents a single available discount option (checkbox row)
+    /// Represents a single available discount option (radio button)
     /// for a course on the admin fee management page.
     /// </summary>
     public sealed class AvailableDiscountDto
@@ -89,15 +88,21 @@
     }
 
     /// <summary>
-    /// Represents a manual or individual discount currently assigned
-    /// to a student for a specific course.
+    /// Represents the one discount currently assigned to a student for a specific course.
+    /// Can be either a plan-based discount or a manual discount.
     /// </summary>
-    public sealed class AssignedManualDiscountDto
+    public sealed class AssignedDiscountDto
     {
-        /// <summary>Gets or sets the name of the manual discount.</summary>
+        /// <summary>Gets or sets the name of the assigned discount.</summary>
         public string DiscountName { get; set; } = string.Empty;
 
         /// <summary>Gets or sets the discount percentage applied.</summary>
         public decimal DiscountPercent { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the discount
+        /// was manually created (true) or derived from a predefined plan (false).
+        /// </summary>
+        public bool IsManual { get; set; }
     }
 }
