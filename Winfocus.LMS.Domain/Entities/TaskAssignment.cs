@@ -39,7 +39,7 @@
         /// <value>
         /// The type of the question.
         /// </value>
-        public int QuestionType { get; set; }
+        public Guid QuestionTypeId { get; set; }
 
         /// <summary>
         /// Gets or sets the year.
@@ -208,5 +208,25 @@
         /// The daily activity reports.
         /// </value>
         public ICollection<DailyActivityReport> DailyActivityReports { get; set; } = new List<DailyActivityReport>();
+
+        /// <summary>
+        /// Gets or sets the unique task Code.
+        /// Format: [SYL]-[YYYY]-[GRD]-[SUB]-[UNIT]-[CH]-[TYPE]-[DTPOperator]-[SEQ].
+        /// Example: CBSE-2025-12-PHY-U01-CH01-MCQ-OPNAME-0001.
+        /// Admin can use auto-suggested code or type a custom one.
+        /// </summary>
+        public string TaskCode { get; set; } = default!;
+
+        /// <summary>
+        /// Gets or sets the sequence number within the scope of
+        /// (Syllabus + AcademicYear + Grade + Subject + Unit + Chapter + QuestionType).
+        /// Resets to 1 for each new chapter or question type combination.
+        /// </summary>
+        public int SequenceNumber { get; set; }
+
+        /// <summary>
+        /// Gets or sets the type of the question.
+        /// </summary>
+        public int QuestionType { get; set; }
     }
 }
