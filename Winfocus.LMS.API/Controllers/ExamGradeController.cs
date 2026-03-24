@@ -110,5 +110,16 @@ namespace Winfocus.LMS.API.Controllers
             var result = await _examgradeService.GetFilteredAsync(request);
             return Ok(result);
         }
+
+        /// <summary>
+        /// Gets examgrade by syllabus identifier.
+        /// </summary>
+        /// <param name="syllabusId">The syllabus identifier.</param>
+        /// <returns>ExamGradeDto list.</returns>
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        [HttpGet("by-syllabus/{syllabusId:guid}")]
+        public async Task<ActionResult<CommonResponse<List<ExamGradeDto>>>> GetBySyllabus(
+            Guid syllabusId)
+            => Ok(await _examgradeService.GetBySyllabusIdAsync(syllabusId));
     }
 }

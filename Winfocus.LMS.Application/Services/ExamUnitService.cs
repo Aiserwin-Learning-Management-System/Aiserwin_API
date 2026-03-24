@@ -268,6 +268,27 @@ namespace Winfocus.LMS.Application.Services
             }
         }
 
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="subjectId">The identifier.</param>
+        /// <returns>ExamUnitDto.</returns>
+        public async Task<CommonResponse<List<ExamUnitDto>>> GetBySubjectIdAsync(Guid subjectId)
+        {
+            _logger.LogInformation("Fetching exam unit details by subject Id: {Id}", subjectId);
+            var examunit = await _repository.GetBySubjectIdAsync(subjectId);
+            _logger.LogInformation("Exam unit details by subject fetched successfully for Id: {Id}", subjectId);
+            var mappeddata = examunit == null ? null : Map(examunit);
+            if (mappeddata != null)
+            {
+                return CommonResponse<List<ExamUnitDto>>.SuccessResponse("Exam units by subject details fetched successfully", mappeddata);
+            }
+            else
+            {
+                return CommonResponse<List<ExamUnitDto>>.FailureResponse("Exam units by subject details not found");
+            }
+        }
+
         private static List<ExamUnitDto> Map(IEnumerable<ExamUnit> ExamUnit)
         {
             return ExamUnit.Select(Map).ToList();

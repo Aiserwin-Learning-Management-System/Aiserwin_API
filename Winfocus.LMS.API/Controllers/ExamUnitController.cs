@@ -6,6 +6,7 @@ using Winfocus.LMS.Application.DTOs;
 using Winfocus.LMS.Application.DTOs.Common;
 using Winfocus.LMS.Application.DTOs.Masters;
 using Winfocus.LMS.Application.Interfaces;
+using Winfocus.LMS.Application.Services;
 
 namespace Winfocus.LMS.API.Controllers
 {
@@ -110,5 +111,16 @@ namespace Winfocus.LMS.API.Controllers
             var result = await _examunitService.GetFilteredAsync(request);
             return Ok(result);
         }
+
+        /// <summary>
+        /// Gets examunit by subject identifier.
+        /// </summary>
+        /// <param name="subjectId">The subject identifier.</param>
+        /// <returns>ExamUnitDto list.</returns>
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        [HttpGet("by-subject/{subjectId:guid}")]
+        public async Task<ActionResult<CommonResponse<List<ExamUnitDto>>>> GetBySyllabus(
+            Guid subjectId)
+            => Ok(await _examunitService.GetBySubjectIdAsync(subjectId));
     }
 }

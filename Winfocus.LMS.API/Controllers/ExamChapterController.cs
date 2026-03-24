@@ -110,5 +110,16 @@ namespace Winfocus.LMS.API.Controllers
             var result = await _examchapterService.GetFilteredAsync(request);
             return Ok(result);
         }
+
+        /// <summary>
+        /// Gets examchapter by unit identifier.
+        /// </summary>
+        /// <param name="unitId">The unit identifier.</param>
+        /// <returns>ExamChapterDto list.</returns>
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        [HttpGet("by-unit/{unitId:guid}")]
+        public async Task<ActionResult<CommonResponse<List<ExamChapterDto>>>> GetByUnit(
+            Guid unitId)
+            => Ok(await _examchapterService.GetByUnitIdAsync(unitId));
     }
 }

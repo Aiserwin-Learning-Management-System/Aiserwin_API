@@ -267,6 +267,27 @@ namespace Winfocus.LMS.Application.Services
             }
         }
 
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="unitId">The identifier.</param>
+        /// <returns>ExamChapterDto.</returns>
+        public async Task<CommonResponse<List<ExamChapterDto>>> GetByUnitIdAsync(Guid unitId)
+        {
+            _logger.LogInformation("Fetching exam chapter details by unit Id: {Id}", unitId);
+            var examchapter = await _repository.GetByUnitIdAsync(unitId);
+            _logger.LogInformation("Exam chapter details by unit fetched successfully for Id: {Id}", unitId);
+            var mappeddata = examchapter == null ? null : Map(examchapter);
+            if (mappeddata != null)
+            {
+                return CommonResponse<List<ExamChapterDto>>.SuccessResponse("Exam chapter by unit details fetched successfully", mappeddata);
+            }
+            else
+            {
+                return CommonResponse<List<ExamChapterDto>>.FailureResponse("Exam chapter by unit details not found");
+            }
+        }
+
         private static List<ExamChapterDto> Map(IEnumerable<ExamChapter> examChapter)
         {
             return examChapter.Select(Map).ToList();

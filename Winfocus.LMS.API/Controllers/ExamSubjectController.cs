@@ -6,6 +6,7 @@ using Winfocus.LMS.Application.DTOs;
 using Winfocus.LMS.Application.DTOs.Common;
 using Winfocus.LMS.Application.DTOs.Masters;
 using Winfocus.LMS.Application.Interfaces;
+using Winfocus.LMS.Application.Services;
 
 namespace Winfocus.LMS.API.Controllers
 {
@@ -110,5 +111,16 @@ namespace Winfocus.LMS.API.Controllers
             var result = await _examsubjectService.GetFilteredAsync(request);
             return Ok(result);
         }
+
+        /// <summary>
+        /// Gets examsubject by grade identifier.
+        /// </summary>
+        /// <param name="gradeId">The grade identifier.</param>
+        /// <returns>ExamGradeDto list.</returns>
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        [HttpGet("by-grade/{gradeId:guid}")]
+        public async Task<ActionResult<CommonResponse<List<ExamSubjectDto>>>> GetByGrade(
+            Guid gradeId)
+            => Ok(await _examsubjectService.GetByGradeIdAsync(gradeId));
     }
 }

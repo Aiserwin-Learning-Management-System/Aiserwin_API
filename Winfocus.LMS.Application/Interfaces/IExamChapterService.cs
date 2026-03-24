@@ -56,5 +56,12 @@ namespace Winfocus.LMS.Application.Interfaces
         /// <param name="request">The paged request.</param>
         /// <returns>Paginated ExamChapterDto.</returns>
         Task<CommonResponse<PagedResult<ExamChapterDto>>> GetFilteredAsync(PagedRequest request);
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="unitId">The unitId.</param>
+        /// <returns>ExamChapterDto.</returns>
+        Task<CommonResponse<List<ExamChapterDto>>> GetByUnitIdAsync(Guid unitId);
     }
 }
