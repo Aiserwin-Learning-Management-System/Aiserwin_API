@@ -205,7 +205,6 @@
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>result.</returns>
-        [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPost("{id:guid}/confirm")]
         public async Task<CommonResponse<bool>> StudentConfirm(Guid id)
         {
