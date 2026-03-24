@@ -9,7 +9,7 @@
     /// QuestionConfiguration.
     /// </summary>
     /// <seealso cref="Winfocus.LMS.Infrastructure.Data.Configurations.BaseEntityConfiguration&lt;Winfocus.LMS.Domain.Entities.Question&gt;" />
-    public class QuestionConfiguration : BaseEntityConfiguration<Question>
+    public class QuestionConfig : BaseEntityConfiguration<Question>
     {
         /// <summary>
         /// Override in derived configurations to add entity-specific

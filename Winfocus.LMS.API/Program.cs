@@ -194,6 +194,8 @@ builder.Services.AddScoped<IExamChapterService, ExamChapterService>();
 
 builder.Services.AddScoped<IOperatorStatsRepository, OperatorStatsRepository>();
 builder.Services.AddScoped<IOperatorStatsService, OperatorStatsService>();
+builder.Services.AddScoped<IQuestionConfigurationRepository, QuestionConfigurationRepository>();
+builder.Services.AddScoped<IQuestionConfigurationService, QuestionConfigurationService>();
 
 builder.Services.AddScoped<IExamSyllabusRepository, ExamSyllabusRepository>();
 builder.Services.AddScoped<IExamSyllabusService, ExamSyllabusService>();
