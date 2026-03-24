@@ -110,6 +110,6 @@
         /// <summary>
         /// Gets or sets the navigation property to the question type.
         /// </summary>
-        public QuestionType QuestionType { get; set; } = default!;
+        public QuestionTypeConfig QuestionType { get; set; } = default!;
     }
 }

@@ -388,14 +388,6 @@
         public DbSet<QuestionConfiguration> QuestionConfigurations { get; set; } = null!;
 
         /// <summary>
-        /// Gets or sets the question types.
-        /// </summary>
-        /// <value>
-        /// The question types.
-        /// </value>
-        public DbSet<QuestionType> QuestionTypes { get; set; } = null!;
-
-        /// <summary>
         /// Gets or sets the question type configuration.
         /// </summary>
         /// <value>

@@ -69,7 +69,7 @@
             {
                 _logger.LogInformation("Generating suggested Question Code");
 
-                ExamSyllabus? syllabus = await _syllabusRepository.GetByIdAsync(dto.SyllabusId);
+                ExamSyllabus? syllabus = await _syllabusRepository.GetByIdAsync(dto.SyllabusId, dto.AcademicYearId);
                 if (syllabus == null)
                 {
                     return CommonResponse<SuggestedCodeResponseDto>.FailureResponse("Syllabus not found");
@@ -81,31 +81,31 @@
                     return CommonResponse<SuggestedCodeResponseDto>.FailureResponse("Academic Year not found");
                 }
 
-                ExamGrade? grade = await _gradeRepository.GetByIdAsync(dto.GradeId);
+                ExamGrade? grade = await _gradeRepository.GetByIdAsync(dto.GradeId, dto.SyllabusId);
                 if (grade == null)
                 {
                     return CommonResponse<SuggestedCodeResponseDto>.FailureResponse("Grade not found");
                 }
 
-                ExamSubject? subject = await _subjectRepository.GetByIdAsync(dto.SubjectId);
+                ExamSubject? subject = await _subjectRepository.GetByIdAsync(dto.SubjectId, dto.GradeId);
                 if (subject == null)
                 {
                     return CommonResponse<SuggestedCodeResponseDto>.FailureResponse("Subject not found");
                 }
 
-                ExamUnit? unit = await _unitRepository.GetByIdAsync(dto.UnitId);
+                ExamUnit? unit = await _unitRepository.GetByIdAsync(dto.UnitId, dto.SubjectId);
                 if (unit == null)
                 {
                     return CommonResponse<SuggestedCodeResponseDto>.FailureResponse("Unit not found");
                 }
 
-                ExamChapter? chapter = await _chapterRepository.GetByIdAsync(dto.ChapterId);
+                ExamChapter? chapter = await _chapterRepository.GetByIdAsync(dto.ChapterId, dto.UnitId);
                 if (chapter == null)
                 {
                     return CommonResponse<SuggestedCodeResponseDto>.FailureResponse("Chapter not found");
                 }
 
-                QuestionType? questionType = await _questionTypeRepository.GetByIdAsync(dto.QuestionTypeId);
+                QuestionTypeConfig? questionType = await _questionTypeRepository.GetByIdAsync(dto.QuestionTypeId);
                 if (questionType == null)
                 {
                     return CommonResponse<SuggestedCodeResponseDto>.FailureResponse("Question Type not found");
@@ -119,7 +119,7 @@
                     syllabus.Name, academicYear.Name, grade.Name,
                     subject.Code ?? subject.Name.Substring(0, Math.Min(3, subject.Name.Length)).ToUpper(),
                     unit.UnitNumber, chapter.ChapterNumber,
-                    questionType.Code, nextSequence);
+                    questionType.Name, nextSequence);
 
                 _logger.LogInformation("Suggested code: {Code}", code);
 
@@ -128,7 +128,7 @@
                     new SuggestedCodeResponseDto
                     {
                         SuggestedCode = code,
-                        NextSequence = nextSequence
+                        NextSequence = nextSequence,
                     });
             }
             catch (Exception ex)
@@ -173,7 +173,7 @@
                     QuestionCode = dto.QuestionCode,
                     SequenceNumber = sequenceNumber,
                     CreatedAt = DateTime.UtcNow,
-                    CreatedBy = userId
+                    CreatedBy = userId,
                 };
 
                 await _repository.AddAsync(entity);
@@ -207,7 +207,7 @@
                     {
                         Code = code,
                         IsAvailable = !exists,
-                        Message = exists ? "This Question ID already exists." : null
+                        Message = exists ? "This Question ID already exists." : null,
                     });
             }
             catch (Exception ex)
@@ -473,10 +473,8 @@
                 ChapterName = entity.Chapter.Name,
                 ChapterNumber = entity.Chapter.ChapterNumber,
                 ResourceTypeName = entity.ResourceType.Name,
-                QuestionTypeName = entity.QuestionType.Name,
-                QuestionTypeCode = entity.QuestionType.Code,
                 IsActive = entity.IsActive,
-                CreatedAt = entity.CreatedAt
+                CreatedAt = entity.CreatedAt,
             };
         }
     }
