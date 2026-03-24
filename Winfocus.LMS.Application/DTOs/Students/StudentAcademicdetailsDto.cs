@@ -88,6 +88,11 @@ namespace Winfocus.LMS.Application.DTOs.Students
         public SubjectDto Subject { get; set; } = null!;
 
         /// <summary>
+        /// Gets or sets the identifier of the batch selection.
+        /// </summary>
+        public Guid BatchId { get; set; }
+
+        /// <summary>
         /// Gets or sets the identifier of the associated batch timing for MTF.
         /// </summary>
         public Guid BatchTimingMTFId { get; set; }
