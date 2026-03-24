@@ -1,189 +1,100 @@
 ﻿namespace Winfocus.LMS.Application.DTOs.Fees
 {
+    using Winfocus.LMS.Domain.Enums;
+
     /// <summary>
-    /// Complete fee page response for student portal.
+    /// Data Transfer Object (DTO) representing a student's fee page,
+    /// including student details, grade, syllabus, scholarship, and fee listings.
     /// </summary>
     public class StudentFeePageDto
     {
-        /// <summary>
-        /// Gets or sets the student identifier.
-        /// </summary>
-        /// <value>
-        /// The student identifier.
-        /// </value>
+        /// <summary>Gets or sets the unique identifier of the student.</summary>
         public Guid StudentId { get; set; }
 
-        /// <summary>
-        /// Gets or sets the name of the student.
-        /// </summary>
-        /// <value>
-        /// The name of the student.
-        /// </value>
+        /// <summary>Gets or sets the name of the student.</summary>
         public string StudentName { get; set; } = string.Empty;
 
-        /// <summary>
-        /// Gets or sets the registration number.
-        /// </summary>
-        /// <value>
-        /// The registration number.
-        /// </value>
+        /// <summary>Gets or sets the registration number of the student.</summary>
         public string RegistrationNumber { get; set; } = string.Empty;
 
-        /// <summary>
-        /// Gets or sets the grade identifier.
-        /// </summary>
-        /// <value>
-        /// The grade identifier.
-        /// </value>
+        /// <summary>Gets or sets the unique identifier of the grade.</summary>
         public Guid GradeId { get; set; }
 
-        /// <summary>
-        /// Gets or sets the name of the grade.
-        /// </summary>
-        /// <value>
-        /// The name of the grade.
-        /// </value>
+        /// <summary>Gets or sets the name of the grade.</summary>
         public string GradeName { get; set; } = string.Empty;
 
-        /// <summary>
-        /// Gets or sets the syllabus identifier.
-        /// </summary>
-        /// <value>
-        /// The syllabus identifier.
-        /// </value>
+        /// <summary>Gets or sets the unique identifier of the syllabus.</summary>
         public Guid SyllabusId { get; set; }
 
-        /// <summary>
-        /// Gets or sets the name of the syllabus.
-        /// </summary>
-        /// <value>
-        /// The name of the syllabus.
-        /// </value>
+        /// <summary>Gets or sets the name of the syllabus.</summary>
         public string SyllabusName { get; set; } = string.Empty;
 
-        /// <summary>
-        /// Gets or sets the fee listings.
-        /// </summary>
-        /// <value>
-        /// The fee listings.
-        /// </value>
+        /// <summary>Gets or sets the scholarship percentage awarded to the student.</summary>
+        public decimal ScholarshipPercent { get; set; }
+
+        /// <summary>Gets or sets the collection of fee listings available for the student.</summary>
         public List<FeeListingRowDto> FeeListings { get; set; } = new();
 
-        /// <summary>
-        /// Gets or sets the selected fee plan identifier.
-        /// </summary>
-        /// <value>
-        /// The selected fee plan identifier.
-        /// </value>
+        /// <summary>Gets or sets the unique identifier of the selected fee plan, if any.</summary>
         public Guid? SelectedFeePlanId { get; set; }
     }
 
     /// <summary>
-    /// Single row in the fee listing table.
-    /// Each row = Course + PaymentType + Duration combination.
+    /// Represents a row in the fee listing, including course details,
+    /// fee amounts, discounts, and installment information.
     /// </summary>
     public class FeeListingRowDto
     {
-        /// <summary>
-        /// Gets or sets the fee plan identifier.
-        /// </summary>
-        /// <value>
-        /// The fee plan identifier.
-        /// </value>
+        /// <summary>Gets or sets the unique identifier of the fee plan.</summary>
         public Guid FeePlanId { get; set; }
 
-        /// <summary>
-        /// Gets or sets the course identifier.
-        /// </summary>
-        /// <value>
-        /// The course identifier.
-        /// </value>
+        /// <summary>Gets or sets the unique identifier of the course.</summary>
         public Guid CourseId { get; set; }
 
-        /// <summary>
-        /// Gets or sets the name of the course.
-        /// </summary>
-        /// <value>
-        /// The name of the course.
-        /// </value>
+        /// <summary>Gets or sets the name of the course.</summary>
         public string CourseName { get; set; } = string.Empty;
 
-        /// <summary>
-        /// Gets or sets the yearly fee.
-        /// </summary>
-        /// <value>
-        /// The yearly fee.
-        /// </value>
+        /// <summary>Gets or sets the yearly fee amount for the course.</summary>
         public decimal YearlyFee { get; set; }
 
-        /// <summary>
-        /// Gets or sets the type of the payment.
-        /// </summary>
-        /// <value>
-        /// The type of the payment.
-        /// </value>
-        public string PaymentType { get; set; } = string.Empty;
+        /// <summary>Gets or sets the payment type (e.g., full payment, installment).</summary>
+        public PaymentType PaymentType { get; set; }
 
-        /// <summary>
-        /// Gets or sets the duration in years.
-        /// </summary>
-        /// <value>
-        /// The duration in years.
-        /// </value>
+        /// <summary>Gets or sets the duration of the course in years.</summary>
         public int DurationInYears { get; set; }
 
-        /// <summary>
-        /// Gets or sets the discount percent.
-        /// </summary>
-        /// <value>
-        /// The discount percent.
-        /// </value>
-        public decimal DiscountPercent { get; set; }
+        /// <summary>Gets or sets the total discount percentage applied.</summary>
+        public decimal TotalDiscountPercent { get; set; }
 
-        /// <summary>
-        /// Gets or sets the fee after discount.
-        /// </summary>
-        /// <value>
-        /// The fee after discount.
-        /// </value>
+        /// <summary>Gets or sets the total fee before discounts.</summary>
+        public decimal TotalBeforeDiscount { get; set; }
+
+        /// <summary>Gets or sets the fee amount after discounts.</summary>
         public decimal FeeAfterDiscount { get; set; }
 
-        /// <summary>
-        /// Gets or sets a value indicating whether this instance is selected.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if this instance is selected; otherwise, <c>false</c>.
-        /// </value>
+        /// <summary>Gets or sets the number of installments available.</summary>
+        public int InstallmentCount { get; set; }
+
+        /// <summary>Gets or sets the amount per installment.</summary>
+        public decimal PerInstallment { get; set; }
+
+        /// <summary>Gets or sets a value indicating whether this fee plan is selected.</summary>
         public bool IsSelected { get; set; }
 
-        /// <summary>
-        /// Gets or sets the discounts.
-        /// </summary>
-        /// <value>
-        /// The discounts.
-        /// </value>
-        public List<DiscountBadgeDto> Discounts { get; set; } = new();
+        /// <summary>Gets or sets the collection of discounts applied to this fee plan.</summary>
+        public List<DiscountBadgeDto> AppliedDiscounts { get; set; } = new();
     }
 
     /// <summary>
-    /// DiscountBadgeDto.
+    /// Represents a discount badge applied to a fee plan,
+    /// including the discount name and percentage.
     /// </summary>
     public class DiscountBadgeDto
     {
-        /// <summary>
-        /// Gets or sets the name.
-        /// </summary>
-        /// <value>
-        /// The name.
-        /// </value>
+        /// <summary>Gets or sets the name of the discount.</summary>
         public string Name { get; set; } = string.Empty;
 
-        /// <summary>
-        /// Gets or sets the percent.
-        /// </summary>
-        /// <value>
-        /// The percent.
-        /// </value>
+        /// <summary>Gets or sets the discount percentage.</summary>
         public decimal Percent { get; set; }
     }
 }

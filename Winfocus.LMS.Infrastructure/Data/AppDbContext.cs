@@ -380,6 +380,22 @@
         public DbSet<Guideline> Guidelines { get; set; } = null!;
 
         /// <summary>
+        /// Gets or sets the student course discounts.
+        /// </summary>
+        /// <value>
+        /// The student course discounts.
+        /// </value>
+        public DbSet<StudentCourseDiscount> StudentCourseDiscounts { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the student fee discounts.
+        /// </summary>
+        /// <value>
+        /// The student fee discounts.
+        /// </value>
+        public DbSet<StudentFeeDiscount> StudentFeeDiscounts { get; set; } = null!;
+
+        /// <summary>
         /// Gets or sets the question configurations.
         /// </summary>
         /// <value>
@@ -434,6 +450,11 @@
             modelBuilder.ApplyConfiguration(new QuestionConfigurationConfiguration());
 
             modelBuilder.ApplyConfiguration(new QuestionTypeConfigConfiguration());
+
+            modelBuilder.ApplyConfiguration(new StudentCourseDiscountConfiguration());
+            modelBuilder.ApplyConfiguration(new StudentFeeDiscountConfiguration());
+            modelBuilder.ApplyConfiguration(new StudentFeeSelectionConfiguration());
+            modelBuilder.ApplyConfiguration(new StudentInstallmentConfiguration());
 
             // User configuration
             modelBuilder.Entity<User>()
