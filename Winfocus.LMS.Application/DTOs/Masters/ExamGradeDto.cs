@@ -28,5 +28,10 @@ namespace Winfocus.LMS.Application.DTOs.Masters
         /// Gets or sets the syllabus.
         /// </summary>
         public ExamSyllabusDto? Syllabus { get; set; }
+
+        /// <summary>
+        /// Gets or sets the syllabus name.
+        /// </summary>
+        public string SyllabusName { get; set; }
     }
 }

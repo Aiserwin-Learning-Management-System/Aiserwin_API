@@ -38,5 +38,19 @@
         /// </summary>
         /// <returns></returns>
         Task SaveChangesAsync();
+
+        /// <summary>
+        /// Gets a registration with full details including values, form, groups and fields.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>.</returns>
+        Task<StaffRegistration?> GetRegistrationWithDetailsAsync(Guid id);
+
+        /// <summary>
+        /// Gets tasks assigned to an operator.
+        /// </summary>
+        /// <param name="registrationId">The registration identifier.</param>
+        /// <returns>.</returns>
+        Task<List<TaskAssignment>> GetTasksByOperatorIdAsync(Guid registrationId);
     }
 }

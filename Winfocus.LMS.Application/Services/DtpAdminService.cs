@@ -2,8 +2,10 @@
 {
     using Microsoft.Extensions.Logging;
     using Winfocus.LMS.Application.DTOs;
+    using Winfocus.LMS.Application.DTOs.Dashboard;
     using Winfocus.LMS.Application.DTOs.DtpAdmin;
     using Winfocus.LMS.Application.Interfaces;
+    using Winfocus.LMS.Domain.Entities;
     using Winfocus.LMS.Domain.Enums;
 
     /// <summary>
@@ -395,6 +397,220 @@
                     o.Values.GetValueOrDefault(fieldName, "") ?? "").ToList()
                 : operators.OrderBy(o =>
                     o.Values.GetValueOrDefault(fieldName, "") ?? "").ToList();
+        }
+
+        /// <summary>
+        /// Gets full operator detail including profile, grouped sections,
+        /// documents and task statistics.
+        /// </summary>
+        /// <param name="registrationId">The registration ID.</param>
+        /// <returns>Detailed operator information.</returns>
+        public async Task<CommonResponse<OperatorDetailDto>> GetOperatorDetailAsync(Guid registrationId)
+        {
+            try
+            {
+                var registration = await _repo.GetRegistrationWithDetailsAsync(registrationId);
+
+                if (registration == null)
+                {
+                    return CommonResponse<OperatorDetailDto>.FailureResponse(
+                        "Operator registration not found.");
+                }
+
+                var form = registration.RegistrationForm;
+
+                var sections = new List<OperatorSectionDto>();
+                var documents = new List<OperatorDocumentDto>();
+
+                // ── GROUP SECTIONS ─────────────────────────────
+                if (form?.FormGroups != null)
+                {
+                    foreach (var group in form.FormGroups.OrderBy(g => g.DisplayOrder))
+                    {
+                        var fields = new List<OperatorFieldDto>();
+
+                        var groupFields = form.FormFields
+                            .Where(f => f.FieldId == group.FieldGroupId)
+                            .OrderBy(f => f.DisplayOrder);
+
+                        foreach (var field in groupFields)
+                        {
+                            var value = registration.Values
+                                .FirstOrDefault(v => v.FieldId == field.FieldId)?.Value;
+
+                            fields.Add(MapField(field, value, documents));
+                        }
+
+                        sections.Add(new OperatorSectionDto
+                        {
+                            GroupName = group.FieldGroup?.GroupName ?? "Group",
+                            Fields = fields
+                        });
+                    }
+                }
+
+                // ── STANDALONE SECTION ─────────────────────────
+                var standaloneFields = form?.FormFields?
+                    .Where(f => f.FieldId == null)
+                    .OrderBy(f => f.DisplayOrder)
+                    .Select(f =>
+                    {
+                        var value = registration.Values
+                            .FirstOrDefault(v => v.FieldId == f.FieldId)?.Value;
+
+                        return MapField(f, value, documents);
+                    }).ToList();
+
+                if (standaloneFields != null && standaloneFields.Any())
+                {
+                    sections.Add(new OperatorSectionDto
+                    {
+                        GroupName = "Additional",
+                        Fields = standaloneFields
+                    });
+                }
+
+                var profile = ExtractProfile(registration);
+
+                var stats = await GetTaskStatsAsync(registrationId);
+
+                return CommonResponse<OperatorDetailDto>.SuccessResponse(
+                    "Operator details loaded successfully.",
+                    new OperatorDetailDto
+                    {
+                        RegistrationId = registration.Id,
+                        Status = registration.Status.ToString(),
+                        RegisteredAt = registration.CreatedAt,
+                        Profile = profile,
+                        Sections = sections,
+                        Documents = documents,
+                        TaskStats = stats
+                    });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex,
+                    "Error loading operator details for {RegistrationId}", registrationId);
+
+                return CommonResponse<OperatorDetailDto>
+                    .FailureResponse($"An error occurred: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Gets task statistics for an operator.
+        /// </summary>
+        private async Task<OperatorTaskStatsDto> GetTaskStatsAsync(Guid registrationId)
+        {
+            var tasks = await _repo.GetTasksByOperatorIdAsync(registrationId);
+
+            return new OperatorTaskStatsDto
+            {
+                TotalTasks = tasks.Count,
+                CompletedTasks = tasks.Count(t => t.Status == (int)TaskStatus.Completed),
+                ActiveTasks = tasks.Count(t => t.Status == (int)TaskStatus.InProgress),
+                TotalQuestionsAssigned = tasks.Sum(t => t.TotalQuestions),
+                TotalQuestionsCompleted = tasks.Sum(t => t.CompletedCount),
+            };
+        }
+
+        /// <summary>
+        /// Verifies an operator registration (Approve / Reject / Correction).
+        /// </summary>
+        /// <param name="registrationId">The registration ID.</param>
+        /// <param name="dto">Verification action and remarks.</param>
+        /// <param name="adminUserId">Admin performing the action.</param>
+        /// <returns>Success response.</returns>
+        public async Task<CommonResponse<bool>> VerifyOperatorAsync(
+            Guid registrationId,
+            VerifyOperatorDto dto,
+            Guid adminUserId)
+        {
+            try
+            {
+                var registration = await _repo.GetRegistrationByIdAsync(registrationId);
+
+                if (registration == null)
+                {
+                    return CommonResponse<bool>.FailureResponse(
+                        "Operator registration not found.");
+                }
+
+                registration.Status = dto.Action switch
+                {
+                    "Approve" => RegistrationStatus.Approved,
+                    "Reject" => RegistrationStatus.Rejected,
+                    "Correction" => RegistrationStatus.Pending,
+                    _ => registration.Status
+                };
+
+                registration.Remarks = dto.Remarks;
+                registration.UpdatedAt = DateTime.UtcNow;
+                registration.UpdatedBy = adminUserId;
+
+                await _repo.SaveChangesAsync();
+
+                _logger.LogInformation(
+                    "Operator {RegId} verified with action {Action} by admin {AdminId}",
+                    registrationId, dto.Action, adminUserId);
+
+                return CommonResponse<bool>.SuccessResponse(
+                    "Operator verification updated successfully.", true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex,
+                    "Error verifying operator {RegId}", registrationId);
+
+                return CommonResponse<bool>
+                    .FailureResponse($"An error occurred: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Maps a registration field into response format.
+        /// </summary>
+        private OperatorFieldDto MapField(
+            dynamic field,
+            string? value,
+            List<OperatorDocumentDto> documents)
+        {
+            string? fileUrl = null;
+
+            if (field.FormField.FieldType == FieldType.FileUpload &&
+                !string.IsNullOrEmpty(value))
+            {
+                fileUrl = _fileStorage.GetFileUrl(value);
+
+                documents.Add(new OperatorDocumentDto
+                {
+                    FieldName = field.FormField.FieldName,
+                    Label = field.FormField.DisplayLabel,
+                    FileUrl = fileUrl,
+                    FileName = Path.GetFileName(value)
+                });
+            }
+
+            return new OperatorFieldDto
+            {
+                Label = field.FormField.DisplayLabel,
+                Value = value,
+                FieldType = field.FormField.FieldType.ToString(),
+                FileUrl = fileUrl
+            };
+        }
+
+        /// <summary>
+        /// ExtractProfile.
+        /// </summary>
+        private ProfileDto ExtractProfile(StaffRegistration registration)
+        {
+            var values = registration.Values;
+
+            return new ProfileDto
+            {
+                FullName = values.FirstOrDefault(x => x.FormField.FieldName.Contains("name"))?.Value
+            };
         }
     }
 }

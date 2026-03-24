@@ -117,10 +117,40 @@ namespace Winfocus.LMS.API.Controllers
         /// <param name="operatorid">The identifier.</param>
         /// <returns>TaskResponseDto by id.</returns>
         [HttpGet("/operator/{operatorid:guid?}")]
-        public async Task<ActionResult<CommonResponse<TaskResponseDto>>> GetByOperator(Guid operatorid)
+        public async Task<ActionResult<CommonResponse<List<TaskResponseDto>>>> GetByOperator(Guid operatorid)
         {
             var result = await _taskAssignmentService.GetByOperatorIdAsync(operatorid);
             return Ok(result);
+        }
+
+        /// <summary>
+        /// Retrieves overall dashboard statistics for all task assignments.
+        /// </summary>
+        /// <returns>
+        /// Aggregated task overview including counts, completion rate,
+        /// and operator-wise performance.
+        /// </returns>
+        /// <response code="200">Overview fetched successfully.</response>
+        /// <response code="500">Internal server error.</response>
+        [HttpGet("overview")]
+        public async Task<ActionResult<CommonResponse<TaskOverviewDto>>> GetOverview()
+        {
+            try
+            {
+
+                var data = await _taskAssignmentService.GetOverviewAsync();
+
+                var response = CommonResponse<TaskOverviewDto>
+                    .SuccessResponse("Dashboard overview with all operator status", data);
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+               return StatusCode(500,
+                    CommonResponse<TaskOverviewDto>
+                    .FailureResponse("Internal server error while fetching overview"));
+            }
         }
     }
 }

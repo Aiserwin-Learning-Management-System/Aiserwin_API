@@ -288,9 +288,13 @@ namespace Winfocus.LMS.Application.Services
            Name = c.Subject.Name,
            Code =c.Subject.Code,
            GradeId = c.Subject.GradeId,
-       }
+       },
+
+       SubjectName = c.Subject.Name,
+       GradeId = c.Subject.GradeId,
+       GradeName = c.Subject.Grade.Name,
+       SyllabusId = c.Subject.Grade.SyllabusId,
+       SyllabusName = c.Subject.Grade.Syllabus.Name,
    };
-
-
     }
 }

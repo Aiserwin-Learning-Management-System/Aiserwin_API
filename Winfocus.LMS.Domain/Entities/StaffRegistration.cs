@@ -36,6 +36,13 @@
         public DateTime? SubmittedAt { get; set; }
 
         /// <summary>
+        /// Gets or sets the linked user account identifier.
+        /// Null until admin approves and user account is created.
+        /// After approval, this links the registration to the auth system user.
+        /// </summary>
+        public Guid? UserId { get; set; }
+
+        /// <summary>
         /// Gets or sets the registration form this submission belongs to.
         /// </summary>
         public RegistrationForm RegistrationForm { get; set; } = null!;

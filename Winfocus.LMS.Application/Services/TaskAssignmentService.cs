@@ -8,6 +8,8 @@ using Winfocus.LMS.Application.DTOs.Masters;
 using Winfocus.LMS.Application.Interfaces;
 using Winfocus.LMS.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Winfocus.LMS.Domain.Enums;
+using TaskStatus = Winfocus.LMS.Domain.Enums.TaskStatus;
 
 namespace Winfocus.LMS.Application.Services
 {
@@ -205,27 +207,27 @@ namespace Winfocus.LMS.Application.Services
         /// </summary>
         /// <param name="operatorid">The identifier.</param>
         /// <returns>TaskResponseDto.</returns>
-        public async Task<CommonResponse<TaskResponseDto>> GetByOperatorIdAsync(Guid operatorid)
+        public async Task<CommonResponse<List<TaskResponseDto>>> GetByOperatorIdAsync(Guid operatorid)
         {
             try
             {
                 _logger.LogInformation("Fetching task by operatorId: {operatorId}", operatorid);
                 var tasks = await _repository.GetByOperatorIdAsync(operatorid);
                 _logger.LogInformation("tasks fetched successfully for operatorId: {operatorId}", operatorid);
-                var mappeddata = tasks == null ? null : Map(tasks);
+                var mappeddata = tasks == null ? null : MapList(tasks);
                 if (mappeddata != null)
                 {
-                    return CommonResponse<TaskResponseDto>.SuccessResponse("fetched tasks for this operator id", mappeddata);
+                    return CommonResponse<List<TaskResponseDto>>.SuccessResponse("fetched tasks for this operator id", mappeddata);
                 }
                 else
                 {
-                    return CommonResponse<TaskResponseDto>.FailureResponse("tasks not found");
+                    return CommonResponse<List<TaskResponseDto>>.FailureResponse("tasks not found");
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error fetching tasks by Id: {Id}", operatorid);
-                return CommonResponse<TaskResponseDto>.FailureResponse($"An error occurred: {ex.Message}");
+                return CommonResponse<List<TaskResponseDto>>.FailureResponse($"An error occurred: {ex.Message}");
             }
         }
 
@@ -308,6 +310,97 @@ namespace Winfocus.LMS.Application.Services
                 return CommonResponse<PagedResult<TaskResponseDto>>.FailureResponse(
                     $"An error occurred: {ex.Message}");
             }
+        }
+
+        /// <inheritdoc/>
+        public async Task<TaskOverviewDto> GetOverviewAsync()
+        {
+            var tasks = await _repository.GetAllForOverviewAsync();
+
+            int totalTasks = 0;
+            int activeTasks = 0;
+            int completedTasks = 0;
+            int overdueTasks = 0;
+            int totalQuestionsAssigned = 0;
+            int totalQuestionsCompleted = 0;
+
+            var now = DateTime.UtcNow;
+
+            var operatorDict = new Dictionary<Guid, OperatorStatus>();
+
+            foreach (var task in tasks)
+            {
+                totalTasks++;
+
+                // Status checks
+                var status = (TaskStatus)task.Status;
+                if (status == TaskStatus.Completed)
+                {
+                    completedTasks++;
+                }
+                else
+                {
+                    activeTasks++;
+                }
+
+                if (task.Deadline < now && status != TaskStatus.Completed)
+                {
+                    overdueTasks++;
+                }
+
+                // Question aggregation
+                totalQuestionsAssigned += task.TotalQuestions;
+                totalQuestionsCompleted += task.CompletedCount;
+
+                // Operator aggregation
+                if (!operatorDict.TryGetValue(task.OperatorId, out var opStat))
+                {
+                    opStat = new OperatorStatus
+                    {
+                        OperatorId = task.OperatorId,
+                        OperatorName = task.Operator?.StaffCategory.Name ?? string.Empty,
+                        ActiveTasks = 0,
+                        CompletedQuestions = 0,
+                        TotalAssigned = 0,
+                    };
+
+                    operatorDict[task.OperatorId] = opStat;
+                }
+
+                if (status != TaskStatus.Completed)
+                {
+                    opStat.ActiveTasks++;
+                }
+
+                opStat.CompletedQuestions += task.CompletedCount;
+                opStat.TotalAssigned += task.TotalQuestions;
+            }
+
+            foreach (var op in operatorDict.Values)
+            {
+                op.CompletionRate = op.TotalAssigned == 0 ? 0 :
+                    (decimal)op.CompletedQuestions / op.TotalAssigned * 100;
+            }
+
+            var completionRate = totalQuestionsAssigned == 0 ? 0 :
+                (decimal)totalQuestionsCompleted / totalQuestionsAssigned * 100;
+
+            return new TaskOverviewDto
+            {
+                TotalTasks = totalTasks,
+                ActiceTasks = activeTasks,
+                CompletedTasks = completedTasks,
+                OverdueTasks = overdueTasks,
+                TotalQuestionsAssigned = totalQuestionsAssigned,
+                totalQuestionsCompleted = totalQuestionsCompleted,
+                completionRate = completionRate,
+                operatorStatus = operatorDict.Values.ToList(),
+            };
+        }
+
+        private List<TaskResponseDto> MapList(List<TaskAssignment> tasks)
+        {
+            return tasks.Select(x => Map(x)).ToList();
         }
 
         private static TaskResponseDto Map(TaskAssignment c) =>

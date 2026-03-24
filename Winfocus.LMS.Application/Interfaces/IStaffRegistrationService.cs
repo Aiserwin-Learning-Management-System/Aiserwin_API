@@ -37,11 +37,20 @@
             StaffRegistrationFilterRequest request);
 
         /// <summary>
-        /// UpdateStatusAsync.
+        /// Updates the status asynchronous.
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="dto"></param>
+        /// <param name="id">The identifier.</param>
+        /// <param name="dto">The dto.</param>
         /// <returns></returns>
         Task<CommonResponse<string>> UpdateStatusAsync(Guid id, UpdateRegistrationStatusDto dto);
+
+        /// <summary>
+        /// Links a user account to a staff registration after admin approval.
+        /// Called after the auth system creates a user account for the approved operator.
+        /// </summary>
+        /// <param name="registrationId">The staff registration identifier.</param>
+        /// <param name="userId">The newly created user account identifier.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        Task LinkUserAsync(Guid registrationId, Guid userId);
     }
 }

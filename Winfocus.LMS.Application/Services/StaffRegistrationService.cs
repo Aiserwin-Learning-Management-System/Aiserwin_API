@@ -497,6 +497,31 @@
             }
         }
 
+        /// <inheritdoc />
+        public async Task LinkUserAsync(Guid registrationId, Guid userId)
+        {
+            _logger.LogInformation(
+                "Linking UserId {UserId} to StaffRegistrationId {RegistrationId}",
+                userId, 
+                registrationId);
+
+            StaffRegistration? registration = await _repository.GetByIdWithDetailsAsync(registrationId);
+            if (registration == null)
+            {
+                _logger.LogWarning("Registration not found for linking. Id: {Id}", registrationId);
+                return;
+            }
+
+            registration.UserId = userId;
+            registration.UpdatedAt = DateTime.UtcNow;
+            await _repository.UpdateStatusAsync(registration);
+
+            _logger.LogInformation(
+                "Successfully linked UserId {UserId} to RegistrationId {RegistrationId}",
+                userId, 
+                registrationId);
+        }
+
         private void ValidateStatusTransition(
             RegistrationStatus currentStatus,
             RegistrationStatus newStatus)

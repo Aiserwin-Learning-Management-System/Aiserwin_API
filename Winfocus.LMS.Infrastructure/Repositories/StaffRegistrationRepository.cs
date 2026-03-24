@@ -84,5 +84,14 @@
                 .Include(sr => sr.StaffCategory)
                 .AsNoTracking();
         }
+
+        /// <inheritdoc />
+        public async Task<StaffRegistration?> GetByUserIdAsync(Guid userId)
+        {
+            return await _db.StaffRegistrations
+                .Include(x => x.StaffCategory)
+                .Include(x => x.Values)
+                .FirstOrDefaultAsync(x => x.UserId == userId && x.IsActive && !x.IsDeleted);
+        }
     }
 }

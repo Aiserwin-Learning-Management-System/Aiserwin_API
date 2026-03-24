@@ -30,6 +30,38 @@
         public string RegistrationNumber { get; set; } = string.Empty;
 
         /// <summary>
+        /// Gets or sets the grade identifier.
+        /// </summary>
+        /// <value>
+        /// The grade identifier.
+        /// </value>
+        public Guid GradeId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the name of the grade.
+        /// </summary>
+        /// <value>
+        /// The name of the grade.
+        /// </value>
+        public string GradeName { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the syllabus identifier.
+        /// </summary>
+        /// <value>
+        /// The syllabus identifier.
+        /// </value>
+        public Guid SyllabusId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the name of the syllabus.
+        /// </summary>
+        /// <value>
+        /// The name of the syllabus.
+        /// </value>
+        public string SyllabusName { get; set; } = string.Empty;
+
+        /// <summary>
         /// Gets or sets the fee listings.
         /// </summary>
         /// <value>

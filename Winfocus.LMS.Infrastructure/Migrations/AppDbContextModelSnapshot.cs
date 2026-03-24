@@ -1881,6 +1881,9 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.Property<Guid?>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
                     b.HasIndex("FormId")
@@ -1891,6 +1894,10 @@ namespace Winfocus.LMS.Infrastructure.Migrations
 
                     b.HasIndex("Status")
                         .HasDatabaseName("IX_StaffRegistrations_Status");
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasFilter("UserId IS NOT NULL AND IsDeleted = 0");
 
                     b.ToTable("StaffRegistrations", (string)null);
                 });
