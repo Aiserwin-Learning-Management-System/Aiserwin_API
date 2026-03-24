@@ -173,5 +173,21 @@ namespace Winfocus.LMS.Infrastructure.Repositories
                 .AsNoTracking();
         }
 
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="unitId">The Unit.</param>
+        /// <returns>ExamChapter.</returns>
+        public async Task<List<ExamChapter>> GetByUnitIdAsync(Guid unitId)
+        {
+            var res = _dbContext.ExamChapters
+                .Include(x => x.Unit)
+                .ThenInclude(x => x.Subject)
+                .ThenInclude(x => x.Grade)
+                .ThenInclude(x => x.Syllabus)
+                .Where(x => x.UnitId == unitId && !x.IsDeleted);
+            return await res.ToListAsync();
+        }
+
     }
 }

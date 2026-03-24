@@ -150,5 +150,18 @@ namespace Winfocus.LMS.Infrastructure.Repositories
                 .ThenInclude(x => x.AcademicYear)
                 .AsNoTracking();
         }
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="syllabusId">The Syllabus.</param>
+        /// <returns>ExamGrade.</returns>
+        public async Task<List<ExamGrade>> GetBySyllabusIdAsync(Guid syllabusId)
+        {
+            var res = _dbContext.ExamGrades
+                .Include(x => x.Syllabus)
+                .Where(x => x.SyllabusId == syllabusId && !x.IsDeleted);
+            return await res.ToListAsync();
+        }
     }
 }

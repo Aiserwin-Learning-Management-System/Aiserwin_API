@@ -25,6 +25,13 @@ namespace Winfocus.LMS.Application.Interfaces
         Task<ExamGrade?> GetByIdAsync(Guid id, Guid syllabusId);
 
         /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="syllabusId">The identifier.</param>
+        /// <returns>ExamGrade.</returns>
+        Task<List<ExamGrade>> GetBySyllabusIdAsync(Guid syllabusId);
+
+        /// <summary>
         /// Adds the asynchronous.
         /// </summary>
         /// <param name="ExamGrade">The ExamGrade.</param>

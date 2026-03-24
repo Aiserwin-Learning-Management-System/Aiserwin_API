@@ -65,5 +65,12 @@ namespace Winfocus.LMS.Application.Interfaces
         /// </summary>
         /// <returns>Queryable ExamSubject.</returns>
         IQueryable<ExamSubject> Query();
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="gradeId">The identifier.</param>
+        /// <returns>ExamSubject.</returns>
+        Task<List<ExamSubject>> GetByGradeIdAsync(Guid gradeId);
     }
 }

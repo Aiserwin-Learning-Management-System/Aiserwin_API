@@ -57,5 +57,12 @@ namespace Winfocus.LMS.Application.Interfaces
         /// <returns>Paginated doubt clear time result.</returns>
         Task<CommonResponse<PagedResult<ExamGradeDto>>> GetFilteredAsync(
             PagedRequest request);
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="syllabusID">The syllabusID.</param>
+        /// <returns>ExamGradeDto.</returns>
+        Task<CommonResponse<List<ExamGradeDto>>> GetBySyllabusIdAsync(Guid syllabusID);
     }
 }
