@@ -380,6 +380,14 @@
         public DbSet<Guideline> Guidelines { get; set; } = null!;
 
         /// <summary>
+        /// Gets or sets the question configurations.
+        /// </summary>
+        /// <value>
+        /// The question configurations.
+        /// </value>
+        public DbSet<QuestionConfiguration> QuestionConfigurations { get; set; } = null!;
+
+        /// <summary>
         /// Gets or sets the question type configuration.
         /// </summary>
         /// <value>
@@ -418,11 +426,13 @@
             modelBuilder.ApplyConfiguration(new ContentResourceTypeConfiguration());
 
             modelBuilder.ApplyConfiguration(new TaskAssignmentConfiguration());
-            modelBuilder.ApplyConfiguration(new QuestionConfiguration());
+            modelBuilder.ApplyConfiguration(new QuestionConfig());
             modelBuilder.ApplyConfiguration(new QuestionOptionConfiguration());
             modelBuilder.ApplyConfiguration(new QuestionReviewConfiguration());
             modelBuilder.ApplyConfiguration(new DailyActivityReportConfiguration());
             modelBuilder.ApplyConfiguration(new GuidelineConfiguration());
+            modelBuilder.ApplyConfiguration(new QuestionConfigurationConfiguration());
+
             modelBuilder.ApplyConfiguration(new QuestionTypeConfigConfiguration());
 
             // User configuration
