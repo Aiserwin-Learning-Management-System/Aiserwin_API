@@ -9,25 +9,32 @@
     using Winfocus.LMS.Application.Settings;
 
     /// <summary>
-    /// Handles physical file storage operations.
+    /// Handles physical file storage operations on local disk.
+    /// Used for local development. For Azure deployments, use
+    /// <see cref="AzureBlobStorageService"/>.
     /// </summary>
-    public class FileStorageService : IFileStorageService
+    public class LocalFileStorageService : IFileStorageService
     {
         private readonly IWebHostEnvironment _environment;
         private readonly FileUploadSettings _uploadSettings;
-        private readonly ILogger<FileStorageService> _logger;
+        private readonly ILogger<LocalFileStorageService> _logger;
         private readonly string _rootPath;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FileStorageService"/> class.
+        /// Initializes a new instance of the
+        /// <see cref="LocalFileStorageService"/> class.
         /// </summary>
-        /// <param name="environment">Hosting environment for path resolution.</param>
-        /// <param name="uploadSettings">File upload configuration settings.</param>
+        /// <param name="environment">
+        /// Hosting environment for path resolution.
+        /// </param>
+        /// <param name="uploadSettings">
+        /// File upload configuration settings.
+        /// </param>
         /// <param name="logger">Logger instance.</param>
-        public FileStorageService(
-              IWebHostEnvironment environment,
-              IOptions<FileUploadSettings> uploadSettings,
-              ILogger<FileStorageService> logger)
+        public LocalFileStorageService(
+            IWebHostEnvironment environment,
+            IOptions<FileUploadSettings> uploadSettings,
+            ILogger<LocalFileStorageService> logger)
         {
             _environment = environment;
             _uploadSettings = uploadSettings.Value;
@@ -38,7 +45,7 @@
                 : _uploadSettings.StorageRootPath;
 
             _logger.LogInformation(
-                "FileStorageService initialized. RootPath: {RootPath}",
+                "LocalFileStorageService initialized. RootPath: {RootPath}",
                 _rootPath);
         }
 
@@ -52,9 +59,7 @@
             }
 
             var uploadsFolder = Path.Combine(
-               _rootPath,
-               "StudentFiles",
-               folderName);
+                _rootPath, "StudentFiles", folderName);
 
             if (!Directory.Exists(uploadsFolder))
             {
@@ -112,31 +117,24 @@
             return relativePath;
         }
 
-        /// <summary>
-        /// SaveFileBase64Async.
-        /// </summary>
-        /// <param name="base64File"></param>
-        /// <param name="folderName"></param>
-        /// <param name="fileNamePrefix"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentException"></exception>
-        public async Task<string> SaveFileBase64Async(string base64File, string folderName, string fileNamePrefix)
+        /// <inheritdoc/>
+        public async Task<string> SaveFileBase64Async(
+            string base64File,
+            string folderName,
+            string fileNamePrefix)
         {
             if (string.IsNullOrWhiteSpace(base64File))
             {
                 throw new ArgumentException("File content is empty.");
             }
 
-            // Remove base64 metadata if exists (data:image/png;base64,)
             var parts = base64File.Split(',');
             var base64Data = parts.Length > 1 ? parts[1] : parts[0];
 
             byte[] fileBytes = Convert.FromBase64String(base64Data);
 
             var uploadsFolder = Path.Combine(
-                _environment.ContentRootPath,
-                "StudentFiles",
-                folderName);
+                _rootPath, "StudentFiles", folderName);
 
             if (!Directory.Exists(uploadsFolder))
             {
@@ -144,7 +142,6 @@
             }
 
             var fileName = $"{fileNamePrefix}_{Guid.NewGuid()}.png";
-
             var filePath = Path.Combine(uploadsFolder, fileName);
 
             await File.WriteAllBytesAsync(filePath, fileBytes);
@@ -188,17 +185,11 @@
                 return string.Empty;
             }
 
-            var url = "/" + filePath
+            return "/" + filePath
                 .Replace("\\", "/")
                 .TrimStart('/');
-            return url;
         }
 
-        /// <summary>
-        /// Validates file against configured size limits
-        /// and allowed extensions.
-        /// </summary>
-        /// <param name="file">The file to validate.</param>
         private void ValidateFile(IFormFile file)
         {
             if (file == null || file.Length == 0)

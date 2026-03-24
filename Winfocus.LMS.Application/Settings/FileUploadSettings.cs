@@ -14,13 +14,11 @@
         /// <summary>
         /// Gets or sets the maximum allowed file size in megabytes.
         /// </summary>
-        /// <example>10.</example>
         public int MaxFileSizeMB { get; set; } = 10;
 
         /// <summary>
         /// Gets or sets the list of allowed file extensions (including dot).
         /// </summary>
-        /// <example>[".pdf", ".jpg", ".png", ".doc", ".docx"].</example>
         public string[] AllowedExtensions { get; set; } = new[]
         {
             ".pdf", ".jpg", ".jpeg", ".png", ".doc", ".docx",
@@ -29,25 +27,43 @@
         /// <summary>
         /// Gets or sets the base path inside wwwroot for registration uploads.
         /// </summary>
-        /// <example>uploads/registrations.</example>
         public string UploadBasePath { get; set; } = "uploads/registrations";
 
         /// <summary>
-        /// Gets or sets the storage root path.
-        /// </summary>
-        /// <value>
-        /// Persistent root path for file storage.
+        /// Gets or sets the storage root path for local file storage.
         /// Empty = use ContentRootPath (local dev).
-        /// Set to "D:\home\data" on Azure App Service.
-        /// </value>
+        /// Set to "D:\home\data" or "/home/data" on Azure App Service.
+        /// </summary>
         public string StorageRootPath { get; set; } = string.Empty;
 
         /// <summary>
-        /// Gets the maximum file size bytes.
+        /// Gets or sets the storage provider type.
+        /// Valid values: "Local", "AzureBlob".
+        /// Defaults to "Local" for backward compatibility.
         /// </summary>
-        /// <value>
-        /// Calculated maximum file size in bytes.
-        /// </value>
+        public string StorageProvider { get; set; } = "Local";
+
+        /// <summary>
+        /// Gets or sets the Azure Blob Storage connection string.
+        /// Required when <see cref="StorageProvider"/> is "AzureBlob".
+        /// </summary>
+        public string AzureBlobConnectionString { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the Azure Blob Storage container name.
+        /// Required when <see cref="StorageProvider"/> is "AzureBlob".
+        /// </summary>
+        public string AzureBlobContainerName { get; set; } = "lms-files";
+
+        /// <summary>
+        /// Gets the maximum file size in bytes (calculated).
+        /// </summary>
         public long MaxFileSizeBytes => MaxFileSizeMB * 1024L * 1024L;
+
+        /// <summary>
+        /// Gets a value indicating whether Azure Blob Storage is configured.
+        /// </summary>
+        public bool UseAzureBlob =>
+            StorageProvider.Equals("AzureBlob", StringComparison.OrdinalIgnoreCase);
     }
 }

@@ -128,7 +128,6 @@ builder.Services.AddScoped<IStudentPersonaldetailsService, StudentPersonaldetail
 builder.Services.AddScoped<IStudentPersonaldetailsRepository, StudentPersonaldetailsRepository>();
 builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
-builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 builder.Services.AddScoped<IUserActivationTokenRepository, UserActivationTokenRepository>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IAcademicYearService, AcademiYearService>();
@@ -200,6 +199,24 @@ builder.Services.AddScoped<IExamSyllabusRepository, ExamSyllabusRepository>();
 builder.Services.AddScoped<IExamSyllabusService, ExamSyllabusService>();
 builder.Services.AddScoped<IContentResourceTypeRepository, ContentResourceTypeRepository>();
 builder.Services.AddScoped<IContentResourceTypeService, ContentResourceTypeService>();
+
+var fileUploadSettings = builder.Configuration
+    .GetSection(FileUploadSettings.SectionName)
+    .Get<FileUploadSettings>();
+
+if (fileUploadSettings?.UseAzureBlob == true)
+{
+    builder.Services.AddScoped<IFileStorageService, AzureBlobStorageService>();
+    Log.Information(
+        "File storage provider: Azure Blob Storage. "
+        + "Container: {Container}",
+        fileUploadSettings.AzureBlobContainerName);
+}
+else
+{
+    builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
+    Log.Information("File storage provider: Local Disk");
+}
 
 #endregion
 
@@ -385,7 +402,8 @@ if (!app.Environment.IsEnvironment("Testing"))
 {
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    var logger = scope.ServiceProvider
+        .GetRequiredService<ILogger<Program>>();
 
     try
     {
@@ -405,41 +423,45 @@ if (!app.Environment.IsEnvironment("Testing"))
         throw;
     }
 
-    var fileSettings = app.Configuration
-    .GetSection(FileUploadSettings.SectionName)
-    .Get<FileUploadSettings>();
+    var resolvedFileSettings = app.Configuration
+        .GetSection(FileUploadSettings.SectionName)
+        .Get<FileUploadSettings>();
 
-    // Detect platform and choose correct root path
-    string persistentRoot;
-    if (string.IsNullOrEmpty(fileSettings?.StorageRootPath))
+    // Only create local directories when using local storage
+    if (resolvedFileSettings?.UseAzureBlob != true)
     {
-        // Local dev fallback
-        persistentRoot = app.Environment.ContentRootPath;
-    }
-    else
-    {
-        // If running on Linux, use /home/data
-        if (Environment.OSVersion.Platform == PlatformID.Unix)
+        string persistentRoot;
+        if (string.IsNullOrEmpty(resolvedFileSettings?.StorageRootPath))
         {
-            persistentRoot = "/home/data";
+            persistentRoot = app.Environment.ContentRootPath;
         }
         else
         {
-            // Windows App Service
-            persistentRoot = fileSettings.StorageRootPath;
+            persistentRoot = Environment.OSVersion.Platform == PlatformID.Unix
+                ? "/home/data"
+                : resolvedFileSettings.StorageRootPath;
         }
+
+        var studentFilesPath = Path.Combine(
+            persistentRoot, "StudentFiles");
+        var photosPath = Path.Combine(studentFilesPath, "Photos");
+        var signaturesPath = Path.Combine(
+            studentFilesPath, "Signatures");
+
+        Directory.CreateDirectory(studentFilesPath);
+        Directory.CreateDirectory(photosPath);
+        Directory.CreateDirectory(signaturesPath);
+
+        logger.LogInformation(
+            "Student file directories ensured at: {Path}",
+            studentFilesPath);
     }
-
-    // Create StudentFiles directories in persistent location
-    var studentFilesPath = Path.Combine(persistentRoot, "StudentFiles");
-    var photosPath = Path.Combine(studentFilesPath, "Photos");
-    var signaturesPath = Path.Combine(studentFilesPath, "Signatures");
-
-    Directory.CreateDirectory(studentFilesPath);
-    Directory.CreateDirectory(photosPath);
-    Directory.CreateDirectory(signaturesPath);
-
-    logger.LogInformation("Student file directories ensured at: {Path}", studentFilesPath);
+    else
+    {
+        logger.LogInformation(
+            "Using Azure Blob Storage — skipping local "
+            + "directory creation.");
+    }
 }
 
 #endregion
@@ -472,33 +494,42 @@ app.UseCors("AllowAngularApp");
 
 app.UseStaticFiles();
 
-var fileUploadConfig = app.Configuration
+var pipelineFileConfig = app.Configuration
     .GetSection(FileUploadSettings.SectionName)
     .Get<FileUploadSettings>();
 
-var fileRoot = string.IsNullOrEmpty(fileUploadConfig?.StorageRootPath)
-    ? app.Environment.ContentRootPath
-    : fileUploadConfig.StorageRootPath;
-
-var studentFilesDir = Path.Combine(fileRoot, "StudentFiles");
-
-if (Directory.Exists(studentFilesDir))
+// Only serve StudentFiles from disk when using local storage
+if (pipelineFileConfig?.UseAzureBlob != true)
 {
-    app.UseStaticFiles(new StaticFileOptions
+    var localFileRoot = string.IsNullOrEmpty(
+        pipelineFileConfig?.StorageRootPath)
+        ? app.Environment.ContentRootPath
+        : pipelineFileConfig.StorageRootPath;
+
+    var studentFilesDir = Path.Combine(localFileRoot, "StudentFiles");
+
+    if (Directory.Exists(studentFilesDir))
     {
-        FileProvider = new Microsoft.Extensions.FileProviders
-            .PhysicalFileProvider(studentFilesDir),
-        RequestPath = "/StudentFiles",
-    });
+        app.UseStaticFiles(new StaticFileOptions
+        {
+            FileProvider =
+                new Microsoft.Extensions.FileProviders
+                    .PhysicalFileProvider(studentFilesDir),
+            RequestPath = "/StudentFiles",
+        });
+    }
+}
+else
+{
+    Log.Information(
+        "Azure Blob Storage active — StudentFiles served "
+        + "directly from blob URLs.");
 }
 
 app.UseAuthentication();
-
 app.UseMiddleware<SessionValidationMiddleware>();
-
 app.UseAuthorization();
 app.UseRateLimiter();
-
 app.MapControllers();
 
 #endregion
