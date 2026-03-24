@@ -36,6 +36,16 @@ namespace Winfocus.LMS.Application.DTOs
         public Guid ResourceTypeId { get; set; }
 
         /// <summary>
+        /// Gets or sets AcademicYearId.
+        /// </summary>
+        public Guid AcademicYearId { get; set; }
+
+        /// <summary>
+        /// Gets or sets type of questions (MCQ, Numerical, Theory etc.)
+        /// </summary>
+        public Guid QuestionTypeId { get; set; }
+
+        /// <summary>
         /// Gets or sets type of questions (MCQ, Numerical, Theory etc.)
         /// </summary>
         public int QuestionType { get; set; }
@@ -69,7 +79,7 @@ namespace Winfocus.LMS.Application.DTOs
         /// <value>
         /// The unit identifier.
         /// </value>
-        public Guid? UnitId { get; set; }
+        public Guid UnitId { get; set; }
 
         /// <summary>
         /// Gets or sets chapter or topic reference.

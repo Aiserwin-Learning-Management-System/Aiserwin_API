@@ -55,5 +55,12 @@ namespace Winfocus.LMS.Application.Interfaces
         /// <returns>ContentResourceType result.</returns>
         Task<CommonResponse<PagedResult<ContentResourceTypeDto>>> GetFilteredAsync(
             PagedRequest request);
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="chapterid">The chapterid.</param>
+        /// <returns>ContentResourceTypeDto.</returns>
+        Task<CommonResponse<List<ContentResourceTypeDto>>> GetByChapterIdAsync(Guid chapterid);
     }
 }

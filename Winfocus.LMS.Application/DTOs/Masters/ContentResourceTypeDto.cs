@@ -18,5 +18,21 @@ namespace Winfocus.LMS.Application.DTOs.Masters
         /// Gets or sets the description.
         /// </summary>
         public string Description { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the chapter identifier.
+        /// </summary>
+        /// <value>
+        /// The chapter identifier.
+        /// </value>
+        public Guid ChapterId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the chapter.
+        /// </summary>
+        /// <value>
+        /// The chapter.
+        /// </value>
+        public ExamChapterDto? Chapter { get; set; }
     }
 }

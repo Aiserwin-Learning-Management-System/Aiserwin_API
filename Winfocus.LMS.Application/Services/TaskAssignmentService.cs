@@ -1,13 +1,16 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using Winfocus.LMS.Application.DTOs;
 using Winfocus.LMS.Application.DTOs.Common;
+using Winfocus.LMS.Application.DTOs.Dashboard;
 using Winfocus.LMS.Application.DTOs.Masters;
+using Winfocus.LMS.Application.DTOs.QuestionConfig;
+using Winfocus.LMS.Application.DTOs.Task;
 using Winfocus.LMS.Application.Interfaces;
 using Winfocus.LMS.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
 using Winfocus.LMS.Domain.Enums;
 using TaskStatus = Winfocus.LMS.Domain.Enums.TaskStatus;
 
@@ -20,18 +23,46 @@ namespace Winfocus.LMS.Application.Services
     {
         private readonly ITaskAssignmentRepository _repository;
         private readonly ILogger<TaskAssignmentService> _logger;
+        private readonly IOperatorDashboardService _operatorDashboardService;
+        private readonly IExamSyllabusRepository _syllabusRepository;
+        private readonly IAcademicYearRepository _academicYearRepository;
+        private readonly IExamGradeRepository _gradeRepository;
+        private readonly IExamSubjectRepository _subjectRepository;
+        private readonly IExamUnitRepository _unitRepository;
+        private readonly IExamChapterRepository _chapterRepository;
+        private readonly IContentResourceTypeRepository _resourceTypeRepository;
+        private readonly IQuestionTypeConfigRepository _questionTypeRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TaskAssignmentService"/> class.
         /// </summary>
         /// <param name="repository">The repository.</param>
         /// <param name="logger">The logger.</param>
+        /// <param name="operatorDashboardService">The operatorDashboardService.</param>
+        /// <param name="syllabusRepository">The syllabus repository.</param>
+        /// <param name="academicYearRepository">The academic year repository.</param>
+        /// <param name="gradeRepository">The grade repository.</param>
+        /// <param name="subjectRepository">The subject repository.</param>
+        /// <param name="unitRepository">The unit repository.</param>
+        /// <param name="chapterRepository">The chapter repository.</param>
+        /// <param name="resourceTypeRepository">The resource type repository.</param>
+        /// <param name="questionTypeRepository">The question type repository.</param>
         public TaskAssignmentService(
             ITaskAssignmentRepository repository,
-            ILogger<TaskAssignmentService> logger)
+            ILogger<TaskAssignmentService> logger,
+            IOperatorDashboardService operatorDashboardService,
+            IExamSyllabusRepository syllabusRepository,
+            IAcademicYearRepository academicYearRepository,
+            IExamGradeRepository gradeRepository,
+            IExamSubjectRepository subjectRepository,
+            IExamUnitRepository unitRepository,
+            IExamChapterRepository chapterRepository,
+            IContentResourceTypeRepository resourceTypeRepository,
+            IQuestionTypeConfigRepository questionTypeRepository)
         {
             _repository = repository;
             _logger = logger;
+            _operatorDashboardService = operatorDashboardService;
         }
 
         /// <summary>
@@ -99,13 +130,43 @@ namespace Winfocus.LMS.Application.Services
         {
             try
             {
+                var res = await _operatorDashboardService.GetProfileAsync(request.OperatorId);
+                if (!res.Success)
+                {
+                    return CommonResponse<TaskResponseDto>.FailureResponse("Invalid Operator!");
+                }
+
+                //_logger.LogInformation("Creating Task Asiignments with code: {Code}", request.TaskCode);
+
+                //bool codeExists = await _repository.CodeExistsAsync(request.TaskCode);
+                //if (codeExists)
+                //{
+                //    return CommonResponse<TaskResponseDto>.FailureResponse(
+                //        $"Task Code '{request.TaskCode}' already exists");
+                //}
+                var codereq = new TaskCodeRequest
+                {
+                    OperatorId = request.OperatorId,
+                    SyllabusId = request.SyllabusId,
+                    AcademicYearId = request.AcademicYearId,
+                    GradeId = request.GradeId,
+                    SubjectId = request.SubjectId,
+                    UnitId = request.UnitId,
+                    ChapterId = request.ChapterId,
+                    ContentresourceTypeId = request.ResourceTypeId,
+                    QuestionTypeId = request.QuestionTypeId,
+                };
+
+                CommonResponse<SuggestedCodeResponseDto> taskcodeobj = await TaskCodeAsync(codereq);
+                string taskcode = taskcodeobj.Data.SuggestedCode + taskcodeobj.Data.NextSequence;
+
                 var taskassignment = new TaskAssignment
                 {
                     OperatorId = request.OperatorId,
                     CreatedAt = DateTime.UtcNow,
                     CreatedBy = request.Createdby,
                     AssignedBy = request.AssignedBy,
-                    QuestionType = request.QuestionType,
+                    QuestionTypeId = request.QuestionTypeId,
                     Year = request.Year,
                     ChapterId = request.ChapterId,
                     TotalQuestions = request.TotalQuestions,
@@ -113,7 +174,8 @@ namespace Winfocus.LMS.Application.Services
                     Deadline = request.Deadline,
                     Priority = request.Priority,
                     Instructions = request.Instructions,
-                    Status = request.Status,
+                    Status = (int)TaskStatus.Pending,
+                    SequenceNumber = taskcodeobj.Data.NextSequence,
                 };
 
                 var created = await _repository.AddAsync(taskassignment);
@@ -396,6 +458,134 @@ namespace Winfocus.LMS.Application.Services
                 completionRate = completionRate,
                 operatorStatus = operatorDict.Values.ToList(),
             };
+        }
+
+        /// <inheritdoc />
+        public async Task<CommonResponse<SuggestedCodeResponseDto>> TaskCodeAsync(TaskCodeRequest dto)
+        {
+            try
+            {
+                _logger.LogInformation("Generating suggested Task Code");
+
+                ExamSyllabus? syllabus = await _syllabusRepository.GetByIdAsync(dto.SyllabusId, dto.AcademicYearId);
+                if (syllabus == null)
+                {
+                    return CommonResponse<SuggestedCodeResponseDto>.FailureResponse("Syllabus not found");
+                }
+
+                AcademicYear? academicYear = await _academicYearRepository.GetByIdAsync(dto.AcademicYearId);
+                if (academicYear == null)
+                {
+                    return CommonResponse<SuggestedCodeResponseDto>.FailureResponse("Academic Year not found");
+                }
+
+                ExamGrade? grade = await _gradeRepository.GetByIdAsync(dto.GradeId, dto.SyllabusId);
+                if (grade == null)
+                {
+                    return CommonResponse<SuggestedCodeResponseDto>.FailureResponse("Grade not found");
+                }
+
+                ExamSubject? subject = await _subjectRepository.GetByIdAsync(dto.SubjectId, dto.GradeId);
+                if (subject == null)
+                {
+                    return CommonResponse<SuggestedCodeResponseDto>.FailureResponse("Subject not found");
+                }
+
+                ExamUnit? unit = await _unitRepository.GetByIdAsync(dto.UnitId, dto.SubjectId);
+                if (unit == null)
+                {
+                    return CommonResponse<SuggestedCodeResponseDto>.FailureResponse("Unit not found");
+                }
+
+                ExamChapter? chapter = await _chapterRepository.GetByIdAsync(dto.ChapterId, dto.UnitId);
+                if (chapter == null)
+                {
+                    return CommonResponse<SuggestedCodeResponseDto>.FailureResponse("Chapter not found");
+                }
+
+                ContentResourceType? resourceType = await _resourceTypeRepository.GetByIdAsync(dto.ContentresourceTypeId);
+                if (resourceType == null)
+                {
+                    return CommonResponse<SuggestedCodeResponseDto>.FailureResponse("Content Resource Type not found");
+                }
+
+                QuestionTypeConfig? questionType = await _questionTypeRepository.GetByIdAsync(dto.QuestionTypeId);
+                if (questionType == null)
+                {
+                    return CommonResponse<SuggestedCodeResponseDto>.FailureResponse("Question Type not found");
+                }
+
+                int nextSequence = await _repository.GetNextSequenceAsync(
+                    dto.SyllabusId, dto.AcademicYearId, dto.GradeId,
+                    dto.SubjectId, dto.UnitId, dto.ChapterId, dto.ContentresourceTypeId,dto.QuestionTypeId, dto.OperatorId);
+
+                string code = BuildQuestionCode(
+                    syllabus.Name, academicYear.Name, grade.Name,
+                    subject.Code ?? subject.Name.Substring(0, Math.Min(3, subject.Name.Length)).ToUpper(),
+                    unit.UnitNumber, chapter.ChapterNumber,
+                    resourceType.Name, questionType.Name, nextSequence);
+
+                _logger.LogInformation("Suggested code: {Code}", code);
+
+                return CommonResponse<SuggestedCodeResponseDto>.SuccessResponse(
+                    "Code suggested successfully",
+                    new SuggestedCodeResponseDto
+                    {
+                        SuggestedCode = code,
+                        NextSequence = nextSequence,
+                    });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating suggested code");
+                return CommonResponse<SuggestedCodeResponseDto>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Builds the Question Code string from master data values.
+        /// Format: [SYL]-[YYYY]-[GRD]-[SUB]-[UNIT]-[CH]-[TYPE]-[SEQ].
+        /// </summary>
+        /// <param name="syllabusName">The syllabus name.</param>
+        /// <param name="academicYearName">The academic year name.</param>
+        /// <param name="gradeName">The grade name.</param>
+        /// <param name="subjectCode">The subject code.</param>
+        /// <param name="unitNumber">The unit number.</param>
+        /// <param name="chapterNumber">The chapter number.</param>
+        /// <param name="questionTypeCode">The question type code.</param>
+        /// <param name="sequenceNumber">The sequence number.</param>
+        /// <returns>The formatted Question Code string.</returns>
+        private static string BuildQuestionCode(
+            string syllabusName,
+            string academicYearName,
+            string gradeName,
+            string subjectCode,
+            int unitNumber,
+            int chapterNumber,
+            string resourceTypeCode,
+            string questionTypeCode,
+            int sequenceNumber)
+        {
+            string yearPart = academicYearName.Length >= 4
+                ? academicYearName.Substring(0, 4)
+                : academicYearName;
+
+            string gradePart = new string(gradeName.Where(char.IsDigit).ToArray());
+            if (string.IsNullOrEmpty(gradePart))
+            {
+                gradePart = gradeName;
+            }
+
+            return $"{syllabusName.ToUpper()}" +
+                   $"-{yearPart}" +
+                   $"-{gradePart}" +
+                   $"-{subjectCode.ToUpper()}" +
+                   $"-U{unitNumber:D2}" +
+                   $"-CH{chapterNumber:D2}" +
+                   $"-{resourceTypeCode.ToUpper()}" +
+                   $"-{questionTypeCode.ToUpper()}" +
+                   $"-{sequenceNumber:D4}";
         }
 
         private List<TaskResponseDto> MapList(List<TaskAssignment> tasks)

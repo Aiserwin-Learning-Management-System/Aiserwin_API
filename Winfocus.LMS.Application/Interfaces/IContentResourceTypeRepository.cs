@@ -56,5 +56,12 @@ namespace Winfocus.LMS.Application.Interfaces
         /// </summary>
         /// <returns>Queryable ContentResourceType.</returns>
         IQueryable<ContentResourceType> Query();
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="chapterid">The identifier.</param>
+        /// <returns>ContentResourceType.</returns>
+        Task<List<ContentResourceType>> GetByChapterIdAsync(Guid chapterid);
     }
 }

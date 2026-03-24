@@ -4,6 +4,8 @@ using System.Text;
 using Winfocus.LMS.Application.DTOs;
 using Winfocus.LMS.Application.DTOs.Common;
 using Winfocus.LMS.Application.DTOs.Masters;
+using Winfocus.LMS.Application.DTOs.QuestionConfig;
+using Winfocus.LMS.Application.DTOs.Task;
 
 namespace Winfocus.LMS.Application.Interfaces
 {
@@ -68,5 +70,12 @@ namespace Winfocus.LMS.Application.Interfaces
         /// A <see cref="TaskOverviewDto"/> containing aggregated task data.
         /// </returns>
         Task<TaskOverviewDto> GetOverviewAsync();
+
+        /// <summary>
+        /// Generates a task Code without saving.
+        /// </summary>
+        /// <param name="dto">The hierarchy selection.</param>
+        /// <returns>The task code wrapped in CommonResponse.</returns>
+        Task<CommonResponse<SuggestedCodeResponseDto>> TaskCodeAsync(TaskCodeRequest dto);
     }
 }
