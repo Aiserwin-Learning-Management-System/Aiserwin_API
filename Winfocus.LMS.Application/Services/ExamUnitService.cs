@@ -316,6 +316,8 @@ namespace Winfocus.LMS.Application.Services
        GradeName = c.Subject.Grade.Name,
        SyllabusId = c.Subject.Grade.SyllabusId,
        SyllabusName = c.Subject.Grade.Syllabus.Name,
+       AcademicYearId = c.Subject.Grade.Syllabus.AcademicYearId,
+       AcademicYearName = c.Subject.Grade.Syllabus.AcademicYear.Name,
    };
     }
 }

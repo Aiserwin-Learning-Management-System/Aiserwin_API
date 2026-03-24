@@ -272,23 +272,22 @@ namespace Winfocus.LMS.Application.Services
         }
 
         private static ExamSyllabusDto Map(ExamSyllabus c) =>
-   new ExamSyllabusDto
-   {
-       Id = c.Id,
-       Name = c.Name,
-       Description = c.Description,
-       AcademicYearId = c.AcademicYearId,
-       IsActive = c.IsActive,
-       CreatedAt = c.CreatedAt,
-       CreatedBy = c.CreatedBy,
-       AcademicYear = c.AcademicYear == null ? null : new AcademicYearDto
+       new ExamSyllabusDto
        {
-           Id = c.AcademicYear.Id,
-           Name = c.AcademicYear.Name,
-           StartDate = c.AcademicYear.StartDate,
-           EndDate = c.AcademicYear.EndDate,
-       }
-   };
-
+           Id = c.Id,
+           Name = c.Name,
+           Description = c.Description,
+           AcademicYearId = c.AcademicYearId,
+           IsActive = c.IsActive,
+           CreatedAt = c.CreatedAt,
+           CreatedBy = c.CreatedBy,
+           AcademicYear = c.AcademicYear == null ? null : new AcademicYearDto
+           {
+               Id = c.AcademicYear.Id,
+               Name = c.AcademicYear.Name,
+               StartDate = c.AcademicYear.StartDate,
+               EndDate = c.AcademicYear.EndDate,
+           }
+       };
     }
 }

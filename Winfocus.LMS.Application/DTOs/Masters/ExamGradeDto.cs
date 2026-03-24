@@ -33,5 +33,15 @@ namespace Winfocus.LMS.Application.DTOs.Masters
         /// Gets or sets the syllabus name.
         /// </summary>
         public string SyllabusName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Academicyear name.
+        /// </summary>
+        public string AcademicYearName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the academic year identifier.
+        /// </summary>
+        public Guid AcademicYearId { get; set; }
     }
 }
