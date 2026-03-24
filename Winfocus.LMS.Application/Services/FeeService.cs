@@ -2,18 +2,16 @@
 {
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
-    using Winfocus.LMS.Application.Common.Exceptions;
     using Winfocus.LMS.Application.DTOs;
     using Winfocus.LMS.Application.DTOs.Common;
     using Winfocus.LMS.Application.DTOs.Fees;
-    using Winfocus.LMS.Application.DTOs.Masters;
     using Winfocus.LMS.Application.Interfaces;
     using Winfocus.LMS.Domain.Entities;
     using Winfocus.LMS.Domain.Enums;
+    using Winfocus.LMS.Domain.Extensions;
 
     /// <summary>
-    /// FeeService – implements all fee-related business logic including
-    /// discount management and fee calculation.
+    /// FeeService.
     /// </summary>
     /// <seealso cref="Winfocus.LMS.Application.Interfaces.IFeeService" />
     public sealed class FeeService : IFeeService
@@ -24,7 +22,7 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="FeeService"/> class.
         /// </summary>
-        /// <param name="repo">The repository.</param>
+        /// <param name="repo">The repo.</param>
         /// <param name="logger">The logger.</param>
         public FeeService(IFeeRepository repo, ILogger<FeeService> logger)
         {
@@ -32,618 +30,754 @@
             _logger = logger;
         }
 
-        /// <summary>
-        /// Gets the fee page asynchronous.
-        /// Builds a pricing table for all courses in the student's grade.
-        /// Registration fee is excluded from calculations.
-        /// Only active discounts are subtracted.
-        /// </summary>
-        /// <param name="studentId">The student identifier.</param>
-        /// <returns>Task&lt;FeePageResponseDto&gt;.</returns>
-        /// <exception cref="AppException">Thrown when student is not found.</exception>
-        public async Task<FeePageResponseDto> GetFeePageAsync(Guid studentId)
-        {
-            _logger.LogInformation(
-                "GetFeePageAsync called for StudentId: {StudentId}", studentId);
-
-            var student = await _repo.GetStudentWithCoursesAsync(studentId);
-
-            if (student == null)
-            {
-                _logger.LogWarning(
-                    "Student not found. StudentId: {StudentId}", studentId);
-                throw new AppException("Student not found.", 404, "STUDENT_NOT_FOUND");
-            }
-
-            var selectedCourseIds = student.StudentAcademicCouses
-                .Select(x => x.CourseId)
-                .ToHashSet();
-
-            var courses = await _repo.GetCoursesByGradeAsync(student.AcademicDetails.GradeId);
-
-            // Load existing fee selections to show persisted manual discounts
-            var existingSelections = await _repo.GetStudentFeeSelectionsByStudentAsync(studentId);
-            var selectionLookup = existingSelections
-                .ToDictionary(s => (s.CourseId, s.FeePlanId), s => s);
-
-            var pricingTable = courses
-                .SelectMany(course => course.FeePlans, (course, feePlan) =>
-                {
-                    // Base fee = tuition only (no registration fee)
-                    var baseFee = feePlan.TuitionFee;
-
-                    // Check if there is an existing selection with persisted discount values
-                    selectionLookup.TryGetValue(
-                        (course.Id, feePlan.Id), out var existingSelection);
-
-                    //var scholarshipPercent = existingSelection?.ScholarshipPercent
-                    //    ?? feePlan.ScholarshipPercent;
-                    var isScholarshipActive = existingSelection?.IsScholarshipActive ?? true;
-
-                    //var seasonalPercent = existingSelection?.SeasonalPercent
-                    //    ?? feePlan.SeasonalPercent;
-                    //var isSeasonalActive = existingSelection?.IsSeasonalActive
-                    //    ?? feePlan.IsSeasonalDiscountActive;
-
-                    var manualPercent = existingSelection?.ManualDiscountPercent ?? 0m;
-                    var isManualActive = existingSelection?.IsManualDiscountActive ?? false;
-
-                    var feeAfterDiscount = CalculateFinalAmount(
-                        baseFee,
-                        0,
-                        isScholarshipActive,
-                        0,
-                        false,
-                        manualPercent,
-                        isManualActive);
-
-                    return new FeeRowDto
-                    {
-                        CourseId = course.Id,
-                        FeePlanId = feePlan.Id,
-                        CourseName = course.Name,
-                        BaseFee = baseFee,
-                        PaymentType = feePlan.PlanName,
-                       // ScholarshipPercent = scholarshipPercent,
-                        IsScholarshipActive = isScholarshipActive,
-                        //SeasonalPercent = seasonalPercent,
-                        //IsSeasonalActive = isSeasonalActive,
-                        ManualDiscountPercent = manualPercent,
-                        IsManualDiscountActive = isManualActive,
-                        FeeAfterDiscount = feeAfterDiscount,
-                        IsSelected = selectedCourseIds.Contains(course.Id),
-                    };
-                })
-                .ToList();
-
-            _logger.LogInformation(
-                "Fee page built for StudentId: {StudentId}. Rows: {RowCount}",
-                studentId, pricingTable.Count);
-
-            return new FeePageResponseDto
-            {
-                PricingTable = pricingTable,
-            };
-        }
-
-        /// <summary>
-        /// Selects the fee asynchronous.
-        /// Creates a StudentFeeSelection record with all three discount types persisted.
-        /// Registration fee is excluded from the base fee.
-        /// </summary>
-        /// <param name="request">The request.</param>
-        /// <returns>Task&lt;FeeSummaryDto&gt;.</returns>
-        /// <exception cref="AppException">Thrown when student or fee plan is not found.</exception>
-        public async Task<FeeSummaryDto> SelectFeeAsync(SelectFeeRequestDto request)
-        {
-            _logger.LogInformation(
-                "SelectFeeAsync called. StudentId: {StudentId}, FeePlanId: {FeePlanId}",
-                request.StudentId, request.FeePlanId);
-
-            var student = await _repo.GetStudentWithCoursesAsync(request.StudentId);
-
-            if (student == null)
-            {
-                _logger.LogWarning(
-                    "Student not found. StudentId: {StudentId}", request.StudentId);
-                throw new AppException("Student not found.", 404, "STUDENT_NOT_FOUND");
-            }
-
-            var courses = await _repo.GetCoursesByGradeAsync(student.AcademicDetails.GradeId);
-
-            var feePlan = courses
-                .SelectMany(c => c.FeePlans)
-                .FirstOrDefault(x => x.Id == request.FeePlanId);
-
-            if (feePlan == null)
-            {
-                _logger.LogWarning(
-                    "Fee plan not found. FeePlanId: {FeePlanId}", request.FeePlanId);
-                throw new AppException("Fee plan not found.", 404, "FEE_PLAN_NOT_FOUND");
-            }
-
-            // Base fee = tuition only (no registration fee)
-            var baseFee = feePlan.TuitionFee;
-
-            // Use request override or plan default for scholarship
-           // var scholarshipPercent = request.ScholarshipPercent ?? feePlan.ScholarshipPercent;
-            var isScholarshipActive = request.IsScholarshipActive;
-
-            // Seasonal comes from the plan
-            //var seasonalPercent = feePlan.SeasonalPercent;
-            //var isSeasonalActive = request.IsSeasonalActive && feePlan.IsSeasonalDiscountActive;
-
-            // Manual from admin
-            var manualPercent = request.ManualDiscountPercent;
-            var isManualActive = request.IsManualDiscountActive;
-
-            var finalAmount = CalculateFinalAmount(
-                baseFee,
-                0,
-                isScholarshipActive,
-                0,
-                false,
-                manualPercent,
-                isManualActive);
-
-            var summary = BuildSummary(
-                baseFee,
-                0,
-                isScholarshipActive,
-                0,
-                false,
-                manualPercent,
-                isManualActive);
-
-            var selection = new StudentFeeSelection(
-                request.StudentId,
-                feePlan.CourseId,
-                feePlan.Id,
-                0,
-                isScholarshipActive,
-                0,
-                false,
-                manualPercent,
-                isManualActive,
-                baseFee,
-                finalAmount);
-
-            await _repo.AddStudentFeeSelectionAsync(selection);
-            await _repo.SaveChangesAsync();
-
-            _logger.LogInformation(
-                "Fee selected. SelectionId: {SelectionId}, FinalAmount: {FinalAmount}",
-                selection.Id, finalAmount);
-
-            return summary;
-        }
-
-        /// <summary>
-        /// Gets all discount details for a student's fee selections.
-        /// Returns 3 entries per selection (one for each discount type).
-        /// </summary>
-        /// <param name="studentId">The student identifier.</param>
-        /// <returns>Task&lt;IReadOnlyList&lt;DiscountDetailDto&gt;&gt;.</returns>
-        /// <exception cref="AppException">Thrown when student is not found.</exception>
-        public async Task<IReadOnlyList<DiscountDetailDto>> GetDiscountsByStudentAsync(
+        /// <inheritdoc/>
+        public async Task<CommonResponse<AdminStudentFeePageDto>> GetAdminStudentFeePageAsync(
             Guid studentId)
         {
-            _logger.LogInformation(
-                "GetDiscountsByStudentAsync called. StudentId: {StudentId}", studentId);
-
-            var student = await _repo.GetStudentWithCoursesAsync(studentId);
-
-            if (student == null)
+            try
             {
-                throw new AppException("Student not found.", 404, "STUDENT_NOT_FOUND");
+                var student = await _repo.GetStudentWithCoursesAsync(studentId);
+                if (student == null)
+                {
+                    return CommonResponse<AdminStudentFeePageDto>.FailureResponse(
+                        "Student not found.");
+                }
+
+                var gradeId = student.AcademicDetails?.GradeId ?? Guid.Empty;
+                var courses = await _repo.GetCoursesByGradeAsync(gradeId);
+                var assigned = await _repo.GetStudentCourseDiscountsAsync(studentId);
+                var assignedLookup = assigned.ToLookup(a => a.CourseId);
+
+                var courseBlocks = new List<CourseDiscountBlockDto>();
+
+                foreach (var course in courses)
+                {
+                    // Get unique discounts across all plans for this course
+                    var allPlanDiscounts = course.FeePlans
+                        .Where(fp => fp.IsActive)
+                        .SelectMany(fp => fp.Discounts.Where(d => d.IsActive))
+                        .GroupBy(d => d.DiscountName)
+                        .Select(g => g.First())
+                        .ToList();
+
+                    var courseAssigned = assignedLookup[course.Id].ToList();
+                    var assignedNames = courseAssigned
+                        .Where(a => !a.IsManual)
+                        .Select(a => a.DiscountName)
+                        .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+                    var baseYearlyFee = course.FeePlans
+                        .Where(fp => fp.IsActive)
+                        .Select(fp => fp.TuitionFee)
+                        .FirstOrDefault();
+
+                    // Calculate active discount total
+                    var activeDiscountPercent = courseAssigned
+                        .Where(a => a.IsActive)
+                        .Sum(a => a.DiscountPercent);
+                    activeDiscountPercent = Math.Min(activeDiscountPercent, 100);
+
+                    var feeAfter = baseYearlyFee * (1 - activeDiscountPercent / 100m);
+
+                    var manual = courseAssigned.FirstOrDefault(a => a.IsManual);
+
+                    courseBlocks.Add(new CourseDiscountBlockDto
+                    {
+                        CourseId = course.Id,
+                        CourseName = course.Name,
+                        BaseYearlyFee = baseYearlyFee,
+                        AvailableDiscounts = allPlanDiscounts.Select(d =>
+                        {
+                            var isAssigned = assignedNames.Contains(d.DiscountName);
+                            return new AvailableDiscountDto
+                            {
+                                FeePlanDiscountId = d.Id,
+                                DiscountName = d.DiscountName,
+                                DiscountPercent = d.DiscountPercent,
+                                DiscountAmount = baseYearlyFee * d.DiscountPercent / 100m,
+                                IsAssigned = isAssigned,
+                            };
+                        }).ToList(),
+                        ManualDiscount = manual == null ? null : new AssignedManualDiscountDto
+                        {
+                            DiscountName = manual.DiscountName,
+                            DiscountPercent = manual.DiscountPercent,
+                        },
+                        CalculatedFeeAfterDiscounts = Math.Max(feeAfter, 0),
+                    });
+                }
+
+                var totalPayable = courseBlocks.Sum(c => c.CalculatedFeeAfterDiscounts);
+
+                return CommonResponse<AdminStudentFeePageDto>.SuccessResponse(
+                    "Admin fee page loaded.",
+                    new AdminStudentFeePageDto
+                    {
+                        StudentId = studentId,
+                        StudentName = student.StudentPersonalDetails?.FullName ?? "Unknown",
+                        RegistrationNumber = student.RegistrationNumber ?? "",
+                        GradeName = student.AcademicDetails?.Grade?.Name ?? "N/A",
+                        SyllabusName = student.AcademicDetails?.Grade?.Syllabus?.Name ?? "N/A",
+                        CourseDiscounts = courseBlocks,
+                        TotalPayable = totalPayable,
+                    });
             }
-
-            var selections = await _repo.GetStudentFeeSelectionsByStudentAsync(studentId);
-
-            return selections
-                .SelectMany(MapSelectionToDiscountDetails)
-                .ToList()
-                .AsReadOnly();
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading admin fee page for {StudentId}", studentId);
+                return CommonResponse<AdminStudentFeePageDto>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
+            }
         }
 
-        /// <summary>
-        /// Gets discount details for a specific student fee selection.
-        /// Returns 3 entries (one for each discount type).
-        /// </summary>
-        /// <param name="selectionId">The student fee selection identifier.</param>
-        /// <returns>Task&lt;IReadOnlyList&lt;DiscountDetailDto&gt;&gt;.</returns>
-        /// <exception cref="AppException">Thrown when selection is not found.</exception>
-        public async Task<IReadOnlyList<DiscountDetailDto>> GetDiscountsBySelectionAsync(
+        /// <inheritdoc/>
+        public async Task<CommonResponse<bool>> AssignDiscountsAsync(
+            AssignDiscountsRequestDto request)
+        {
+            try
+            {
+                var student = await _repo.GetStudentWithCoursesAsync(request.StudentId);
+                if (student == null)
+                {
+                    return CommonResponse<bool>.FailureResponse("Student not found.");
+                }
+
+                // Validate selected discount IDs
+                var planDiscounts = request.SelectedDiscountIds.Any()
+                    ? await _repo.GetFeePlanDiscountsByIdsAsync(request.SelectedDiscountIds)
+                    : new List<FeePlanDiscount>();
+
+                // Verify all IDs are valid and belong to this course
+                if (planDiscounts.Count != request.SelectedDiscountIds.Count)
+                {
+                    return CommonResponse<bool>.FailureResponse(
+                        "One or more discount IDs are invalid.");
+                }
+
+                if (planDiscounts.Any(d => d.FeePlan.CourseId != request.CourseId))
+                {
+                    return CommonResponse<bool>.FailureResponse(
+                        "Discounts do not belong to the specified course.");
+                }
+
+                // Remove existing assignments for student+course
+                await _repo.RemoveStudentCourseDiscountsAsync(
+                    request.StudentId, request.CourseId);
+
+                // Create new assignments
+                var newDiscounts = new List<StudentCourseDiscount>();
+
+                foreach (var pd in planDiscounts)
+                {
+                    newDiscounts.Add(StudentCourseDiscount.FromPlanDiscount(
+                        request.StudentId, request.CourseId, pd, request.UserId));
+                }
+
+                if (request.ManualDiscount != null)
+                {
+                    newDiscounts.Add(StudentCourseDiscount.Manual(
+                        request.StudentId,
+                        request.CourseId,
+                        request.ManualDiscount.DiscountName,
+                        request.ManualDiscount.DiscountPercent,
+                        request.UserId));
+                }
+
+                if (newDiscounts.Any())
+                {
+                    await _repo.AddStudentCourseDiscountsAsync(newDiscounts);
+                }
+
+                await _repo.SaveChangesAsync();
+
+                _logger.LogInformation(
+                    "Discounts assigned: Student={StudentId}, Course={CourseId}, Count={Count}",
+                    request.StudentId,
+                    request.CourseId,
+                    newDiscounts.Count);
+
+                return CommonResponse<bool>.SuccessResponse(
+                    "Discounts assigned successfully.", true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error assigning discounts");
+                return CommonResponse<bool>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<CommonResponse<bool>> RemoveDiscountsAsync(
+            Guid studentId, Guid courseId)
+        {
+            try
+            {
+                await _repo.RemoveStudentCourseDiscountsAsync(studentId, courseId);
+                await _repo.SaveChangesAsync();
+                return CommonResponse<bool>.SuccessResponse(
+                    "Discounts removed.", true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error removing discounts");
+                return CommonResponse<bool>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<CommonResponse<StudentFeePageDto>> GetStudentFeePageAsync(
+            Guid studentId)
+        {
+            try
+            {
+                var student = await _repo.GetStudentWithCoursesAsync(studentId);
+                if (student == null)
+                {
+                    return CommonResponse<StudentFeePageDto>.FailureResponse(
+                        "Student not found.");
+                }
+
+                var gradeId = student.AcademicDetails?.GradeId ?? Guid.Empty;
+                var courses = await _repo.GetCoursesByGradeAsync(gradeId);
+                var assigned = await _repo.GetStudentCourseDiscountsAsync(studentId);
+                var assignedByCourse = assigned.ToLookup(a => a.CourseId);
+                var existingSelections = await _repo.GetSelectionsByStudentAsync(studentId);
+                var selectedPlanIds = existingSelections
+                    .Select(s => s.FeePlanId).ToHashSet();
+
+                var feeListings = new List<FeeListingRowDto>();
+
+                foreach (var course in courses)
+                {
+                    var courseDiscounts = assignedByCourse[course.Id]
+                        .Where(a => a.IsActive).ToList();
+
+                    foreach (var plan in course.FeePlans.Where(fp => fp.IsActive))
+                    {
+                        // Match plan discounts with admin-assigned
+                        var appliedDiscounts = new List<DiscountBadgeDto>();
+                        decimal totalDiscountPercent = 0;
+
+                        // Non-manual: match by name
+                        foreach (var planDiscount in plan.Discounts.Where(d => d.IsActive))
+                        {
+                            var match = courseDiscounts.FirstOrDefault(
+                                cd => !cd.IsManual &&
+                                      cd.DiscountName.Equals(
+                                          planDiscount.DiscountName,
+                                          StringComparison.OrdinalIgnoreCase));
+                            if (match != null)
+                            {
+                                appliedDiscounts.Add(new DiscountBadgeDto
+                                {
+                                    Name = planDiscount.DiscountName,
+                                    Percent = planDiscount.DiscountPercent,
+                                });
+                                totalDiscountPercent += planDiscount.DiscountPercent;
+                            }
+                        }
+
+                        // Manual: always apply
+                        foreach (var manual in courseDiscounts.Where(cd => cd.IsManual))
+                        {
+                            appliedDiscounts.Add(new DiscountBadgeDto
+                            {
+                                Name = manual.DiscountName,
+                                Percent = manual.DiscountPercent,
+                            });
+                            totalDiscountPercent += manual.DiscountPercent;
+                        }
+
+                        totalDiscountPercent = Math.Min(totalDiscountPercent, 100);
+
+                        var yearlyFee = plan.TuitionFee;
+                        var duration = plan.DurationinYears;
+                        var totalBefore = yearlyFee * duration;
+                        var discountAmount = totalBefore * totalDiscountPercent / 100m;
+                        var feeAfter = Math.Max(totalBefore - discountAmount, 0);
+
+                        var installmentCount = plan.PaymentType == PaymentType.Full
+                            ? 1
+                            : plan.PaymentType.GetTotalInstallments(plan.DurationinYears);
+
+                        var perInstallment = installmentCount > 0
+                            ? Math.Round(feeAfter / installmentCount, 2)
+                            : feeAfter;
+
+                        feeListings.Add(new FeeListingRowDto
+                        {
+                            FeePlanId = plan.Id,
+                            CourseId = course.Id,
+                            CourseName = course.Name,
+                            YearlyFee = yearlyFee,
+                            PaymentType = plan.PaymentType,
+                            DurationInYears = duration,
+                            TotalDiscountPercent = totalDiscountPercent,
+                            TotalBeforeDiscount = totalBefore,
+                            FeeAfterDiscount = feeAfter,
+                            InstallmentCount = installmentCount,
+                            PerInstallment = perInstallment,
+                            IsSelected = selectedPlanIds.Contains(plan.Id),
+                            AppliedDiscounts = appliedDiscounts,
+                        });
+                    }
+                }
+
+                feeListings = feeListings
+                    .OrderBy(f => f.CourseName)
+                    .ThenBy(f => f.PaymentType)
+                    .ThenBy(f => f.DurationInYears)
+                    .ToList();
+
+                var selectedPlanId = existingSelections
+                    .OrderByDescending(s => s.CreatedAt)
+                    .Select(s => (Guid?)s.FeePlanId)
+                    .FirstOrDefault();
+
+                return CommonResponse<StudentFeePageDto>.SuccessResponse(
+                    "Fee page loaded.",
+                    new StudentFeePageDto
+                    {
+                        StudentId = studentId,
+                        StudentName = student.StudentPersonalDetails?.FullName ?? "Unknown",
+                        RegistrationNumber = student.RegistrationNumber ?? "",
+                        GradeId = gradeId,
+                        GradeName = student.AcademicDetails?.Grade?.Name ?? "N/A",
+                        SyllabusId = student.AcademicDetails?.Grade?.SyllabusId ?? Guid.Empty,
+                        SyllabusName = student.AcademicDetails?.Grade?.Syllabus?.Name ?? "N/A",
+                        FeeListings = feeListings,
+                        SelectedFeePlanId = selectedPlanId,
+                    });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading student fee page for {StudentId}", studentId);
+                return CommonResponse<StudentFeePageDto>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<CommonResponse<ConfirmFeeResponseDto>> ConfirmFeeSelectionAsync(
+            ConfirmFeeRequestDto request)
+        {
+            try
+            {
+                if (!request.DeclarationAccepted)
+                {
+                    return CommonResponse<ConfirmFeeResponseDto>.FailureResponse(
+                        "You must accept the declaration to proceed.");
+                }
+
+                var student = await _repo.GetStudentWithCoursesAsync(request.StudentId);
+                if (student == null)
+                {
+                    return CommonResponse<ConfirmFeeResponseDto>.FailureResponse(
+                        "Student not found.");
+                }
+
+                var plan = await _repo.GetFeePlanWithDiscountsAsync(request.FeePlanId);
+                if (plan == null)
+                {
+                    return CommonResponse<ConfirmFeeResponseDto>.FailureResponse(
+                        "Fee plan not found.");
+                }
+
+                // Check duplicate
+                var exists = await _repo.HasConfirmedSelectionForCourseAsync(
+                    request.StudentId, plan.CourseId);
+                if (exists)
+                {
+                    return CommonResponse<ConfirmFeeResponseDto>.FailureResponse(
+                        "A fee plan is already confirmed for this course. Contact admin.");
+                }
+
+                // Get admin-assigned discounts
+                var courseDiscounts = await _repo.GetStudentCourseDiscountsAsync(
+                    request.StudentId, plan.CourseId);
+
+                // Match discounts to this plan
+                var matchedDiscounts = new List<(string Name, decimal Percent, bool IsManual)>();
+
+                foreach (var planDiscount in plan.Discounts.Where(d => d.IsActive))
+                {
+                    var match = courseDiscounts.FirstOrDefault(
+                        cd => !cd.IsManual &&
+                              cd.DiscountName.Equals(
+                                  planDiscount.DiscountName,
+                                  StringComparison.OrdinalIgnoreCase));
+                    if (match != null)
+                    {
+                        matchedDiscounts.Add(
+                            (planDiscount.DiscountName, planDiscount.DiscountPercent, false));
+                    }
+                }
+
+                foreach (var manual in courseDiscounts.Where(cd => cd.IsManual))
+                {
+                    matchedDiscounts.Add(
+                        (manual.DiscountName, manual.DiscountPercent, true));
+                }
+
+                // Calculate
+                var yearlyFee = plan.TuitionFee;
+                var duration = plan.DurationinYears;
+                var totalBefore = yearlyFee * duration;
+                var totalDiscountPercent = Math.Min(
+                    matchedDiscounts.Sum(d => d.Percent), 100);
+                var totalDiscountAmount = totalBefore * totalDiscountPercent / 100m;
+                var finalAmount = Math.Max(totalBefore - totalDiscountAmount, 0);
+
+                var installmentCount = plan.PaymentType == PaymentType.Full
+                    ? 1
+                    : plan.PaymentType.GetTotalInstallments(duration);
+
+                // Create selection
+                var selection = new StudentFeeSelection(
+                    request.StudentId,
+                    plan.CourseId,
+                    plan.Id,
+                    yearlyFee,
+                    duration,
+                    totalBefore,
+                    totalDiscountPercent,
+                    totalDiscountAmount,
+                    finalAmount,
+                    plan.PaymentType,
+                    installmentCount,
+                    request.StartDate,
+                    request.EndDate);
+
+                selection.CreatedBy = request.StudentId;
+
+                await _repo.AddStudentFeeSelectionAsync(selection);
+                await _repo.SaveChangesAsync(); // get the ID
+
+                // Create discount snapshots
+                foreach (var d in matchedDiscounts)
+                {
+                    var amount = totalBefore * d.Percent / 100m;
+                    var snapshot = new StudentFeeDiscount(
+                        selection.Id, d.Name, d.Percent, amount, d.IsManual);
+                    selection.AppliedDiscounts.Add(snapshot);
+                }
+
+                // Generate installments
+                var perInstallment = installmentCount > 0
+                    ? Math.Floor(finalAmount / installmentCount * 100) / 100
+                    : finalAmount;
+
+                var remainder = finalAmount - (perInstallment * installmentCount);
+                var monthsBetween = plan.PaymentType.GetMonthsBetween();
+
+                for (int i = 1; i <= installmentCount; i++)
+                {
+                    var dueDate = i == 1
+                        ? request.StartDate
+                        : request.StartDate.AddMonths(monthsBetween * (i - 1));
+
+                    var dueAmount = i == installmentCount
+                        ? perInstallment + remainder  // last gets rounding diff
+                        : perInstallment;
+
+                    var installment = new StudentInstallment(
+                        selection.Id, i, dueAmount, dueDate);
+                    selection.Installments.Add(installment);
+                }
+
+                await _repo.SaveChangesAsync();
+
+                _logger.LogInformation(
+                    "Fee confirmed: SelectionId={Id}, Final={Amount}, Installments={Count}",
+                    selection.Id,
+                    finalAmount,
+                    installmentCount);
+
+                // Build response
+                var response = new ConfirmFeeResponseDto
+                {
+                    SelectionId = selection.Id,
+                    CourseName = plan.Course?.Name ?? string.Empty,
+                    PlanName = plan.PlanName,
+                    YearlyFee = yearlyFee,
+                    DurationYears = duration,
+                    TotalBeforeDiscount = totalBefore,
+                    TotalDiscountPercent = totalDiscountPercent,
+                    TotalDiscountAmount = totalDiscountAmount,
+                    FinalAmount = finalAmount,
+                    PaymentType = plan.PaymentType,
+                    TotalInstallments = installmentCount,
+                    Status = selection.Status,
+                    AppliedDiscounts = matchedDiscounts.Select(d =>
+                        new AppliedDiscountSnapshotDto
+                        {
+                            Name = d.Name,
+                            Percent = d.Percent,
+                            Amount = totalBefore * d.Percent / 100m,
+                            IsManual = d.IsManual,
+                        }).ToList(),
+                    Installments = selection.Installments.Select(MapInstallment).ToList(),
+                };
+
+                return CommonResponse<ConfirmFeeResponseDto>.SuccessResponse(
+                    "Fee selection confirmed successfully.", response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Error confirming fee for Student={StudentId}",
+                    request.StudentId);
+                return CommonResponse<ConfirmFeeResponseDto>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<CommonResponse<List<InstallmentScheduleDto>>> GetInstallmentsAsync(
             Guid selectionId)
         {
-            _logger.LogInformation(
-                "GetDiscountsBySelectionAsync called. SelectionId: {SelectionId}", selectionId);
-
-            var selection = await _repo.GetStudentFeeSelectionByIdAsync(selectionId);
-
-            if (selection == null)
+            try
             {
-                throw new AppException(
-                    "Student fee selection not found.",
-                    404,
-                    "SELECTION_NOT_FOUND");
-            }
+                var installments = await _repo.GetInstallmentsBySelectionAsync(selectionId);
+                if (!installments.Any())
+                {
+                    return CommonResponse<List<InstallmentScheduleDto>>.FailureResponse(
+                        "No installments found.");
+                }
 
-            return MapSelectionToDiscountDetails(selection).ToList().AsReadOnly();
+                return CommonResponse<List<InstallmentScheduleDto>>.SuccessResponse(
+                    "Installments loaded.",
+                    installments.Select(MapInstallment).ToList());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading installments for {SelectionId}", selectionId);
+                return CommonResponse<List<InstallmentScheduleDto>>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
+            }
         }
 
-        /// <summary>
-        /// Updates a specific discount on a student fee selection.
-        /// Recalculates and persists the new final amount.
-        /// </summary>
-        /// <param name="request">The update discount request.</param>
-        /// <returns>Task&lt;FeeSummaryDto&gt;.</returns>
-        /// <exception cref="AppException">Thrown when selection is not found or discount type is invalid.</exception>
-        public async Task<FeeSummaryDto> UpdateDiscountAsync(UpdateDiscountRequestDto request)
+        /// <inheritdoc/>
+        public async Task<CommonResponse<InstallmentScheduleDto>> RecordPaymentAsync(
+            Guid installmentId, RecordPaymentRequestDto request)
         {
-            _logger.LogInformation(
-                "UpdateDiscountAsync called. SelectionId: {SelectionId}, Type: {DiscountType}",
-                request.StudentFeeSelectionId, request.DiscountType);
-
-            ValidateDiscountType(request.DiscountType);
-
-            var selection = await _repo.GetStudentFeeSelectionByIdAsync(
-                request.StudentFeeSelectionId);
-
-            if (selection == null)
+            try
             {
-                throw new AppException(
-                    "Student fee selection not found.",
-                    404,
-                    "SELECTION_NOT_FOUND");
-            }
+                var installment = await _repo.GetInstallmentByIdAsync(installmentId);
+                if (installment == null)
+                {
+                    return CommonResponse<InstallmentScheduleDto>.FailureResponse(
+                        "Installment not found.");
+                }
 
-            switch (request.DiscountType)
+                installment.RecordPayment(
+                    request.PaidAmount, request.PaidDate, request.Remarks);
+
+                // Update parent selection status
+                var selection = await _repo.GetSelectionWithDetailsAsync(
+                    installment.StudentFeeSelectionId);
+
+                selection?.RefreshStatus();
+
+                await _repo.SaveChangesAsync();
+
+                _logger.LogInformation(
+                    "Payment recorded: InstallmentId={Id}, Amount={Amount}",
+                    installmentId, 
+                    request.PaidAmount);
+
+                return CommonResponse<InstallmentScheduleDto>.SuccessResponse(
+                    "Payment recorded successfully.",
+                    MapInstallment(installment));
+            }
+            catch (Exception ex)
             {
-                case DiscountType.Scholarship:
-                    selection.UpdateScholarshipDiscount(request.Percent, request.IsActive);
-                    break;
-                case DiscountType.Seasonal:
-                    selection.UpdateSeasonalDiscount(request.Percent, request.IsActive);
-                    break;
-                case DiscountType.Manual:
-                    selection.UpdateManualDiscount(request.Percent, request.IsActive);
-                    break;
+                _logger.LogError(
+                    ex, 
+                    "Error recording payment for {InstallmentId}",
+                    installmentId);
+                return CommonResponse<InstallmentScheduleDto>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
             }
-
-            await _repo.SaveChangesAsync();
-
-            _logger.LogInformation(
-                "Discount updated. SelectionId: {SelectionId}, Type: {DiscountType}, " +
-                "NewPercent: {Percent}, Active: {IsActive}, FinalAmount: {FinalAmount}",
-                selection.Id,
-                request.DiscountType,
-                request.Percent,
-                request.IsActive,
-                selection.FinalAmount);
-
-            return BuildSummary(
-                selection.BaseFee,
-                selection.ScholarshipPercent,
-                selection.IsScholarshipActive,
-                selection.SeasonalPercent,
-                selection.IsSeasonalActive,
-                selection.ManualDiscountPercent,
-                selection.IsManualDiscountActive);
         }
 
-        /// <summary>
-        /// Removes (deactivates and zeroes) a specific discount from a student fee selection.
-        /// Recalculates and persists the new final amount.
-        /// </summary>
-        /// <param name="selectionId">The student fee selection identifier.</param>
-        /// <param name="discountType">The discount type.</param>
-        /// <returns>Task&lt;FeeSummaryDto&gt;.</returns>
-        /// <exception cref="AppException">Thrown when selection is not found or discount type is invalid.</exception>
-        public async Task<FeeSummaryDto> RemoveDiscountAsync(
-            Guid selectionId,
-            DiscountType discountType)
+        /// <inheritdoc/>
+        public async Task<CommonResponse<PaymentSummaryDto>> GetPaymentSummaryAsync(
+            Guid studentId)
         {
-            _logger.LogInformation(
-                "RemoveDiscountAsync called. SelectionId: {SelectionId}, Type: {DiscountType}",
-                selectionId, discountType);
-
-            ValidateDiscountType(discountType);
-
-            var selection = await _repo.GetStudentFeeSelectionByIdAsync(selectionId);
-
-            if (selection == null)
+            try
             {
-                throw new AppException(
-                    "Student fee selection not found.",
-                    404,
-                    "SELECTION_NOT_FOUND");
-            }
+                var student = await _repo.GetStudentWithCoursesAsync(studentId);
+                if (student == null)
+                {
+                    return CommonResponse<PaymentSummaryDto>.FailureResponse(
+                        "Student not found.");
+                }
 
-            switch (discountType)
+                var selections = await _repo.GetSelectionsByStudentAsync(studentId);
+                var selectionDtos = new List<SelectionPaymentDto>();
+
+                foreach (var sel in selections)
+                {
+                    var installments = await _repo.GetInstallmentsBySelectionAsync(sel.Id);
+
+                    var totalPaid = installments.Sum(i => i.PaidAmount);
+                    var totalRemaining = sel.FinalAmount - totalPaid;
+
+                    var nextDue = installments
+                        .Where(i => i.Status != InstallmentStatus.Paid)
+                        .OrderBy(i => i.DueDate)
+                        .FirstOrDefault();
+
+                    selectionDtos.Add(new SelectionPaymentDto
+                    {
+                        SelectionId = sel.Id,
+                        CourseName = sel.Course?.Name ?? "",
+                        PlanName = sel.FeePlan?.PlanName ?? "",
+                        PaymentType = sel.PaymentType,
+                        TotalFee = sel.FinalAmount,
+                        TotalPaid = totalPaid,
+                        TotalRemaining = Math.Max(totalRemaining, 0),
+                        Status = sel.Status,
+                        NextDueDate = nextDue?.DueDate,
+                        NextDueAmount = nextDue?.BalanceAmount ?? 0,
+                        Installments = installments.Select(MapInstallment).ToList(),
+                    });
+                }
+
+                return CommonResponse<PaymentSummaryDto>.SuccessResponse(
+                    "Payment summary loaded.",
+                    new PaymentSummaryDto
+                    {
+                        StudentId = studentId,
+                        StudentName = student.StudentPersonalDetails?.FullName ?? "Unknown",
+                        Selections = selectionDtos,
+                        GrandTotal = selectionDtos.Sum(s => s.TotalFee),
+                        GrandPaid = selectionDtos.Sum(s => s.TotalPaid),
+                        GrandRemaining = selectionDtos.Sum(s => s.TotalRemaining),
+                    });
+            }
+            catch (Exception ex)
             {
-                case DiscountType.Scholarship:
-                    selection.UpdateScholarshipDiscount(0m, false);
-                    break;
-                case DiscountType.Seasonal:
-                    selection.UpdateSeasonalDiscount(0m, false);
-                    break;
-                case DiscountType.Manual:
-                    selection.UpdateManualDiscount(0m, false);
-                    break;
+                _logger.LogError(
+                    ex,
+                    "Error loading payment summary for {StudentId}",
+                    studentId);
+                return CommonResponse<PaymentSummaryDto>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
             }
-
-            await _repo.SaveChangesAsync();
-
-            _logger.LogInformation(
-                "Discount removed. SelectionId: {SelectionId}, Type: {DiscountType}, " +
-                "FinalAmount: {FinalAmount}",
-                selection.Id, discountType, selection.FinalAmount);
-
-            return BuildSummary(
-                selection.BaseFee,
-                selection.ScholarshipPercent,
-                selection.IsScholarshipActive,
-                selection.SeasonalPercent,
-                selection.IsSeasonalActive,
-                selection.ManualDiscountPercent,
-                selection.IsManualDiscountActive);
         }
 
-        /// <summary>
-        /// Updates the seasonal discount on a fee plan (plan-level).
-        /// </summary>
-        /// <param name="request">The request.</param>
-        /// <returns>Task.</returns>
-        /// <exception cref="AppException">Thrown when fee plan is not found.</exception>
-        public async Task UpdateSeasonalDiscountOnPlanAsync(
-            UpdateSeasonalDiscountRequestDto request)
+        /// <inheritdoc/>
+        public async Task<CommonResponse<PagedResult<StudentFeeSelectionListDto>>>
+            GetSelectionsFilteredAsync(PagedRequest request)
         {
-            _logger.LogInformation(
-                "UpdateSeasonalDiscountOnPlanAsync called. FeePlanId: {FeePlanId}",
-                request.FeePlanId);
-
-            var feePlan = await _repo.GetFeePlanByIdAsync(request.FeePlanId);
-
-            if (feePlan == null)
+            try
             {
-                throw new AppException(
-                    "Fee plan not found.", 404, "FEE_PLAN_NOT_FOUND");
+                var query = _repo.QuerySelections();
+
+                if (request.Active.HasValue)
+                {
+                    query = query.Where(x => x.IsActive == request.Active.Value);
+                }
+
+                if (request.StartDate.HasValue)
+                {
+                    query = query.Where(x => x.CreatedAt >= request.StartDate.Value);
+                }
+
+                if (request.EndDate.HasValue)
+                {
+                    query = query.Where(x => x.CreatedAt <= request.EndDate.Value);
+                }
+
+                if (!string.IsNullOrWhiteSpace(request.SearchText))
+                {
+                    var term = request.SearchText.Trim().ToLower();
+                    query = query.Where(x =>
+                            x.Student.RegistrationNumber.ToLower().Contains(term) ||
+                            x.FeePlan.PlanName.ToLower().Contains(term) ||
+                            x.Course.Name.ToLower().Contains(term));
+                }
+
+                var totalCount = await query.CountAsync();
+
+                if (totalCount == 0)
+                {
+                    return CommonResponse<PagedResult<StudentFeeSelectionListDto>>
+                        .SuccessResponse(
+                            "No selections found.",
+                            new PagedResult<StudentFeeSelectionListDto>(
+                                new List<StudentFeeSelectionListDto>(),
+                                0,
+                                request.Limit,
+                                request.Offset));
+                }
+
+                var isDesc = request.SortOrder
+                    .Equals("desc", StringComparison.OrdinalIgnoreCase);
+
+                query = request.SortBy.ToLower() switch
+                {
+                    "studentname" => isDesc
+                        ? query.OrderByDescending(x => x.Student.RegistrationNumber)
+                        : query.OrderBy(x => x.Student.RegistrationNumber),
+                    "coursename" => isDesc
+                        ? query.OrderByDescending(x => x.Course.Name)
+                        : query.OrderBy(x => x.Course.Name),
+                    "finalamount" => isDesc
+                        ? query.OrderByDescending(x => x.FinalAmount)
+                        : query.OrderBy(x => x.FinalAmount),
+                    "status" => isDesc
+                        ? query.OrderByDescending(x => x.Status)
+                        : query.OrderBy(x => x.Status),
+                    _ => isDesc
+                        ? query.OrderByDescending(x => x.CreatedAt)
+                        : query.OrderBy(x => x.CreatedAt),
+                };
+
+                var items = await query
+                    .Skip(request.Offset)
+                    .Take(request.Limit)
+                    .ToListAsync();
+
+                var dtoList = items.Select(s => new StudentFeeSelectionListDto
+                {
+                    Id = s.Id,
+                    StudentId = s.StudentId,
+                    StudentName = s.Student?.StudentPersonalDetails?.FullName ?? string.Empty,
+                    RegistrationNumber = s.Student?.RegistrationNumber ?? string.Empty,
+                    CourseName = s.Course?.Name ?? string.Empty,
+                    PlanName = s.FeePlan?.PlanName ?? string.Empty,
+                    YearlyFee = s.YearlyFee,
+                    DurationYears = s.SelectedDurationYears,
+                    FinalAmount = s.FinalAmount,
+                    PaymentType = s.PaymentType,
+                    Status = s.Status,
+                    StartDate = s.StartDate,
+                    EndDate = s.EndDate,
+                    IsActive = s.IsActive,
+                    CreatedAt = s.CreatedAt,
+                }).ToList();
+
+                return CommonResponse<PagedResult<StudentFeeSelectionListDto>>
+                    .SuccessResponse(
+                        "Selections fetched.",
+                        new PagedResult<StudentFeeSelectionListDto>(
+                            dtoList, totalCount, request.Limit, request.Offset));
             }
-
-           // feePlan.UpdateSeasonalDiscount(request.Percent, request.IsActive);
-            await _repo.SaveChangesAsync();
-
-            _logger.LogInformation(
-                "Seasonal discount updated on plan. FeePlanId: {FeePlanId}, " +
-                "Percent: {Percent}, Active: {IsActive}",
-                feePlan.Id, request.Percent, request.IsActive);
-        }
-
-        /// <summary>
-        /// Gets the seasonal discount for a fee plan.
-        /// </summary>
-        /// <param name="feePlanId">The fee plan identifier.</param>
-        /// <returns>Task&lt;DiscountDetailDto&gt;.</returns>
-        /// <exception cref="AppException">Thrown when fee plan is not found.</exception>
-        public async Task<DiscountDetailDto> GetSeasonalDiscountOnPlanAsync(Guid feePlanId)
-        {
-            _logger.LogInformation(
-                "GetSeasonalDiscountOnPlanAsync called. FeePlanId: {FeePlanId}", feePlanId);
-
-            var feePlan = await _repo.GetFeePlanByIdAsync(feePlanId);
-
-            if (feePlan == null)
+            catch (Exception ex)
             {
-                throw new AppException(
-                    "Fee plan not found.", 404, "FEE_PLAN_NOT_FOUND");
-            }
-
-            return new DiscountDetailDto
-            {
-                StudentFeeSelectionId = Guid.Empty,
-                StudentId = Guid.Empty,
-                CourseId = feePlan.CourseId,
-                FeePlanId = feePlan.Id,
-                DiscountType = DiscountType.Seasonal,
-               // Percent = feePlan.SeasonalPercent,
-                //IsActive = feePlan.IsSeasonalDiscountActive,
-                BaseFee = feePlan.TuitionFee,
-                FinalAmount = 0,
-            };
-        }
-
-        /// <summary>
-        /// Removes the seasonal discount from a fee plan.
-        /// </summary>
-        /// <param name="feePlanId">The fee plan identifier.</param>
-        /// <returns>Task.</returns>
-        /// <exception cref="AppException">Thrown when fee plan is not found.</exception>
-        public async Task RemoveSeasonalDiscountOnPlanAsync(Guid feePlanId)
-        {
-            _logger.LogInformation(
-                "RemoveSeasonalDiscountOnPlanAsync called. FeePlanId: {FeePlanId}", feePlanId);
-
-            var feePlan = await _repo.GetFeePlanByIdAsync(feePlanId);
-
-            if (feePlan == null)
-            {
-                throw new AppException(
-                    "Fee plan not found.", 404, "FEE_PLAN_NOT_FOUND");
-            }
-
-           // feePlan.UpdateSeasonalDiscount(0m, false);
-            await _repo.SaveChangesAsync();
-
-            _logger.LogInformation(
-                "Seasonal discount removed from plan. FeePlanId: {FeePlanId}", feePlanId);
-        }
-
-        /// <summary>
-        /// Calculates the final amount after applying only active discounts.
-        /// Discount application order: Scholarship → Seasonal → Manual (sequential).
-        /// </summary>
-        /// <param name="baseFee">The base fee.</param>
-        /// <param name="scholarshipPercent">The scholarship percent.</param>
-        /// <param name="isScholarshipActive">Whether scholarship is active.</param>
-        /// <param name="seasonalPercent">The seasonal percent.</param>
-        /// <param name="isSeasonalActive">Whether seasonal is active.</param>
-        /// <param name="manualPercent">The manual percent.</param>
-        /// <param name="isManualActive">Whether manual is active.</param>
-        /// <returns>The final amount.</returns>
-        private static decimal CalculateFinalAmount(
-            decimal baseFee,
-            decimal scholarshipPercent,
-            bool isScholarshipActive,
-            decimal seasonalPercent,
-            bool isSeasonalActive,
-            decimal manualPercent,
-            bool isManualActive)
-        {
-            var amount = baseFee;
-
-            if (isScholarshipActive && scholarshipPercent > 0)
-            {
-                amount -= amount * scholarshipPercent / 100m;
-            }
-
-            if (isSeasonalActive && seasonalPercent > 0)
-            {
-                amount -= amount * seasonalPercent / 100m;
-            }
-
-            if (isManualActive && manualPercent > 0)
-            {
-                amount -= amount * manualPercent / 100m;
-            }
-
-            return Math.Max(amount, 0);
-        }
-
-        /// <summary>
-        /// Builds a fee summary with individual discount amounts.
-        /// </summary>
-        /// <param name="baseFee">The base fee.</param>
-        /// <param name="scholarshipPercent">The scholarship percent.</param>
-        /// <param name="isScholarshipActive">Whether scholarship is active.</param>
-        /// <param name="seasonalPercent">The seasonal percent.</param>
-        /// <param name="isSeasonalActive">Whether seasonal is active.</param>
-        /// <param name="manualPercent">The manual percent.</param>
-        /// <param name="isManualActive">Whether manual is active.</param>
-        /// <returns>The fee summary DTO.</returns>
-        private static FeeSummaryDto BuildSummary(
-            decimal baseFee,
-            decimal scholarshipPercent,
-            bool isScholarshipActive,
-            decimal seasonalPercent,
-            bool isSeasonalActive,
-            decimal manualPercent,
-            bool isManualActive)
-        {
-            var amount = baseFee;
-            decimal scholarshipDiscount = 0;
-            decimal seasonalDiscount = 0;
-            decimal manualDiscount = 0;
-
-            if (isScholarshipActive && scholarshipPercent > 0)
-            {
-                scholarshipDiscount = amount * scholarshipPercent / 100m;
-                amount -= scholarshipDiscount;
-            }
-
-            if (isSeasonalActive && seasonalPercent > 0)
-            {
-                seasonalDiscount = amount * seasonalPercent / 100m;
-                amount -= seasonalDiscount;
-            }
-
-            if (isManualActive && manualPercent > 0)
-            {
-                manualDiscount = amount * manualPercent / 100m;
-                amount -= manualDiscount;
-            }
-
-            return new FeeSummaryDto
-            {
-                BaseFee = baseFee,
-                ScholarshipDiscount = scholarshipDiscount,
-                SeasonalDiscount = seasonalDiscount,
-                ManualDiscount = manualDiscount,
-                TotalPayable = Math.Max(amount, 0),
-            };
-        }
-
-        /// <summary>
-        /// Maps a single StudentFeeSelection to 3 DiscountDetailDto entries.
-        /// </summary>
-        /// <param name="selection">The student fee selection.</param>
-        /// <returns>Enumerable of DiscountDetailDto.</returns>
-        private static IEnumerable<DiscountDetailDto> MapSelectionToDiscountDetails(
-            StudentFeeSelection selection)
-        {
-            yield return new DiscountDetailDto
-            {
-                StudentFeeSelectionId = selection.Id,
-                StudentId = selection.StudentId,
-                CourseId = selection.CourseId,
-                FeePlanId = selection.FeePlanId,
-                DiscountType = DiscountType.Scholarship,
-                Percent = selection.ScholarshipPercent,
-                IsActive = selection.IsScholarshipActive,
-                BaseFee = selection.BaseFee,
-                FinalAmount = selection.FinalAmount,
-            };
-
-            yield return new DiscountDetailDto
-            {
-                StudentFeeSelectionId = selection.Id,
-                StudentId = selection.StudentId,
-                CourseId = selection.CourseId,
-                FeePlanId = selection.FeePlanId,
-                DiscountType = DiscountType.Seasonal,
-                Percent = selection.SeasonalPercent,
-                IsActive = selection.IsSeasonalActive,
-                BaseFee = selection.BaseFee,
-                FinalAmount = selection.FinalAmount,
-            };
-
-            yield return new DiscountDetailDto
-            {
-                StudentFeeSelectionId = selection.Id,
-                StudentId = selection.StudentId,
-                CourseId = selection.CourseId,
-                FeePlanId = selection.FeePlanId,
-                DiscountType = DiscountType.Manual,
-                Percent = selection.ManualDiscountPercent,
-                IsActive = selection.IsManualDiscountActive,
-                BaseFee = selection.BaseFee,
-                FinalAmount = selection.FinalAmount,
-            };
-        }
-
-        /// <summary>
-        /// Validates that the discount type is one of: Scholarship, Seasonal, Manual.
-        /// </summary>
-        /// <param name="discountType">The discount type string.</param>
-        /// <exception cref="AppException">Thrown when the discount type is invalid.</exception>
-        private static void ValidateDiscountType(DiscountType discountType)
-        {
-            if (discountType == DiscountType.None ||
-                !Enum.IsDefined(typeof(DiscountType), discountType))
-            {
-                throw new AppException(
-                    $"Invalid discount type '{discountType}'. " +
-                    $"Valid values: Scholarship, Seasonal, Manual.",
-                    400,
-                    "INVALID_DISCOUNT_TYPE");
+                _logger.LogError(ex, "Error fetching filtered selections.");
+                return CommonResponse<PagedResult<StudentFeeSelectionListDto>>
+                    .FailureResponse($"An error occurred: {ex.Message}");
             }
         }
 
-        /// <summary>
-        /// Creates the asynchronous.
-        /// </summary>
-        /// <param name="request">The request.</param>
-        /// <returns>FeePlanDto.</returns>
+        /// <inheritdoc/>
         public async Task<FeePlanDto> CreateAsync(CreateFeePlanRequestDto request)
         {
             var feePlan = new FeePlan(
@@ -654,162 +788,108 @@
                 request.PaymentType,
                 request.DurationinYears,
                 request.SubjectId);
+
             feePlan.CreatedBy = request.userid;
 
-            if (request.Discounts != null && request.Discounts.Any())
+            if (request.Discounts != null)
             {
-                foreach (var discount in request.Discounts)
+                foreach (var d in request.Discounts)
                 {
-                    var feePlanDiscount = new FeePlanDiscount(
-                        feePlan.Id,
-                        discount.discountName,
-                        discount.discountPercent);
-                    feePlanDiscount.CreatedAt = DateTime.UtcNow;
-                    feePlanDiscount.CreatedBy = request.userid;
-
-                    feePlan.Discounts.Add(feePlanDiscount);
+                    var discount = new FeePlanDiscount(feePlan.Id, d.discountName, d.discountPercent);
+                    discount.CreatedBy = request.userid;
+                    feePlan.Discounts.Add(discount);
                 }
             }
 
             await _repo.AddAsync(feePlan);
             await _repo.SaveChangesAsync();
-            return MapToDto(feePlan);
+            return MapFeePlan(feePlan);
         }
 
-        /// <summary>
-        /// Retrieves all fee plans from the system.
-        /// </summary>
-        /// <returns>A list of <see cref="FeePlanDto"/>.</returns>
+        /// <inheritdoc/>
         public async Task<List<FeePlanDto>> GetAllAsync()
         {
-            var feePlans = await _repo.GetAllAsync();
-            return feePlans.Select(MapToDto).ToList();
+            var plans = await _repo.GetAllAsync();
+            return plans.Select(MapFeePlan).ToList();
         }
 
-        /// <summary>
-        /// Retrieves a fee plan by its unique identifier.
-        /// </summary>
-        /// <param name="id">The unique identifier of the fee plan.</param>
-        /// <returns>
-        /// The matching <see cref="FeePlanDto"/> if found; otherwise, <c>null</c>.
-        /// </returns>
+        /// <inheritdoc/>
         public async Task<FeePlanDto?> GetByIdAsync(Guid id)
         {
-            var feePlan = await _repo.GetByIdAsync(id);
-
-            if (feePlan == null)
-                return null;
-
-            return MapToDto(feePlan);
+            var plan = await _repo.GetByIdAsync(id);
+            return plan == null ? null : MapFeePlan(plan);
         }
 
-        /// <summary>
-        /// Updates an existing fee plan using create DTO.
-        /// </summary>
-        /// <param name="id">id.</param>
-        /// <param name="request">request.</param>
-        /// <returns>
-        /// The matching <see cref="FeePlanDto"/> if found; otherwise, <c>null</c>.
-        /// </returns>
-        public async Task<FeePlanDto?> UpdateAsync(
-          Guid id,
-          CreateFeePlanRequestDto request)
+        /// <inheritdoc/>
+        public async Task<FeePlanDto?> UpdateAsync(Guid id, CreateFeePlanRequestDto request)
         {
             var feePlan = await _repo.GetByIdAsync(id);
-
             if (feePlan == null)
+            {
                 return null;
+            }
 
             feePlan.Update(
-             request.PlanName,
-             request.TuitionFee,
-             request.IsInstallmentAllowed,
-             request.PaymentType,
-             request.DurationinYears,
-             request.SubjectId);
-
+                request.PlanName,
+                request.TuitionFee,
+                request.IsInstallmentAllowed,
+                request.PaymentType,
+                request.DurationinYears,
+                request.SubjectId);
             feePlan.UpdatedBy = request.userid;
 
-            var existingDiscounts = feePlan.Discounts.ToList();
-            var requestDiscounts = request.Discounts ?? new List<CreateFeePlanDiscountRequestDto>();
+            var existing = feePlan.Discounts.ToList();
+            var incoming = request.Discounts ?? new List<CreateFeePlanDiscountRequestDto>();
 
-            foreach (var existing in existingDiscounts)
+            foreach (var old in existing)
             {
-                var stillExists = requestDiscounts
-                    .Any(d => d.id != Guid.Empty && d.id == existing.Id);
-
-                if (!stillExists)
+                if (!incoming.Any(d => d.id != Guid.Empty && d.id == old.Id))
                 {
-                    _repo.RemoveDiscount(existing);
+                    _repo.RemoveDiscount(old);
                 }
             }
 
-            foreach (var discountDto in requestDiscounts)
+            foreach (var dto in incoming)
             {
-                if (discountDto.id == Guid.Empty)
+                if (dto.id == Guid.Empty)
                 {
-                    var newDiscount = new FeePlanDiscount(
-                        feePlan.Id,
-                        discountDto.discountName,
-                        discountDto.discountPercent);
-                    newDiscount.CreatedBy = request.userid;
-
-                    _repo.AddDiscount(newDiscount);
+                    var nd = new FeePlanDiscount(feePlan.Id, dto.discountName, dto.discountPercent);
+                    nd.CreatedBy = request.userid;
+                    _repo.AddDiscount(nd);
                 }
                 else
                 {
-                    var existing = existingDiscounts
-                        .FirstOrDefault(d => d.Id == discountDto.id);
-
-                    if (existing != null)
+                    var ex = existing.FirstOrDefault(d => d.Id == dto.id);
+                    if (ex != null)
                     {
-                        existing.Update(
-                            discountDto.discountName,
-                            discountDto.discountPercent);
-                        existing.UpdatedBy = request.userid;
+                        ex.Update(dto.discountName, dto.discountPercent);
+                        ex.UpdatedBy = request.userid;
                     }
                 }
             }
 
             await _repo.SaveChangesAsync();
-
-            return MapToDto(feePlan);
+            return MapFeePlan(feePlan);
         }
 
-        /// <summary>
-        /// Deletes the asynchronous.
-        /// </summary>
-        /// <param name="id">The identifier.</param>
-        /// <returns>task.</returns>
+        /// <inheritdoc/>
         public async Task<CommonResponse<bool>> DeleteAsync(Guid id)
         {
             try
             {
-                _logger.LogInformation("Deleting Fee Id: {Id}", id);
                 var result = await _repo.DeleteAsync(id);
-
-                if (result)
-                {
-                    return CommonResponse<bool>.SuccessResponse(
-                        "Fee deleted successfully", true);
-                }
-
-                return CommonResponse<bool>.FailureResponse(
-                    "Fee not found or already deleted");
+                return result
+                    ? CommonResponse<bool>.SuccessResponse("Fee deleted.", true)
+                    : CommonResponse<bool>.FailureResponse("Fee not found.");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error deleting Fee Id: {Id}", id);
-                return CommonResponse<bool>.FailureResponse(
-                    $"An error occurred: {ex.Message}");
+                _logger.LogError(ex, "Error deleting Fee {Id}", id);
+                return CommonResponse<bool>.FailureResponse($"Error: {ex.Message}");
             }
         }
 
-        /// <summary>
-        /// Gets filtered fees with pagination support.
-        /// </summary>
-        /// <param name="request">The paged request.</param>
-        /// <returns>Paginated fees result.</returns>
+        /// <inheritdoc/>
         public async Task<CommonResponse<PagedResult<FeePlanDto>>> GetFilteredAsync(
             PagedRequest request)
         {
@@ -817,29 +897,29 @@
             {
                 var query = _repo.Query();
 
-                // ── Filters ──
                 if (request.Active.HasValue)
-                    query = query.Where(x => x.IsActive == request.Active.Value);
-
-                if (request.StartDate.HasValue)
-                    query = query.Where(x => x.CreatedAt >= request.StartDate.Value);
-
-                if (request.EndDate.HasValue)
-                    query = query.Where(x => x.CreatedAt <= request.EndDate.Value);
-
-                // ── Search on Course, Stream, Grade, AND Syllabus Name ──
-                if (!string.IsNullOrWhiteSpace(request.SearchText))
                 {
-                    var searchTerm = request.SearchText.Trim().ToLower();
-                    query = query.Where(x =>
-                        x.PlanName.ToLower().Contains(searchTerm) ||
-                        x.Course.Name.ToLower().Contains(searchTerm) ||
-                        x.Course.Stream.Name.ToLower().Contains(searchTerm) ||
-                        x.Course.Stream.Grade.Name.ToLower().Contains(searchTerm) ||
-                        x.Course.Stream.Grade.Syllabus.Name.ToLower().Contains(searchTerm));
+                    query = query.Where(x => x.IsActive == request.Active.Value);
                 }
 
-                // ── Total Count ──
+                if (request.StartDate.HasValue)
+                {
+                    query = query.Where(x => x.CreatedAt >= request.StartDate.Value);
+                }
+
+                if (request.EndDate.HasValue)
+                {
+                    query = query.Where(x => x.CreatedAt <= request.EndDate.Value);
+                }
+
+                if (!string.IsNullOrWhiteSpace(request.SearchText))
+                {
+                    var term = request.SearchText.Trim().ToLower();
+                    query = query.Where(x =>
+                        x.PlanName.ToLower().Contains(term) ||
+                        x.Course.Name.ToLower().Contains(term));
+                }
+
                 var totalCount = await query.CountAsync();
 
                 if (totalCount == 0)
@@ -850,342 +930,83 @@
                             new List<FeePlanDto>(), 0, request.Limit, request.Offset));
                 }
 
-                // ── Dynamic Sorting ──
-                var isDesc = request.SortOrder.Equals("desc", StringComparison.OrdinalIgnoreCase);
+                var isDesc = request.SortOrder
+                    .Equals("desc", StringComparison.OrdinalIgnoreCase);
 
                 query = request.SortBy.ToLower() switch
                 {
-                    "name" => isDesc ? query.OrderByDescending(x => x.PlanName)
-                                             : query.OrderBy(x => x.PlanName),
-
-                    "coursename" => isDesc ? query.OrderByDescending(x => x.Course.Name)
-                                       : query.OrderBy(x => x.Course.Name),
-
-                    "streamname" => isDesc ? query.OrderByDescending(x => x.Course.Stream.Name)
-                                             : query.OrderBy(x => x.Course.Stream.Name),
-
-                    "gradename" => isDesc ? query.OrderByDescending(x => x.Course.Stream.Grade.Name)
-                                             : query.OrderBy(x => x.Course.Stream.Grade.Name),
-
-                    "syllabusname" => isDesc ? query.OrderByDescending(x => x.Course.Stream.Grade.Syllabus.Name)
-                                             : query.OrderBy(x => x.Course.Stream.Grade.Syllabus.Name),
-
-                    "isactive" => isDesc ? query.OrderByDescending(x => x.IsActive)
-                                             : query.OrderBy(x => x.IsActive),
-
-                    "createdat" => isDesc ? query.OrderByDescending(x => x.CreatedAt)
-                                             : query.OrderBy(x => x.CreatedAt),
-
-                    _ => isDesc ? query.OrderByDescending(x => x.CreatedAt)
-                                             : query.OrderBy(x => x.CreatedAt),
+                    "name" => isDesc
+                        ? query.OrderByDescending(x => x.PlanName)
+                        : query.OrderBy(x => x.PlanName),
+                    "coursename" => isDesc
+                        ? query.OrderByDescending(x => x.Course.Name)
+                        : query.OrderBy(x => x.Course.Name),
+                    _ => isDesc
+                        ? query.OrderByDescending(x => x.CreatedAt)
+                        : query.OrderBy(x => x.CreatedAt),
                 };
 
-                // ── Pagination ──
-                var courses = await query
-                    .Skip(request.Offset)
-                    .Take(request.Limit)
-                    .ToListAsync();
-
-                var dtoList = courses.Select(MapToDto).ToList();
-
-                _logger.LogInformation(
-                    "Returning {Count} of {Total} fees",
-                    dtoList.Count, totalCount);
+                var items = await query
+                    .Skip(request.Offset).Take(request.Limit).ToListAsync();
 
                 return CommonResponse<PagedResult<FeePlanDto>>.SuccessResponse(
-                    "fees fetched successfully.",
+                    "Fees fetched.",
                     new PagedResult<FeePlanDto>(
-                        dtoList, totalCount, request.Limit, request.Offset));
+                        items.Select(MapFeePlan).ToList(), totalCount,
+                        request.Limit, request.Offset));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error fetching filtered fees.");
                 return CommonResponse<PagedResult<FeePlanDto>>.FailureResponse(
-                    $"An error occurred: {ex.Message}");
+                    $"Error: {ex.Message}");
             }
         }
 
-        /// <summary>
-        /// Builds the fee listing page for student portal.
-        /// Each row = Course + PaymentType + Duration combination.
-        /// Discounts from FeePlanDiscount table are auto-applied.
-        /// </summary>
-        /// <param name="studentId">The student identifier.</param>
-        /// <returns>
-        /// Fee page data for student portal.
-        /// </returns>
-        public async Task<CommonResponse<StudentFeePageDto>> GetStudentFeePageAsync(
-            Guid studentId)
+        // ═══════════════════════════════════════════════════════════
+        //  PRIVATE MAPPERS
+        // ═══════════════════════════════════════════════════════════
+        private static InstallmentScheduleDto MapInstallment(StudentInstallment i) => new()
         {
-            try
-            {
-                _logger.LogInformation(
-                    "GetStudentFeePageAsync for StudentId: {StudentId}", studentId);
+            InstallmentId = i.Id,
+            No = i.InstallmentNo,
+            DueDate = i.DueDate,
+            DueAmount = i.DueAmount,
+            PaidAmount = i.PaidAmount,
+            BalanceAmount = i.BalanceAmount,
+            Status = i.Status,
+            Remarks = i.Remarks,
+            PaidDate = i.PaidDate,
+        };
 
-                var student = await _repo.GetStudentWithCoursesAsync(studentId);
-
-                if (student == null)
-                {
-                    return CommonResponse<StudentFeePageDto>.FailureResponse(
-                        "Student not found.");
-                }
-
-                // Get student's enrolled course IDs
-                var enrolledCourseIds = student.StudentAcademicCouses
-                    .Select(x => x.CourseId)
-                    .ToHashSet();
-
-                // Get all courses for student's grade
-                var courses = await _repo.GetCoursesByGradeAsync(
-                    student.AcademicDetails.GradeId);
-
-                // Check existing selections
-                var existingSelections = await _repo
-                    .GetStudentFeeSelectionsByStudentAsync(studentId);
-                var selectedPlanIds = existingSelections
-                    .Select(s => s.FeePlanId)
-                    .ToHashSet();
-
-                // Build fee listing rows
-                var feeListings = new List<FeeListingRowDto>();
-
-                foreach (var course in courses)
-                {
-                    foreach (var plan in course.FeePlans.Where(fp => fp.IsActive))
-                    {
-                        // Calculate total discount from FeePlanDiscount table
-                        var totalDiscountPercent = plan.Discounts
-                            .Where(d => d.IsActive)
-                            .Sum(d => d.DiscountPercent);
-
-                        // Calculate fee after discount
-                        var yearlyFee = plan.TuitionFee;
-                        var feeAfterDiscount = yearlyFee;
-
-                        if (totalDiscountPercent > 0)
-                        {
-                            feeAfterDiscount = yearlyFee - (yearlyFee * totalDiscountPercent / 100m);
-                            feeAfterDiscount = Math.Max(feeAfterDiscount, 0);
-                        }
-
-                        // Total for full duration
-                        var totalFee = feeAfterDiscount * plan.DurationinYears;
-
-                        var discountBadges = plan.Discounts
-                            .Where(d => d.IsActive && d.DiscountPercent > 0)
-                            .Select(d => new DiscountBadgeDto
-                            {
-                                Name = d.DiscountName,
-                                Percent = d.DiscountPercent
-                            }).ToList();
-
-                        feeListings.Add(new FeeListingRowDto
-                        {
-                            FeePlanId = plan.Id,
-                            CourseId = course.Id,
-                            CourseName = course.Name,
-                            YearlyFee = yearlyFee,
-                            PaymentType = plan.PaymentType,
-                            DurationInYears = plan.DurationinYears,
-                            DiscountPercent = totalDiscountPercent,
-                            FeeAfterDiscount = totalFee,
-                            IsSelected = selectedPlanIds.Contains(plan.Id),
-                            Discounts = discountBadges,
-
-                        });
-                    }
-                }
-
-                // Sort: enrolled courses first, then by course name
-                feeListings = feeListings
-                    .OrderByDescending(f => enrolledCourseIds.Contains(f.CourseId))
-                    .ThenBy(f => f.CourseName)
-                    .ThenBy(f => f.PaymentType)
-                    .ThenBy(f => f.DurationInYears)
-                    .ToList();
-
-                var selectedPlanId = existingSelections
-                    .OrderByDescending(s => s.CreatedAt)
-                    .Select(s => (Guid?)s.FeePlanId)
-                    .FirstOrDefault();
-
-                var studentName = student.StudentPersonalDetails?.FullName ?? "Unknown";
-                var regNumber = student.RegistrationNumber ?? "";
-                var gradeId = student.AcademicDetails?.GradeId ?? Guid.Empty;
-                var gradeName = student.AcademicDetails?.Grade?.Name ?? "N/A";
-                var syllabusId = student.AcademicDetails?.Grade?.SyllabusId ?? Guid.Empty;
-                var syllabusName = student.AcademicDetails?.Grade?.Syllabus?.Name ?? "N/A";
-
-                return CommonResponse<StudentFeePageDto>.SuccessResponse(
-                    "Fee page loaded.",
-                    new StudentFeePageDto
-                    {
-                        StudentId = studentId,
-                        StudentName = studentName,
-                        RegistrationNumber = regNumber,
-                        GradeId = gradeId,
-                        GradeName = gradeName,
-                        SyllabusId = syllabusId,
-                        SyllabusName = syllabusName,
-                        FeeListings = feeListings,
-                        SelectedFeePlanId = selectedPlanId,
-                    });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex,
-                    "Error loading fee page for StudentId: {StudentId}", studentId);
-                return CommonResponse<StudentFeePageDto>.FailureResponse(
-                    $"An error occurred: {ex.Message}");
-            }
-        }
-
-        /// <summary>
-        /// Student confirms fee selection. Creates StudentFeeSelection
-        /// with discounts from FeePlanDiscount auto-applied.
-        /// </summary>
-        /// <param name="request">The request.</param>
-        /// <returns>
-        /// Summary of the confirmed fee selection, including final amount and applied discounts.
-        /// </returns>
-        public async Task<CommonResponse<FeeSummaryDto>> ConfirmFeeSelectionAsync(
-            ConfirmFeeSelectionRequest request)
+        private static FeePlanDto MapFeePlan(FeePlan fp) => new()
         {
-            try
+            Id = fp.Id,
+            CourseId = fp.CourseId,
+            PlanName = fp.PlanName,
+            TuitionFee = fp.TuitionFee,
+            IsInstallmentAllowed = fp.IsInstallmentAllowed,
+            IsActive = fp.IsActive,
+            PaymentType = fp.PaymentType,
+            DurationinYears = fp.DurationinYears,
+            SubjectId = fp.SubjectId,
+            StreamId = fp.Course?.StreamId ?? Guid.Empty,
+            GradeId = fp.Course?.GradeId ?? Guid.Empty,
+            SyllabusId = fp.Course?.Grade?.SyllabusId ?? Guid.Empty,
+            CountryId = fp.Course?.Grade?.Syllabus?.Center?.CountryId ?? Guid.Empty,
+            StateId = fp.Course?.Grade?.Syllabus?.Center?.StateId ?? Guid.Empty,
+            ModeofstudyId = fp.Course?.Grade?.Syllabus?.Center?.State?.ModeOfStudyId
+                            ?? Guid.Empty,
+            CenterId = fp.Course?.Grade?.Syllabus?.CenterId ?? Guid.Empty,
+            Discounts = fp.Discounts.Select(d => new FeePlanDiscountDto
             {
-                _logger.LogInformation(
-                    "ConfirmFeeSelection — Student: {StudentId}, Plan: {PlanId}",
-                    request.StudentId, request.FeePlanId);
-
-                var student = await _repo.GetStudentWithCoursesAsync(request.StudentId);
-                if (student == null)
-                {
-                    return CommonResponse<FeeSummaryDto>.FailureResponse(
-                        "Student not found.");
-                }
-
-                // Find the fee plan with discounts
-                var feePlan = await _repo.GetFeePlanByIdAsync(request.FeePlanId);
-                if (feePlan == null)
-                {
-                    return CommonResponse<FeeSummaryDto>.FailureResponse(
-                        "Fee plan not found.");
-                }
-
-                // Load discounts for this plan
-                var planWithDiscounts = await _repo.GetByIdAsync(request.FeePlanId);
-                if (planWithDiscounts == null)
-                {
-                    return CommonResponse<FeeSummaryDto>.FailureResponse(
-                        "Fee plan not found.");
-                }
-
-                // Check if student already has a selection for this course
-                var existingSelections = await _repo
-                    .GetStudentFeeSelectionsByStudentAsync(request.StudentId);
-
-                var existingForCourse = existingSelections
-                    .FirstOrDefault(s => s.CourseId == planWithDiscounts.CourseId);
-
-                if (existingForCourse != null)
-                {
-                    return CommonResponse<FeeSummaryDto>.FailureResponse(
-                        "A fee plan is already selected for this course. " +
-                        "Please contact admin to change.");
-                }
-
-                // Calculate discounts from FeePlanDiscount table
-                var baseFee = planWithDiscounts.TuitionFee;
-                var totalDiscountPercent = planWithDiscounts.Discounts
-                    .Where(d => d.IsActive)
-                    .Sum(d => d.DiscountPercent);
-
-                var feeAfterDiscount = baseFee;
-                if (totalDiscountPercent > 0)
-                {
-                    feeAfterDiscount = baseFee - (baseFee * totalDiscountPercent / 100m);
-                    feeAfterDiscount = Math.Max(feeAfterDiscount, 0);
-                }
-
-                // Total for full duration
-                var totalFee = feeAfterDiscount * planWithDiscounts.DurationinYears;
-
-                // Create StudentFeeSelection
-                var selection = new StudentFeeSelection(
-                    studentId: request.StudentId,
-                    courseId: planWithDiscounts.CourseId,
-                    feePlanId: planWithDiscounts.Id,
-                    scholarshipPercent: 0,
-                    isScholarshipActive: false,
-                    seasonalPercent: 0,
-                    isSeasonalActive: false,
-                    manualDiscountPercent: totalDiscountPercent,
-                    isManualDiscountActive: totalDiscountPercent > 0,
-                    baseFee: baseFee * planWithDiscounts.DurationinYears,
-                    finalAmount: totalFee);
-
-                selection.CreatedBy = request.StudentId;
-
-                await _repo.AddStudentFeeSelectionAsync(selection);
-                await _repo.SaveChangesAsync();
-
-                _logger.LogInformation(
-                    "Fee confirmed. SelectionId: {Id}, Final: {Amount}",
-                    selection.Id, totalFee);
-
-                var discountAmount = (baseFee * planWithDiscounts.DurationinYears) - totalFee;
-
-                return CommonResponse<FeeSummaryDto>.SuccessResponse(
-                    "Fee selection confirmed successfully.",
-                    new FeeSummaryDto
-                    {
-                        BaseFee = baseFee * planWithDiscounts.DurationinYears,
-                        ScholarshipDiscount = 0,
-                        SeasonalDiscount = 0,
-                        ManualDiscount = discountAmount,
-                        TotalPayable = totalFee
-                    });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex,
-                    "Error confirming fee selection for Student: {StudentId}",
-                    request.StudentId);
-                return CommonResponse<FeeSummaryDto>.FailureResponse(
-                    $"An error occurred: {ex.Message}");
-            }
-        }
-
-        private static FeePlanDto MapToDto(FeePlan feePlan)
-        {
-            return new FeePlanDto
-            {
-                Id = feePlan.Id,
-                CourseId = feePlan.CourseId,
-                PlanName = feePlan.PlanName,
-                TuitionFee = feePlan.TuitionFee,
-                IsInstallmentAllowed = feePlan.IsInstallmentAllowed,
-                IsActive = feePlan.IsActive,
-                PaymentType = feePlan.PaymentType,
-                DurationinYears = feePlan.DurationinYears,
-                SubjectId = feePlan.SubjectId,
-                StreamId = feePlan.Course?.StreamId ?? Guid.Empty,
-                GradeId = feePlan.Course?.GradeId ?? Guid.Empty,
-                SyllabusId = feePlan.Course?.Grade.SyllabusId ?? Guid.Empty,
-                CountryId = feePlan.Course?.Grade.Syllabus.Center.CountryId ?? Guid.Empty,
-                StateId = feePlan.Course?.Grade.Syllabus.Center.StateId ?? Guid.Empty,
-                ModeofstudyId = feePlan.Course?.Grade.Syllabus.Center.State.ModeOfStudyId ?? Guid.Empty,
-                CenterId = feePlan.Course?.Grade.Syllabus.CenterId ?? Guid.Empty,
-                Discounts = feePlan.Discounts.Select(d => new FeePlanDiscountDto
-                {
-                    Id = d.Id,
-                    FeePlanId = d.FeePlanId,
-                    DiscountName = d.DiscountName,
-                    DiscountPercent = d.DiscountPercent,
-                    CreatedAt = d.CreatedAt,
-                    UpdatedAt = d.UpdatedAt
-                }).ToList()
-            };
-        }
+                Id = d.Id,
+                FeePlanId = d.FeePlanId,
+                DiscountName = d.DiscountName,
+                DiscountPercent = d.DiscountPercent,
+                CreatedAt = d.CreatedAt,
+                UpdatedAt = d.UpdatedAt,
+            }).ToList(),
+        };
     }
 }

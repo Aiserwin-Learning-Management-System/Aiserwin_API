@@ -170,8 +170,7 @@ builder.Services.AddScoped<IOperatorDashboardRepository, OperatorDashboardReposi
 builder.Services.AddScoped<IOperatorDashboardService, OperatorDashboardService>();
 builder.Services.AddMemoryCache();
 builder.Services.AddScoped<INavigationService, NavigationService>();
-builder.Services.AddScoped<IStudentFeeSelectionService, StudentFeeSelectionService>();
-builder.Services.AddScoped<IStudentFeeSelectionRepository, StudentFeeSelectionRepository>();
+
 builder.Services.AddScoped<IDtpAdminRepository, DtpAdminRepository>();
 builder.Services.AddScoped<IDtpAdminService, DtpAdminService>();
 builder.Services.AddScoped<IExamGradeRepository, ExamGradeRepository>();
@@ -290,9 +289,15 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
-        // This stops the infinite loop during JSON serialization
-        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
-        options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+        // prevents infinite loop
+        options.JsonSerializerOptions.ReferenceHandler =
+            System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.DefaultIgnoreCondition =
+            System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+
+        // enums serialize as "Full" instead of 1
+        options.JsonSerializerOptions.Converters.Add(
+            new System.Text.Json.Serialization.JsonStringEnumConverter());
     });
 
 #endregion

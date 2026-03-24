@@ -1,98 +1,58 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Winfocus.LMS.Application.DTOs.Masters;
-
-namespace Winfocus.LMS.Application.DTOs.Fees
+﻿namespace Winfocus.LMS.Application.DTOs.Fees
 {
+    using Winfocus.LMS.Application.DTOs.Masters;
+    using Winfocus.LMS.Domain.Enums;
+
     /// <summary>
-    /// Represents a FeePlan with its associated discounts.
+    /// Data Transfer Object (DTO) representing a fee plan,
+    /// including tuition fee, duration, payment type, and related identifiers.
     /// </summary>
     public class FeePlanDto : BaseClassDTO
     {
-
-        /// <summary>
-        /// Gets or sets the related Course identifier.
-        /// </summary>
+        /// <summary>Gets or sets the unique identifier of the associated course.</summary>
         public Guid CourseId { get; set; }
 
-        /// <summary>
-        /// Gets or sets the name of the fee plan.
-        /// </summary>
+        /// <summary>Gets or sets the name of the fee plan.</summary>
         public string PlanName { get; set; } = string.Empty;
 
-        /// <summary>
-        /// Gets or sets the tuition fee amount.
-        /// </summary>
+        /// <summary>Gets or sets the tuition fee amount for the plan.</summary>
         public decimal TuitionFee { get; set; }
 
-        /// <summary>
-        /// Gets or sets a value indicating whether installment payment is allowed.
-        /// </summary>
+        /// <summary>Gets or sets a value indicating whether installment payments are allowed.</summary>
         public bool IsInstallmentAllowed { get; set; }
 
-        /// <summary>
-        /// Gets or sets the type of the payment.
-        /// </summary>
-        /// <value>The type of the payment.</value>
-        public string PaymentType { get; set; } = null!;
+        /// <summary>Gets or sets the payment type (e.g., full payment, installment).</summary>
+        public PaymentType PaymentType { get; set; }
 
-        /// <summary>
-        /// Gets or sets the course duration in years.
-        /// </summary>
-        /// <value>course duration in years.</value>
+        /// <summary>Gets or sets the duration of the plan in years.</summary>
         public int DurationinYears { get; set; }
 
-        /// <summary>
-        /// Gets or sets the Subject identifier.
-        /// </summary>
-        /// <value>The Subject identifier.</value>
+        /// <summary>Gets or sets the unique identifier of the associated subject.</summary>
         public Guid SubjectId { get; set; }
 
-        /// <summary>
-        /// Gets or sets the syllabus identifier.
-        /// </summary>
-        /// <value>The syllabus identifier.</value>
+        /// <summary>Gets or sets the unique identifier of the syllabus associated with the plan.</summary>
         public Guid SyllabusId { get; set; }
 
-        /// <summary>
-        /// Gets or sets the Grade identifier.
-        /// </summary>
-        /// <value>The Grade identifier.</value>
+        /// <summary>Gets or sets the unique identifier of the grade associated with the plan.</summary>
         public Guid GradeId { get; set; }
 
-        /// <summary>
-        /// Gets or sets the Stream identifier.
-        /// </summary>
-        /// <value>The Stream identifier.</value>
+        /// <summary>Gets or sets the unique identifier of the stream associated with the plan.</summary>
         public Guid StreamId { get; set; }
 
-        /// <summary>
-        /// Gets or sets the Country identifier.
-        /// </summary>
-        /// <value>The Country identifier.</value>
+        /// <summary>Gets or sets the unique identifier of the country associated with the plan.</summary>
         public Guid CountryId { get; set; }
 
-        /// <summary>
-        /// Gets or sets the State identifier.
-        /// </summary>
-        /// <value>The State identifier.</value>
+        /// <summary>Gets or sets the unique identifier of the state associated with the plan.</summary>
         public Guid StateId { get; set; }
 
-        /// <summary>
-        /// Gets or sets the Modeofstudy identifier.
-        /// </summary>
-        /// <value>The Modeofstudy identifier.</value>
+        /// <summary>Gets or sets the unique identifier of the mode of study associated with the plan.</summary>
         public Guid ModeofstudyId { get; set; }
 
-        /// <summary>
-        /// Gets or sets the Center identifier.
-        /// </summary>
-        /// <value>The Center identifier.</value>
+        /// <summary>Gets or sets the unique identifier of the center associated with the plan.</summary>
         public Guid CenterId { get; set; }
 
         /// <summary>
-        /// Gets or sets the list of discounts associated with this FeePlan.
+        /// Gets or sets the collection of discounts applicable to this fee plan.
         /// </summary>
         public IReadOnlyCollection<FeePlanDiscountDto> Discounts { get; set; }
             = new List<FeePlanDiscountDto>();

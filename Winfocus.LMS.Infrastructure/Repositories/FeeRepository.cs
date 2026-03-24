@@ -6,7 +6,7 @@
     using Winfocus.LMS.Infrastructure.Data;
 
     /// <summary>
-    /// FeeRepository – EF Core implementation of IFeeRepository.
+    /// FeeRepository.
     /// </summary>
     /// <seealso cref="Winfocus.LMS.Application.Interfaces.IFeeRepository" />
     public sealed class FeeRepository : IFeeRepository
@@ -16,202 +16,225 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="FeeRepository"/> class.
         /// </summary>
-        /// <param name="context">The database context.</param>
+        /// <param name="context">The context.</param>
         public FeeRepository(AppDbContext context)
         {
             _context = context;
         }
 
-        /// <summary>
-        /// Gets the student with courses asynchronous.
-        /// </summary>
-        /// <param name="studentId">The student identifier.</param>
-        /// <returns>Task&lt;Student?&gt;.</returns>
-        public async Task<Student?> GetStudentWithCoursesAsync(Guid studentId)
-        {
-            return await _context.Students
-                .Include(x => x.StudentAcademicCouses)
-                .Include(x => x.AcademicDetails)
-                    .ThenInclude(a => a.Grade)
-                        .ThenInclude(g => g.Syllabus)
-                .Include(x => x.StudentPersonalDetails)
-                .FirstOrDefaultAsync(x => x.Id == studentId && !x.IsDeleted);
-        }
+        // ── FeePlan ──
 
-        /// <summary>
-        /// Gets the courses by grade asynchronous.
-        /// </summary>
-        /// <param name="gradeId">The grade identifier.</param>
-        /// <returns>Task&lt;List&lt;Course&gt;&gt;.</returns>
-        public async Task<List<Course>> GetCoursesByGradeAsync(Guid gradeId)
-        {
-            return await _context.Courses
-                .Include(c => c.Stream)
-                .Include(c => c.FeePlans).ThenInclude(fp => fp.Discounts)
-                .Where(c => c.Stream.GradeId == gradeId && c.IsActive && !c.IsDeleted)
-                .ToListAsync();
-        }
-
-        /// <summary>
-        /// Adds the student fee selection asynchronous.
-        /// </summary>
-        /// <param name="entity">The entity.</param>
-        /// <returns>Task.</returns>
-        public async Task AddStudentFeeSelectionAsync(StudentFeeSelection entity)
-        {
-            await _context.StudentFeeSelections.AddAsync(entity);
-        }
-
-        /// <summary>
-        /// Gets the student fee selection by identifier asynchronous.
-        /// </summary>
-        /// <param name="selectionId">The selection identifier.</param>
-        /// <returns>Task&lt;StudentFeeSelection?&gt;.</returns>
-        public async Task<StudentFeeSelection?> GetStudentFeeSelectionByIdAsync(
-            Guid selectionId)
-        {
-            return await _context.StudentFeeSelections
-                .FirstOrDefaultAsync(x => x.Id == selectionId && !x.IsDeleted);
-        }
-
-        /// <summary>
-        /// Gets all student fee selections for a student.
-        /// </summary>
-        /// <param name="studentId">The student identifier.</param>
-        /// <returns>Task&lt;List&lt;StudentFeeSelection&gt;&gt;.</returns>
-        public async Task<List<StudentFeeSelection>> GetStudentFeeSelectionsByStudentAsync(
-            Guid studentId)
-        {
-            return await _context.StudentFeeSelections
-                .Where(x => x.StudentId == studentId && x.IsActive && !x.IsDeleted)
-                .ToListAsync();
-        }
-
-        /// <summary>
-        /// Gets the fee plan by identifier asynchronous.
-        /// </summary>
-        /// <param name="feePlanId">The fee plan identifier.</param>
-        /// <returns>Task&lt;FeePlan?&gt;.</returns>
-        public async Task<FeePlan?> GetFeePlanByIdAsync(Guid feePlanId)
-        {
-            return await _context.FeePlans
-                .FirstOrDefaultAsync(x => x.Id == feePlanId && !x.IsDeleted);
-        }
-
-        /// <summary>
-        /// Saves the changes asynchronous.
-        /// </summary>
-        /// <returns>Task.</returns>
-        public async Task SaveChangesAsync()
-        {
-            await _context.SaveChangesAsync();
-        }
-
-        /// <summary>
-        /// Adds the asynchronous.
-        /// </summary>
-        /// <param name="feePlan">The feePlan.</param>
-        /// <returns>feePlan.</returns>
+        /// <inheritdoc/>
         public async Task AddAsync(FeePlan feePlan)
-        {
-            await _context.FeePlans.AddAsync(feePlan);
-        }
+            => await _context.FeePlans.AddAsync(feePlan);
 
-        /// <summary>
-        /// Gets the by identifier asynchronous.
-        /// </summary>
-        /// <param name="id">The identifier.</param>
-        /// <returns>FeePlan.</returns>
-        public async Task<FeePlan?> GetByIdAsync(Guid id)
-        {
-            return await _context.FeePlans
-                .Include(x => x.Discounts)
-                .Include(x => x.Course)
-                .ThenInclude(x => x.Stream)
-                .ThenInclude(x => x.Grade)
-                .ThenInclude(x => x.Syllabus)
-                .ThenInclude(x => x.Center)
-                 .ThenInclude(x => x.State)
-                .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
-        }
-
-        /// <summary>
-        /// Gets the by identifier asynchronous.
-        /// </summary>
-        /// <returns>FeePlan.</returns>
+        /// <inheritdoc/>
         public async Task<List<FeePlan>> GetAllAsync()
-        {
-            return await _context.FeePlans.Where(x => !x.IsDeleted)
+            => await _context.FeePlans.Where(x => !x.IsDeleted)
                 .Include(x => x.Discounts)
-                .Include(x => x.Installments)
-                 .Include(x => x.Course)
-                .ThenInclude(x => x.Stream)
+                .Include(x => x.Course).ThenInclude(c => c.Stream)
+                .Include(x => x.Course).ThenInclude(c => c.Grade)
+                    .ThenInclude(g => g.Syllabus).ThenInclude(s => s.Center)
+                    .ThenInclude(c => c.State)
+                .AsNoTracking().ToListAsync();
+
+        /// <inheritdoc/>
+        public async Task<FeePlan?> GetByIdAsync(Guid id)
+            => await _context.FeePlans
+                .Include(x => x.Discounts)
+                .Include(x => x.Course).ThenInclude(c => c.Stream)
+                    .ThenInclude(s => s.Grade).ThenInclude(g => g.Syllabus)
+                    .ThenInclude(s => s.Center).ThenInclude(c => c.State)
+                .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
+
+        /// <inheritdoc/>
+        public async Task<FeePlan?> GetFeePlanByIdAsync(Guid feePlanId)
+            => await _context.FeePlans
+                .FirstOrDefaultAsync(x => x.Id == feePlanId && !x.IsDeleted);
+
+        /// <inheritdoc/>
+        public async Task<FeePlan?> GetFeePlanWithDiscountsAsync(Guid feePlanId)
+            => await _context.FeePlans
+                .Include(x => x.Discounts)
                 .Include(x => x.Course)
-                .ThenInclude(x => x.Grade)
-                .ThenInclude(x => x.Syllabus)
-                .ThenInclude(x => x.Center)
-                 .ThenInclude(x => x.State)
-                .AsNoTracking()
-                .ToListAsync();
-        }
+                .FirstOrDefaultAsync(x => x.Id == feePlanId && !x.IsDeleted);
 
-        /// <summary>
-        /// Gets the by identifier asynchronous.
-        /// </summary>
-        /// <param name="discount">The discount.</param>
-        public void AddDiscount(FeePlanDiscount discount)
-        {
-            _context.FeePlanDiscount.Add(discount);
-        }
-
-        /// <summary>
-        /// Gets the by identifier asynchronous.
-        /// </summary>
-        /// <param name="discount">The discount.</param>
-        public void RemoveDiscount(FeePlanDiscount discount)
-        {
-            _context.FeePlanDiscount.Remove(discount);
-        }
-
-        /// <summary>
-        /// Deletes the asynchronous.
-        /// </summary>
-        /// <param name="id">The identifier.</param>
-        /// <returns>task.</returns>
+        /// <inheritdoc/>
         public async Task<bool> DeleteAsync(Guid id)
         {
             var entity = await _context.FeePlans.FindAsync(id);
-            if (entity == null)
-            {
-                return false;
-            }
-
+            if (entity == null) return false;
             entity.IsActive = false;
-            entity.IsDeleted = false;
-
-            _context.FeePlans.Update(entity);
+            entity.IsDeleted = true;
             await _context.SaveChangesAsync();
             return true;
         }
 
-        /// <summary>
-        /// Gets queryable for filtering with full hierarchy.
-        /// </summary>
-        /// <returns>Queryable fees.</returns>
+        /// <inheritdoc/>
         public IQueryable<FeePlan> Query()
+            => _context.FeePlans.Where(x => !x.IsDeleted)
+                .Include(x => x.Discounts)
+                .Include(x => x.Course).ThenInclude(c => c.Stream)
+                    .ThenInclude(s => s.Grade).ThenInclude(g => g.Syllabus)
+                    .ThenInclude(s => s.Center).ThenInclude(c => c.State)
+                .AsNoTracking();
+
+        /// <inheritdoc/>
+        public void AddDiscount(FeePlanDiscount discount)
+            => _context.FeePlanDiscount.Add(discount);
+
+        /// <inheritdoc/>
+        public void RemoveDiscount(FeePlanDiscount discount)
+            => _context.FeePlanDiscount.Remove(discount);
+
+        // ── Student / Course ──
+
+        /// <inheritdoc/>
+        public async Task<Student?> GetStudentWithCoursesAsync(Guid studentId)
+            => await _context.Students
+                .Include(x => x.StudentAcademicCouses)
+                .Include(x => x.AcademicDetails)
+                    .ThenInclude(a => a.Grade).ThenInclude(g => g.Syllabus)
+                .Include(x => x.StudentPersonalDetails)
+                .FirstOrDefaultAsync(x => x.Id == studentId && !x.IsDeleted);
+
+        /// <inheritdoc/>
+        public async Task<List<Course>> GetCoursesByGradeAsync(Guid gradeId)
+            => await _context.Courses
+                .Include(c => c.Stream)
+                .Include(c => c.FeePlans.Where(fp => !fp.IsDeleted))
+                    .ThenInclude(fp => fp.Discounts.Where(d => !d.IsDeleted))
+                .Where(c => c.Stream.GradeId == gradeId && c.IsActive && !c.IsDeleted)
+                .ToListAsync();
+
+        // ── StudentCourseDiscount ──
+
+        /// <inheritdoc/>
+        public async Task<List<StudentCourseDiscount>> GetStudentCourseDiscountsAsync(
+            Guid studentId)
+            => await _context.StudentCourseDiscounts
+                .Where(x => x.StudentId == studentId && x.IsActive && !x.IsDeleted)
+                .ToListAsync();
+
+        /// <inheritdoc/>
+        public async Task<List<StudentCourseDiscount>> GetStudentCourseDiscountsAsync(
+            Guid studentId, Guid courseId)
+            => await _context.StudentCourseDiscounts
+                .Where(x => x.StudentId == studentId
+                          && x.CourseId == courseId
+                          && x.IsActive && !x.IsDeleted)
+                .ToListAsync();
+
+        /// <inheritdoc/>
+        public async Task AddStudentCourseDiscountsAsync(
+            IEnumerable<StudentCourseDiscount> discounts)
+            => await _context.StudentCourseDiscounts.AddRangeAsync(discounts);
+
+        /// <inheritdoc/>
+        public async Task RemoveStudentCourseDiscountsAsync(Guid studentId, Guid courseId)
         {
-            return _context.FeePlans.Where(x => !x.IsDeleted)
-                 .Include(x => x.Discounts)
-                .Include(x => x.Installments)
-                 .Include(x => x.Course)
-                .ThenInclude(x => x.Stream)
-                 .Include(x => x.Course)
-                .ThenInclude(s => s.Grade)
-                .ThenInclude(g => g.Syllabus)
-                 .ThenInclude(x => x.Center)
-                 .ThenInclude(x => x.State)
-                 .ThenInclude(x => x.Country)
-                        .AsNoTracking();
+            var existing = await _context.StudentCourseDiscounts
+                .Where(x => x.StudentId == studentId
+                          && x.CourseId == courseId
+                          && !x.IsDeleted)
+                .ToListAsync();
+
+            foreach (var e in existing)
+            {
+                e.IsActive = false;
+                e.IsDeleted = true;
+            }
         }
+
+        // ── FeePlanDiscount lookup ──
+
+        /// <inheritdoc/>
+        public async Task<List<FeePlanDiscount>> GetFeePlanDiscountsByIdsAsync(
+            IEnumerable<Guid> ids)
+            => await _context.FeePlanDiscount
+                .Include(d => d.FeePlan)
+                .Where(d => ids.Contains(d.Id) && !d.IsDeleted)
+                .ToListAsync();
+
+        /// <inheritdoc/>
+        public async Task<List<FeePlanDiscount>> GetDiscountsByCourseAsync(Guid courseId)
+            => await _context.FeePlanDiscount
+                .Include(d => d.FeePlan)
+                .Where(d => d.FeePlan.CourseId == courseId
+                          && d.IsActive && !d.IsDeleted
+                          && d.FeePlan.IsActive && !d.FeePlan.IsDeleted)
+                .ToListAsync();
+
+        // ── StudentFeeSelection ──
+
+        /// <inheritdoc/>
+        public async Task AddStudentFeeSelectionAsync(StudentFeeSelection selection)
+            => await _context.StudentFeeSelections.AddAsync(selection);
+
+        /// <inheritdoc/>
+        public async Task<StudentFeeSelection?> GetSelectionByIdAsync(Guid selectionId)
+            => await _context.StudentFeeSelections
+                .Include(x => x.Course)
+                .Include(x => x.FeePlan)
+                .FirstOrDefaultAsync(x => x.Id == selectionId && !x.IsDeleted);
+
+        /// <inheritdoc/>
+        public async Task<StudentFeeSelection?> GetSelectionWithDetailsAsync(
+            Guid selectionId)
+            => await _context.StudentFeeSelections
+                .Include(x => x.AppliedDiscounts)
+                .Include(x => x.Installments)
+                .Include(x => x.Course)
+                .Include(x => x.FeePlan)
+                .FirstOrDefaultAsync(x => x.Id == selectionId && !x.IsDeleted);
+
+        /// <inheritdoc/>
+        public async Task<List<StudentFeeSelection>> GetSelectionsByStudentAsync(
+            Guid studentId)
+            => await _context.StudentFeeSelections
+                .Include(x => x.Course)
+                .Include(x => x.FeePlan)
+                .Include(x => x.AppliedDiscounts)
+                .Include(x => x.Installments)
+                .Where(x => x.StudentId == studentId
+                          && x.IsActive && !x.IsDeleted)
+                .ToListAsync();
+
+        /// <inheritdoc/>
+        public async Task<bool> HasConfirmedSelectionForCourseAsync(
+            Guid studentId, Guid courseId)
+            => await _context.StudentFeeSelections
+                .AnyAsync(x => x.StudentId == studentId
+                             && x.CourseId == courseId
+                             && x.IsActive && !x.IsDeleted);
+
+        /// <inheritdoc/>
+        public IQueryable<StudentFeeSelection> QuerySelections()
+            => _context.StudentFeeSelections.Where(x => !x.IsDeleted)
+                .Include(x => x.Student).ThenInclude(s => s.StudentPersonalDetails)
+                .Include(x => x.Course)
+                .Include(x => x.FeePlan)
+                .AsNoTracking();
+
+        // ── StudentInstallment ──
+
+        /// <inheritdoc/>
+        public async Task<StudentInstallment?> GetInstallmentByIdAsync(Guid installmentId)
+            => await _context.StudentInstallments
+                .FirstOrDefaultAsync(x => x.Id == installmentId && !x.IsDeleted);
+
+        /// <inheritdoc/>
+        public async Task<List<StudentInstallment>> GetInstallmentsBySelectionAsync(
+            Guid selectionId)
+            => await _context.StudentInstallments
+                .Where(x => x.StudentFeeSelectionId == selectionId && !x.IsDeleted)
+                .OrderBy(x => x.InstallmentNo)
+                .ToListAsync();
+
+        // ── Common ──
+
+        /// <inheritdoc/>
+        public async Task SaveChangesAsync()
+            => await _context.SaveChangesAsync();
     }
 }
