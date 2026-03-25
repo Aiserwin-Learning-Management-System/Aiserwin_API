@@ -14,7 +14,7 @@
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/dtp-admin")]
-    [Authorize(Roles = "Staff,SuperAdmin,CountryAdmin,CenterAdmin")]
+    [Authorize(Roles = "SuperAdmin,CountryAdmin,CenterAdmin")]
     public sealed class DtpAdminController : BaseController
     {
         private readonly IDtpAdminService _service;
