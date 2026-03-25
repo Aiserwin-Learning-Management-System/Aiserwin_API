@@ -32,7 +32,7 @@
                 .Include(sr => sr.Values)
                     .ThenInclude(v => v.FormField)
                 .AsNoTracking()
-                .Where(sr => sr.CreatedBy == userId)
+                .Where(sr => sr.UserId == userId)
                 .OrderByDescending(sr => sr.CreatedAt)
                 .FirstOrDefaultAsync();
 
@@ -53,7 +53,7 @@
                     .ThenInclude(v => v.FormField)
                 .AsNoTracking()
                 .Where(sr => sr.StaffCategoryId == user.StaffCategoryId
-                    && sr.CreatedBy == userId)
+                    && sr.UserId == userId)
                 .OrderByDescending(sr => sr.CreatedAt)
                 .FirstOrDefaultAsync();
         }

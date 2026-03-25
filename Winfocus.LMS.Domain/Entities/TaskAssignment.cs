@@ -143,7 +143,7 @@
         /// <value>
         /// The operator.
         /// </value>
-        public StaffRegistration Operator { get; set; } = default!;
+        public User Operator { get; set; } = default!;
 
         /// <summary>
         /// Gets or sets the type of the resource.

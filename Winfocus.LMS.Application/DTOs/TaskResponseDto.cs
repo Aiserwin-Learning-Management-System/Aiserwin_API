@@ -135,6 +135,11 @@ namespace Winfocus.LMS.Application.DTOs
         public string? Instructions { get; set; }
 
         /// <summary>
+        /// Gets or sets the CompletionPercentage.
+        /// </summary>
+        public double CompletionPercentage { get; set; }
+
+        /// <summary>
         /// Gets or sets the status.
         /// </summary>
         /// <value>

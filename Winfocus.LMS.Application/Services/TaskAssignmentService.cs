@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Net.NetworkInformation;
 using System.Text;
 using Winfocus.LMS.Application.DTOs;
 using Winfocus.LMS.Application.DTOs.Common;
@@ -33,20 +34,7 @@ namespace Winfocus.LMS.Application.Services
         private readonly IContentResourceTypeRepository _resourceTypeRepository;
         private readonly IQuestionTypeConfigRepository _questionTypeRepository;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TaskAssignmentService"/> class.
-        /// </summary>
-        /// <param name="repository">The repository.</param>
-        /// <param name="logger">The logger.</param>
-        /// <param name="operatorDashboardService">The operatorDashboardService.</param>
-        /// <param name="syllabusRepository">The syllabus repository.</param>
-        /// <param name="academicYearRepository">The academic year repository.</param>
-        /// <param name="gradeRepository">The grade repository.</param>
-        /// <param name="subjectRepository">The subject repository.</param>
-        /// <param name="unitRepository">The unit repository.</param>
-        /// <param name="chapterRepository">The chapter repository.</param>
-        /// <param name="resourceTypeRepository">The resource type repository.</param>
-        /// <param name="questionTypeRepository">The question type repository.</param>
+        // File: Winfocus.LMS.Application\Services\TaskAssignmentService.cs
         public TaskAssignmentService(
             ITaskAssignmentRepository repository,
             ILogger<TaskAssignmentService> logger,
@@ -60,9 +48,18 @@ namespace Winfocus.LMS.Application.Services
             IContentResourceTypeRepository resourceTypeRepository,
             IQuestionTypeConfigRepository questionTypeRepository)
         {
-            _repository = repository;
-            _logger = logger;
-            _operatorDashboardService = operatorDashboardService;
+            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _operatorDashboardService = operatorDashboardService ?? throw new ArgumentNullException(nameof(operatorDashboardService));
+
+            _syllabusRepository = syllabusRepository ?? throw new ArgumentNullException(nameof(syllabusRepository));
+            _academicYearRepository = academicYearRepository ?? throw new ArgumentNullException(nameof(academicYearRepository));
+            _gradeRepository = gradeRepository ?? throw new ArgumentNullException(nameof(gradeRepository));
+            _subjectRepository = subjectRepository ?? throw new ArgumentNullException(nameof(subjectRepository));
+            _unitRepository = unitRepository ?? throw new ArgumentNullException(nameof(unitRepository));
+            _chapterRepository = chapterRepository ?? throw new ArgumentNullException(nameof(chapterRepository));
+            _resourceTypeRepository = resourceTypeRepository ?? throw new ArgumentNullException(nameof(resourceTypeRepository));
+            _questionTypeRepository = questionTypeRepository ?? throw new ArgumentNullException(nameof(questionTypeRepository));
         }
 
         /// <summary>
@@ -136,14 +133,16 @@ namespace Winfocus.LMS.Application.Services
                     return CommonResponse<TaskResponseDto>.FailureResponse("Invalid Operator!");
                 }
 
-                //_logger.LogInformation("Creating Task Asiignments with code: {Code}", request.TaskCode);
+                if (request.TotalQuestions <= 0)
+                {
+                    return CommonResponse<TaskResponseDto>.FailureResponse("TotalQuestions must be greater than 0.");
+                }
 
-                //bool codeExists = await _repository.CodeExistsAsync(request.TaskCode);
-                //if (codeExists)
-                //{
-                //    return CommonResponse<TaskResponseDto>.FailureResponse(
-                //        $"Task Code '{request.TaskCode}' already exists");
-                //}
+                if (request.Deadline <= DateTime.UtcNow)
+                {
+                    return CommonResponse<TaskResponseDto>.FailureResponse("Deadline must be a future date.");
+                }
+
                 var codereq = new TaskCodeRequest
                 {
                     OperatorId = request.OperatorId,
@@ -155,6 +154,7 @@ namespace Winfocus.LMS.Application.Services
                     ChapterId = request.ChapterId,
                     ContentresourceTypeId = request.ResourceTypeId,
                     QuestionTypeId = request.QuestionTypeId,
+                    OperatorName = res.Data.FullName,
                 };
 
                 CommonResponse<SuggestedCodeResponseDto> taskcodeobj = await TaskCodeAsync(codereq);
@@ -176,6 +176,12 @@ namespace Winfocus.LMS.Application.Services
                     Instructions = request.Instructions,
                     Status = (int)TaskStatus.Pending,
                     SequenceNumber = taskcodeobj.Data.NextSequence,
+                    TaskCode = taskcode,
+                    ResourceTypeId = request.ResourceTypeId,
+                    GradeId = request.GradeId,
+                    SyllabusId = request.SyllabusId,
+                    UnitId = request.UnitId,
+                    SubjectId = request.SubjectId,
                 };
 
                 var created = await _repository.AddAsync(taskassignment);
@@ -220,6 +226,15 @@ namespace Winfocus.LMS.Application.Services
                 task.CompletedCount = request.CompletedCount;
                 task.Deadline = request.Deadline;
                 task.Priority = request.Priority;
+                task.Instructions = request.Instructions;
+                task.Status = task.Status;
+                task.SequenceNumber = task.SequenceNumber;
+                task.TaskCode = task.TaskCode;
+                task.ResourceTypeId = request.ResourceTypeId;
+                task.GradeId = request.GradeId;
+                task.SyllabusId = request.SyllabusId;
+                task.UnitId = request.UnitId;
+                task.SubjectId = request.SubjectId;
 
                 var updated = await _repository.UpdateAsync(task);
 
@@ -467,7 +482,7 @@ namespace Winfocus.LMS.Application.Services
             {
                 _logger.LogInformation("Generating suggested Task Code");
 
-                ExamSyllabus? syllabus = await _syllabusRepository.GetByIdAsync(dto.SyllabusId, dto.AcademicYearId);
+                var syllabus = await _syllabusRepository.GetByIdAsync(dto.SyllabusId, dto.AcademicYearId);
                 if (syllabus == null)
                 {
                     return CommonResponse<SuggestedCodeResponseDto>.FailureResponse("Syllabus not found");
@@ -519,11 +534,16 @@ namespace Winfocus.LMS.Application.Services
                     dto.SyllabusId, dto.AcademicYearId, dto.GradeId,
                     dto.SubjectId, dto.UnitId, dto.ChapterId, dto.ContentresourceTypeId,dto.QuestionTypeId, dto.OperatorId);
 
+                if (dto.OperatorName == "Unknown")
+                {
+                    dto.OperatorName = string.Empty;
+                }
+
                 string code = BuildQuestionCode(
                     syllabus.Name, academicYear.Name, grade.Name,
                     subject.Code ?? subject.Name.Substring(0, Math.Min(3, subject.Name.Length)).ToUpper(),
                     unit.UnitNumber, chapter.ChapterNumber,
-                    resourceType.Name, questionType.Name, nextSequence);
+                    resourceType.Name, questionType.Name, dto.OperatorName, nextSequence);
 
                 _logger.LogInformation("Suggested code: {Code}", code);
 
@@ -565,6 +585,7 @@ namespace Winfocus.LMS.Application.Services
             int chapterNumber,
             string resourceTypeCode,
             string questionTypeCode,
+            string operatorName,
             int sequenceNumber)
         {
             string yearPart = academicYearName.Length >= 4
@@ -585,6 +606,7 @@ namespace Winfocus.LMS.Application.Services
                    $"-CH{chapterNumber:D2}" +
                    $"-{resourceTypeCode.ToUpper()}" +
                    $"-{questionTypeCode.ToUpper()}" +
+                   $"-{operatorName.ToUpper()}" +
                    $"-{sequenceNumber:D4}";
         }
 
@@ -609,6 +631,20 @@ namespace Winfocus.LMS.Application.Services
          Priority = c.Priority,
          Instructions = c.Instructions,
          Status = c.Status,
+         ResourceType = c.ResourceType,
+         SyllabusId = c.SyllabusId,
+         GradeId = c.GradeId,
+         SubjectId = c.SubjectId,
+         ChapterId = c.ChapterId,
+         UnitId = c.UnitId,
+         // DaysRemaining = (c.Deadline - DateTime.UtcNow).Days,
+         DaysRemaining = c.Deadline > DateTime.UtcNow
+            ? (int)Math.Ceiling((c.Deadline - DateTime.UtcNow).TotalDays)
+            : 0,
+
+         CompletionPercentage = c.TotalQuestions > 0
+            ? (double)c.CompletedCount / c.TotalQuestions * 100
+            : 0,
      };
     }
 }
