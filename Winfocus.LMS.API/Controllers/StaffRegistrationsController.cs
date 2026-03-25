@@ -38,7 +38,7 @@
         public async Task<ActionResult<CommonResponse<RegistrationResponseDto>>>
             SubmitWithFiles([FromForm] SubmitRegistrationRequest request)
         {
-            var result = await _service.SubmitAsync(request, UserId);
+            var result = await _service.SubmitAsync(request);
             return result.Success ? Ok(result) : BadRequest(result);
         }
 
@@ -52,7 +52,7 @@
         public async Task<ActionResult<CommonResponse<RegistrationResponseDto>>>
             SubmitJson([FromBody] SubmitRegistrationRequest request)
         {
-            var result = await _service.SubmitAsync(request, UserId);
+            var result = await _service.SubmitAsync(request);
             return result.Success ? Ok(result) : BadRequest(result);
         }
 
