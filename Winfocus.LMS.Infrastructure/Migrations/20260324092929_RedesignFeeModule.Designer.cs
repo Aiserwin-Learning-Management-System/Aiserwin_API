@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Winfocus.LMS.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using Winfocus.LMS.Infrastructure.Data;
 namespace Winfocus.LMS.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260324092929_RedesignFeeModule")]
+    partial class RedesignFeeModule
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -273,9 +276,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasDefaultValueSql("NEWSEQUENTIALID()");
 
-                    b.Property<Guid>("ChapterId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
@@ -310,8 +310,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ChapterId");
 
                     b.HasIndex("Name")
                         .IsUnique()
@@ -2924,14 +2922,8 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.Property<int>("QuestionType")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("QuestionTypeId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid>("ResourceTypeId")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("SequenceNumber")
-                        .HasColumnType("int");
 
                     b.Property<int>("Status")
                         .ValueGeneratedOnAdd()
@@ -2943,10 +2935,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
 
                     b.Property<Guid>("SyllabusId")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("TaskCode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("TotalQuestions")
                         .HasColumnType("int");
@@ -3312,17 +3300,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.Navigation("State");
 
                     b.Navigation("modeOfStudy");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.ContentResourceType", b =>
-                {
-                    b.HasOne("Winfocus.LMS.Domain.Entities.ExamChapter", "Chapter")
-                        .WithMany()
-                        .HasForeignKey("ChapterId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Chapter");
                 });
 
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.Course", b =>

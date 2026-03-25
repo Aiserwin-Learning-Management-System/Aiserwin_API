@@ -61,7 +61,8 @@
         /// <summary>
         /// Gets all asynchronous.
         /// </summary>
+        /// <param name="centerId">The centerId.</param>
         /// <returns>doubtclearing .</returns>
-        IQueryable<DoubtClearing> Query();
+        IQueryable<DoubtClearing> Query(Guid centerId);
     }
 }

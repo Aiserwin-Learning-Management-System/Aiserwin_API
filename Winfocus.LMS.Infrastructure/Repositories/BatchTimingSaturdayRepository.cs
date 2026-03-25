@@ -35,12 +35,12 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         public async Task<IReadOnlyList<BatchTimingSaturday>> GetAllAsync(Guid centerId)
         {
             var res = _dbContext.BatchTimingSaturdays
-                .Where(x => x.IsActive && !x.IsDeleted)
+                .Where(x => !x.IsDeleted)
                 .Include(x => x.Subject)
-                  .ThenInclude(s => s.Course)
-                     .ThenInclude(s => s.Stream)
-                      .ThenInclude(s => s.Grade)
-                       .ThenInclude(s => s.Syllabus)
+                    .ThenInclude(s => s.Course)
+                        .ThenInclude(s => s.Stream)
+                            .ThenInclude(s => s.Grade)
+                                .ThenInclude(s => s.Syllabus)
                 .AsNoTracking();
             if (centerId != Guid.Empty)
             {
@@ -177,18 +177,18 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// <returns>Queryable batches.</returns>
         public IQueryable<BatchTimingSaturday> Query(Guid centerId)
         {
-            var res = _dbContext.BatchTimingSaturdays.Where(x => x.Subject.Course.Stream.Grade.Syllabus.CenterId == centerId)
-               .Include(x => x.Subject)
-                   .ThenInclude(s => s.Course)
-                      .ThenInclude(s => s.Stream)
-                       .ThenInclude(s => s.Grade)
-                        .ThenInclude(s => s.Syllabus)
+            var res = _dbContext.BatchTimingSaturdays
+                .Where(x => !x.IsDeleted)
+                .Include(x => x.Subject)
+                    .ThenInclude(s => s.Course)
+                        .ThenInclude(s => s.Stream)
+                            .ThenInclude(s => s.Grade)
+                                .ThenInclude(s => s.Syllabus)
                 .AsNoTracking();
             if (centerId != Guid.Empty)
             {
                 res = res.Where(x => x.Subject.Course.Stream.Grade.Syllabus.CenterId == centerId);
             }
-
             return res;
         }
     }
