@@ -855,26 +855,33 @@
                 request.PaymentType,
                 request.DurationinYears,
                 request.SubjectId);
+
             feePlan.UpdatedBy = request.userid;
 
             var existing = feePlan.Discounts.ToList();
             var incoming = request.Discounts ?? new List<CreateFeePlanDiscountRequestDto>();
 
+            // ── Remove discounts not in incoming ──
             foreach (var old in existing)
             {
-                if (!incoming.Any(d => d.id != Guid.Empty && d.id == old.Id))
+                var stillExists = incoming.Any(d => d.id != Guid.Empty && d.id == old.Id);
+                if (!stillExists)
                 {
+                    feePlan.Discounts.Remove(old);
                     _repo.RemoveDiscount(old);
                 }
             }
 
+            // ── Add new / update existing ──
             foreach (var dto in incoming)
             {
                 if (dto.id == Guid.Empty)
                 {
-                    var nd = new FeePlanDiscount(feePlan.Id, dto.discountName, dto.discountPercent);
-                    nd.CreatedBy = request.userid;
-                    _repo.AddDiscount(nd);
+                    var newDiscount = new FeePlanDiscount(
+                        feePlan.Id, dto.discountName, dto.discountPercent);
+                    newDiscount.CreatedBy = request.userid;
+                    feePlan.Discounts.Add(newDiscount);
+                    _repo.AddDiscount(newDiscount);
                 }
                 else
                 {
@@ -888,7 +895,9 @@
             }
 
             await _repo.SaveChangesAsync();
-            return MapFeePlan(feePlan);
+
+            var refreshed = await _repo.GetByIdAsync(id);
+            return MapFeePlan(refreshed!);
         }
 
         /// <inheritdoc/>
@@ -1017,7 +1026,7 @@
             ModeofstudyId = fp.Course?.Grade?.Syllabus?.Center?.State?.ModeOfStudyId
                             ?? Guid.Empty,
             CenterId = fp.Course?.Grade?.Syllabus?.CenterId ?? Guid.Empty,
-            Discounts = fp.Discounts.Select(d => new FeePlanDiscountDto
+            Discounts = fp.Discounts.Where(d => !d.IsDeleted && d.IsActive).Select(d => new FeePlanDiscountDto
             {
                 Id = d.Id,
                 FeePlanId = d.FeePlanId,

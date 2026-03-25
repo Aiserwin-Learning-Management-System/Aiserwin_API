@@ -31,7 +31,7 @@
         /// <inheritdoc/>
         public async Task<List<FeePlan>> GetAllAsync()
             => await _context.FeePlans.Where(x => !x.IsDeleted)
-                .Include(x => x.Discounts)
+                .Include(x => x.Discounts.Where(d => !d.IsDeleted && d.IsActive))
                 .Include(x => x.Course).ThenInclude(c => c.Stream)
                 .Include(x => x.Course).ThenInclude(c => c.Grade)
                     .ThenInclude(g => g.Syllabus).ThenInclude(s => s.Center)
@@ -41,7 +41,7 @@
         /// <inheritdoc/>
         public async Task<FeePlan?> GetByIdAsync(Guid id)
             => await _context.FeePlans
-                .Include(x => x.Discounts)
+                .Include(x => x.Discounts.Where(d => !d.IsDeleted && d.IsActive))
                 .Include(x => x.Course).ThenInclude(c => c.Stream)
                     .ThenInclude(s => s.Grade).ThenInclude(g => g.Syllabus)
                     .ThenInclude(s => s.Center).ThenInclude(c => c.State)
@@ -55,7 +55,7 @@
         /// <inheritdoc/>
         public async Task<FeePlan?> GetFeePlanWithDiscountsAsync(Guid feePlanId)
             => await _context.FeePlans
-                .Include(x => x.Discounts)
+                .Include(x => x.Discounts.Where(d => !d.IsDeleted && d.IsActive))
                 .Include(x => x.Course)
                 .FirstOrDefaultAsync(x => x.Id == feePlanId && !x.IsDeleted);
 
@@ -63,7 +63,11 @@
         public async Task<bool> DeleteAsync(Guid id)
         {
             var entity = await _context.FeePlans.FindAsync(id);
-            if (entity == null) return false;
+            if (entity == null)
+            {
+                return false;
+            }
+
             entity.IsActive = false;
             entity.IsDeleted = true;
             await _context.SaveChangesAsync();
@@ -73,7 +77,7 @@
         /// <inheritdoc/>
         public IQueryable<FeePlan> Query()
             => _context.FeePlans.Where(x => !x.IsDeleted)
-                .Include(x => x.Discounts)
+                .Include(x => x.Discounts.Where(d => !d.IsDeleted && d.IsActive))
                 .Include(x => x.Course).ThenInclude(c => c.Stream)
                     .ThenInclude(s => s.Grade).ThenInclude(g => g.Syllabus)
                     .ThenInclude(s => s.Center).ThenInclude(c => c.State)
@@ -85,7 +89,12 @@
 
         /// <inheritdoc/>
         public void RemoveDiscount(FeePlanDiscount discount)
-            => _context.FeePlanDiscount.Remove(discount);
+        {
+            discount.IsActive = false;
+            discount.IsDeleted = true;
+            discount.UpdatedAt = DateTime.UtcNow;
+            _context.FeePlanDiscount.Update(discount);
+        }
 
         // ── Student / Course ──
 
@@ -103,7 +112,7 @@
             => await _context.Courses
                 .Include(c => c.Stream)
                 .Include(c => c.FeePlans.Where(fp => !fp.IsDeleted))
-                    .ThenInclude(fp => fp.Discounts.Where(d => !d.IsDeleted))
+                    .ThenInclude(fp => fp.Discounts.Where(d => !d.IsDeleted && d.IsActive))
                 .Where(c => c.Stream.GradeId == gradeId && c.IsActive && !c.IsDeleted)
                 .ToListAsync();
 
@@ -153,7 +162,7 @@
             IEnumerable<Guid> ids)
             => await _context.FeePlanDiscount
                 .Include(d => d.FeePlan)
-                .Where(d => ids.Contains(d.Id) && !d.IsDeleted)
+                .Where(d => ids.Contains(d.Id) && !d.IsDeleted && d.IsActive)
                 .ToListAsync();
 
         /// <inheritdoc/>
