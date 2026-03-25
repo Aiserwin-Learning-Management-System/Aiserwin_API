@@ -88,7 +88,7 @@
         /// </summary>
         /// <param name="registrationId">The registration ID.</param>
         /// <returns></returns>
-        [HttpGet("{registrationId}")]
+        [HttpGet("operators/{registrationId}")]
         public async Task<IActionResult> Get(Guid registrationId)
         {
             return Ok(await _service.GetOperatorDetailAsync(registrationId));
@@ -99,7 +99,7 @@
         /// <param name="registrationId">The registration ID.</param>
         /// <param name="dto">The dto.</param>
         /// <returns></returns>
-        [HttpPatch("{registrationId}/verify")]
+        [HttpPatch("operators/{registrationId}/verify")]
         public async Task<IActionResult> Verify(Guid registrationId, VerifyOperatorDto dto)
         {
             await _service.VerifyOperatorAsync(registrationId, dto, UserId);
