@@ -144,12 +144,14 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             // Filter by date range
             if (filter.StartDate.HasValue)
             {
-                query = query.Where(x => x.ReportDate >= filter.StartDate.Value);
+                var startDate = DateOnly.FromDateTime(filter.StartDate.Value);
+                query = query.Where(x => x.ReportDate >= startDate);
             }
 
             if (filter.EndDate.HasValue)
             {
-                query = query.Where(x => x.ReportDate <= filter.EndDate.Value);
+                var endDate = DateOnly.FromDateTime(filter.EndDate.Value);
+                query = query.Where(x => x.ReportDate <= endDate);
             }
 
             var totalCount = await query.CountAsync();

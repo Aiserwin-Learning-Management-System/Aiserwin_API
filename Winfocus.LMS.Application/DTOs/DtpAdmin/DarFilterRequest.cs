@@ -4,6 +4,7 @@ namespace Winfocus.LMS.Application.DTOs.DtpAdmin
 
     /// <summary>
     /// Filter request DTO for admin DAR listing with date range and operator filtering.
+    /// Inherits pagination and date range filtering from PagedRequest.
     /// </summary>
     public class DarFilterRequest : PagedRequest
     {
@@ -12,15 +13,5 @@ namespace Winfocus.LMS.Application.DTOs.DtpAdmin
         /// If null, returns all operators' DARs.
         /// </summary>
         public Guid? OperatorId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the start date for filtering (optional).
-        /// </summary>
-        public new DateOnly? StartDate { get; set; }
-
-        /// <summary>
-        /// Gets or sets the end date for filtering (optional).
-        /// </summary>
-        public new DateOnly? EndDate { get; set; }
     }
 }
