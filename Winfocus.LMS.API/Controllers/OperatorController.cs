@@ -24,6 +24,7 @@
         private readonly IOperatorDashboardService _dashboardService;
         private readonly IQuestionCorrectionService _correctionService;
         private readonly IOperatorStatsService _statsService;
+        private readonly IDarService _darService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OperatorController"/> class.
@@ -31,14 +32,17 @@
         /// <param name="dashboardService">The dashboard service.</param>
         /// <param name="correctionService">The correction service.</param>
         /// <param name="statsService">The operator stats service.</param>
+        /// <param name="darService">The DAR service.</param>
         public OperatorController(
             IOperatorDashboardService dashboardService,
             IQuestionCorrectionService correctionService,
-            IOperatorStatsService statsService)
+            IOperatorStatsService statsService,
+            IDarService darService)
         {
             _dashboardService = dashboardService;
             _correctionService = correctionService;
             _statsService = statsService;
+            _darService = darService;
         }
 
         /// <summary>
@@ -149,6 +153,89 @@
         {
             CommonResponse<OperatorProductivityDto> result =
                 await _statsService.GetProductivityAsync(UserId, filter);
+            return Ok(result);
+        }
+
+        // ── Daily Activity Report Endpoints ─────────────────────────────────────
+
+        /// <summary>
+        /// Creates a new Daily Activity Report.
+        /// </summary>
+        /// <param name="request">The DAR request data.</param>
+        /// <returns>The created DAR with response details.</returns>
+        [Authorize(Roles = "Staff")]
+        [HttpPost("dar")]
+        public async Task<ActionResult<CommonResponse<DarResponseDto>>> CreateDar(
+            [FromBody] DarRequestDto request)
+        {
+            var result = await _darService.CreateAsync(UserId, request);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        /// <summary>
+        /// Gets the operator's Daily Activity Reports with pagination.
+        /// </summary>
+        /// <param name="request">Pagination parameters.</param>
+        /// <returns>Paginated list of DARs for the operator.</returns>
+        [Authorize(Roles = "Staff")]
+        [HttpGet("dar")]
+        public async Task<ActionResult<CommonResponse<PagedResult<DarListDto>>>> GetMyDars(
+            [FromQuery] PagedRequest request)
+        {
+            var result = await _darService.GetListAsync(UserId, request);
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Gets a specific Daily Activity Report by ID.
+        /// </summary>
+        /// <param name="id">The DAR identifier.</param>
+        /// <returns>The DAR details.</returns>
+        [Authorize(Roles = "Staff")]
+        [HttpGet("dar/{id:guid}")]
+        public async Task<ActionResult<CommonResponse<DarResponseDto>>> GetDarById(Guid id)
+        {
+            var result = await _darService.GetByIdAsync(UserId, id);
+            return result.Success ? Ok(result) : NotFound(result);
+        }
+
+        /// <summary>
+        /// Updates a Draft Daily Activity Report.
+        /// </summary>
+        /// <param name="id">The DAR identifier.</param>
+        /// <param name="request">The updated DAR request data.</param>
+        /// <returns>The updated DAR details.</returns>
+        [Authorize(Roles = "Staff")]
+        [HttpPut("dar/{id:guid}")]
+        public async Task<ActionResult<CommonResponse<DarResponseDto>>> UpdateDar(
+            Guid id, [FromBody] DarRequestDto request)
+        {
+            var result = await _darService.UpdateAsync(UserId, id, request);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        /// <summary>
+        /// Submits a Draft Daily Activity Report (changes status to Submitted).
+        /// </summary>
+        /// <param name="id">The DAR identifier.</param>
+        /// <returns>Success or failure response.</returns>
+        [Authorize(Roles = "Staff")]
+        [HttpPost("dar/{id:guid}/submit")]
+        public async Task<ActionResult<CommonResponse<bool>>> SubmitDar(Guid id)
+        {
+            var result = await _darService.SubmitAsync(UserId, id);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        /// <summary>
+        /// Gets today's Daily Activity Report or empty template.
+        /// </summary>
+        /// <returns>Today's DAR if exists, or empty template with today's date.</returns>
+        [Authorize(Roles = "Staff")]
+        [HttpGet("dar/today")]
+        public async Task<ActionResult<CommonResponse<DarTodayDto>>> GetTodayDar()
+        {
+            var result = await _darService.GetTodayAsync(UserId);
             return Ok(result);
         }
     }
