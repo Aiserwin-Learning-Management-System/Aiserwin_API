@@ -266,6 +266,27 @@ namespace Winfocus.LMS.Application.Services
             }
         }
 
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="yearId">The identifier.</param>
+        /// <returns>ExamSyllabusDto.</returns>
+        public async Task<CommonResponse<List<ExamSyllabusDto>>> GetByYearIdAsync(Guid yearId)
+        {
+            _logger.LogInformation("Fetching exam syllabus details by year Id: {Id}", yearId);
+            var examsyllabus = await _repository.GetByYearIdAsync(yearId);
+            _logger.LogInformation("Exam syllabus details by year fetched successfully for Id: {Id}", yearId);
+            var mappeddata = examsyllabus == null ? null : Map(examsyllabus);
+            if (mappeddata != null)
+            {
+                return CommonResponse<List<ExamSyllabusDto>>.SuccessResponse("Exam syllabus by year details fetched successfully", mappeddata);
+            }
+            else
+            {
+                return CommonResponse<List<ExamSyllabusDto>>.FailureResponse("Exam syllabus by year details not found");
+            }
+        }
+
         private static List<ExamSyllabusDto> Map(IEnumerable<ExamSyllabus> doubtclearing)
         {
             return doubtclearing.Select(Map).ToList();

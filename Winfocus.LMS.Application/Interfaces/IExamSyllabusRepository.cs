@@ -66,5 +66,12 @@ namespace Winfocus.LMS.Application.Interfaces
         /// </summary>
         /// <returns>Queryable ExamSyllabus.</returns>
         IQueryable<ExamSyllabus> Query();
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="yearId">The identifier.</param>
+        /// <returns>ExamSyllabus.</returns>
+        Task<List<ExamSyllabus>> GetByYearIdAsync(Guid yearId);
     }
 }
