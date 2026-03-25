@@ -200,6 +200,9 @@ builder.Services.AddScoped<IExamSyllabusService, ExamSyllabusService>();
 builder.Services.AddScoped<IContentResourceTypeRepository, ContentResourceTypeRepository>();
 builder.Services.AddScoped<IContentResourceTypeService, ContentResourceTypeService>();
 
+builder.Services.AddScoped<IDarRepository, DarRepository>();
+builder.Services.AddScoped<IDarService, DarService>();
+
 var fileUploadSettings = builder.Configuration
     .GetSection(FileUploadSettings.SectionName)
     .Get<FileUploadSettings>();
@@ -459,7 +462,7 @@ if (!app.Environment.IsEnvironment("Testing"))
     else
     {
         logger.LogInformation(
-            "Using Azure Blob Storage — skipping local "
+            "Using Azure Blob Storage ï¿½ skipping local "
             + "directory creation.");
     }
 }
@@ -522,7 +525,7 @@ if (pipelineFileConfig?.UseAzureBlob != true)
 else
 {
     Log.Information(
-        "Azure Blob Storage active — StudentFiles served "
+        "Azure Blob Storage active ï¿½ StudentFiles served "
         + "directly from blob URLs.");
 }
 

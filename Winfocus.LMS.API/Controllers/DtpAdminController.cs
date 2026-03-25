@@ -4,6 +4,7 @@
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Winfocus.LMS.Application.DTOs;
+    using Winfocus.LMS.Application.DTOs.Common;
     using Winfocus.LMS.Application.DTOs.DtpAdmin;
     using Winfocus.LMS.Application.DTOs.Stats;
     using Winfocus.LMS.Application.Interfaces;
@@ -19,16 +20,22 @@
     {
         private readonly IDtpAdminService _service;
         private readonly IOperatorStatsService _statsService;
+        private readonly IDarService _darService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DtpAdminController"/> class.
         /// </summary>
         /// <param name="service">The service.</param>
         /// <param name="statsService">The operator stats service.</param>
-        public DtpAdminController(IDtpAdminService service, IOperatorStatsService statsService)
+        /// <param name="darService">The DAR service.</param>
+        public DtpAdminController(
+            IDtpAdminService service,
+            IOperatorStatsService statsService,
+            IDarService darService)
         {
             _service = service;
             _statsService = statsService;
+            _darService = darService;
         }
 
         /// <summary>
@@ -135,6 +142,38 @@
         {
             CommonResponse<OperatorProductivityDto> result =
                 await _statsService.GetProductivityAsync(operatorId, filter);
+            return Ok(result);
+        }
+
+        // ── Daily Activity Report Admin Endpoints ───────────────────────────────────
+
+        /// <summary>
+        /// Gets all Daily Activity Reports with optional filtering.
+        /// Admin-only endpoint.
+        /// </summary>
+        /// <param name="filter">Filter parameters (date range, operator ID, pagination).</param>
+        /// <returns>Paginated list of all Daily Activity Reports.</returns>
+        [HttpGet("dar")]
+        public async Task<ActionResult<CommonResponse<PagedResult<DarResponseDto>>>> GetAllDars(
+            [FromQuery] DarFilterRequest filter)
+        {
+            var result = await _darService.GetAllDarsAdminAsync(filter);
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Gets Daily Activity Reports for a specific operator.
+        /// Admin-only endpoint.
+        /// </summary>
+        /// <param name="operatorId">The operator identifier.</param>
+        /// <param name="filter">Filter parameters (date range, pagination).</param>
+        /// <returns>Paginated list of DARs for the specified operator.</returns>
+        [HttpGet("dar/operator/{operatorId:guid}")]
+        public async Task<ActionResult<CommonResponse<PagedResult<DarResponseDto>>>> GetOperatorDars(
+            Guid operatorId,
+            [FromQuery] DarFilterRequest filter)
+        {
+            var result = await _darService.GetOperatorDarsAdminAsync(operatorId, filter);
             return Ok(result);
         }
     }
