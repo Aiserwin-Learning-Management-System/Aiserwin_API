@@ -136,5 +136,41 @@ namespace Winfocus.LMS.Infrastructure.Repositories
                 .Where(x => !x.IsDeleted)
                 .ToListAsync();
         }
+
+        /// <inheritdoc />
+        public async Task<int> GetNextSequenceAsync(
+            Guid syllabusId,
+            Guid academicYearId,
+            Guid gradeId,
+            Guid subjectId,
+            Guid unitId,
+            Guid chapterId,
+            Guid resourceTypeId,
+            Guid questionTypeId,
+            Guid operatorId)
+        {
+            int maxSequence = await _db.TaskAssignments
+                .Where(x =>
+                    x.SyllabusId == syllabusId &&
+                    x.Syllabus.AcademicYearId == academicYearId &&
+                    x.GradeId == gradeId &&
+                    x.SubjectId == subjectId &&
+                    x.UnitId == unitId &&
+                    x.ChapterId == chapterId &&
+                    x.ResourceTypeId == resourceTypeId &&
+                    x.QuestionTypeId == questionTypeId &&
+                    x.OperatorId == operatorId &&
+                    !x.IsDeleted)
+                .MaxAsync(x => (int?)x.SequenceNumber) ?? 0;
+
+            return maxSequence + 1;
+        }
+
+        /// <inheritdoc />
+        public async Task<bool> CodeExistsAsync(string taskCode)
+        {
+            return await _db.TaskAssignments
+                .AnyAsync(x => x.TaskCode == taskCode && !x.IsDeleted);
+        }
     }
 }

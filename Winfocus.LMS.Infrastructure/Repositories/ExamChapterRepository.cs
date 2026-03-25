@@ -39,6 +39,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
                 .ThenInclude(x => x.Subject)
                 .ThenInclude(x => x.Grade)
                 .ThenInclude(x => x.Syllabus)
+                 .ThenInclude(x => x.AcademicYear)
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -56,6 +57,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
                  .ThenInclude(x => x.Subject)
                 .ThenInclude(x => x.Grade)
                 .ThenInclude(x => x.Syllabus)
+                 .ThenInclude(x => x.AcademicYear)
                 .Where(x => x.Id == id && !x.IsDeleted);
 
             if (unitid != Guid.Empty)
@@ -81,6 +83,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
                     .ThenInclude(u => u.Subject)
                         .ThenInclude(s => s.Grade)
                             .ThenInclude(g => g.Syllabus)
+                             .ThenInclude(x => x.AcademicYear)
                 .FirstOrDefaultAsync(x => x.Id == examchapter.Id && !x.IsDeleted);
         }
 
@@ -132,6 +135,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
                 .ThenInclude(x => x.Subject)
                 .ThenInclude(x => x.Grade)
                 .ThenInclude(x => x.Syllabus)
+                 .ThenInclude(x => x.AcademicYear)
                 .AnyAsync(x =>
                     x.UnitId == unitid &&
                     x.Name.Trim().ToLower() == name.ToLower());
@@ -151,6 +155,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
           .ThenInclude(x => x.Subject)
                 .ThenInclude(x => x.Grade)
                 .ThenInclude(x => x.Syllabus)
+                 .ThenInclude(x => x.AcademicYear)
          .AsQueryable();
 
             if (unitid.HasValue)
@@ -170,6 +175,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
                  .ThenInclude(x => x.Subject)
                 .ThenInclude(x => x.Grade)
                 .ThenInclude(x => x.Syllabus)
+                 .ThenInclude(x => x.AcademicYear)
                 .AsNoTracking();
         }
 
@@ -185,6 +191,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
                 .ThenInclude(x => x.Subject)
                 .ThenInclude(x => x.Grade)
                 .ThenInclude(x => x.Syllabus)
+                 .ThenInclude(x => x.AcademicYear)
                 .Where(x => x.UnitId == unitId && !x.IsDeleted);
             return await res.ToListAsync();
         }

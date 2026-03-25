@@ -58,5 +58,12 @@ namespace Winfocus.LMS.Application.Interfaces
         Task<CommonResponse<PagedResult<ExamSyllabusDto>>> GetFilteredAsync(
             PagedRequest request);
 
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="yearId">The year id.</param>
+        /// <returns>ExamSyllabusDto.</returns>
+        Task<CommonResponse<List<ExamSyllabusDto>>> GetByYearIdAsync(Guid yearId);
+
     }
 }

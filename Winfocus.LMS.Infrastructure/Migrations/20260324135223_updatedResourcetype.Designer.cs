@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Winfocus.LMS.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using Winfocus.LMS.Infrastructure.Data;
 namespace Winfocus.LMS.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260324135223_updatedResourcetype")]
+    partial class updatedResourcetype
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -892,8 +895,9 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.Property<bool>("IsInstallmentAllowed")
                         .HasColumnType("bit");
 
-                    b.Property<int>("PaymentType")
-                        .HasColumnType("int");
+                    b.Property<string>("PaymentType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PlanName")
                         .IsRequired()
@@ -2348,62 +2352,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.ToTable("StudentBatchTimingSundays");
                 });
 
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.StudentCourseDiscount", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CourseId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("DiscountName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<decimal>("DiscountPercent")
-                        .HasColumnType("decimal(5,2)");
-
-                    b.Property<Guid?>("FeePlanDiscountId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsManual")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid>("StudentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CourseId");
-
-                    b.HasIndex("FeePlanDiscountId");
-
-                    b.HasIndex("StudentId", "CourseId", "DiscountName")
-                        .HasFilter("[IsDeleted] = 0");
-
-                    b.ToTable("StudentCourseDiscounts", (string)null);
-                });
-
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.StudentDocuments", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2447,10 +2395,16 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.ToTable("StudentDocuments");
                 });
 
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.StudentFeeDiscount", b =>
+            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.StudentFeeSelection", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("BaseFee")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("CourseId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAt")
@@ -2459,16 +2413,11 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<decimal>("DiscountAmount")
+                    b.Property<Guid>("FeePlanId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("FinalAmount")
                         .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("DiscountName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<decimal>("DiscountPercent")
-                        .HasColumnType("decimal(5,2)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -2476,7 +2425,77 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsManual")
+                    b.Property<bool>("IsManualDiscountActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsScholarshipActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsSeasonalActive")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal>("ManualDiscountPercent")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("PaymentMode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("ScholarshipPercent")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("SeasonalPercent")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("StudentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourseId");
+
+                    b.HasIndex("FeePlanId");
+
+                    b.HasIndex("StudentId", "CourseId")
+                        .IsUnique();
+
+                    b.ToTable("StudentFeeSelections");
+                });
+
+            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.StudentInstallment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("DueDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("InstallmentNo")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPaid")
                         .HasColumnType("bit");
 
                     b.Property<Guid>("StudentFeeSelectionId")
@@ -2492,152 +2511,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
 
                     b.HasIndex("StudentFeeSelectionId");
 
-                    b.ToTable("StudentFeeDiscounts", (string)null);
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.StudentFeeSelection", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CourseId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("FeePlanId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("FinalAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("PaymentType")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<int>("SelectedDurationYears")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<Guid>("StudentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("TotalBeforeDiscount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("TotalDiscountAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("TotalDiscountPercent")
-                        .HasColumnType("decimal(5,2)");
-
-                    b.Property<int>("TotalInstallments")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("YearlyFee")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CourseId");
-
-                    b.HasIndex("FeePlanId");
-
-                    b.HasIndex("StudentId", "CourseId")
-                        .IsUnique()
-                        .HasFilter("[IsDeleted] = 0");
-
-                    b.ToTable("StudentFeeSelections", (string)null);
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.StudentInstallment", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("BalanceAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("DueAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime>("DueDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("InstallmentNo")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<decimal>("PaidAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime?>("PaidDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Remarks")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<Guid>("StudentFeeSelectionId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("StudentFeeSelectionId", "InstallmentNo")
-                        .IsUnique();
-
-                    b.ToTable("StudentInstallments", (string)null);
+                    b.ToTable("StudentInstallments");
                 });
 
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.StudentPersonalDetails", b =>
@@ -4010,43 +3884,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.Navigation("Student");
                 });
 
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.StudentCourseDiscount", b =>
-                {
-                    b.HasOne("Winfocus.LMS.Domain.Entities.Course", "Course")
-                        .WithMany()
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Winfocus.LMS.Domain.Entities.FeePlanDiscount", "FeePlanDiscount")
-                        .WithMany()
-                        .HasForeignKey("FeePlanDiscountId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne("Winfocus.LMS.Domain.Entities.Student", "Student")
-                        .WithMany()
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Course");
-
-                    b.Navigation("FeePlanDiscount");
-
-                    b.Navigation("Student");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.StudentFeeDiscount", b =>
-                {
-                    b.HasOne("Winfocus.LMS.Domain.Entities.StudentFeeSelection", "StudentFeeSelection")
-                        .WithMany("AppliedDiscounts")
-                        .HasForeignKey("StudentFeeSelectionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("StudentFeeSelection");
-                });
-
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.StudentFeeSelection", b =>
                 {
                     b.HasOne("Winfocus.LMS.Domain.Entities.Course", "Course")
@@ -4076,13 +3913,11 @@ namespace Winfocus.LMS.Infrastructure.Migrations
 
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.StudentInstallment", b =>
                 {
-                    b.HasOne("Winfocus.LMS.Domain.Entities.StudentFeeSelection", "StudentFeeSelection")
+                    b.HasOne("Winfocus.LMS.Domain.Entities.StudentFeeSelection", null)
                         .WithMany("Installments")
                         .HasForeignKey("StudentFeeSelectionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("StudentFeeSelection");
                 });
 
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.Subject", b =>
@@ -4366,8 +4201,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
 
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.StudentFeeSelection", b =>
                 {
-                    b.Navigation("AppliedDiscounts");
-
                     b.Navigation("Installments");
                 });
 

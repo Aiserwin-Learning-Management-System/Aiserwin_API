@@ -263,6 +263,27 @@ namespace Winfocus.LMS.Application.Services
             }
         }
 
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="chapterid">The identifier.</param>
+        /// <returns>ContentResourceTypeDto.</returns>
+        public async Task<CommonResponse<List<ContentResourceTypeDto>>> GetByChapterIdAsync(Guid chapterid)
+        {
+            _logger.LogInformation("Fetching content resource type by chapter Id: {Id}", chapterid);
+            var content = await _repository.GetByChapterIdAsync(chapterid);
+            _logger.LogInformation("content resource type by chapter fetched successfully for Id: {Id}", chapterid);
+            var mappeddata = content == null ? null : Map(content);
+            if (mappeddata != null)
+            {
+                return CommonResponse<List<ContentResourceTypeDto>>.SuccessResponse("content resource type by chapter details fetched successfully", mappeddata);
+            }
+            else
+            {
+                return CommonResponse<List<ContentResourceTypeDto>>.FailureResponse("content resource type by chapter details not found");
+            }
+        }
+
         private static List<ContentResourceTypeDto> Map(IEnumerable<ContentResourceType> content)
         {
             return content.Select(Map).ToList();
@@ -275,10 +296,24 @@ namespace Winfocus.LMS.Application.Services
        Name = c.Name,
        Description = c.Description,
        IsActive = c.IsActive,
-       CreatedBy = c.CreatedBy,
-       CreatedAt = c.CreatedAt,
-       UpdatedBy = c.UpdatedBy,
-       UpdatedAt = c.UpdatedAt,
+       Chapter = c.Chapter == null ? null : new ExamChapterDto
+       {
+           Id = c.Chapter.Id,
+           Name = c.Chapter.Name,
+           Description = c.Chapter.Description,
+           UnitId = c.Chapter.UnitId,
+           ChapterNumber = c.Chapter.ChapterNumber,
+           IsActive = c.Chapter.IsActive,
+           UnitName = c.Chapter.Unit.Name,
+           SubjectId = c.Chapter.Unit.SubjectId,
+           SubjectName = c.Chapter.Unit.Subject.Name,
+           GradeId = c.Chapter.Unit.Subject.GradeId,
+           GradeName = c.Chapter.Unit.Subject.Grade.Name,
+           SyllabusId = c.Chapter.Unit.Subject.Grade.SyllabusId,
+           SyllabusName = c.Chapter.Unit.Subject.Grade.Syllabus.Name,
+           AcademicYearId = c.Chapter.Unit.Subject.Grade.Syllabus.AcademicYearId,
+           AcademicYearName = c.Chapter.Unit.Subject.Grade.Syllabus.AcademicYear.Name,
+       },
    };
     }
 }

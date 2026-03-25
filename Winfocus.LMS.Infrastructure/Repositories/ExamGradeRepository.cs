@@ -36,6 +36,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             return await _dbContext.ExamGrades
                 .Where(x => x.IsActive && !x.IsDeleted)
                 .Include(x => x.Syllabus)
+                  .ThenInclude(x => x.AcademicYear)
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -50,6 +51,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         {
             var res = _dbContext.ExamGrades
                 .Include(x => x.Syllabus)
+                  .ThenInclude(x => x.AcademicYear)
                 .Where(x => x.Id == id && !x.IsDeleted);
 
             if (syllabusId != Guid.Empty)
@@ -131,6 +133,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             var query = _dbContext.ExamGrades.Where(x => !x.IsDeleted)
          .AsNoTracking()
          .Include(x => x.Syllabus)
+           .ThenInclude(x => x.AcademicYear)
          .AsQueryable();
 
             if (SyllabusID.HasValue)
@@ -160,6 +163,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         {
             var res = _dbContext.ExamGrades
                 .Include(x => x.Syllabus)
+                .ThenInclude(x => x.AcademicYear)
                 .Where(x => x.SyllabusId == syllabusId && !x.IsDeleted);
             return await res.ToListAsync();
         }

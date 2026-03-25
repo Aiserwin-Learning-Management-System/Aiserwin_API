@@ -145,8 +145,21 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// <returns>Queryable ExamSyllabus.</returns>
         public IQueryable<ExamSyllabus> Query()
         {
-            return _dbContext.ExamSyllabuses.Where(x => !x.IsDeleted)
+            return _dbContext.ExamSyllabuses.Include(x => x.AcademicYear).Where(x => !x.IsDeleted)
                 .AsNoTracking();
+        }
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="yearId">The year.</param>
+        /// <returns>ExamSyllabus.</returns>
+        public async Task<List<ExamSyllabus>> GetByYearIdAsync(Guid yearId)
+        {
+            var res = _dbContext.ExamSyllabuses
+                .Include(x => x.AcademicYear)
+                .Where(x => x.AcademicYearId == yearId && !x.IsDeleted);
+            return await res.ToListAsync();
         }
     }
 }

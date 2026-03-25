@@ -34,6 +34,12 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         public async Task<IReadOnlyList<ContentResourceType>> GetAllAsync()
         {
             return await _dbContext.ContentResourceTypes
+                 .Include(x => x.Chapter)
+                 .ThenInclude(x => x.Unit)
+                .ThenInclude(x => x.Subject)
+                .ThenInclude(x => x.Grade)
+                .ThenInclude(x => x.Syllabus)
+                 .ThenInclude(x => x.AcademicYear)
                 .Where(x => x.IsActive && !x.IsDeleted)
                 .AsNoTracking()
                 .ToListAsync();
@@ -47,6 +53,12 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         public async Task<ContentResourceType?> GetByIdAsync(Guid id)
         {
             var res = _dbContext.ContentResourceTypes
+                  .Include(x => x.Chapter)
+                 .ThenInclude(x => x.Unit)
+                .ThenInclude(x => x.Subject)
+                .ThenInclude(x => x.Grade)
+                .ThenInclude(x => x.Syllabus)
+                 .ThenInclude(x => x.AcademicYear)
                 .Where(x => x.Id == id && !x.IsDeleted);
             return await res.FirstOrDefaultAsync();
         }
@@ -117,7 +129,31 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         public IQueryable<ContentResourceType> Query()
         {
             return _dbContext.ContentResourceTypes.Where(x => !x.IsDeleted)
+                  .Include(x => x.Chapter)
+                 .ThenInclude(x => x.Unit)
+                .ThenInclude(x => x.Subject)
+                .ThenInclude(x => x.Grade)
+                .ThenInclude(x => x.Syllabus)
+                 .ThenInclude(x => x.AcademicYear)
                 .AsNoTracking();
+        }
+
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="chapterid">The Syllabus.</param>
+        /// <returns>ContentResourceType.</returns>
+        public async Task<List<ContentResourceType>> GetByChapterIdAsync(Guid chapterid)
+        {
+            var res = _dbContext.ContentResourceTypes
+                 .Include(x => x.Chapter)
+                 .ThenInclude(x => x.Unit)
+                .ThenInclude(x => x.Subject)
+                .ThenInclude(x => x.Grade)
+                .ThenInclude(x => x.Syllabus)
+                 .ThenInclude(x => x.AcademicYear)
+                .Where(x => x.ChapterId == chapterid && !x.IsDeleted);
+            return await res.ToListAsync();
         }
     }
 }

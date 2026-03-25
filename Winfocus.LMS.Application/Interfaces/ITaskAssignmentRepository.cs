@@ -72,5 +72,36 @@ namespace Winfocus.LMS.Application.Interfaces
         /// A list of <see cref="TaskAssignment"/> entities.
         /// </returns>
         Task<List<TaskAssignment>> GetAllForOverviewAsync();
+
+        /// <summary>
+        /// Gets the next sequence number for the given scope.
+        /// </summary>
+        /// <param name="syllabusId">The syllabus identifier.</param>
+        /// <param name="academicYearId">The academic year identifier.</param>
+        /// <param name="gradeId">The grade identifier.</param>
+        /// <param name="subjectId">The subject identifier.</param>
+        /// <param name="unitId">The unit identifier.</param>
+        /// <param name="chapterId">The chapter identifier.</param>
+        /// <param name="resourceTypeId">The resource type identifier.</param>
+        /// <param name="questionTypeId">The question type identifier.</param>
+        /// <param name="operatorId">The operator type identifier.</param>
+        /// <returns>The next available sequence number.</returns>
+        Task<int> GetNextSequenceAsync(
+            Guid syllabusId,
+            Guid academicYearId,
+            Guid gradeId,
+            Guid subjectId,
+            Guid unitId,
+            Guid chapterId,
+            Guid resourceTypeId,
+            Guid questionTypeId,
+            Guid operatorId);
+
+        /// <summary>
+        /// Checks whether a Task Code already exists.
+        /// </summary>
+        /// <param name="taskCode">The Task Code to check.</param>
+        /// <returns>True if the code exists; otherwise false.</returns>
+        Task<bool> CodeExistsAsync(string taskCode);
     }
 }

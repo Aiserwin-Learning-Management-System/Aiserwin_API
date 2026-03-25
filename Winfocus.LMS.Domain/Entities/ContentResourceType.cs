@@ -23,5 +23,21 @@
         /// The description.
         /// </value>
         public string? Description { get; set; }
+
+        /// <summary>
+        /// Gets or sets the chapter identifier.
+        /// </summary>
+        /// <value>
+        /// The chapter identifier.
+        /// </value>
+        public Guid ChapterId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the chapter.
+        /// </summary>
+        /// <value>
+        /// The chapter.
+        /// </value>
+        public ExamChapter? Chapter { get; set; }
     }
 }

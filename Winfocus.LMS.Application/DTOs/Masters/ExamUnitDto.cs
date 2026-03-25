@@ -74,5 +74,21 @@ namespace Winfocus.LMS.Application.DTOs.Masters
         /// The unit identifier.
         /// </value>
         public Guid GradeId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the academic year name.
+        /// </summary>
+        /// <value>
+        /// The name.
+        /// </value>
+        public string AcademicYearName { get; set; } = default!;
+
+        /// <summary>
+        /// Gets or sets the academicyear identifier.
+        /// </summary>
+        /// <value>
+        /// The unit identifier.
+        /// </value>
+        public Guid AcademicYearId { get; set; }
     }
 }

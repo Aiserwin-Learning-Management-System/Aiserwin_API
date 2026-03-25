@@ -101,5 +101,16 @@ namespace Winfocus.LMS.API.Controllers
             var result = await _contentService.GetFilteredAsync(request);
             return Ok(result);
         }
+
+        /// <summary>
+        /// Gets content resource type by chapter identifier.
+        /// </summary>
+        /// <param name="chapterid">The chapter identifier.</param>
+        /// <returns>ContentResourceTypeDto list.</returns>
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        [HttpGet("by-chapter/{chapterid:guid}")]
+        public async Task<ActionResult<CommonResponse<List<ContentResourceTypeDto>>>> GetByChapter(
+            Guid chapterid)
+            => Ok(await _contentService.GetByChapterIdAsync(chapterid));
     }
 }

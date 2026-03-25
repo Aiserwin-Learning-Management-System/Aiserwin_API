@@ -6,6 +6,7 @@ using Winfocus.LMS.Application.DTOs;
 using Winfocus.LMS.Application.DTOs.Common;
 using Winfocus.LMS.Application.DTOs.Masters;
 using Winfocus.LMS.Application.Interfaces;
+using Winfocus.LMS.Application.Services;
 
 namespace Winfocus.LMS.API.Controllers
 {
@@ -110,5 +111,16 @@ namespace Winfocus.LMS.API.Controllers
             var result = await _examsyllabusService.GetFilteredAsync(request);
             return Ok(result);
         }
+
+        /// <summary>
+        /// Gets examsyllabus by academic year identifier.
+        /// </summary>
+        /// <param name="yearId">The year identifier.</param>
+        /// <returns>ExamGradeDto list.</returns>
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        [HttpGet("by-academicyear/{yearId:guid}")]
+        public async Task<ActionResult<CommonResponse<List<ExamSyllabusDto>>>> GetByYear(
+            Guid yearId)
+            => Ok(await _examsyllabusService.GetByYearIdAsync(yearId));
     }
 }

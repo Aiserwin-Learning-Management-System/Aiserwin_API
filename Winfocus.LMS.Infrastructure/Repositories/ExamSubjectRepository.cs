@@ -37,6 +37,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
                 .Where(x => x.IsActive && !x.IsDeleted)
                 .Include(x => x.Grade)
                 .ThenInclude(x => x.Syllabus)
+                  .ThenInclude(x => x.AcademicYear)
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -52,6 +53,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             var res = _dbContext.ExamSubjects
                 .Include(x => x.Grade)
                 .ThenInclude(x => x.Syllabus)
+                  .ThenInclude(x => x.AcademicYear)
                 .Where(x => x.Id == id && !x.IsDeleted);
 
             if (gradeID != Guid.Empty)
@@ -119,6 +121,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             return await _dbContext.ExamSubjects
                 .Include(x => x.Grade)
                 .ThenInclude(x => x.Syllabus)
+                  .ThenInclude(x => x.AcademicYear)
                 .AnyAsync(x =>
                     x.Grade.Id == gradeID &&
                     x.Name.Trim().ToLower() == name.ToLower());
@@ -136,6 +139,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
          .AsNoTracking()
          .Include(x => x.Grade)
          .ThenInclude(x => x.Syllabus)
+           .ThenInclude(x => x.AcademicYear)
          .AsQueryable();
 
             if (gradeID.HasValue)
@@ -153,6 +157,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             return _dbContext.ExamSubjects.Where(x => !x.IsDeleted)
                 .Include(x => x.Grade)
                 .ThenInclude(x => x.Syllabus)
+                  .ThenInclude(x => x.AcademicYear)
                 .AsNoTracking();
         }
 
@@ -166,6 +171,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             var res = _dbContext.ExamSubjects
                 .Include(x => x.Grade)
                 .ThenInclude(x => x.Syllabus)
+                  .ThenInclude(x => x.AcademicYear)
                 .Where(x => x.GradeId == gradeId && !x.IsDeleted);
             return await res.ToListAsync();
         }
