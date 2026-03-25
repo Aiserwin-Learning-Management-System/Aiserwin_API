@@ -688,19 +688,28 @@
               studentId);
         }
 
-        private static StudentDocumentsDto MapDocs(StudentDocuments c) =>
-    new StudentDocumentsDto
-    {
-        Id = c.Id,
-        CreatedBy = c.CreatedBy,
-        CreatedAt = c.CreatedAt,
-        UpdatedBy = c.UpdatedBy,
-        UpdatedAt = c.UpdatedAt,
-        StudentPhoto = c.StudentPhotoPath,
-        StudentSignature = c.StudentSignaturePath,
-        IsAcceptedAgreement = c.IsAcceptedAgreement,
-        IsAcceptedTermsAndConditions = c.IsAcceptedTermsAndConditions,
-    };
+        /// <summary>
+        /// Maps StudentDocuments entity to DTO with resolved file URLs.
+        /// </summary>
+        /// <param name="c">The student documents entity.</param>
+        /// <returns>DTO with file URLs instead of raw paths.</returns>
+        private StudentDocumentsDto MapDocs(StudentDocuments c) =>
+        new StudentDocumentsDto
+        {
+            Id = c.Id,
+            CreatedBy = c.CreatedBy,
+            CreatedAt = c.CreatedAt,
+            UpdatedBy = c.UpdatedBy,
+            UpdatedAt = c.UpdatedAt,
+            StudentPhoto = !string.IsNullOrEmpty(c.StudentPhotoPath)
+                ? _fileStorageService.GetFileUrl(c.StudentPhotoPath)
+                : null,
+            StudentSignature = !string.IsNullOrEmpty(c.StudentSignaturePath)
+                ? _fileStorageService.GetFileUrl(c.StudentSignaturePath)
+                : null,
+            IsAcceptedAgreement = c.IsAcceptedAgreement,
+            IsAcceptedTermsAndConditions = c.IsAcceptedTermsAndConditions,
+        };
 
         private static StudentAcademicdetailsDto Map(StudentAcademicDetails c) =>
      new StudentAcademicdetailsDto
