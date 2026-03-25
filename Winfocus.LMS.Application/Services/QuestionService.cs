@@ -61,18 +61,47 @@ namespace Winfocus.LMS.Application.Services
                     : (int)QuestionStatus.Submitted
             };
 
-            //if (dto.QuestionType == (int)QuestionType.MCQ)
-            //{
-            //    question.Options = dto.Options.Select(o => new QuestionOption
-            //    {
-            //        Id = Guid.NewGuid(),
-            //        OptionLabel = o.OptionLabel,
-            //        OptionText = o.OptionText,
-            //        IsCorrect = o.OptionLabel == dto.CorrectAnswer
-            //    }).ToList();
-            //}
+            if (dto.QuestionTypeId == 0)
+            {
+                if (dto.Options == null || dto.Options.Count != 4)
+                    throw new Exception("MCQ questions must have exactly 4 options.");
+
+                if (string.IsNullOrWhiteSpace(dto.CorrectAnswer))
+                    throw new Exception("CorrectAnswer is required for MCQ questions.");
+
+                var labels = dto.Options.Select(o => o.OptionLabel?.Trim().ToUpper()).ToList();
+                if (labels.Distinct().Count() != labels.Count || !labels.All(l => new[] { "A", "B", "C", "D" }.Contains(l)))
+                    throw new Exception("Option labels must be unique and one of A,B,C,D.");
+
+                question.Options = dto.Options.Select(o => new QuestionOption
+                {
+                    Id = Guid.NewGuid(),
+                    OptionLabel = o.OptionLabel?.Trim().ToUpper() ?? string.Empty,
+                    OptionText = o.OptionText ?? string.Empty,
+                    IsCorrect = string.Equals(o.OptionLabel?.Trim(), dto.CorrectAnswer?.Trim(), StringComparison.OrdinalIgnoreCase)
+                }).ToList();
+            }
+
+            if (dto.QuestionTypeId != 0 && string.IsNullOrWhiteSpace(dto.CorrectAnswerText))
+            {
+            }
 
             await _questionRepository.AddAsync(question);
+
+            if (!dto.SaveAsDraft)
+            {
+                var t = task;
+                if (t != null)
+                {
+                    if (t.CompletedCount == 0)
+                    {
+                        t.Status = (int)TaskStatus.InProgress;
+                    }
+
+                    t.CompletedCount += 1;
+                    await _taskRepository.UpdateAsync(t);
+                }
+            }
 
             return question.Id;
         }
@@ -98,19 +127,37 @@ namespace Winfocus.LMS.Application.Services
             question.Reference = FormatReference(dto.Reference);
             question.QuestionType = dto.QuestionTypeId;
 
-            //question.Options.Clear();
+            // Replace options only if MCQ
+            if (dto.QuestionTypeId == 0)
+            {
+                if (dto.Options == null || dto.Options.Count != 4)
+                    throw new Exception("MCQ questions must have exactly 4 options.");
 
-            //if (dto.QuestionType == (int)QuestionType.MCQ)
-            //{
-            //    question.Options = dto.Options.Select(o => new QuestionOption
-            //    {
-            //        Id = Guid.NewGuid(),
-            //        OptionLabel = o.OptionLabel,
-            //        OptionText = o.OptionText,
-            //        IsCorrect = o.OptionLabel == dto.CorrectAnswer
-            //    }).ToList();
-            //}
+                // Clear existing and set new
+                question.Options.Clear();
+                foreach (var o in dto.Options)
+                {
+                    question.Options.Add(new QuestionOption
+                    {
+                        Id = Guid.NewGuid(),
+                        OptionLabel = o.OptionLabel?.Trim().ToUpper() ?? string.Empty,
+                        OptionText = o.OptionText ?? string.Empty,
+                        IsCorrect = string.Equals(o.OptionLabel?.Trim(), dto.CorrectAnswer?.Trim(), StringComparison.OrdinalIgnoreCase)
+                    });
+                }
+            }
+            else
+            {
+                // Remove options for non-MCQ
+                question.Options.Clear();
+            }
 
+            await _question_repository_update_async_wrapper(question);
+        }
+
+        // Helper to call repository update (keeps readability for patch)
+        private async Task _question_repository_update_async_wrapper(Question question)
+        {
             await _questionRepository.UpdateAsync(question);
         }
 
@@ -142,6 +189,19 @@ namespace Winfocus.LMS.Application.Services
             question.Status = (int)QuestionStatus.Submitted;
 
             await _questionRepository.UpdateAsync(question);
+
+            // Update associated task counters
+            var task = await _taskRepository.GetByIdAsync(question.TaskId);
+            if (task != null)
+            {
+                if (task.CompletedCount == 0)
+                {
+                    task.Status = (int)TaskStatus.InProgress;
+                }
+
+                task.CompletedCount += 1;
+                await _taskRepository.UpdateAsync(task);
+            }
         }
 
         /// <inheritdoc/>
