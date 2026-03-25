@@ -53,5 +53,10 @@ namespace Winfocus.LMS.Application.DTOs.Task
         /// Gets or sets the operator identifier.
         /// </summary>
         public Guid OperatorId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the operator name.
+        /// </summary>
+        public string OperatorName { get; set; }
     }
 }

@@ -307,6 +307,7 @@ namespace Winfocus.LMS.Application.Services
            {
                Id = c.GradeId,
                Name = c.Grade.Name,
+               SyllabusId = c.Grade.SyllabusId,
                SyllabusName = c.Grade.Syllabus.Name,
                AcademicYearId = c.Grade.Syllabus.AcademicYearId,
                AcademicYearName = c.Grade.Syllabus.AcademicYear.Name,
