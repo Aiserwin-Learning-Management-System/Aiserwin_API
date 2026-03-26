@@ -62,5 +62,31 @@ namespace Winfocus.LMS.Application.Interfaces
         /// <param name="id">The question identifier.</param>
         /// <returns>True if exists; otherwise false.</returns>
         Task<bool> ExistsAsync(Guid id);
+
+        /// <summary>
+        /// Retrieves questions for a specific operator with optional filters, sorting and pagination.
+        /// Returns items and the total count matching the filters.
+        /// </summary>
+        Task<(List<Question> Items, int TotalCount)> GetByOperatorAsync(
+            Guid operatorId,
+            string? subject,
+            string? chapter,
+            int? status,
+            int? questionType,
+            string? search,
+            string? sortBy,
+            int pageNumber,
+            int pageSize);
+
+        /// <summary>
+        /// Gets question statistics breakdown for an operator.
+        /// </summary>
+        Task<Winfocus.LMS.Application.DTOs.Stats.QuestionStatsDto> GetStatsForOperatorAsync(Guid operatorId);
+
+        /// <summary>
+        /// Gets queryable for filtering with full hierarchy.
+        /// </summary>
+        /// <returns>Queryable ExamUnit.</returns>
+        IQueryable<Question> Query();
     }
 }

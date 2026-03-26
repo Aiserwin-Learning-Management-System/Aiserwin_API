@@ -2,12 +2,16 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Winfocus.LMS.Application.DTOs;
+using Winfocus.LMS.Application.DTOs.Common;
+using Winfocus.LMS.Application.DTOs.Masters;
 using Winfocus.LMS.Application.DTOs.Question;
 using Winfocus.LMS.Application.DTOs.Review;
 using Winfocus.LMS.Application.Interfaces;
 using Winfocus.LMS.Domain.Entities;
 using Winfocus.LMS.Domain.Enums;
 using TaskStatus = Winfocus.LMS.Domain.Enums.TaskStatus;
+using Microsoft.EntityFrameworkCore;
 
 namespace Winfocus.LMS.Application.Services
 {
@@ -240,6 +244,17 @@ namespace Winfocus.LMS.Application.Services
         }
 
         /// <inheritdoc/>
+        public async Task<Winfocus.LMS.Application.DTOs.Stats.QuestionStatsDto> GetQuestionStatsAsync(Guid operatorId)
+        {
+            return await _question_repository_stats_wrapper(operatorId);
+        }
+
+        private async Task<Winfocus.LMS.Application.DTOs.Stats.QuestionStatsDto> _question_repository_stats_wrapper(Guid operatorId)
+        {
+            return await _questionRepository.GetStatsForOperatorAsync(operatorId);
+        }
+
+        /// <inheritdoc/>
         public async Task<List<QuestionListDto>> GetByTaskIdAsync(Guid taskId, int page, int pageSize)
         {
             var questions = await _questionRepository.GetByTaskIdAsync(taskId, page, pageSize);
@@ -274,6 +289,123 @@ namespace Winfocus.LMS.Application.Services
         }
 
         /// <summary>
+        /// Gets filtered QuestionBankItem.
+        /// Search .
+        /// </summary>
+        /// <param name="request">The paged request.</param>
+        /// <param name="subject">The paged subject.</param>
+        /// <param name="chapter">The paged chapter.</param>
+        /// <param name="status">The paged status.</param>
+        /// <param name="questionType">The paged questionType.</param>
+        /// <returns>Paginated QuestionBankItemDto result.</returns>
+        public async Task<CommonResponse<PagedResult<QuestionBankItemDto>>> GetFilteredAsync(
+            PagedRequest request,
+            string? subject,
+            string? chapter,
+            int? status,
+            int? questionType)
+        {
+            try
+            {
+
+                var query = _questionRepository.Query();
+
+                // ── Filters ──
+                if (request.Active.HasValue)
+                    query = query.Where(x => x.IsActive == request.Active.Value);
+
+                if (request.StartDate.HasValue)
+                    query = query.Where(x => x.CreatedAt >= request.StartDate.Value);
+
+                if (request.EndDate.HasValue)
+                    query = query.Where(x => x.CreatedAt <= request.EndDate.Value);
+
+                if (!string.IsNullOrWhiteSpace(request.SearchText))
+                {
+                    var searchTerm = request.SearchText.Trim().ToLower();
+                    query = query.Where(x =>
+                        x.QuestionText.ToLower().Contains(searchTerm) ||
+                        x.QuestionType.ToString().ToLower().Contains(searchTerm) ||
+                        (x.TaskAssignment != null && x.TaskAssignment.TaskCode != null && x.TaskAssignment.TaskCode.ToLower().Contains(searchTerm)) ||
+                        (x.TaskAssignment != null && x.TaskAssignment.Subject != null && x.TaskAssignment.Subject.Name.ToLower().Contains(searchTerm)) ||
+                        (x.TaskAssignment != null && x.TaskAssignment.Chapter != null && x.TaskAssignment.Chapter.Name.ToLower().Contains(searchTerm)));
+                }
+
+                // ── Additional Filters (subject, chapter, status, question type) ──
+                if (!string.IsNullOrWhiteSpace(subject))
+                {
+                    var subjectTerm = subject.Trim().ToLower();
+                    query = query.Where(x => x.TaskAssignment != null && x.TaskAssignment.Subject != null && x.TaskAssignment.Subject.Name.ToLower().Contains(subjectTerm));
+                }
+
+                if (!string.IsNullOrWhiteSpace(chapter))
+                {
+                    var chapterTerm = chapter.Trim().ToLower();
+                    query = query.Where(x => x.TaskAssignment != null && x.TaskAssignment.Chapter != null && x.TaskAssignment.Chapter.Name.ToLower().Contains(chapterTerm));
+                }
+
+                if (status.HasValue)
+                    query = query.Where(x => x.Status == status.Value);
+
+                if (questionType.HasValue)
+                    query = query.Where(x => x.QuestionType == questionType.Value);
+
+                // ── Total Count ──
+                var totalCount = await query.CountAsync();
+
+                if (totalCount == 0)
+                {
+                    return CommonResponse<PagedResult<QuestionBankItemDto>>.SuccessResponse(
+                        "No Question bank found.",
+                        new PagedResult<QuestionBankItemDto>(
+                            new List<QuestionBankItemDto>(), 0, request.Limit, request.Offset));
+                }
+
+                // ── Dynamic Sorting ──
+                var isDesc = request.SortOrder.Equals("desc", StringComparison.OrdinalIgnoreCase);
+
+                query = request.SortBy.ToLower() switch
+                {
+                    "questiontext" => isDesc ? query.OrderByDescending(x => x.QuestionText)
+                                             : query.OrderBy(x => x.QuestionText),
+                    "questiontype" => isDesc ? query.OrderByDescending(x => x.QuestionType)
+                                             : query.OrderBy(x => x.QuestionType),
+                    "isactive" => isDesc ? query.OrderByDescending(x => x.IsActive)
+                                             : query.OrderBy(x => x.IsActive),
+
+                    "createdat" => isDesc ? query.OrderByDescending(x => x.CreatedAt)
+                                             : query.OrderBy(x => x.CreatedAt),
+
+                    _ => isDesc ? query.OrderByDescending(x => x.CreatedAt)
+                                             : query.OrderBy(x => x.CreatedAt),
+                };
+
+                // ── Pagination ──
+                var subjects = await query
+                    .Skip(request.Offset)
+                    .Take(request.Limit)
+                    .ToListAsync();
+
+                var dtoList = subjects.Select((c, idx) =>
+                {
+                    var dto = Map(c);
+                    dto.QuestionNumber = request.Offset + idx + 1;
+                    return dto;
+                }).ToList();
+
+                return CommonResponse<PagedResult<QuestionBankItemDto>>.SuccessResponse(
+                    "QuestionBankItemDto data fetched successfully.",
+                    new PagedResult<QuestionBankItemDto>(
+                        dtoList, totalCount, request.Limit, request.Offset));
+            }
+            catch (Exception ex)
+            {
+                return CommonResponse<PagedResult<QuestionBankItemDto>>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
+            }
+        }
+
+        /// <summary>
         /// Formats reference string into standard format.
         /// Example: subject-Unit-Chapter.
         /// </summary>
@@ -284,5 +416,19 @@ namespace Winfocus.LMS.Application.Services
 
             return reference.Trim();
         }
+
+        private static QuestionBankItemDto Map(Question c) =>
+    new QuestionBankItemDto
+    {
+       Id = c.Id,
+       QuestionType = c.QuestionType == 0 ? "MCQ" : "LongAnswer",
+       QuestionText = c.QuestionText,
+       Subject = c.TaskAssignment?.Subject?.Name,
+       Chapter = c.TaskAssignment?.Chapter?.Name,
+       Marks = c.Marks,
+       Status = ((QuestionStatus)c.Status).ToString(),
+       TaskCode = c.TaskAssignment?.TaskCode,
+       CreatedAt = c.CreatedAt.ToString("yyyy-MM-dd"),
+    };
     }
 }
