@@ -52,5 +52,14 @@
         /// <param name="fileNamePrefix"></param>
         /// <returns></returns>
         Task<string> SaveFileBase64Async(string base64File, string folderName, string fileNamePrefix);
+
+        /// <summary>
+        /// Extracts and returns the relative blob path from an existing Azure Storage URL.
+        /// No upload is performed — the path is parsed and returned directly.
+        /// Used when preserving an existing file without re-uploading.
+        /// </summary>
+        /// <param name="azureUrl">Full Azure blob URL (e.g., https://account.blob.core.windows.net/container/StudentFiles/Photos/xxx.jpg).</param>
+        /// <returns>Relative blob path (e.g., StudentFiles/Photos/xxx.jpg).</returns>
+        string ExtractBlobPathFromUrl(string azureUrl);
     }
 }

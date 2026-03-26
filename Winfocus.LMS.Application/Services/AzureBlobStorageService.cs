@@ -231,6 +231,33 @@
             return blobClient.Uri.ToString();
         }
 
+        /// <inheritdoc/>
+        public string ExtractBlobPathFromUrl(string azureUrl)
+        {
+            if (string.IsNullOrWhiteSpace(azureUrl))
+            {
+                return string.Empty;
+            }
+
+            try
+            {
+                var uri = new Uri(azureUrl);
+                var blobPath = uri.AbsolutePath.TrimStart('/');
+
+                _logger.LogInformation(
+                    "Extracted blob path from URL. OriginalUrl: {OriginalUrl}, BlobPath: {BlobPath}",
+                    azureUrl, blobPath);
+
+                return blobPath;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex,
+                    "Failed to extract blob path from URL: {Url}", azureUrl);
+                return string.Empty;
+            }
+        }
+
         /// <summary>
         /// Validates file against configured size limits
         /// and allowed extensions.
