@@ -39,7 +39,7 @@ namespace Winfocus.LMS.Domain.Entities
         /// <summary>
         /// Gets or sets the associated syllabus.
         /// </summary>
-        public Syllabus Syllabus { get; set; } = null!;
+        public ExamSyllabus Syllabus { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the associated exammode.
@@ -54,7 +54,7 @@ namespace Winfocus.LMS.Domain.Entities
         /// <summary>
         /// Gets or sets the identifier of the associated grade.
         /// </summary>
-        public Grade Grade { get; set; } = null!;
+        public ExamGrade Grade { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the identifier of the associated stream.
