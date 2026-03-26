@@ -386,6 +386,16 @@
 
             try
             {
+                if (request.studentphoto == null || request.studentphoto.Length == 0)
+                {
+                    throw new ArgumentException("Student photo is required.");
+                }
+
+                if (request.signature == null || request.signature.Length == 0)
+                {
+                    throw new ArgumentException("Student signature is required.");
+                }
+
                 // Upload photo
                 _logger.LogInformation("Saving student photo...");
                 var photoPath = await _fileStorageService
@@ -452,15 +462,38 @@
                 "Saving student photo. StudentId: {StudentId}",
                 studentId);
 
-            var photoPath = await _fileStorageService
-                .SaveFileAsync(request.studentphoto, "Photos");
+            string photoPath;
+            if (request.studentphoto != null && request.studentphoto.Length > 0)
+            {
+                photoPath = await _fileStorageService
+                    .SaveFileAsync(request.studentphoto, "Photos");
+            }
+            else
+            {
+                photoPath = studentdocuments.StudentPhotoPath;
+                _logger.LogInformation(
+                    "No new photo uploaded. Preserving existing path: {PhotoPath}. StudentId: {StudentId}",
+                    photoPath, studentId);
+            }
 
             _logger.LogInformation(
                 "Saving student signature. StudentId: {StudentId}",
                 studentId);
 
-            var signaturePath = await _fileStorageService
-                .SaveFileAsync(request.signature, "Signatures");
+            string signaturePath;
+            if (request.signature != null && request.signature.Length > 0)
+            {
+                signaturePath = await _fileStorageService
+                    .SaveFileAsync(request.signature, "Signatures");
+            }
+            else
+            {
+                // No new signature uploaded — preserve existing path
+                signaturePath = studentdocuments.StudentSignaturePath;
+                _logger.LogInformation(
+                    "No new signature uploaded. Preserving existing path: {SignaturePath}. StudentId: {StudentId}",
+                    signaturePath, studentId);
+            }
 
             var document = new StudentDocuments
             {
