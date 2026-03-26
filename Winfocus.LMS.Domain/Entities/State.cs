@@ -10,12 +10,7 @@
         /// <summary>
         /// Gets or sets the display name of the state.
         /// </summary>
-        public string StateName { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets the optional code for the state.
-        /// </summary>
-        public string StateCode { get; set; } = null!;
+        public string Name { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the identifier of the associated country.
@@ -26,5 +21,20 @@
         /// Gets or sets the identifier of the associated country.
         /// </summary>
         public Country Country { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the identifier of the modeOfStudy where the centre is located.
+        /// </summary>
+        public Guid ModeOfStudyId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the modeOfStudy entity associated with the centre.
+        /// </summary>
+        public ModeOfStudy ModeOfStudy { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the collection of centres associated with the state.
+        /// </summary>
+        public ICollection<Center> Centers { get; set; } = new List<Center>();
     }
 }

@@ -8,6 +8,6 @@
     public sealed record RegisterRequestDto(
         [Required] string username,
         [Required][EmailAddress] string email,
-        [Required] string password,
-        IReadOnlyList<string>? roleNames); // nullable
+        IReadOnlyList<string>? roleNames, [Required] Guid countryid,
+        [Required] Guid centerid, Guid? staffcategoryid);
 }

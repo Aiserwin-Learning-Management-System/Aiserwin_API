@@ -13,29 +13,24 @@
         public string Name { get; set; } = null!;
 
         /// <summary>
-        /// Gets or sets the code of the country.
+        /// Gets or sets the code.
         /// </summary>
+        /// <value>
+        /// The code.
+        /// </value>
         public string Code { get; set; } = null!;
 
         /// <summary>
-        /// Gets or sets the iso alpha3.
+        /// Gets or sets the phone code.
         /// </summary>
         /// <value>
-        /// The iso alpha3.
+        /// The phone code.
         /// </value>
-        public string IsoAlpha3 { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets the iso numeric.
-        /// </summary>
-        /// <value>
-        /// The iso numeric.
-        /// </value>
-        public int IsoNumeric { get; set; }
+        public string PhoneCode { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the collection of centres associated with the country.
         /// </summary>
-        public ICollection<Centre> Centres { get; set; } = new List<Centre>();
+        public ICollection<Center> Centers { get; set; } = new List<Center>();
     }
 }

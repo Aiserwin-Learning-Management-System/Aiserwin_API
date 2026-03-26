@@ -17,6 +17,10 @@
         /// Gets or sets the collection of user roles associated with this role.
         /// </summary>
         public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
-    }
 
+        /// <summary>
+        /// Gets or sets navigation property representing permissions assigned to this role.
+        /// </summary>
+        public ICollection<RolePermission> RolePermissions { get; set; }
+    }
 }

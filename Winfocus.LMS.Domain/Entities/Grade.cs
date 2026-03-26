@@ -11,12 +11,7 @@
         /// <summary>
         /// Gets or sets the display name of the grade.
         /// </summary>
-        public string GradeName { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets the optional code for the grade.
-        /// </summary>
-        public string GradeCode { get; set; } = null!;
+        public string Name { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the identifier of the associated syllabus.
@@ -24,8 +19,13 @@
         public Guid SyllabusId { get; set; }
 
         /// <summary>
-        /// Gets or sets the identifier of the associated syllabus.
+        /// Gets or sets the associated syllabus.
         /// </summary>
         public Syllabus Syllabus { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the streams under this grade.
+        /// </summary>
+        public ICollection<Streams> Streams { get; set; } = new List<Streams>();
     }
 }

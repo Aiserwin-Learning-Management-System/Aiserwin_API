@@ -2,6 +2,7 @@
 {
     using FluentAssertions;
     using Microsoft.EntityFrameworkCore;
+    using Microsoft.Extensions.Logging.Abstractions;
     using Winfocus.LMS.Domain.Entities;
     using Winfocus.LMS.Infrastructure.Repositories;
     using Winfocus.LMS.Infrastructure.Tests.Common;
@@ -19,7 +20,7 @@
         public async Task AddAsync_Persists_User()
         {
             using var context = CreateDbContext();
-            var repository = new UserRepository(context);
+            var repository = new UserRepository(context, NullLogger<UserRepository>.Instance);
 
             var user = UserTestFactory.CreateActiveUser();
 
@@ -37,7 +38,7 @@
         public async Task UsernameExistsAsync_ReturnsTrue_WhenUserExists()
         {
             using var context = CreateDbContext();
-            var repository = new UserRepository(context);
+            var repository = new UserRepository(context, NullLogger<UserRepository>.Instance);
 
             context.Users.Add(UserTestFactory.CreateActiveUser(username: "existing"));
 
@@ -56,7 +57,7 @@
         public async Task UsernameExistsAsync_ReturnsFalse_WhenUserDoesNotExist()
         {
             using var context = CreateDbContext();
-            var repository = new UserRepository(context);
+            var repository = new UserRepository(context, NullLogger<UserRepository>.Instance);
 
             var result = await repository.UsernameExistsAsync("missing");
 
@@ -72,7 +73,7 @@
         {
             // Arrange
             using var context = CreateDbContext();
-            var repository = new UserRepository(context);
+            var repository = new UserRepository(context, NullLogger<UserRepository>.Instance);
 
             var role = new Role
             {
@@ -114,7 +115,7 @@
         public async Task GetByUsernameAsync_ReturnsNull_For_Inactive_User()
         {
             using var context = CreateDbContext();
-            var repository = new UserRepository(context);
+            var repository = new UserRepository(context, NullLogger<UserRepository>.Instance);
 
             context.Users.Add(UserTestFactory.CreateInactiveUser("inactive"));
 

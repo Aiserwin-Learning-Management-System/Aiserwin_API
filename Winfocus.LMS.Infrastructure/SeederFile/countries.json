@@ -1,290 +1,37 @@
 [
   {
-    "Name": "Afghanistan",
-    "Code": "AF",
-    "IsoAlpha3": "AFG",
-    "IsoNumeric": 4
-  },
-  {
-    "Name": "Armenia",
-    "Code": "AM",
-    "IsoAlpha3": "ARM",
-    "IsoNumeric": 51
-  },
-  {
-    "Name": "Azerbaijan",
-    "Code": "AZ",
-    "IsoAlpha3": "AZE",
-    "IsoNumeric": 31
-  },
-  {
     "Name": "Bahrain",
     "Code": "BH",
-    "IsoAlpha3": "BHR",
-    "IsoNumeric": 48
-  },
-  {
-    "Name": "Bangladesh",
-    "Code": "BD",
-    "IsoAlpha3": "BGD",
-    "IsoNumeric": 50
-  },
-  {
-    "Name": "Bhutan",
-    "Code": "BT",
-    "IsoAlpha3": "BTN",
-    "IsoNumeric": 64
-  },
-  {
-    "Name": "Brunei Darussalam",
-    "Code": "BN",
-    "IsoAlpha3": "BRN",
-    "IsoNumeric": 96
-  },
-  {
-    "Name": "Cambodia",
-    "Code": "KH",
-    "IsoAlpha3": "KHM",
-    "IsoNumeric": 116
-  },
-  {
-    "Name": "China",
-    "Code": "CN",
-    "IsoAlpha3": "CHN",
-    "IsoNumeric": 156
-  },
-  {
-    "Name": "Cyprus",
-    "Code": "CY",
-    "IsoAlpha3": "CYP",
-    "IsoNumeric": 196
-  },
-  {
-    "Name": "Georgia",
-    "Code": "GE",
-    "IsoAlpha3": "GEO",
-    "IsoNumeric": 268
+    "PhoneCode": "+973"
   },
   {
     "Name": "India",
     "Code": "IN",
-    "IsoAlpha3": "IND",
-    "IsoNumeric": 356
-  },
-  {
-    "Name": "Indonesia",
-    "Code": "ID",
-    "IsoAlpha3": "IDN",
-    "IsoNumeric": 360
-  },
-  {
-    "Name": "Iran",
-    "Code": "IR",
-    "IsoAlpha3": "IRN",
-    "IsoNumeric": 364
-  },
-  {
-    "Name": "Iraq",
-    "Code": "IQ",
-    "IsoAlpha3": "IRQ",
-    "IsoNumeric": 368
-  },
-  {
-    "Name": "Israel",
-    "Code": "IL",
-    "IsoAlpha3": "ISR",
-    "IsoNumeric": 376
-  },
-  {
-    "Name": "Japan",
-    "Code": "JP",
-    "IsoAlpha3": "JPN",
-    "IsoNumeric": 392
-  },
-  {
-    "Name": "Jordan",
-    "Code": "JO",
-    "IsoAlpha3": "JOR",
-    "IsoNumeric": 400
-  },
-  {
-    "Name": "Kazakhstan",
-    "Code": "KZ",
-    "IsoAlpha3": "KAZ",
-    "IsoNumeric": 398
+    "PhoneCode": "+91"
   },
   {
     "Name": "Kuwait",
     "Code": "KW",
-    "IsoAlpha3": "KWT",
-    "IsoNumeric": 414
-  },
-  {
-    "Name": "Kyrgyzstan",
-    "Code": "KG",
-    "IsoAlpha3": "KGZ",
-    "IsoNumeric": 417
-  },
-  {
-    "Name": "Laos",
-    "Code": "LA",
-    "IsoAlpha3": "LAO",
-    "IsoNumeric": 418
-  },
-  {
-    "Name": "Lebanon",
-    "Code": "LB",
-    "IsoAlpha3": "LBN",
-    "IsoNumeric": 422
-  },
-  {
-    "Name": "Malaysia",
-    "Code": "MY",
-    "IsoAlpha3": "MYS",
-    "IsoNumeric": 458
-  },
-  {
-    "Name": "Maldives",
-    "Code": "MV",
-    "IsoAlpha3": "MDV",
-    "IsoNumeric": 462
-  },
-  {
-    "Name": "Mongolia",
-    "Code": "MN",
-    "IsoAlpha3": "MNG",
-    "IsoNumeric": 496
-  },
-  {
-    "Name": "Myanmar",
-    "Code": "MM",
-    "IsoAlpha3": "MMR",
-    "IsoNumeric": 104
-  },
-  {
-    "Name": "Nepal",
-    "Code": "NP",
-    "IsoAlpha3": "NPL",
-    "IsoNumeric": 524
-  },
-  {
-    "Name": "North Korea",
-    "Code": "KP",
-    "IsoAlpha3": "PRK",
-    "IsoNumeric": 408
+    "PhoneCode": "+965"
   },
   {
     "Name": "Oman",
     "Code": "OM",
-    "IsoAlpha3": "OMN",
-    "IsoNumeric": 512
-  },
-  {
-    "Name": "Pakistan",
-    "Code": "PK",
-    "IsoAlpha3": "PAK",
-    "IsoNumeric": 586
-  },
-  {
-    "Name": "Palestine, State of",
-    "Code": "PS",
-    "IsoAlpha3": "PSE",
-    "IsoNumeric": 275
-  },
-  {
-    "Name": "Philippines",
-    "Code": "PH",
-    "IsoAlpha3": "PHL",
-    "IsoNumeric": 608
+    "PhoneCode": "+968"
   },
   {
     "Name": "Qatar",
     "Code": "QA",
-    "IsoAlpha3": "QAT",
-    "IsoNumeric": 634
+    "PhoneCode": "+974"
   },
   {
     "Name": "Saudi Arabia",
     "Code": "SA",
-    "IsoAlpha3": "SAU",
-    "IsoNumeric": 682
-  },
-  {
-    "Name": "Singapore",
-    "Code": "SG",
-    "IsoAlpha3": "SGP",
-    "IsoNumeric": 702
-  },
-  {
-    "Name": "South Korea",
-    "Code": "KR",
-    "IsoAlpha3": "KOR",
-    "IsoNumeric": 410
-  },
-  {
-    "Name": "Sri Lanka",
-    "Code": "LK",
-    "IsoAlpha3": "LKA",
-    "IsoNumeric": 144
-  },
-  {
-    "Name": "Syria",
-    "Code": "SY",
-    "IsoAlpha3": "SYR",
-    "IsoNumeric": 760
-  },
-  {
-    "Name": "Tajikistan",
-    "Code": "TJ",
-    "IsoAlpha3": "TJK",
-    "IsoNumeric": 762
-  },
-  {
-    "Name": "Thailand",
-    "Code": "TH",
-    "IsoAlpha3": "THA",
-    "IsoNumeric": 764
-  },
-  {
-    "Name": "Timor-Leste",
-    "Code": "TL",
-    "IsoAlpha3": "TLS",
-    "IsoNumeric": 626
-  },
-  {
-    "Name": "Turkey",
-    "Code": "TR",
-    "IsoAlpha3": "TUR",
-    "IsoNumeric": 792
-  },
-  {
-    "Name": "Turkmenistan",
-    "Code": "TM",
-    "IsoAlpha3": "TKM",
-    "IsoNumeric": 795
+    "PhoneCode": "+966"
   },
   {
     "Name": "United Arab Emirates",
     "Code": "AE",
-    "IsoAlpha3": "ARE",
-    "IsoNumeric": 784
-  },
-  {
-    "Name": "Uzbekistan",
-    "Code": "UZ",
-    "IsoAlpha3": "UZB",
-    "IsoNumeric": 860
-  },
-  {
-    "Name": "Vietnam",
-    "Code": "VN",
-    "IsoAlpha3": "VNM",
-    "IsoNumeric": 704
-  },
-  {
-    "Name": "Yemen",
-    "Code": "YE",
-    "IsoAlpha3": "YEM",
-    "IsoNumeric": 887
+    "PhoneCode": "+971"
   }
 ]

@@ -1,4 +1,4 @@
-﻿namespace Winfocus.LMS.Application.DTOs.Students
+namespace Winfocus.LMS.Application.DTOs.Students
 {
     using Winfocus.LMS.Application.DTOs.Masters;
 
@@ -15,7 +15,7 @@
         /// <summary>
         /// Gets or sets the identifier of the associated country.
         /// </summary>
-        public CountryDto1 Country { get; set; } = null!;
+        public CountryDto Country { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the identifier of the associated mode of study.
@@ -45,7 +45,7 @@
         /// <summary>
         /// Gets or sets the identifier of the associated center.
         /// </summary>
-        public CenterDto1 Center { get; set; } = null!;
+        public CenterDto Center { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the identifier of the associated syllabus.
@@ -78,16 +78,6 @@
         public StreamDto Stream { get; set; } = null!;
 
         /// <summary>
-        /// Gets or sets the identifier of the associated course.
-        /// </summary>
-        public Guid CourseId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the identifier of the associated course.
-        /// </summary>
-        public CourseDto Course { get; set; } = null!;
-
-        /// <summary>
         /// Gets or sets the identifier of the associated subject.
         /// </summary>
         public Guid SubjectId { get; set; }
@@ -96,6 +86,11 @@
         /// Gets or sets the identifier of the associated subject.
         /// </summary>
         public SubjectDto Subject { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the identifier of the batch selection.
+        /// </summary>
+        public Guid BatchId { get; set; }
 
         /// <summary>
         /// Gets or sets the identifier of the associated batch timing for MTF.
@@ -130,7 +125,7 @@
         /// <summary>
         /// Gets or sets the identifier of the preferred batch time selection.
         /// </summary>
-        public Guid PreferredBatchTime { get; set; }
+        public string PreferredBatchTime { get; set; }
 
         /// <summary>
         /// Gets or sets the identifier of the preferred batch time selection.
@@ -153,8 +148,18 @@
         public string PastSchoolLocation { get; set; } = null!;
 
         /// <summary>
-        /// Gets or sets the emirate associated with the student's record.
+        /// Gets or sets the identifier of the emirate associated with the student's record.
         /// </summary>
-        public string Emirates { get; set; } = null!;
+        public string EmiratesId { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the populated emirate details (same structure as State).
+        /// </summary>
+        public StateDto? Emirates { get; set; }
+
+        /// <summary>
+        /// Gets or sets the identifier of the academic year id.
+        /// </summary>
+        public Guid AcademicYearId { get; set; }
     }
 }

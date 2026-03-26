@@ -1,0 +1,432 @@
+[
+  {
+    "Name": "Andhra Pradesh",
+    "StateCode": "AP",
+    "CountryName": "India"
+  },
+  {
+    "Name": "Arunachal Pradesh",
+    "StateCode": "AR",
+    "CountryName": "India"
+  },
+  {
+    "Name": "Assam",
+    "StateCode": "AS",
+    "CountryName": "India"
+  },
+  {
+    "Name": "Bihar",
+    "StateCode": "BR",
+    "CountryName": "India"
+  },
+  {
+    "Name": "Chhattisgarh",
+    "StateCode": "CG",
+    "CountryName": "India"
+  },
+  {
+    "Name": "Goa",
+    "StateCode": "GA",
+    "CountryName": "India"
+  },
+  {
+    "Name": "Gujarat",
+    "StateCode": "GJ",
+    "CountryName": "India"
+  },
+  {
+    "Name": "Haryana",
+    "StateCode": "HR",
+    "CountryName": "India"
+  },
+  {
+    "Name": "Himachal Pradesh",
+    "StateCode": "HP",
+    "CountryName": "India"
+  },
+  {
+    "Name": "Jharkhand",
+    "StateCode": "JH",
+    "CountryName": "India"
+  },
+  {
+    "Name": "Karnataka",
+    "StateCode": "KA",
+    "CountryName": "India"
+  },
+  {
+    "Name": "Kerala",
+    "StateCode": "KL",
+    "CountryName": "India"
+  },
+  {
+    "Name": "Madhya Pradesh",
+    "StateCode": "MP",
+    "CountryName": "India"
+  },
+  {
+    "Name": "Maharashtra",
+    "StateCode": "MH",
+    "CountryName": "India"
+  },
+  {
+    "Name": "Manipur",
+    "StateCode": "MN",
+    "CountryName": "India"
+  },
+  {
+    "Name": "Meghalaya",
+    "StateCode": "ML",
+    "CountryName": "India"
+  },
+  {
+    "Name": "Mizoram",
+    "StateCode": "MZ",
+    "CountryName": "India"
+  },
+  {
+    "Name": "Nagaland",
+    "StateCode": "NL",
+    "CountryName": "India"
+  },
+  {
+    "Name": "Odisha",
+    "StateCode": "OD",
+    "CountryName": "India"
+  },
+  {
+    "Name": "Punjab",
+    "StateCode": "PB",
+    "CountryName": "India"
+  },
+  {
+    "Name": "Rajasthan",
+    "StateCode": "RJ",
+    "CountryName": "India"
+  },
+  {
+    "Name": "Sikkim",
+    "StateCode": "SK",
+    "CountryName": "India"
+  },
+  {
+    "Name": "Tamil Nadu",
+    "StateCode": "TN",
+    "CountryName": "India"
+  },
+  {
+    "Name": "Telangana",
+    "StateCode": "TS",
+    "CountryName": "India"
+  },
+  {
+    "Name": "Tripura",
+    "StateCode": "TR",
+    "CountryName": "India"
+  },
+  {
+    "Name": "Uttar Pradesh",
+    "StateCode": "UP",
+    "CountryName": "India"
+  },
+  {
+    "Name": "Uttarakhand",
+    "StateCode": "UK",
+    "CountryName": "India"
+  },
+  {
+    "Name": "West Bengal",
+    "StateCode": "WB",
+    "CountryName": "India"
+  },
+  {
+    "Name": "Andaman and Nicobar Islands",
+    "StateCode": "AN",
+    "CountryName": "India"
+  },
+  {
+    "Name": "Chandigarh",
+    "StateCode": "CH",
+    "CountryName": "India"
+  },
+  {
+    "Name": "Dadra and Nagar Haveli and Daman and Diu",
+    "StateCode": "DN",
+    "CountryName": "India"
+  },
+  {
+    "Name": "Delhi",
+    "StateCode": "DL",
+    "CountryName": "India"
+  },
+  {
+    "Name": "Jammu and Kashmir",
+    "StateCode": "JK",
+    "CountryName": "India"
+  },
+  {
+    "Name": "Ladakh",
+    "StateCode": "LA",
+    "CountryName": "India"
+  },
+  {
+    "Name": "Lakshadweep",
+    "StateCode": "LD",
+    "CountryName": "India"
+  },
+  {
+    "Name": "Puducherry",
+    "StateCode": "PY",
+    "CountryName": "India"
+  },
+  {
+    "Name": "Riyadh",
+    "StateCode": "01",
+    "CountryName": "Saudi Arabia"
+  },
+  {
+    "Name": "Makkah",
+    "StateCode": "02",
+    "CountryName": "Saudi Arabia"
+  },
+  {
+    "Name": "Eastern Province",
+    "StateCode": "03",
+    "CountryName": "Saudi Arabia"
+  },
+  {
+    "Name": "Madinah",
+    "StateCode": "04",
+    "CountryName": "Saudi Arabia"
+  },
+  {
+    "Name": "Asir",
+    "StateCode": "05",
+    "CountryName": "Saudi Arabia"
+  },
+  {
+    "Name": "Jazan",
+    "StateCode": "06",
+    "CountryName": "Saudi Arabia"
+  },
+  {
+    "Name": "Najran",
+    "StateCode": "07",
+    "CountryName": "Saudi Arabia"
+  },
+  {
+    "Name": "Tabuk",
+    "StateCode": "08",
+    "CountryName": "Saudi Arabia"
+  },
+  {
+    "Name": "Hail",
+    "StateCode": "09",
+    "CountryName": "Saudi Arabia"
+  },
+  {
+    "Name": "Al-Qassim",
+    "StateCode": "10",
+    "CountryName": "Saudi Arabia"
+  },
+  {
+    "Name": "Northern Borders",
+    "StateCode": "11",
+    "CountryName": "Saudi Arabia"
+  },
+  {
+    "Name": "Al-Baha",
+    "StateCode": "12",
+    "CountryName": "Saudi Arabia"
+  },
+  {
+    "Name": "Al-Jouf",
+    "StateCode": "13",
+    "CountryName": "Saudi Arabia"
+  },
+
+  {
+    "Name": "Abu Dhabi",
+    "StateCode": "AD",
+    "CountryName": "United Arab Emirates"
+  },
+  {
+    "Name": "Dubai",
+    "StateCode": "DU",
+    "CountryName": "United Arab Emirates"
+  },
+  {
+    "Name": "Sharjah",
+    "StateCode": "SH",
+    "CountryName": "United Arab Emirates"
+  },
+  {
+    "Name": "Ajman",
+    "StateCode": "AJ",
+    "CountryName": "United Arab Emirates"
+  },
+  {
+    "Name": "Umm Al Quwain",
+    "StateCode": "UQ",
+    "CountryName": "United Arab Emirates"
+  },
+  {
+    "Name": "Ras Al Khaimah",
+    "StateCode": "RK",
+    "CountryName": "United Arab Emirates"
+  },
+  {
+    "Name": "Fujairah",
+    "StateCode": "FU",
+    "CountryName": "United Arab Emirates"
+  },
+
+  {
+    "Name": "Muscat",
+    "StateCode": "MU",
+    "CountryName": "Oman"
+  },
+  {
+    "Name": "Dhofar",
+    "StateCode": "DH",
+    "CountryName": "Oman"
+  },
+  {
+    "Name": "Al Buraimi",
+    "StateCode": "BR",
+    "CountryName": "Oman"
+  },
+  {
+    "Name": "Al Dakhiliyah",
+    "StateCode": "DK",
+    "CountryName": "Oman"
+  },
+  {
+    "Name": "Al Wusta",
+    "StateCode": "WS",
+    "CountryName": "Oman"
+  },
+  {
+    "Name": "Ash Sharqiyah North",
+    "StateCode": "SN",
+    "CountryName": "Oman"
+  },
+  {
+    "Name": "Ash Sharqiyah South",
+    "StateCode": "SS",
+    "CountryName": "Oman"
+  },
+  {
+    "Name": "Ad Dhahirah",
+    "StateCode": "DH",
+    "CountryName": "Oman"
+  },
+  {
+    "Name": "Musandam",
+    "StateCode": "MS",
+    "CountryName": "Oman"
+  },
+  {
+    "Name": "Al Batinah North",
+    "StateCode": "BN",
+    "CountryName": "Oman"
+  },
+  {
+    "Name": "Al Batinah South",
+    "StateCode": "BS",
+    "CountryName": "Oman"
+  },
+
+  {
+    "Name": "Doha",
+    "StateCode": "DA",
+    "CountryName": "Qatar"
+  },
+  {
+    "Name": "Al Rayyan",
+    "StateCode": "RA",
+    "CountryName": "Qatar"
+  },
+  {
+    "Name": "Al Wakrah",
+    "StateCode": "WA",
+    "CountryName": "Qatar"
+  },
+  {
+    "Name": "Umm Salal",
+    "StateCode": "US",
+    "CountryName": "Qatar"
+  },
+  {
+    "Name": "Al Daayen",
+    "StateCode": "DA",
+    "CountryName": "Qatar"
+  },
+  {
+    "Name": "Al Khor",
+    "StateCode": "KH",
+    "CountryName": "Qatar"
+  },
+  {
+    "Name": "Al Shamal",
+    "StateCode": "SM",
+    "CountryName": "Qatar"
+  },
+  {
+    "Name": "Al Shahaniya",
+    "StateCode": "SH",
+    "CountryName": "Qatar"
+  },
+
+  {
+    "Name": "Al Asimah",
+    "StateCode": "AS",
+    "CountryName": "Kuwait"
+  },
+  {
+    "Name": "Hawalli",
+    "StateCode": "HW",
+    "CountryName": "Kuwait"
+  },
+  {
+    "Name": "Farwaniya",
+    "StateCode": "FW",
+    "CountryName": "Kuwait"
+  },
+  {
+    "Name": "Jahra",
+    "StateCode": "JA",
+    "CountryName": "Kuwait"
+  },
+  {
+    "Name": "Mubarak Al-Kabeer",
+    "StateCode": "MK",
+    "CountryName": "Kuwait"
+  },
+  {
+    "Name": "Ahmadi",
+    "StateCode": "AH",
+    "CountryName": "Kuwait"
+  },
+
+  {
+    "Name": "Capital",
+    "StateCode": "CP",
+    "CountryName": "Bahrain"
+  },
+  {
+    "Name": "Muharraq",
+    "StateCode": "MU",
+    "CountryName": "Bahrain"
+  },
+  {
+    "Name": "Northern",
+    "StateCode": "NO",
+    "CountryName": "Bahrain"
+  },
+  {
+    "Name": "Southern",
+    "StateCode": "SO",
+    "CountryName": "Bahrain"
+  }
+]

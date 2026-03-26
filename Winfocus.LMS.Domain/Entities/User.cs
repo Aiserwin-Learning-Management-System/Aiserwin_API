@@ -20,7 +20,37 @@
         /// <summary>
         /// Gets or sets the hashed password of the user.
         /// </summary>
-        public string PasswordHash { get; set; } = null!;
+        public string? PasswordHash { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the identifier of the associated country.
+        /// </summary>
+        public Guid? CountryId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the identifier of the associated country.
+        /// </summary>
+        public Country? Country { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the identifier of the associated Center.
+        /// </summary>
+        public Guid? CenterId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the identifier of the associated Center.
+        /// </summary>
+        public Center? Center { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the identifier of the Stafftype.
+        /// </summary>
+        public Guid? StaffCategoryId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the identifier of the StaffType.
+        /// </summary>
+        public StaffCategory? StaffCategory { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the collection of UserRole associated with the user.

@@ -12,21 +12,33 @@
         /// <summary>
         /// Gets or sets the display name of the subject.
         /// </summary>
-        public string SubjectName { get; set; } = null!;
+        public string Name { get; set; } = null!;
 
         /// <summary>
-        /// Gets or sets the optional code for the subject.
-        /// </summary>
-        public string SubjectCode { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets the identifier of the associated course.
+        /// Gets or sets the identifier of the associated courses.
         /// </summary>
         public Guid CourseId { get; set; }
 
         /// <summary>
-        /// Gets or sets the identifier of the associated course.
+        /// Gets or sets the associated courses.
         /// </summary>
         public Course Course { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the courses.
+        /// </summary>
+        /// <value>
+        /// The courses.
+        /// </value>
+        public ICollection<Course> Courses { get; set; } = new List<Course>();
+
+        /// <summary>
+        /// Gets or sets the SubjectCode.
+        /// </summary>
+        /// <value>
+        /// The grade.
+        /// </value>
+        [MaxLength(50)]
+        public string SubjectCode { get; set; } = null!;
     }
 }

@@ -2,8 +2,10 @@
 {
     using FluentAssertions;
     using Microsoft.AspNetCore.Identity;
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging.Abstractions;
     using Moq;
+    using Winfocus.LMS.Application.Common.Exceptions;
     using Winfocus.LMS.Application.DTOs.Auth;
     using Winfocus.LMS.Application.Interfaces;
     using Winfocus.LMS.Application.Services;
@@ -17,8 +19,14 @@
         private readonly Mock<IUserRepository> _userRepositoryMock;
         private readonly Mock<IRoleRepository> _roleRepositoryMock;
         private readonly Mock<ITokenService> _tokenServiceMock;
+        private readonly Mock<IEmailService> _emailServiceMock;
+        private readonly Mock<IUserActivationTokenRepository> _userActivationTokenRepositoryMock;
         private readonly IPasswordHasher<User> _passwordHasher;
         private readonly AuthService _authService;
+        private readonly Mock<IUsernameGeneratorService> _usernameGeneratorService;
+        private readonly Mock<IUserLoginLogService> _userLoginLogService;
+        private readonly Mock<IUserSessionService> _userSessionService;
+        private readonly Mock<IConfiguration> _userConfig;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthServiceTests"/> class.
@@ -28,14 +36,26 @@
             _userRepositoryMock = new Mock<IUserRepository>();
             _roleRepositoryMock = new Mock<IRoleRepository>();
             _tokenServiceMock = new Mock<ITokenService>();
+            _emailServiceMock = new Mock<IEmailService>();
+            _userActivationTokenRepositoryMock = new Mock<IUserActivationTokenRepository>();
             _passwordHasher = new PasswordHasher<User>();
+            _usernameGeneratorService = new Mock<IUsernameGeneratorService>();
+            _userLoginLogService = new Mock<IUserLoginLogService>();
+            _userSessionService = new Mock<IUserSessionService>();
+            _userConfig = new Mock<IConfiguration>();
 
             _authService = new AuthService(
                 _userRepositoryMock.Object,
                 _roleRepositoryMock.Object,
                 _tokenServiceMock.Object,
                 _passwordHasher,
-                NullLogger<AuthService>.Instance);
+                NullLogger<AuthService>.Instance,
+                _userActivationTokenRepositoryMock.Object,
+                _emailServiceMock.Object,
+                _usernameGeneratorService.Object,
+                _userLoginLogService.Object,
+                _userSessionService.Object,
+                _userConfig.Object);
         }
 
         /// <summary>
@@ -45,43 +65,22 @@
         [Fact]
         public async Task RegisterAsync_WithValidRequest_ReturnsAuthResponse()
         {
-            // Arrange
-            var request = new RegisterRequestDto(
-                username: "testuser",
-                email: "test@winfocus.com",
-                password: "Password@123",
-                roleNames: new List<string> { "Student" }
-            );
-
-            var role = new Role
-            {
-                Id = Guid.NewGuid(),
-                Name = "Student",
-            };
+            var request = new RegisterRequestDto("testuser", "test@winfocus.com", new List<string> { "Student" }, Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid());
 
             _userRepositoryMock
-                .Setup(r => r.GetByUsernameAsync("testuser"))
-                .ReturnsAsync((User?)null);
+                .Setup(r => r.GetByNamesAsync(It.IsAny<IReadOnlyList<string>>()))
+                .ReturnsAsync(new List<Role> { new Role { Name = "Student" } });
 
-            _roleRepositoryMock
-                .Setup(r => r.GetByNameAsync("Student"))
-                .ReturnsAsync(role);
+            _usernameGeneratorService
+                .Setup(u => u.GenerateAsync("testuser", It.IsAny<int>()))
+                .ReturnsAsync("testuser");
 
-            _tokenServiceMock
-                .Setup(t => t.GenerateToken(It.IsAny<User>(), It.IsAny<List<string>>()))
-                .Returns("mock-jwt-token");
-
-            // Act
             var result = await _authService.RegisterAsync(request);
 
-            // Assert
             Assert.NotNull(result);
             Assert.Equal("testuser", result.username);
             Assert.Equal("test@winfocus.com", result.email);
             Assert.Contains("Student", result.roles);
-            Assert.Equal("mock-jwt-token", result.accessToken);
-
-            _userRepositoryMock.Verify(r => r.AddAsync(It.IsAny<User>()), Times.Once);
         }
 
         /// <summary>
@@ -111,15 +110,20 @@
 
             var request = new LoginRequestDto(
                 username: "testuser",
-                password: password
-            );
+                password: password,
+                ipAddress: "192.168.1.100",
+                userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0");
 
             _userRepositoryMock
                 .Setup(r => r.GetByUsernameAsync("testuser"))
                 .ReturnsAsync(user);
 
             _tokenServiceMock
-                .Setup(t => t.GenerateToken(user, It.IsAny<List<string>>()))
+                .Setup(t => t.GenerateToken(
+                    It.IsAny<User>(),
+                    It.IsAny<IReadOnlyList<string>>(),
+                    It.IsAny<string>(),
+                    It.IsAny<IReadOnlyList<string>>()))
                 .Returns("mock-jwt-token");
 
             // Act
@@ -143,26 +147,22 @@
             var request = new RegisterRequestDto(
                 username: "testuser",
                 email: "test@winfocus.com",
-                password: "Password@123",
-                roleNames: new List<string> { "InvalidRole" }
-            );
+                roleNames: new List<string> { "InvalidRole" }, 
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                Guid.NewGuid());
 
             _userRepositoryMock
                 .Setup(r => r.GetByUsernameAsync("testuser"))
                 .ReturnsAsync((User?)null);
 
-            _roleRepositoryMock
-                .Setup(r => r.GetByNameAsync("InvalidRole"))
-                .ReturnsAsync((Role?)null);
+            _userRepositoryMock .Setup(r => r.GetByNamesAsync(It.IsAny<IReadOnlyList<string>>())) .ReturnsAsync(new List<Role>());
 
             // Act
             Func<Task> act = async () => await _authService.RegisterAsync(request);
 
             // Assert
-            await act
-                .Should()
-                .ThrowAsync<InvalidOperationException>()
-                .WithMessage("Invalid role: InvalidRole");
+            await act.Should().ThrowAsync<CustomException>().WithMessage("Invalid roles: InvalidRole");
         }
 
         /// <summary>
@@ -185,8 +185,9 @@
 
             var request = new LoginRequestDto(
                 username: "testuser",
-                password: "WrongPassword@123"
-            );
+                password: "WrongPassword@123",
+                ipAddress: "192.168.1.100",
+                userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0");
 
             _userRepositoryMock
                 .Setup(r => r.GetByUsernameAsync("testuser"))
@@ -198,7 +199,7 @@
             // Assert
             await act
                 .Should()
-                .ThrowAsync<UnauthorizedAccessException>()
+                .ThrowAsync<CustomException>()
                 .WithMessage("Invalid credentials.");
         }
 
@@ -212,8 +213,9 @@
             // Arrange
             var request = new LoginRequestDto(
                 username: "unknown",
-                password: "Password@123"
-            );
+                password: "Password@123",
+                ipAddress: "192.168.1.100",
+                userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0");
 
             _userRepositoryMock
                 .Setup(r => r.GetByUsernameAsync("unknown"))
@@ -225,7 +227,7 @@
             // Assert
             await act
                 .Should()
-                .ThrowAsync<UnauthorizedAccessException>()
+                .ThrowAsync<CustomException>()
                 .WithMessage("Invalid credentials.");
         }
 
@@ -246,22 +248,21 @@
             var request = new RegisterRequestDto(
                 username: "testuser",
                 email: "test@winfocus.com",
-                password: "Password@123",
-                roleNames: null
-            );
+                roleNames: null,
+                countryid: Guid.NewGuid(),
+                centerid: Guid.NewGuid(),
+                staffcategoryid: Guid.NewGuid());
 
             _userRepositoryMock
-                .Setup(r => r.GetByUsernameAsync("testuser"))
-                .ReturnsAsync(existingUser);
+                .Setup(r => r.EmailExistsAsync("test@winfocus.com"))
+                .ReturnsAsync(true);
 
             // Act
             Func<Task> act = async () => await _authService.RegisterAsync(request);
 
             // Assert
-            await act
-                .Should()
-                .ThrowAsync<InvalidOperationException>()
-                .WithMessage("Invalid username or password.");
+            await act.Should().ThrowAsync<CustomException>()
+                .WithMessage("Email address is already registered.");
         }
 
         /// <summary>
@@ -275,20 +276,25 @@
             var request = new RegisterRequestDto(
                 username: "student1",
                 email: "student@winfocus.com",
-                password: "Password@123",
-                roleNames: null
-            );
+                roleNames: null,
+                countryid: Guid.NewGuid(),
+                centerid: Guid.NewGuid(),
+                staffcategoryid: Guid.NewGuid());
 
             _userRepositoryMock
                 .Setup(r => r.GetByUsernameAsync("student1"))
                 .ReturnsAsync((User?)null);
 
-            _roleRepositoryMock
-                .Setup(r => r.GetByNameAsync("Student"))
-                .ReturnsAsync(new Role { Name = "Student" });
+            _userRepositoryMock
+                .Setup(r => r.GetByNamesAsync(It.Is<IReadOnlyList<string>>(roles => roles.Contains("Student"))))
+                .ReturnsAsync(new List<Role> { new Role { Name = "Student" } });
 
             _tokenServiceMock
-                .Setup(t => t.GenerateToken(It.IsAny<User>(), It.IsAny<List<string>>()))
+                .Setup(t => t.GenerateToken(
+                    It.IsAny<User>(),
+                    It.IsAny<IReadOnlyList<string>>(),
+                    It.IsAny<string>(),
+                    It.IsAny<IReadOnlyList<string>>()))
                 .Returns("mock-jwt-token");
 
             // Act
@@ -310,34 +316,29 @@
             var request = new RegisterRequestDto(
                 "adminuser",
                 "admin@winfocus.com",
-                "Password@123",
-                new List<string> { "Admin", "Teacher" }
+                new List<string> { "Admin", "Teacher" },
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                Guid.NewGuid()
             );
 
             _userRepositoryMock
-                .Setup(r => r.GetByUsernameAsync("adminuser"))
-                .ReturnsAsync((User?)null);
+                .Setup(r => r.GetByNamesAsync(It.IsAny<IReadOnlyList<string>>()))
+                .ReturnsAsync(new List<Role>
+                {
+                    new Role { Name = "Admin" },
+                    new Role { Name = "Teacher" }
+                });
 
-            _roleRepositoryMock
-                .Setup(r => r.GetByNameAsync(It.IsAny<string>()))
-                .ReturnsAsync((string role) => new Role { Name = role });
-
-            _tokenServiceMock
-                .Setup(t => t.GenerateToken(It.IsAny<User>(), It.IsAny<List<string>>()))
-                .Returns("jwt-token");
+            _usernameGeneratorService
+                .Setup(u => u.GenerateAsync("adminuser", It.IsAny<int>()))
+                .ReturnsAsync("adminuser");
 
             // Act
             var result = await _authService.RegisterAsync(request);
 
             // Assert
             result.roles.Should().BeEquivalentTo("Admin", "Teacher");
-
-            _tokenServiceMock.Verify(
-                t =>
-                t.GenerateToken(
-                    It.IsAny<User>(),
-                    It.Is<List<string>>(r => r.Contains("Admin") && r.Contains("Teacher"))),
-                Times.Once);
         }
 
     }

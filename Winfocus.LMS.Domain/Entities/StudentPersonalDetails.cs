@@ -2,6 +2,7 @@
 {
     using System;
     using Winfocus.LMS.Domain.Common;
+    using Winfocus.LMS.Domain.Enums;
 
     /// <summary>
     /// Represents the personal details associated with a student.
@@ -52,5 +53,10 @@
         /// Gets or sets the emirate associated with the student's record.
         /// </summary>
         public string Emirates { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the type of the gender (Male, Female).
+        /// </summary>
+        public Gender Gender { get; set; }
     }
 }

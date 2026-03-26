@@ -12,7 +12,7 @@
         /// <summary>
         /// Gets or sets the display name of the mode of study.
         /// </summary>
-        public string ModeName { get; set; } = null!;
+        public string Name { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the identifier of the associated country.

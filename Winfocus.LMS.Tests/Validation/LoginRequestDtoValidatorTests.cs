@@ -18,7 +18,7 @@
         [Fact]
         public void Should_Fail_When_Username_Is_Empty()
         {
-            var dto = new LoginRequestDto(string.Empty, "Password@123");
+            var dto = new LoginRequestDto(string.Empty, "Password@123", ipAddress: "192.168.1.100",userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0");
 
             var result = _validator.TestValidate(dto);
 
@@ -31,7 +31,7 @@
         [Fact]
         public void Should_Fail_When_Password_Is_Empty()
         {
-            var dto = new LoginRequestDto("user", string.Empty);
+            var dto = new LoginRequestDto("user", string.Empty, ipAddress: "192.168.1.100", userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0");
 
             var result = _validator.TestValidate(dto);
 
@@ -44,7 +44,7 @@
         [Fact]
         public void Should_Pass_For_Valid_Input()
         {
-            var dto = new LoginRequestDto("user", "Password@123");
+            var dto = new LoginRequestDto("user", "Password@123", ipAddress: "192.168.1.100", userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0");
 
             var result = _validator.TestValidate(dto);
 
