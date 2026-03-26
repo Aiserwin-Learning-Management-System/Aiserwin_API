@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Winfocus.LMS.Application.DTOs;
+using Winfocus.LMS.Application.DTOs.Common;
+using Winfocus.LMS.Application.DTOs.Masters;
 using Winfocus.LMS.Application.DTOs.Question;
 
 namespace Winfocus.LMS.Application.Interfaces
@@ -65,5 +68,24 @@ namespace Winfocus.LMS.Application.Interfaces
         /// <param name="id">Question ID.</param>
         /// <returns>Preview DTO.</returns>
         Task<QuestionPreviewDto> PreviewAsync(Guid id);
+
+     
+
+        /// <summary>
+        /// Gets filtered.
+        /// Search .
+        /// </summary>
+        /// <param name="request">The paged request.</param>
+        /// <param name="subject">Optional subject filter.</param>
+        /// <param name="chapter">Optional chapter filter.</param>
+        /// <param name="status">Optional status filter.</param>
+        /// <param name="questionType">Optional question type filter.</param>
+        /// <returns>Paginated QuestionBankItemDto.</returns>
+        Task<CommonResponse<PagedResult<QuestionBankItemDto>>> GetFilteredAsync(PagedRequest request, string? subject, string? chapter, int? status, int? questionType);
+
+        /// <summary>
+        /// Retrieves stats breakdown for the operator's questions.
+        /// </summary>
+        Task<Winfocus.LMS.Application.DTOs.Stats.QuestionStatsDto> GetQuestionStatsAsync(Guid operatorId);
     }
 }

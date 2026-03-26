@@ -26,6 +26,111 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         }
 
         /// <inheritdoc />
+        public async Task<(List<Question> Items, int TotalCount)> GetByOperatorAsync(
+            Guid operatorId,
+            string? subject,
+            string? chapter,
+            int? status,
+            int? questionType,
+            string? search,
+            string? sortBy,
+            int pageNumber,
+            int pageSize)
+        {
+            var query = _context.Questions
+                .Where(q => q.OperatorId == operatorId)
+                .Include(q => q.TaskAssignment)
+                    .ThenInclude(t => t.Subject)
+                .Include(q => q.TaskAssignment)
+                    .ThenInclude(t => t.Chapter)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(subject))
+            {
+                query = query.Where(q => q.TaskAssignment.Subject.Name == subject);
+            }
+
+            if (!string.IsNullOrWhiteSpace(chapter))
+            {
+                query = query.Where(q => q.TaskAssignment.Chapter != null && q.TaskAssignment.Chapter.Name == chapter);
+            }
+
+            if (status.HasValue)
+            {
+                query = query.Where(q => q.Status == status.Value);
+            }
+
+            if (questionType.HasValue)
+            {
+                query = query.Where(q => q.QuestionType == questionType.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(q => q.QuestionText.Contains(search));
+            }
+
+            // Determine ordering
+            switch (sortBy?.ToLowerInvariant())
+            {
+                case "status":
+                    query = query.OrderBy(q => q.Status).ThenByDescending(q => q.CreatedAt);
+                    break;
+                case "subject":
+                    query = query.OrderBy(q => q.TaskAssignment.Subject.Name).ThenByDescending(q => q.CreatedAt);
+                    break;
+                case "date":
+                default:
+                    query = query.OrderByDescending(q => q.CreatedAt);
+                    break;
+            }
+
+            var total = await query.CountAsync();
+
+            var items = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, total);
+        }
+
+        /// <inheritdoc />
+        public async Task<Winfocus.LMS.Application.DTOs.Stats.QuestionStatsDto> GetStatsForOperatorAsync(Guid operatorId)
+        {
+            var q = _context.Questions.Where(x => x.OperatorId == operatorId);
+
+            var groups = await q.GroupBy(x => x.Status)
+                .Select(g => new { Status = g.Key, Count = g.Count() })
+                .ToListAsync();
+
+            int total = await q.CountAsync();
+            int draft = groups.FirstOrDefault(g => g.Status == (int)Winfocus.LMS.Domain.Enums.QuestionStatus.Draft)?.Count ?? 0;
+            int submitted = groups.FirstOrDefault(g => g.Status == (int)Winfocus.LMS.Domain.Enums.QuestionStatus.Submitted)?.Count ?? 0;
+            int underReview = groups.FirstOrDefault(g => g.Status == (int)Winfocus.LMS.Domain.Enums.QuestionStatus.UnderReview)?.Count ?? 0;
+            int approved = groups.FirstOrDefault(g => g.Status == (int)Winfocus.LMS.Domain.Enums.QuestionStatus.Approved)?.Count ?? 0;
+            int rejected = groups.FirstOrDefault(g => g.Status == (int)Winfocus.LMS.Domain.Enums.QuestionStatus.Rejected)?.Count ?? 0;
+
+            var stats = new Winfocus.LMS.Application.DTOs.Stats.QuestionStatsDto
+            {
+                Total = total,
+                Draft = draft,
+                Pending = submitted + underReview,
+                Approved = approved,
+                Rejected = rejected,
+                Completed = approved + rejected + submitted + underReview,
+            };
+
+            if ((approved + rejected) > 0)
+            {
+                stats.ApprovalRate = Math.Round((decimal)approved / (approved + rejected) * 100, 2);
+                stats.RejectionRate = Math.Round((decimal)rejected / (approved + rejected) * 100, 2);
+            }
+
+            return stats;
+        }
+
+        /// <inheritdoc />
         public async Task<Question?> GetByIdAsync(Guid id)
         {
             return await _context.Questions
@@ -81,6 +186,20 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         {
             return await _context.Questions
                 .AnyAsync(q => q.Id == id);
+        }
+
+        /// <summary>
+        /// Gets queryable for filtering with full hierarchy.
+        /// </summary>
+        /// <returns>Queryable questions.</returns>
+        public IQueryable<Question> Query()
+        {
+            return _context.Questions.Where(x => !x.IsDeleted)
+                                .Include(q => q.TaskAssignment)
+                    .ThenInclude(t => t.Subject)
+                .Include(q => q.TaskAssignment)
+                    .ThenInclude(t => t.Chapter)
+                .AsNoTracking();
         }
     }
 }
