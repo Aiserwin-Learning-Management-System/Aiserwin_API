@@ -190,6 +190,33 @@
                 .TrimStart('/');
         }
 
+        /// <inheritdoc/>
+        public string ExtractBlobPathFromUrl(string azureUrl)
+        {
+            if (string.IsNullOrWhiteSpace(azureUrl))
+            {
+                return string.Empty;
+            }
+
+            try
+            {
+                var uri = new Uri(azureUrl);
+                var path = uri.AbsolutePath.TrimStart('/');
+
+                _logger.LogInformation(
+                    "Extracted local storage path from URL. OriginalUrl: {OriginalUrl}, Path: {Path}",
+                    azureUrl, path);
+
+                return path;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex,
+                    "Failed to extract path from URL: {Url}", azureUrl);
+                return string.Empty;
+            }
+        }
+
         private void ValidateFile(IFormFile file)
         {
             if (file == null || file.Length == 0)

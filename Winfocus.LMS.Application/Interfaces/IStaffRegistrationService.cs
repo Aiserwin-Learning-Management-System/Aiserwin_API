@@ -13,11 +13,10 @@
         /// Submits the asynchronous.
         /// </summary>
         /// <param name="request">The request.</param>
-        /// <param name="userId">The user identifier.</param>
         /// <returns>
         /// The asynchronous.
         Task<CommonResponse<RegistrationResponseDto>> SubmitAsync(
-            SubmitRegistrationRequest request, Guid userId);
+            SubmitRegistrationRequest request);
 
         /// <summary>
         /// Gets the by identifier asynchronous.

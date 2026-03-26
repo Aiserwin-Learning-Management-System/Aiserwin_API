@@ -42,7 +42,7 @@
 
         /// <inheritdoc/>
         public async Task<CommonResponse<RegistrationResponseDto>> SubmitAsync(
-            SubmitRegistrationRequest request, Guid userId)
+            SubmitRegistrationRequest request)
         {
             try
             {
@@ -231,7 +231,6 @@
                         Status = RegistrationStatus.Submitted,
                         SubmittedAt = DateTime.UtcNow,
                         CreatedAt = DateTime.UtcNow,
-                        CreatedBy = userId,
                         Values = values,
                     };
 
@@ -240,7 +239,7 @@
                     _logger.LogInformation(
                         "Registration {RegistrationId} submitted for Form {FormId} " +
                         "by User {UserId} with {ValueCount} values",
-                        registrationId, request.FormId, userId, values.Count);
+                        registrationId, request.FormId, values.Count);
 
                     // ── 9. Return success ────────────────────────
                     return CommonResponse<RegistrationResponseDto>.SuccessResponse(

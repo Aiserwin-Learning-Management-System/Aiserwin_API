@@ -32,9 +32,10 @@
         private readonly IConfiguration _configuration;
         private readonly IStudentRepository _studentRepository;
         private readonly IStudentAcademicdetailsRepository _studacademicrepository;
+        private readonly IFileStorageService _fileStorageService;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AuthService"/> class.
+        /// Initializes a new instance of the <see cref="AuthService" /> class.
         /// </summary>
         /// <param name="userRepository">The user repository.</param>
         /// <param name="roleRepository">The role repository.</param>
@@ -49,6 +50,7 @@
         /// <param name="configuration">The configuration.</param>
         /// <param name="studentRepository">The studentRepository.</param>
         /// <param name="studacademicrepository">The _studacademicrepository.</param>
+        /// <param name="fileStorageService">The file storage service.</param>
         public AuthService(
             IUserRepository userRepository,
             IRoleRepository roleRepository,
@@ -62,7 +64,8 @@
             IUserSessionService userSessionService,
             IConfiguration configuration,
             IStudentRepository studentRepository,
-            IStudentAcademicdetailsRepository studacademicrepository)
+            IStudentAcademicdetailsRepository studacademicrepository,
+            IFileStorageService fileStorageService)
         {
             _userRepository = userRepository;
             _roleRepository = roleRepository;
@@ -77,6 +80,7 @@
             _configuration = configuration;
             _studentRepository = studentRepository;
             _studacademicrepository = studacademicrepository;
+            _fileStorageService = fileStorageService;
         }
 
         /// <summary>
@@ -351,10 +355,13 @@
             string profileimage = string.Empty;
             if (roles.Any(r => r.Equals("Student", StringComparison.OrdinalIgnoreCase)))
             {
-                Student studentdata = await _studentRepository.GetByUserIdAsync(user.Id);
-                if (studentdata != null)
+                Student? studentdata = await _studentRepository.GetByUserIdAsync(user.Id);
+                if (studentdata != null
+                    && !string.IsNullOrEmpty(
+                        studentdata.StudentDocuments?.StudentPhotoPath))
                 {
-                    profileimage = studentdata.StudentDocuments.StudentPhotoPath;
+                    profileimage = _fileStorageService.GetFileUrl(
+                        studentdata.StudentDocuments.StudentPhotoPath);
                 }
             }
 

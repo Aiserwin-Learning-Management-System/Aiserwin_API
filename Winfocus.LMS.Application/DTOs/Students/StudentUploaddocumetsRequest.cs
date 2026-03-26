@@ -7,12 +7,9 @@ using System.Text;
 namespace Winfocus.LMS.Application.DTOs.Students
 {
     public sealed record StudentUploaddocumentsRequest(
+     IFormFile? studentphoto,
 
-     [Required]
-     IFormFile studentphoto,
-
-     [Required]
-     IFormFile signature,
+     IFormFile? signature,
 
      bool isAcceptedAgreement,
      bool isAcceptedTermsAndConditions);

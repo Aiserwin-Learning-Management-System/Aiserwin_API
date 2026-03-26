@@ -18,24 +18,28 @@ namespace Winfocus.LMS.Application.Services
         private readonly ILogger<StateService> _logger;
         private readonly IDoubtClearingRepository _doubtClearingRepository;
         private readonly IStateRepository _stateRepository;
+        private readonly IFileStorageService _fileStorageService;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="StudentService"/> class.
+        /// Initializes a new instance of the <see cref="StudentService" /> class.
         /// </summary>
         /// <param name="repository">Repository used for data access.</param>
         /// <param name="logger">Logger.</param>
         /// <param name="doubtClearingRepository">doubtClearingRepository.</param>
         /// <param name="stateRepository">Repository for state/emirate lookups.</param>
+        /// <param name="fileStorageService">The file storage service.</param>
         public StudentService(
             IStudentRepository repository,
             ILogger<StateService> logger,
             IDoubtClearingRepository doubtClearingRepository,
-            IStateRepository stateRepository)
+            IStateRepository stateRepository,
+            IFileStorageService fileStorageService)
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _doubtClearingRepository = doubtClearingRepository ?? throw new ArgumentNullException(nameof(doubtClearingRepository));
             _stateRepository = stateRepository ?? throw new ArgumentNullException(nameof(stateRepository));
+            _fileStorageService = fileStorageService ?? throw new ArgumentNullException(nameof(fileStorageService));
         }
 
         /// <summary>
@@ -467,8 +471,18 @@ namespace Winfocus.LMS.Application.Services
                 StudentDocuments = new StudentDocumentsDto
                 {
                     Id = entity.StudentDocumentsId,
-                    StudentPhoto = entity.StudentDocuments.StudentPhotoPath,
-                    StudentSignature = entity.StudentDocuments.StudentSignaturePath,
+                    StudentPhoto = !string.IsNullOrEmpty(
+                        entity.StudentDocuments.StudentPhotoPath)
+                        ? _fileStorageService.GetFileUrl(
+                            entity.StudentDocuments.StudentPhotoPath)
+                        : null,
+
+                    StudentSignature = !string.IsNullOrEmpty(
+                        entity.StudentDocuments.StudentSignaturePath)
+                        ? _fileStorageService.GetFileUrl(
+                            entity.StudentDocuments.StudentSignaturePath)
+                        : null,
+
                     IsAcceptedAgreement = entity.StudentDocuments.IsAcceptedAgreement,
                     IsAcceptedTermsAndConditions = entity.StudentDocuments.IsAcceptedTermsAndConditions,
                 },
@@ -501,7 +515,7 @@ namespace Winfocus.LMS.Application.Services
                 },
             };
 
-        private static StudentDto Map(Student c, List<DoubtClearing>? doubtClear) =>
+        private StudentDto Map(Student c, List<DoubtClearing>? doubtClear) =>
      new StudentDto
      {
          Id = c.Id,
@@ -581,8 +595,16 @@ namespace Winfocus.LMS.Application.Services
          StudentDocuments = new StudentDocumentsDto
          {
              Id = c.StudentDocumentsId,
-             StudentPhoto = c.StudentDocuments.StudentPhotoPath,
-             StudentSignature = c.StudentDocuments.StudentSignaturePath,
+             StudentPhoto = !string.IsNullOrEmpty(
+                    c.StudentDocuments.StudentPhotoPath)
+                    ? _fileStorageService.GetFileUrl(
+                        c.StudentDocuments.StudentPhotoPath)
+                    : null,
+              StudentSignature = !string.IsNullOrEmpty(
+                    c.StudentDocuments.StudentSignaturePath)
+                    ? _fileStorageService.GetFileUrl(
+                        c.StudentDocuments.StudentSignaturePath)
+                    : null,
              IsAcceptedAgreement = c.StudentDocuments.IsAcceptedAgreement,
              IsAcceptedTermsAndConditions = c.StudentDocuments.IsAcceptedTermsAndConditions,
          },
