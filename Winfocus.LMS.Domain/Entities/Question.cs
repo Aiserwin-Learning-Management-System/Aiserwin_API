@@ -66,6 +66,17 @@
         public string? CorrectAnswerText { get; set; }
 
         /// <summary>
+        /// Gets or sets the correct option id (for MCQ questions) which references a QuestionOption.
+        /// Nullable because not all question types will reference an option.
+        /// </summary>
+        public Guid? CorrectOptionId { get; set; }
+
+        /// <summary>
+        /// Gets or sets navigation property to the correct option when applicable.
+        /// </summary>
+        public QuestionOption? CorrectOption { get; set; }
+
+        /// <summary>
         /// Gets or sets the reference.
         /// </summary>
         /// <value>

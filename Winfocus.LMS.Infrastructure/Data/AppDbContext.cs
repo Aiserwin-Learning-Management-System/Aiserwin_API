@@ -467,6 +467,9 @@
 
             modelBuilder.ApplyConfiguration(new QuestionTypeConfigConfiguration());
 
+            modelBuilder.ApplyConfiguration(new ExamConfiguration());
+            modelBuilder.ApplyConfiguration(new ExamQuestionConfiguration());
+
             modelBuilder.ApplyConfiguration(new StudentCourseDiscountConfiguration());
             modelBuilder.ApplyConfiguration(new StudentFeeDiscountConfiguration());
             modelBuilder.ApplyConfiguration(new StudentFeeSelectionConfiguration());
