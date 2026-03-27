@@ -203,6 +203,8 @@ builder.Services.AddScoped<IContentResourceTypeRepository, ContentResourceTypeRe
 builder.Services.AddScoped<IContentResourceTypeService, ContentResourceTypeService>();
 builder.Services.AddScoped<IExamRepository, ExamRepository>();
 builder.Services.AddScoped<IExamService, ExamService>();
+builder.Services.AddScoped<ITeachingToolsRepository, TeachingToolsRepository>();
+builder.Services.AddScoped<ITeachingToolsService, TeachingToolsService>();
 
 builder.Services.AddScoped<IDarRepository, DarRepository>();
 builder.Services.AddScoped<IDarService, DarService>();
