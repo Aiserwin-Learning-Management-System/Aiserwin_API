@@ -428,6 +428,14 @@
         public DbSet<ExamQuestion> ExamQuestions { get; set; } = null!;
 
         /// <summary>
+        /// Gets or sets the teaching tools.
+        /// </summary>
+        /// <value>
+        /// The teaching tools.
+        /// </value>
+        public DbSet<TeachingTools> TeachingTools { get; set; }
+
+        /// <summary>
         /// Configures the model for the context.
         /// </summary>
         /// <param name="modelBuilder">The builder being used to construct the model for this context.</param>
