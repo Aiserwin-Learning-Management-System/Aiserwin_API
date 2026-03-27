@@ -49,6 +49,10 @@
                 .IsRequired(false)
                 .HasColumnType("nvarchar(max)");
 
+            builder.Property(q => q.CorrectOptionId)
+                .IsRequired(false)
+                .HasColumnType("uniqueidentifier");
+
             builder.Property(q => q.Reference)
                 .IsRequired(false)
                 .HasMaxLength(500)
@@ -67,6 +71,10 @@
             builder.HasIndex(q => new { q.OperatorId, q.Status })
                 .HasDatabaseName("IX_Questions_OperatorId_Status");
 
+            // Index for CorrectOptionId to speed up queries joining to options
+            builder.HasIndex(q => q.CorrectOptionId)
+                .HasDatabaseName("IX_Questions_CorrectOptionId");
+
             // ── Relationships ────────────────────────────────────
 
             // → StaffRegistration (operator)
@@ -80,6 +88,12 @@
                 .WithOne(o => o.Question)
                 .HasForeignKey(o => o.QuestionId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // → CorrectOption (optional, RESTRICT on delete)
+            builder.HasOne(q => q.CorrectOption)
+                .WithMany()
+                .HasForeignKey(q => q.CorrectOptionId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             // → QuestionReviews
             builder.HasMany(q => q.Reviews)

@@ -150,6 +150,8 @@ builder.Services.AddScoped<IDoubtClearingRepository, DoubtClearingRepository>();
 builder.Services.AddScoped<IDoubtClearingService, DoubtClearingService>();
 builder.Services.AddScoped<IStaffCategoryRepository, StaffCategoryRepository>();
 builder.Services.AddScoped<IStaffCategoryService, StaffCategoryService>();
+builder.Services.AddScoped<ITeachersRepository, TeachersRepository>();
+builder.Services.AddScoped<ITeachersService, TeachersService>();
 builder.Services.AddScoped<IFieldGroupRepository, FieldGroupRepository>();
 builder.Services.AddScoped<IFieldGroupServices, FieldGroupsService>();
 builder.Services.AddScoped<IFieldValueValidatorService, FieldValueValidatorService>();
@@ -199,6 +201,8 @@ builder.Services.AddScoped<IExamSyllabusRepository, ExamSyllabusRepository>();
 builder.Services.AddScoped<IExamSyllabusService, ExamSyllabusService>();
 builder.Services.AddScoped<IContentResourceTypeRepository, ContentResourceTypeRepository>();
 builder.Services.AddScoped<IContentResourceTypeService, ContentResourceTypeService>();
+builder.Services.AddScoped<IExamRepository, ExamRepository>();
+builder.Services.AddScoped<IExamService, ExamService>();
 
 builder.Services.AddScoped<IDarRepository, DarRepository>();
 builder.Services.AddScoped<IDarService, DarService>();
