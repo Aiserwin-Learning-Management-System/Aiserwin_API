@@ -3,53 +3,46 @@ namespace Winfocus.LMS.Infrastructure.Data.Configurations
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Metadata.Builders;
     using Winfocus.LMS.Domain.Entities;
-    using Winfocus.LMS.Domain.Enums;
 
     /// <summary>
-    /// EF Core configuration for <see cref="TeacherSubject"/>.
+    /// EF Core configuration for <see cref="TeacherTaughtGrade"/>.
     /// </summary>
-    public class TeacherSubjectConfiguration : BaseEntityConfiguration<TeacherSubject>
+    public class TeacherTaughtGradeConfiguration : BaseEntityConfiguration<TeacherTaughtGrade>
     {
         /// <summary>
         /// Override in derived configurations to add entity-specific
         /// columns, indexes, relationships, and constraints.
         /// </summary>
         /// <param name="builder">The builder.</param>
-        protected override void ConfigureEntity(EntityTypeBuilder<TeacherSubject> builder)
+        protected override void ConfigureEntity(EntityTypeBuilder<TeacherTaughtGrade> builder)
         {
             // ── Table ────────────────────────────────────────────
-            builder.ToTable("TeacherSubjects");
+            builder.ToTable("TeacherTaughtGrades");
 
             // ── TeacherRegistrationId ───────────────────────────
-            builder.Property(ts => ts.TeacherRegistrationId)
+            builder.Property(ttg => ttg.TeacherRegistrationId)
                 .IsRequired()
                 .HasColumnType("uniqueidentifier");
 
-            // ── ExamSubjectId ───────────────────────────────────
-            builder.Property(ts => ts.ExamSubjectId)
+            // ── ExamGradeId ─────────────────────────────────────
+            builder.Property(ttg => ttg.ExamGradeId)
                 .IsRequired()
                 .HasColumnType("uniqueidentifier");
-
-            // ── Type (enum → int) ───────────────────────────────
-            builder.Property(ts => ts.Type)
-                .IsRequired()
-                .HasConversion<int>()
-                .HasColumnType("int");
 
             // ── Indexes ─────────────────────────────────────────
-            builder.HasIndex(ts => new { ts.TeacherRegistrationId, ts.ExamSubjectId, ts.Type })
+            builder.HasIndex(ttg => new { ttg.TeacherRegistrationId, ttg.ExamGradeId })
                 .IsUnique()
-                .HasDatabaseName("IX_TeacherSubjects_TeacherRegistrationId_ExamSubjectId_Type");
+                .HasDatabaseName("IX_TeacherTaughtGrades_TeacherRegistrationId_ExamGradeId");
 
             // ── Relationships ───────────────────────────────────
-            builder.HasOne(ts => ts.TeacherRegistration)
-                .WithMany(tr => tr.PreferredSubjects)
-                .HasForeignKey(ts => ts.TeacherRegistrationId)
+            builder.HasOne(ttg => ttg.TeacherRegistration)
+                .WithMany(tr => tr.GradesTaughtEarlier)
+                .HasForeignKey(ttg => ttg.TeacherRegistrationId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.HasOne(ts => ts.ExamSubject)
+            builder.HasOne(ttg => ttg.ExamGrade)
                 .WithMany()
-                .HasForeignKey(ts => ts.ExamSubjectId)
+                .HasForeignKey(ttg => ttg.ExamGradeId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

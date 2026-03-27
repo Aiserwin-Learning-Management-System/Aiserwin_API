@@ -158,18 +158,18 @@ namespace Winfocus.LMS.Infrastructure.Data.Configurations
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasMany(tr => tr.PreferredSubjects)
-                .WithOne(ts => ts.TeacherRegistration)
-                .HasForeignKey(ts => ts.TeacherRegistrationId)
+                .WithOne(tps => tps.TeacherRegistration)
+                .HasForeignKey(tps => tps.TeacherRegistrationId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.HasMany(tr => tr.BoardsHandled)
-                .WithOne(ts => ts.TeacherRegistration)
-                .HasForeignKey(ts => ts.TeacherRegistrationId)
+            builder.HasMany(tr => tr.SubjectsTaughtEarlier)
+                .WithOne(tts => tts.TeacherRegistration)
+                .HasForeignKey(tts => tts.TeacherRegistrationId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasMany(tr => tr.GradesTaughtEarlier)
-                .WithOne(tg => tg.TeacherRegistration)
-                .HasForeignKey(tg => tg.TeacherRegistrationId)
+                .WithOne(ttg => ttg.TeacherRegistration)
+                .HasForeignKey(ttg => ttg.TeacherRegistrationId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasMany(tr => tr.SubjectsTaughtEarlier)

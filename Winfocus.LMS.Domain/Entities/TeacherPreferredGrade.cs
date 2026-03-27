@@ -1,12 +1,11 @@
 namespace Winfocus.LMS.Domain.Entities
 {
     using Winfocus.LMS.Domain.Common;
-    using Winfocus.LMS.Domain.Enums;
 
     /// <summary>
-    /// Represents the association between a TeacherRegistration and an ExamSubject.
+    /// Represents the association between a TeacherRegistration and an ExamGrade for preferred grades.
     /// </summary>
-    public class TeacherSubject : BaseEntity
+    public class TeacherPreferredGrade : BaseEntity
     {
         /// <summary>
         /// Gets or sets the identifier of the teacher registration.
@@ -14,14 +13,9 @@ namespace Winfocus.LMS.Domain.Entities
         public Guid TeacherRegistrationId { get; set; }
 
         /// <summary>
-        /// Gets or sets the identifier of the exam subject.
+        /// Gets or sets the identifier of the exam grade.
         /// </summary>
-        public Guid ExamSubjectId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the type of subject association.
-        /// </summary>
-        public TeacherSubjectType Type { get; set; }
+        public Guid ExamGradeId { get; set; }
 
         /// <summary>
         /// Gets or sets the teacher registration associated with this mapping.
@@ -29,8 +23,8 @@ namespace Winfocus.LMS.Domain.Entities
         public TeacherRegistration TeacherRegistration { get; set; } = null!;
 
         /// <summary>
-        /// Gets or sets the exam subject associated with this mapping.
+        /// Gets or sets the exam grade associated with this mapping.
         /// </summary>
-        public ExamSubject ExamSubject { get; set; } = null!;
+        public ExamGrade ExamGrade { get; set; } = null!;
     }
 }

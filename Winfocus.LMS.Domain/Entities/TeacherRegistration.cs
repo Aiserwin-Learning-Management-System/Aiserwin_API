@@ -134,12 +134,12 @@ namespace Winfocus.LMS.Domain.Entities
         /// <summary>
         /// Gets or sets the preferred grades.
         /// </summary>
-        public ICollection<TeacherGrade> PreferredGrades { get; set; } = new List<TeacherGrade>();
+        public ICollection<TeacherPreferredGrade> PreferredGrades { get; set; } = new List<TeacherPreferredGrade>();
 
         /// <summary>
         /// Gets or sets the preferred subjects.
         /// </summary>
-        public ICollection<TeacherSubject> PreferredSubjects { get; set; } = new List<TeacherSubject>();
+        public ICollection<TeacherPreferredSubject> PreferredSubjects { get; set; } = new List<TeacherPreferredSubject>();
 
         /// <summary>
         /// Gets or sets the boards handled.
@@ -149,12 +149,12 @@ namespace Winfocus.LMS.Domain.Entities
         /// <summary>
         /// Gets or sets the grades taught earlier.
         /// </summary>
-        public ICollection<TeacherGrade> GradesTaughtEarlier { get; set; } = new List<TeacherGrade>();
+        public ICollection<TeacherTaughtGrade> GradesTaughtEarlier { get; set; } = new List<TeacherTaughtGrade>();
 
         /// <summary>
         /// Gets or sets the subjects taught earlier.
         /// </summary>
-        public ICollection<TeacherSubject> SubjectsTaughtEarlier { get; set; } = new List<TeacherSubject>();
+        public ICollection<TeacherTaughtSubject> SubjectsTaughtEarlier { get; set; } = new List<TeacherTaughtSubject>();
 
         /// <summary>
         /// Gets or sets the LMS/tools known.

@@ -433,14 +433,24 @@
         public DbSet<TeacherRegistration> TeacherRegistrations { get; set; } = null!;
 
         /// <summary>
-        /// Gets or sets the teacher grades.
+        /// Gets or sets the teacher preferred grades.
         /// </summary>
-        public DbSet<TeacherGrade> TeacherGrades { get; set; } = null!;
+        public DbSet<TeacherPreferredGrade> TeacherPreferredGrades { get; set; } = null!;
 
         /// <summary>
-        /// Gets or sets the teacher subjects.
+        /// Gets or sets the teacher taught grades.
         /// </summary>
-        public DbSet<TeacherSubject> TeacherSubjects { get; set; } = null!;
+        public DbSet<TeacherTaughtGrade> TeacherTaughtGrades { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the teacher preferred subjects.
+        /// </summary>
+        public DbSet<TeacherPreferredSubject> TeacherPreferredSubjects { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the teacher taught subjects.
+        /// </summary>
+        public DbSet<TeacherTaughtSubject> TeacherTaughtSubjects { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the teacher syllabi.
@@ -460,10 +470,7 @@
         /// <summary>
         /// Gets or sets the teaching tools.
         /// </summary>
-        /// <value>
-        /// The teaching tools.
-        /// </value>
-        public DbSet<TeachingTools> TeachingTools { get; set; }
+        public DbSet<TeachingTools> TeachingTools { get; set; } = null!;
 
         /// <summary>
         /// Configures the model for the context.
@@ -509,8 +516,10 @@
             modelBuilder.ApplyConfiguration(new ExamQuestionConfiguration());
 
             modelBuilder.ApplyConfiguration(new TeacherRegistrationConfiguration());
-            modelBuilder.ApplyConfiguration(new TeacherGradeConfiguration());
-            modelBuilder.ApplyConfiguration(new TeacherSubjectConfiguration());
+            modelBuilder.ApplyConfiguration(new TeacherPreferredGradeConfiguration());
+            modelBuilder.ApplyConfiguration(new TeacherTaughtGradeConfiguration());
+            modelBuilder.ApplyConfiguration(new TeacherPreferredSubjectConfiguration());
+            modelBuilder.ApplyConfiguration(new TeacherTaughtSubjectConfiguration());
             modelBuilder.ApplyConfiguration(new TeacherSyllabusConfiguration());
             modelBuilder.ApplyConfiguration(new TeacherToolConfiguration());
             modelBuilder.ApplyConfiguration(new TeacherLanguageConfiguration());

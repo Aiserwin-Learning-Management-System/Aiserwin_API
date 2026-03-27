@@ -3,9 +3,9 @@ namespace Winfocus.LMS.Domain.Entities
     using Winfocus.LMS.Domain.Common;
 
     /// <summary>
-    /// Represents the association between a TeacherRegistration and a Tool.
+    /// Represents the association between a TeacherRegistration and an ExamGrade for grades taught earlier.
     /// </summary>
-    public class TeacherTool : BaseEntity
+    public class TeacherTaughtGrade : BaseEntity
     {
         /// <summary>
         /// Gets or sets the identifier of the teacher registration.
@@ -13,9 +13,9 @@ namespace Winfocus.LMS.Domain.Entities
         public Guid TeacherRegistrationId { get; set; }
 
         /// <summary>
-        /// Gets or sets the identifier of the tool.
+        /// Gets or sets the identifier of the exam grade.
         /// </summary>
-        public Guid ToolId { get; set; }
+        public Guid ExamGradeId { get; set; }
 
         /// <summary>
         /// Gets or sets the teacher registration associated with this mapping.
@@ -23,8 +23,8 @@ namespace Winfocus.LMS.Domain.Entities
         public TeacherRegistration TeacherRegistration { get; set; } = null!;
 
         /// <summary>
-        /// Gets or sets the tool associated with this mapping.
+        /// Gets or sets the exam grade associated with this mapping.
         /// </summary>
-        public TeachingTools Tool { get; set; } = null!;
+        public ExamGrade ExamGrade { get; set; } = null!;
     }
 }
