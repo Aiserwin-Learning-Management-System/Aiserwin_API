@@ -428,6 +428,36 @@
         public DbSet<ExamQuestion> ExamQuestions { get; set; } = null!;
 
         /// <summary>
+        /// Gets or sets the teacher registrations.
+        /// </summary>
+        public DbSet<TeacherRegistration> TeacherRegistrations { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the teacher grades.
+        /// </summary>
+        public DbSet<TeacherGrade> TeacherGrades { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the teacher subjects.
+        /// </summary>
+        public DbSet<TeacherSubject> TeacherSubjects { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the teacher syllabi.
+        /// </summary>
+        public DbSet<TeacherSyllabus> TeacherSyllabi { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the teacher tools.
+        /// </summary>
+        public DbSet<TeacherTool> TeacherTools { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the teacher languages.
+        /// </summary>
+        public DbSet<TeacherLanguage> TeacherLanguages { get; set; } = null!;
+
+        /// <summary>
         /// Configures the model for the context.
         /// </summary>
         /// <param name="modelBuilder">The builder being used to construct the model for this context.</param>
@@ -469,6 +499,13 @@
 
             modelBuilder.ApplyConfiguration(new ExamConfiguration());
             modelBuilder.ApplyConfiguration(new ExamQuestionConfiguration());
+
+            modelBuilder.ApplyConfiguration(new TeacherRegistrationConfiguration());
+            modelBuilder.ApplyConfiguration(new TeacherGradeConfiguration());
+            modelBuilder.ApplyConfiguration(new TeacherSubjectConfiguration());
+            modelBuilder.ApplyConfiguration(new TeacherSyllabusConfiguration());
+            modelBuilder.ApplyConfiguration(new TeacherToolConfiguration());
+            modelBuilder.ApplyConfiguration(new TeacherLanguageConfiguration());
 
             modelBuilder.ApplyConfiguration(new StudentCourseDiscountConfiguration());
             modelBuilder.ApplyConfiguration(new StudentFeeDiscountConfiguration());
