@@ -199,6 +199,8 @@ builder.Services.AddScoped<IExamSyllabusRepository, ExamSyllabusRepository>();
 builder.Services.AddScoped<IExamSyllabusService, ExamSyllabusService>();
 builder.Services.AddScoped<IContentResourceTypeRepository, ContentResourceTypeRepository>();
 builder.Services.AddScoped<IContentResourceTypeService, ContentResourceTypeService>();
+builder.Services.AddScoped<IExamRepository, ExamRepository>();
+builder.Services.AddScoped<IExamService, ExamService>();
 
 builder.Services.AddScoped<IDarRepository, DarRepository>();
 builder.Services.AddScoped<IDarService, DarService>();
