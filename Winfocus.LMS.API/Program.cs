@@ -59,7 +59,7 @@ builder.Services.AddCors(options =>
     {
         var allowedOrigins = builder.Environment.IsDevelopment()
             ? new[] { "http://localhost:4200" }
-            : new[] { "https://portal.aiserwin.com", "http://localhost:4200" };
+            : new[] { "https://icy-plant-0ad05eb00.4.azurestaticapps.net", "http://localhost:4200" };
 
         policy.WithOrigins(allowedOrigins)
               .AllowAnyHeader()
