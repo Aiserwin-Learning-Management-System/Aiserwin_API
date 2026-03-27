@@ -306,6 +306,61 @@
         public DbSet<StaffRegistrationValue> StaffRegistrationValues { get; set; } = null!;
 
         /// <summary>
+        /// Gets or sets the teacher registrations in the database.
+        /// </summary>
+        public DbSet<TeacherRegistration> TeacherRegistrations { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the teacher preferred grades in the database.
+        /// </summary>
+        public DbSet<TeacherPreferredGrade> TeacherPreferredGrades { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the teacher preferred subjects in the database.
+        /// </summary>
+        public DbSet<TeacherPreferredSubject> TeacherPreferredSubjects { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the teacher syllabuses in the database.
+        /// </summary>
+        public DbSet<TeacherSyllabus> TeacherSyllabuses { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the teacher taught grades in the database.
+        /// </summary>
+        public DbSet<TeacherTaughtGrade> TeacherTaughtGrades { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the teacher taught subjects in the database.
+        /// </summary>
+        public DbSet<TeacherTaughtSubject> TeacherTaughtSubjects { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the teacher tools in the database.
+        /// </summary>
+        public DbSet<TeacherTool> TeacherTools { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the teacher languages in the database.
+        /// </summary>
+        public DbSet<TeacherLanguage> TeacherLanguages { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the teacher academic records in the database.
+        /// </summary>
+        public DbSet<TeacherAcademicRecord> TeacherAcademicRecords { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the teacher work histories in the database.
+        /// </summary>
+        public DbSet<TeacherWorkHistory> TeacherWorkHistories { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the teaching tools in the database.
+        /// </summary>
+        public DbSet<TeachingTools> TeachingTools { get; set; } = null!;
+
+        /// <summary>
         /// Gets or sets the page headings.
         /// </summary>
         /// <value>
@@ -428,51 +483,6 @@
         public DbSet<ExamQuestion> ExamQuestions { get; set; } = null!;
 
         /// <summary>
-        /// Gets or sets the teacher registrations.
-        /// </summary>
-        public DbSet<TeacherRegistration> TeacherRegistrations { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets the teacher preferred grades.
-        /// </summary>
-        public DbSet<TeacherPreferredGrade> TeacherPreferredGrades { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets the teacher taught grades.
-        /// </summary>
-        public DbSet<TeacherTaughtGrade> TeacherTaughtGrades { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets the teacher preferred subjects.
-        /// </summary>
-        public DbSet<TeacherPreferredSubject> TeacherPreferredSubjects { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets the teacher taught subjects.
-        /// </summary>
-        public DbSet<TeacherTaughtSubject> TeacherTaughtSubjects { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets the teacher syllabi.
-        /// </summary>
-        public DbSet<TeacherSyllabus> TeacherSyllabi { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets the teacher tools.
-        /// </summary>
-        public DbSet<TeacherTool> TeacherTools { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets the teacher languages.
-        /// </summary>
-        public DbSet<TeacherLanguage> TeacherLanguages { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets the teaching tools.
-        /// </summary>
-        public DbSet<TeachingTools> TeachingTools { get; set; } = null!;
-
-        /// <summary>
         /// Configures the model for the context.
         /// </summary>
         /// <param name="modelBuilder">The builder being used to construct the model for this context.</param>
@@ -495,6 +505,17 @@
             modelBuilder.ApplyConfiguration(new StaffRegistrationValueConfiguration());
             modelBuilder.ApplyConfiguration(new PageHeadingConfiguration());
 
+            modelBuilder.ApplyConfiguration(new TeacherRegistrationConfiguration());
+            modelBuilder.ApplyConfiguration(new TeacherPreferredGradeConfiguration());
+            modelBuilder.ApplyConfiguration(new TeacherPreferredSubjectConfiguration());
+            modelBuilder.ApplyConfiguration(new TeacherSyllabusConfiguration());
+            modelBuilder.ApplyConfiguration(new TeacherTaughtGradeConfiguration());
+            modelBuilder.ApplyConfiguration(new TeacherTaughtSubjectConfiguration());
+            modelBuilder.ApplyConfiguration(new TeacherToolConfiguration());
+            modelBuilder.ApplyConfiguration(new TeacherLanguageConfiguration());
+            modelBuilder.ApplyConfiguration(new TeacherAcademicRecordConfiguration());
+            modelBuilder.ApplyConfiguration(new TeacherWorkHistoryConfiguration());
+
             modelBuilder.ApplyConfiguration(new ExamSyllabusConfiguration());
             modelBuilder.ApplyConfiguration(new ExamGradeConfiguration());
             modelBuilder.ApplyConfiguration(new ExamSubjectConfiguration());
@@ -514,15 +535,6 @@
 
             modelBuilder.ApplyConfiguration(new ExamConfiguration());
             modelBuilder.ApplyConfiguration(new ExamQuestionConfiguration());
-
-            modelBuilder.ApplyConfiguration(new TeacherRegistrationConfiguration());
-            modelBuilder.ApplyConfiguration(new TeacherPreferredGradeConfiguration());
-            modelBuilder.ApplyConfiguration(new TeacherTaughtGradeConfiguration());
-            modelBuilder.ApplyConfiguration(new TeacherPreferredSubjectConfiguration());
-            modelBuilder.ApplyConfiguration(new TeacherTaughtSubjectConfiguration());
-            modelBuilder.ApplyConfiguration(new TeacherSyllabusConfiguration());
-            modelBuilder.ApplyConfiguration(new TeacherToolConfiguration());
-            modelBuilder.ApplyConfiguration(new TeacherLanguageConfiguration());
 
             modelBuilder.ApplyConfiguration(new StudentCourseDiscountConfiguration());
             modelBuilder.ApplyConfiguration(new StudentFeeDiscountConfiguration());

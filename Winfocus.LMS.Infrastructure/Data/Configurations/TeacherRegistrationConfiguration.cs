@@ -130,9 +130,21 @@ namespace Winfocus.LMS.Infrastructure.Data.Configurations
                 .IsRequired()
                 .HasColumnType("bit");
 
-            builder.Property(tr => tr.IsDeclarationAccepted)
+            // ── DeclarationDate ────────────────────────────────
+            builder.Property(tr => tr.DeclarationDate)
+                .HasColumnType("datetime2");
+
+            // ── AdministrativeRemarks ──────────────────────────
+            builder.Property(tr => tr.AdministrativeRemarks)
+                .HasMaxLength(1000)
+                .HasColumnType("nvarchar(1000)");
+
+            // ── ApprovalStatus ─────────────────────────────────
+            builder.Property(tr => tr.ApprovalStatus)
                 .IsRequired()
-                .HasColumnType("bit");
+                .HasMaxLength(50)
+                .HasColumnType("nvarchar(50)")
+                .HasDefaultValue("Pending");
 
             // ── Indexes ─────────────────────────────────────────
             builder.HasIndex(tr => tr.EmployeeId)
