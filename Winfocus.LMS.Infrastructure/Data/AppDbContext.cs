@@ -412,6 +412,22 @@
         public DbSet<QuestionTypeConfig> QuestionTypeConfigs { get; set; } = null!;
 
         /// <summary>
+        /// Gets or sets the exam.
+        /// </summary>
+        /// <value>
+        /// The exam details.
+        /// </value>
+        public DbSet<Exam> Exams { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the exam question.
+        /// </summary>
+        /// <value>
+        /// The exam and question identifiers.
+        /// </value>
+        public DbSet<ExamQuestion> ExamQuestions { get; set; } = null!;
+
+        /// <summary>
         /// Configures the model for the context.
         /// </summary>
         /// <param name="modelBuilder">The builder being used to construct the model for this context.</param>
