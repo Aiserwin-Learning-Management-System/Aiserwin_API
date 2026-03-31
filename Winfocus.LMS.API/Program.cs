@@ -206,6 +206,10 @@ builder.Services.AddScoped<IExamService, ExamService>();
 builder.Services.AddScoped<ITeachingToolsRepository, TeachingToolsRepository>();
 builder.Services.AddScoped<ITeachingToolsService, TeachingToolsService>();
 
+// Teacher registration
+builder.Services.AddScoped<Winfocus.LMS.Application.Interfaces.ITeacherRegistrationRepository, Winfocus.LMS.Infrastructure.Repositories.TeacherRegistrationRepository>();
+builder.Services.AddScoped<Winfocus.LMS.Application.Interfaces.ITeacherRegistrationService, Winfocus.LMS.Application.Services.TeacherRegistrationService>();
+
 builder.Services.AddScoped<IDarRepository, DarRepository>();
 builder.Services.AddScoped<IDarService, DarService>();
 
