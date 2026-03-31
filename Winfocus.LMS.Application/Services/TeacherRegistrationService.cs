@@ -41,25 +41,57 @@ namespace Winfocus.LMS.Application.Services
             {
                 EmploymentTypeId = request.EmploymentTypeId,
                 WorkMode = (Winfocus.LMS.Domain.Enums.WorkMode)request.WorkMode,
+                DateOfJoining = request.DateOfJoining,
+                ReportingManagerId = request.ReportingManagerId,
                 FullName = request.FullName,
-                EmailAddress = request.EmailAddress,
-                DateOfBirth = request.DateOfBirth,
-                MobileNumber = request.MobileNumber,
-                Address = request.Address,
                 Gender = (Winfocus.LMS.Domain.Enums.Gender)request.Gender,
-                MaritalStatus = (Winfocus.LMS.Domain.Enums.MaritalStatus)request.MaritalStatus,
-                IdProofType = (Winfocus.LMS.Domain.Enums.IdProofType)request.IdProofType,
-                IdProofNumber = request.IdProofNumber,
-                ComputerLiteracy = (Winfocus.LMS.Domain.Enums.ComputerLiteracy)request.ComputerLiteracy,
-                HighestQualification = request.HighestQualification,
-                SalaryStructure = request.SalaryStructure,
-                PaymentCycle = request.PaymentCycle,
-                ContractDuration = request.ContractDuration,
-                ReportingManager = request.ReportingManager,
-                PhotoPath = request.PhotoPath,
-                IdCardPath = request.IdCardPath,
+                DateOfBirth = request.DateOfBirth,
+                Nationality = request.Nationality,
+                MobileNumber = request.MobileNumber,
+                EmailAddress = request.EmailAddress,
+                EmergencyContactNumber = request.EmergencyContactNumber,
+                Address = request.Address,
+                PermanentAddress = request.PermanentAddress,
+                IsWillingToWorkWeekends = request.IsWillingToWorkWeekends,
+                HasInternetAndSystemAvailability = request.HasInternetAndSystemAvailability,
                 IsTermsAccepted = request.IsTermsAccepted,
-                IsDeclarationAccepted = request.IsDeclarationAccepted,
+                DeclarationDate = request.DeclarationDate,
+                ProfessionalDetail = request.ProfessionalDetail == null ? null : new TeacherProfessionalDetail
+                {
+                    HighestQualification = request.ProfessionalDetail.HighestQualification,
+                    University = request.ProfessionalDetail.University,
+                    YearOfPassing = request.ProfessionalDetail.YearOfPassing,
+                    HasTeachingCertification = request.ProfessionalDetail.HasTeachingCertification,
+                    AdditionalCourses = request.ProfessionalDetail.AdditionalCourses,
+                    TotalTeachingExperience = request.ProfessionalDetail.TotalTeachingExperience,
+                    HasOnlineTeachingExperience = request.ProfessionalDetail.HasOnlineTeachingExperience,
+                    HasOfflineTeachingExperience = request.ProfessionalDetail.HasOfflineTeachingExperience,
+                    IsAvailableForDemoClass = request.ProfessionalDetail.IsAvailableForDemoClass,
+                    ComputerLiteracy = (Winfocus.LMS.Domain.Enums.ComputerLiteracy)request.ProfessionalDetail.ComputerLiteracy
+                },
+                Schedule = request.Schedule == null ? null : new TeacherSchedule
+                {
+                    Availabilities = request.Schedule.Availabilities == null ? new System.Collections.Generic.List<TeacherAvailability>() : request.Schedule.Availabilities.Select(a => new TeacherAvailability
+                    {
+                        Day = (System.DayOfWeek)a.Day,
+                        StartTime = TimeSpan.Parse(a.StartTime),
+                        EndTime = TimeSpan.Parse(a.EndTime)
+                    }).ToList()
+                },
+                Documents = request.Documents == null ? null : new TeacherDocumentInfo
+                {
+                    PhotoPath = request.Documents.PhotoPath,
+                    IdCardPath = request.Documents.IdCardPath
+                },
+                WorkHistory = request.WorkHistory == null ? new System.Collections.Generic.List<TeacherWorkHistory>() : request.WorkHistory.Select(w => new TeacherWorkHistory
+                {
+                    Duration = w.Duration,
+                    JobProfile = w.JobProfile,
+                    Institution = w.Institution,
+                    Location = w.Location,
+                    ReasonForLeaving = w.ReasonForLeaving,
+                    EmploymentStatus = w.EmploymentStatus
+                }).ToList(),
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
                 IsActive = true,
@@ -79,8 +111,17 @@ namespace Winfocus.LMS.Application.Services
                 EmailAddress = created.EmailAddress,
                 MobileNumber = created.MobileNumber,
                 DateOfBirth = created.DateOfBirth,
+                DateOfJoining = created.DateOfJoining,
+                Nationality = created.Nationality,
+                EmergencyContactNumber = created.EmergencyContactNumber,
+                PermanentAddress = created.PermanentAddress,
+                IsWillingToWorkWeekends = created.IsWillingToWorkWeekends,
+                HasInternetAndSystemAvailability = created.HasInternetAndSystemAvailability,
                 IsTermsAccepted = created.IsTermsAccepted,
-                IsDeclarationAccepted = created.IsDeclarationAccepted,
+                DeclarationDate = created.DeclarationDate,
+                Status = (int)created.Status,
+                AdministrativeRemarks = created.AdministrativeRemarks,
+                ReportingManagerId = created.ReportingManagerId,
             };
 
             return CommonResponse<TeacherRegistrationDto>.SuccessResponse("Teacher registered successfully.", dto);
@@ -108,7 +149,7 @@ namespace Winfocus.LMS.Application.Services
                 MobileNumber = entity.MobileNumber,
                 DateOfBirth = entity.DateOfBirth,
                 IsTermsAccepted = entity.IsTermsAccepted,
-                IsDeclarationAccepted = entity.IsDeclarationAccepted,
+                //IsDeclarationAccepted = entity.IsDeclarationAccepted,
             };
 
             return CommonResponse<TeacherRegistrationDto>.SuccessResponse("Success", dto);
@@ -130,7 +171,7 @@ namespace Winfocus.LMS.Application.Services
                 MobileNumber = x.MobileNumber,
                 DateOfBirth = x.DateOfBirth,
                 IsTermsAccepted = x.IsTermsAccepted,
-                IsDeclarationAccepted = x.IsDeclarationAccepted,
+                //IsDeclarationAccepted = x.IsDeclarationAccepted,
             }).ToList();
 
             return CommonResponse<List<TeacherRegistrationDto>>.SuccessResponse("Success", dtos);
@@ -153,25 +194,74 @@ namespace Winfocus.LMS.Application.Services
 
             existing.EmploymentTypeId = request.EmploymentTypeId;
             existing.WorkMode = (Winfocus.LMS.Domain.Enums.WorkMode)request.WorkMode;
+            existing.DateOfJoining = request.DateOfJoining;
+            existing.ReportingManagerId = request.ReportingManagerId;
             existing.FullName = request.FullName;
-            existing.EmailAddress = request.EmailAddress;
-            existing.DateOfBirth = request.DateOfBirth;
-            existing.MobileNumber = request.MobileNumber;
-            existing.Address = request.Address;
             existing.Gender = (Winfocus.LMS.Domain.Enums.Gender)request.Gender;
-            existing.MaritalStatus = (Winfocus.LMS.Domain.Enums.MaritalStatus)request.MaritalStatus;
-            existing.IdProofType = (Winfocus.LMS.Domain.Enums.IdProofType)request.IdProofType;
-            existing.IdProofNumber = request.IdProofNumber;
-            existing.ComputerLiteracy = (Winfocus.LMS.Domain.Enums.ComputerLiteracy)request.ComputerLiteracy;
-            existing.HighestQualification = request.HighestQualification;
-            existing.SalaryStructure = request.SalaryStructure;
-            existing.PaymentCycle = request.PaymentCycle;
-            existing.ContractDuration = request.ContractDuration;
-            existing.ReportingManager = request.ReportingManager;
-            existing.PhotoPath = request.PhotoPath;
-            existing.IdCardPath = request.IdCardPath;
+            existing.DateOfBirth = request.DateOfBirth;
+            existing.Nationality = request.Nationality;
+            existing.MobileNumber = request.MobileNumber;
+            existing.EmailAddress = request.EmailAddress;
+            existing.EmergencyContactNumber = request.EmergencyContactNumber;
+            existing.Address = request.Address;
+            existing.PermanentAddress = request.PermanentAddress;
+            existing.IsWillingToWorkWeekends = request.IsWillingToWorkWeekends;
+            existing.HasInternetAndSystemAvailability = request.HasInternetAndSystemAvailability;
             existing.IsTermsAccepted = request.IsTermsAccepted;
-            existing.IsDeclarationAccepted = request.IsDeclarationAccepted;
+            existing.DeclarationDate = request.DeclarationDate;
+
+            // Map nested objects if provided
+            if (request.ProfessionalDetail != null)
+            {
+                existing.ProfessionalDetail = new TeacherProfessionalDetail
+                {
+                    HighestQualification = request.ProfessionalDetail.HighestQualification,
+                    University = request.ProfessionalDetail.University,
+                    YearOfPassing = request.ProfessionalDetail.YearOfPassing,
+                    HasTeachingCertification = request.ProfessionalDetail.HasTeachingCertification,
+                    AdditionalCourses = request.ProfessionalDetail.AdditionalCourses,
+                    TotalTeachingExperience = request.ProfessionalDetail.TotalTeachingExperience,
+                    HasOnlineTeachingExperience = request.ProfessionalDetail.HasOnlineTeachingExperience,
+                    HasOfflineTeachingExperience = request.ProfessionalDetail.HasOfflineTeachingExperience,
+                    IsAvailableForDemoClass = request.ProfessionalDetail.IsAvailableForDemoClass,
+                    ComputerLiteracy = (Winfocus.LMS.Domain.Enums.ComputerLiteracy)request.ProfessionalDetail.ComputerLiteracy
+                };
+            }
+
+            if (request.Schedule != null)
+            {
+                existing.Schedule = new TeacherSchedule
+                {
+                    Availabilities = request.Schedule.Availabilities == null ? new System.Collections.Generic.List<TeacherAvailability>() : request.Schedule.Availabilities.Select(a => new TeacherAvailability
+                    {
+                        Day = (System.DayOfWeek)a.Day,
+                        StartTime = TimeSpan.Parse(a.StartTime),
+                        EndTime = TimeSpan.Parse(a.EndTime)
+                    }).ToList()
+                };
+            }
+
+            if (request.Documents != null)
+            {
+                existing.Documents = new TeacherDocumentInfo
+                {
+                    PhotoPath = request.Documents.PhotoPath,
+                    IdCardPath = request.Documents.IdCardPath,
+                };
+            }
+
+            if (request.WorkHistory != null)
+            {
+                existing.WorkHistory = request.WorkHistory.Select(w => new TeacherWorkHistory
+                {
+                    Duration = w.Duration,
+                    JobProfile = w.JobProfile,
+                    Institution = w.Institution,
+                    Location = w.Location,
+                    ReasonForLeaving = w.ReasonForLeaving,
+                    EmploymentStatus = w.EmploymentStatus,
+                }).ToList();
+            }
 
             var updated = await _repository.UpdateAsync(existing);
             if (updated == null)
@@ -186,7 +276,7 @@ namespace Winfocus.LMS.Application.Services
                 MobileNumber = updated.MobileNumber,
                 DateOfBirth = updated.DateOfBirth,
                 IsTermsAccepted = updated.IsTermsAccepted,
-                IsDeclarationAccepted = updated.IsDeclarationAccepted,
+                //IsDeclarationAccepted = updated.IsDeclarationAccepted,
             };
 
             return CommonResponse<TeacherRegistrationDto>.SuccessResponse("Teacher updated successfully.", dto);

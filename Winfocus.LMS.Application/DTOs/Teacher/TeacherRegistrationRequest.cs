@@ -3,113 +3,113 @@ namespace Winfocus.LMS.Application.DTOs.Teacher
     using System;
 
     /// <summary>
-    /// Request DTO to create a teacher registration.
+    /// Request DTO to create or update a teacher registration.
     /// </summary>
     public class TeacherRegistrationRequest
     {
         /// <summary>
-        /// Gets or sets the employment type identifier (e.g., full-time, part-time).
+        /// Gets or sets Employment type identifier (foreign key to staff category).
         /// </summary>
         public Guid EmploymentTypeId { get; set; }
 
         /// <summary>
-        /// Gets or sets the work mode of the teacher (e.g., online, offline, hybrid).
+        /// Gets or sets Work mode (enum value).
         /// </summary>
         public int WorkMode { get; set; }
 
         /// <summary>
-        /// Gets or sets the full name of the teacher.
+        /// Gets or sets Date the teacher joined the organization.
+        /// </summary>
+        public DateTime DateOfJoining { get; set; }
+
+        /// <summary>
+        ///  Gets or sets Reporting manager identifier (optional).
+        /// </summary>
+        public Guid? ReportingManagerId { get; set; }
+
+        /// <summary>
+        /// Gets or sets Full name of the teacher.
         /// </summary>
         public string FullName { get; set; } = string.Empty;
 
         /// <summary>
-        /// Gets or sets the email address of the teacher.
-        /// </summary>
-        public string EmailAddress { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Gets or sets the date of birth of the teacher.
-        /// </summary>
-        public DateTime DateOfBirth { get; set; }
-
-        /// <summary>
-        /// Gets or sets the mobile number of the teacher.
-        /// </summary>
-        public string MobileNumber { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Gets or sets the residential address of the teacher.
-        /// </summary>
-        public string Address { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Gets or sets the gender of the teacher.
+        /// Gets or sets Gender (enum value).
         /// </summary>
         public int Gender { get; set; }
 
         /// <summary>
-        /// Gets or sets the marital status of the teacher.
+        /// Gets or sets the date of birth.
         /// </summary>
-        public int MaritalStatus { get; set; }
+        public DateTime DateOfBirth { get; set; }
 
         /// <summary>
-        /// Gets or sets the type of identification proof provided by the teacher.
+        /// Gets or sets the nationality.
         /// </summary>
-        public int IdProofType { get; set; }
+        public string Nationality { get; set; } = string.Empty;
 
         /// <summary>
-        /// Gets or sets the identification proof number.
+        /// Gets or sets the primary mobile number.
         /// </summary>
-        public string IdProofNumber { get; set; } = string.Empty;
+        public string MobileNumber { get; set; } = string.Empty;
 
         /// <summary>
-        /// Gets or sets the computer literacy level of the teacher.
+        /// Gets or sets the primary email address.
         /// </summary>
-        public int ComputerLiteracy { get; set; }
+        public string EmailAddress { get; set; } = string.Empty;
 
         /// <summary>
-        /// Gets or sets the highest educational qualification of the teacher.
+        /// Gets or sets the emergency contact number (optional).
         /// </summary>
-        public string HighestQualification { get; set; } = string.Empty;
+        public string? EmergencyContactNumber { get; set; }
 
         /// <summary>
-        /// Gets or sets the salary structure (e.g., fixed, hourly).
+        /// Gets or sets the current residential address.
         /// </summary>
-        public string SalaryStructure { get; set; } = string.Empty;
+        public string Address { get; set; } = string.Empty;
 
         /// <summary>
-        /// Gets or sets the payment cycle (e.g., monthly, weekly).
+        /// Gets or sets the permanent address.
         /// </summary>
-        public string PaymentCycle { get; set; } = string.Empty;
+        public string PermanentAddress { get; set; } = string.Empty;
 
         /// <summary>
-        /// Gets or sets the contract duration of the teacher.
+        /// Gets or sets a value indicating whether the teacher is willing to work on weekends.
         /// </summary>
-        public string ContractDuration { get; set; } = string.Empty;
+        public bool IsWillingToWorkWeekends { get; set; }
 
         /// <summary>
-        /// Gets or sets the reporting manager's name or identifier.
+        /// Gets or sets a value indicating whether the teacher has internet and system availability.
         /// </summary>
-        public string ReportingManager { get; set; } = string.Empty;
+        public bool HasInternetAndSystemAvailability { get; set; }
 
         /// <summary>
-        /// Gets or sets the file path of the teacher's profile photo.
-        /// </summary>
-        public string? PhotoPath { get; set; }
-
-        /// <summary>
-        /// Gets or sets the file path of the teacher's ID card.
-        /// </summary>
-        public string? IdCardPath { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the teacher has accepted the terms and conditions.
+        /// Gets or sets a value indicating whether terms and conditions are accepted.
         /// </summary>
         public bool IsTermsAccepted { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the teacher has accepted the declaration.
+        /// Gets or sets the declaration date (optional).
         /// </summary>
-        public bool IsDeclarationAccepted { get; set; }
+        public DateTime? DeclarationDate { get; set; }
+
+        /// <summary>
+        /// Gets or sets the professional details for the teacher.
+        /// </summary>
+        public TeacherProfessionalDetailDto? ProfessionalDetail { get; set; }
+
+        /// <summary>
+        /// Gets or sets the schedule preferences for the teacher.
+        /// </summary>
+        public TeacherScheduleDto? Schedule { get; set; }
+
+        /// <summary>
+        /// Gets or sets the document references (paths) for the teacher.
+        /// </summary>
+        public TeacherDocumentInfoDto? Documents { get; set; }
+
+        /// <summary>
+        /// Gets or sets the work history entries for the teacher.
+        /// </summary>
+        public List<TeacherWorkHistoryDto>? WorkHistory { get; set; }
     }
 }

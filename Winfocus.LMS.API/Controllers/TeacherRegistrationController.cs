@@ -25,6 +25,7 @@ namespace Winfocus.LMS.API.Controllers
         /// Initializes a new instance of the <see cref="TeacherRegistrationController"/> class.
         /// </summary>
         /// <param name="service">The academic year service.</param>
+        /// <param name="logger">The logger.</param>
         public TeacherRegistrationController(ITeacherRegistrationService service, ILogger<TeacherRegistrationController> logger)
         {
             _service = service;
@@ -35,7 +36,7 @@ namespace Winfocus.LMS.API.Controllers
         /// Creates a new teacher registration.
         /// </summary>
         /// <param name="request">Teacher registration request.</param>
-        /// <returns>.</returns>
+        /// <returns>A <see cref="CommonResponse{T}"/> containing the created <see cref="TeacherRegistrationDto"/> on success or an error message.</returns>
         [HttpPost]
         public async Task<ActionResult<CommonResponse<TeacherRegistrationDto>>> Create(TeacherRegistrationRequest request)
         {
@@ -55,7 +56,7 @@ namespace Winfocus.LMS.API.Controllers
         /// Gets a teacher registration by identifier.
         /// </summary>
         /// <param name="id">Teacher identifier.</param>
-        /// <returns>.</returns>
+        /// <returns>A <see cref="CommonResponse{T}"/> containing the teacher DTO.</returns>
         [HttpGet("{id:guid}")]
         public async Task<ActionResult<CommonResponse<TeacherRegistrationDto>>> Get(Guid id)
         {
@@ -74,7 +75,7 @@ namespace Winfocus.LMS.API.Controllers
         /// <summary>
         /// Gets all teacher registrations.
         /// </summary>
-        /// <returns>.</returns>
+        /// <returns>A <see cref="CommonResponse{T}"/> containing list of teacher DTOs.</returns>
         [HttpGet]
         public async Task<ActionResult<CommonResponse<List<TeacherRegistrationDto>>>> GetAll()
         {

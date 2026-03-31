@@ -34,13 +34,58 @@ namespace Winfocus.LMS.Application.DTOs.Teacher
         public DateTime DateOfBirth { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the teacher has accepted the terms and conditions.
+        /// Gets or sets the date the teacher joined the organization.
+        /// </summary>
+        public DateTime DateOfJoining { get; set; }
+
+        /// <summary>
+        /// Gets or sets the nationality of the teacher.
+        /// </summary>
+        public string Nationality { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the emergency contact number.
+        /// </summary>
+        public string? EmergencyContactNumber { get; set; }
+
+        /// <summary>
+        /// Gets or sets the permanent address of the teacher.
+        /// </summary>
+        public string PermanentAddress { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the teacher is willing to work on weekends.
+        /// </summary>
+        public bool IsWillingToWorkWeekends { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the teacher has internet and system availability.
+        /// </summary>
+        public bool HasInternetAndSystemAvailability { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the teacher has accepted terms and conditions.
         /// </summary>
         public bool IsTermsAccepted { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the teacher has accepted the declaration.
+        /// Gets or sets the declaration date, if provided.
         /// </summary>
-        public bool IsDeclarationAccepted { get; set; }
+        public DateTime? DeclarationDate { get; set; }
+
+        /// <summary>
+        /// Gets or sets the current approval status of the teacher.
+        /// </summary>
+        public int Status { get; set; }
+
+        /// <summary>
+        /// Gets or sets administrative remarks provided during approval.
+        /// </summary>
+        public string? AdministrativeRemarks { get; set; }
+
+        /// <summary>
+        /// Gets or sets the reporting manager identifier (if set).
+        /// </summary>
+        public Guid? ReportingManagerId { get; set; }
     }
 }

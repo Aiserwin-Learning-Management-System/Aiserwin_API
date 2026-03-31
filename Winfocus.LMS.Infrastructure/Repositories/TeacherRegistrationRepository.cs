@@ -66,7 +66,12 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// <returns>The updated entity, or <c>null</c> when the entity does not exist.</returns>
         public async Task<TeacherRegistration?> UpdateAsync(TeacherRegistration entity)
         {
-            var existing = await _db.TeacherRegistrations.FirstOrDefaultAsync(x => x.Id == entity.Id);
+            var existing = await _db.TeacherRegistrations
+                .Include(x => x.ProfessionalDetail)
+                .Include(x => x.Schedule)
+                .Include(x => x.Documents)
+                .Include(x => x.WorkHistory)
+                .FirstOrDefaultAsync(x => x.Id == entity.Id);
             if (existing == null) return null;
 
             // update allowed fields
@@ -76,22 +81,96 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             existing.MobileNumber = entity.MobileNumber;
             existing.Address = entity.Address;
             existing.Gender = entity.Gender;
-            existing.MaritalStatus = entity.MaritalStatus;
-            existing.IdProofType = entity.IdProofType;
-            existing.IdProofNumber = entity.IdProofNumber;
-            existing.ComputerLiteracy = entity.ComputerLiteracy;
-            existing.HighestQualification = entity.HighestQualification;
-            existing.SalaryStructure = entity.SalaryStructure;
-            existing.PaymentCycle = entity.PaymentCycle;
-            existing.ContractDuration = entity.ContractDuration;
-            existing.ReportingManager = entity.ReportingManager;
-            existing.PhotoPath = entity.PhotoPath;
-            existing.IdCardPath = entity.IdCardPath;
             existing.IsTermsAccepted = entity.IsTermsAccepted;
-            existing.IsDeclarationAccepted = entity.IsDeclarationAccepted;
+           // existing.IsDeclarationAccepted = entity.IsDeclarationAccepted;
             existing.WorkMode = entity.WorkMode;
             existing.EmploymentTypeId = entity.EmploymentTypeId;
             existing.UpdatedAt = DateTime.UtcNow;
+
+            // Professional detail
+            if (entity.ProfessionalDetail != null)
+            {
+                if (existing.ProfessionalDetail == null)
+                {
+                    existing.ProfessionalDetail = entity.ProfessionalDetail;
+                    // domain uses TeacherId as FK
+                    existing.ProfessionalDetail.TeacherId = existing.Id;
+                }
+                else
+                {
+                    existing.ProfessionalDetail.HighestQualification = entity.ProfessionalDetail.HighestQualification;
+                    existing.ProfessionalDetail.University = entity.ProfessionalDetail.University;
+                    existing.ProfessionalDetail.YearOfPassing = entity.ProfessionalDetail.YearOfPassing;
+                    existing.ProfessionalDetail.HasTeachingCertification = entity.ProfessionalDetail.HasTeachingCertification;
+                    existing.ProfessionalDetail.AdditionalCourses = entity.ProfessionalDetail.AdditionalCourses;
+                    existing.ProfessionalDetail.TotalTeachingExperience = entity.ProfessionalDetail.TotalTeachingExperience;
+                    existing.ProfessionalDetail.HasOnlineTeachingExperience = entity.ProfessionalDetail.HasOnlineTeachingExperience;
+                    existing.ProfessionalDetail.HasOfflineTeachingExperience = entity.ProfessionalDetail.HasOfflineTeachingExperience;
+                    existing.ProfessionalDetail.IsAvailableForDemoClass = entity.ProfessionalDetail.IsAvailableForDemoClass;
+                    existing.ProfessionalDetail.ComputerLiteracy = entity.ProfessionalDetail.ComputerLiteracy;
+                }
+            }
+
+            // Schedule
+            if (entity.Schedule != null)
+            {
+                if (existing.Schedule == null)
+                {
+                    existing.Schedule = entity.Schedule;
+                    // ensure schedule has id set when added by EF; TeacherId FK should be set
+                    existing.Schedule.TeacherId = existing.Id;
+                }
+                else
+                {
+                    // replace availabilities - remove old and add new
+                    if (existing.Schedule.Availabilities != null && existing.Schedule.Availabilities.Count > 0)
+                    {
+                        _db.Set<TeacherAvailability>().RemoveRange(existing.Schedule.Availabilities);
+                    }
+
+                    if (entity.Schedule.Availabilities != null)
+                    {
+                    foreach (var a in entity.Schedule.Availabilities)
+                    {
+                        // when adding new availabilities, set ScheduleId to the existing schedule's id
+                        a.ScheduleId = existing.Schedule.Id;
+                        _db.Set<TeacherAvailability>().Add(a);
+                    }
+                    }
+                }
+            }
+
+            // Documents
+            if (entity.Documents != null)
+            {
+                if (existing.Documents == null)
+                {
+                    existing.Documents = entity.Documents;
+                    existing.Documents.TeacherId = existing.Id;
+                }
+                else
+                {
+                    existing.Documents.PhotoPath = entity.Documents.PhotoPath;
+                    existing.Documents.IdCardPath = entity.Documents.IdCardPath;
+                }
+            }
+
+            // Work history - replace existing entries with provided ones
+            if (entity.WorkHistory != null)
+            {
+                // remove old
+                if (existing.WorkHistory != null && existing.WorkHistory.Count > 0)
+                {
+                    _db.Set<TeacherWorkHistory>().RemoveRange(existing.WorkHistory);
+                }
+
+                // attach new
+                foreach (var wh in entity.WorkHistory)
+                {
+                    wh.TeacherRegistrationId = existing.Id;
+                    _db.Set<TeacherWorkHistory>().Add(wh);
+                }
+            }
 
             _db.TeacherRegistrations.Update(existing);
             await _db.SaveChangesAsync();

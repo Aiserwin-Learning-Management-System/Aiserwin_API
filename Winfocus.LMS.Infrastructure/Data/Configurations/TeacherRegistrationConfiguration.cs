@@ -67,64 +67,6 @@ namespace Winfocus.LMS.Infrastructure.Data.Configurations
                 .HasConversion<int>()
                 .HasColumnType("int");
 
-            builder.Property(tr => tr.MaritalStatus)
-                .IsRequired()
-                .HasConversion<int>()
-                .HasColumnType("int");
-
-            builder.Property(tr => tr.IdProofType)
-                .IsRequired()
-                .HasConversion<int>()
-                .HasColumnType("int");
-
-            builder.Property(tr => tr.IdProofNumber)
-                .IsRequired()
-                .HasMaxLength(50)
-                .HasColumnType("nvarchar(50)");
-
-            builder.Property(tr => tr.ComputerLiteracy)
-                .IsRequired()
-                .HasConversion<int>()
-                .HasColumnType("int");
-
-            // ── Academic Details ────────────────────────────────
-            builder.Property(tr => tr.HighestQualification)
-                .IsRequired()
-                .HasMaxLength(200)
-                .HasColumnType("nvarchar(200)");
-
-            // ── Professional Details ────────────────────────────
-            builder.Property(tr => tr.SalaryStructure)
-                .IsRequired()
-                .HasMaxLength(200)
-                .HasColumnType("nvarchar(200)");
-
-            builder.Property(tr => tr.PaymentCycle)
-                .IsRequired()
-                .HasMaxLength(100)
-                .HasColumnType("nvarchar(100)");
-
-            builder.Property(tr => tr.ContractDuration)
-                .IsRequired()
-                .HasMaxLength(100)
-                .HasColumnType("nvarchar(100)");
-
-            builder.Property(tr => tr.ReportingManager)
-                .IsRequired()
-                .HasMaxLength(200)
-                .HasColumnType("nvarchar(200)");
-
-            // ── File Paths ──────────────────────────────────────
-            builder.Property(tr => tr.PhotoPath)
-                .IsRequired(false)
-                .HasMaxLength(500)
-                .HasColumnType("nvarchar(500)");
-
-            builder.Property(tr => tr.IdCardPath)
-                .IsRequired(false)
-                .HasMaxLength(500)
-                .HasColumnType("nvarchar(500)");
-
             // ── Declaration ─────────────────────────────────────
             builder.Property(tr => tr.IsTermsAccepted)
                 .IsRequired()
@@ -138,13 +80,6 @@ namespace Winfocus.LMS.Infrastructure.Data.Configurations
             builder.Property(tr => tr.AdministrativeRemarks)
                 .HasMaxLength(1000)
                 .HasColumnType("nvarchar(1000)");
-
-            // ── ApprovalStatus ─────────────────────────────────
-            builder.Property(tr => tr.ApprovalStatus)
-                .IsRequired()
-                .HasMaxLength(50)
-                .HasColumnType("nvarchar(50)")
-                .HasDefaultValue("Pending");
 
             // ── Indexes ─────────────────────────────────────────
             builder.HasIndex(tr => tr.EmployeeId)
@@ -163,41 +98,6 @@ namespace Winfocus.LMS.Infrastructure.Data.Configurations
                 .WithMany()
                 .HasForeignKey(tr => tr.EmploymentTypeId)
                 .OnDelete(DeleteBehavior.Restrict);
-
-            builder.HasMany(tr => tr.PreferredGrades)
-                .WithOne(tg => tg.TeacherRegistration)
-                .HasForeignKey(tg => tg.TeacherRegistrationId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.HasMany(tr => tr.PreferredSubjects)
-                .WithOne(tps => tps.TeacherRegistration)
-                .HasForeignKey(tps => tps.TeacherRegistrationId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.HasMany(tr => tr.SubjectsTaughtEarlier)
-                .WithOne(tts => tts.TeacherRegistration)
-                .HasForeignKey(tts => tts.TeacherRegistrationId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.HasMany(tr => tr.GradesTaughtEarlier)
-                .WithOne(ttg => ttg.TeacherRegistration)
-                .HasForeignKey(ttg => ttg.TeacherRegistrationId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.HasMany(tr => tr.SubjectsTaughtEarlier)
-                .WithOne(ts => ts.TeacherRegistration)
-                .HasForeignKey(ts => ts.TeacherRegistrationId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.HasMany(tr => tr.ToolsKnown)
-                .WithOne(tt => tt.TeacherRegistration)
-                .HasForeignKey(tt => tt.TeacherRegistrationId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.HasMany(tr => tr.LanguagesKnown)
-                .WithOne(tl => tl.TeacherRegistration)
-                .HasForeignKey(tl => tl.TeacherRegistrationId)
-                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

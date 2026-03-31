@@ -71,17 +71,16 @@ namespace Winfocus.LMS.Application.Services
             }
         }
 
-
         /// <summary>
         /// Creates the asynchronous.
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>ContentResourceTypeDto.</returns>
-        public async Task<CommonResponse<ContentResourceTypeDto>> CreateAsync(ContentResourceTypeDto request)
+        public async Task<CommonResponse<ContentResourceTypeDto>> CreateAsync(ContentResourceTypeRequest request)
         {
             try
             {
-                bool alreadyexist = await _repository.ExistsByNameAsync(request.Name);
+                bool alreadyexist = await _repository.ExistsByNameAsync(request.name);
                 if (alreadyexist)
                 {
                     return CommonResponse<ContentResourceTypeDto>.FailureResponse("ContentResourceType Already exist.");
@@ -89,9 +88,10 @@ namespace Winfocus.LMS.Application.Services
 
                 var content = new ContentResourceType
                 {
-                    Name = request.Name,
-                    Description = request.Description,
-                    CreatedBy = request.CreatedBy,
+                    Name = request.name,
+                    Description = request.description,
+                    ChapterId = request.chapterId,
+                    CreatedBy = request.userId,
                     CreatedAt = DateTime.UtcNow,
                 };
 
@@ -104,7 +104,7 @@ namespace Winfocus.LMS.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error creating ContentResourceType : {Name}", request.Name);
+                _logger.LogError(ex, "Error creating ContentResourceType : {Name}", request.name);
                 return CommonResponse<ContentResourceTypeDto>.FailureResponse(
                     $"An error occurred: {ex.Message}");
             }
@@ -117,7 +117,7 @@ namespace Winfocus.LMS.Application.Services
         /// <param name="request">The request.</param>
         /// <exception cref="KeyNotFoundException">ContentResourceType not found.</exception>
         /// <returns>task.</returns>
-        public async Task<CommonResponse<ContentResourceTypeDto>> UpdateAsync(Guid id, ContentResourceTypeDto request)
+        public async Task<CommonResponse<ContentResourceTypeDto>> UpdateAsync(Guid id, ContentResourceTypeRequest request)
         {
             try
             {
@@ -129,10 +129,10 @@ namespace Winfocus.LMS.Application.Services
                     return CommonResponse<ContentResourceTypeDto>.FailureResponse("ContentResourceType not found");
                 }
 
-                content.Name = request.Name;
-                content.Description = request.Description;
+                content.Name = request.name;
+                content.Description = request.description;
                 content.UpdatedAt = DateTime.UtcNow;
-                content.UpdatedBy = request.UpdatedBy;
+                content.UpdatedBy = request.userId;
 
                 var updated = await _repository.UpdateAsync(content);
 
