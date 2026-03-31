@@ -1,6 +1,7 @@
 namespace Winfocus.LMS.Domain.Entities
 {
     using System;
+    using System.Collections.Generic;
     using Winfocus.LMS.Domain.Common;
     using Winfocus.LMS.Domain.Enums;
 
@@ -13,8 +14,6 @@ namespace Winfocus.LMS.Domain.Entities
         /// Gets or sets the auto-generated employee ID (e.g., TCH-20250001).
         /// </summary>
         public string EmployeeId { get; set; } = null!;
-
-        // Employment Details
 
         /// <summary>
         /// Gets or sets the employment type (staff category).
@@ -32,41 +31,9 @@ namespace Winfocus.LMS.Domain.Entities
         public WorkMode WorkMode { get; set; }
 
         /// <summary>
-        /// Gets or sets the working days (JSON string for checkbox group).
+        /// Gets or sets the reporting manager identifier.
         /// </summary>
-        public string WorkingDays { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets the working time start.
-        /// </summary>
-        public TimeSpan WorkingTimeStart { get; set; }
-
-        /// <summary>
-        /// Gets or sets the working time end.
-        /// </summary>
-        public TimeSpan WorkingTimeEnd { get; set; }
-
-        /// <summary>
-        /// Gets or sets the reporting manager.
-        /// </summary>
-        public string ReportingManager { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets the salary structure.
-        /// </summary>
-        public string SalaryStructure { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets the payment cycle.
-        /// </summary>
-        public string PaymentCycle { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets the contract duration.
-        /// </summary>
-        public string ContractDuration { get; set; } = null!;
-
-        // Personal Details
+        public Guid? ReportingManagerId { get; set; }
 
         /// <summary>
         /// Gets or sets the full name of the teacher.
@@ -99,7 +66,12 @@ namespace Winfocus.LMS.Domain.Entities
         public string EmailAddress { get; set; } = null!;
 
         /// <summary>
-        /// Gets or sets the current address.
+        /// Gets or sets the emergency contact number.
+        /// </summary>
+        public string? EmergencyContactNumber { get; set; }
+
+        /// <summary>
+        /// Gets or sets the current residential address.
         /// </summary>
         public string Address { get; set; } = null!;
 
@@ -109,101 +81,7 @@ namespace Winfocus.LMS.Domain.Entities
         public string PermanentAddress { get; set; } = null!;
 
         /// <summary>
-        /// Gets or sets the emergency contact number.
-        /// </summary>
-        public string EmergencyContactNumber { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets the marital status.
-        /// </summary>
-        public MaritalStatus MaritalStatus { get; set; }
-
-        /// <summary>
-        /// Gets or sets the ID proof type.
-        /// </summary>
-        public IdProofType IdProofType { get; set; }
-
-        /// <summary>
-        /// Gets or sets the ID proof number.
-        /// </summary>
-        public string IdProofNumber { get; set; } = null!;
-
-        // Academic Details
-
-        /// <summary>
-        /// Gets or sets the highest qualification.
-        /// </summary>
-        public string HighestQualification { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets the subject specialization.
-        /// </summary>
-        public string SubjectSpecialization { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets the university/institution.
-        /// </summary>
-        public string University { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets the year of passing.
-        /// </summary>
-        public string YearOfPassing { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the teacher has teaching certification.
-        /// </summary>
-        public bool HasTeachingCertification { get; set; }
-
-        /// <summary>
-        /// Gets or sets the additional courses.
-        /// </summary>
-        public string AdditionalCourses { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets the computer literacy level.
-        /// </summary>
-        public ComputerLiteracy ComputerLiteracy { get; set; }
-
-        /// <summary>
-        /// Gets or sets the current status.
-        /// </summary>
-        public string CurrentStatus { get; set; } = null!;
-
-        // Professional Details
-
-        /// <summary>
-        /// Gets or sets the total teaching experience.
-        /// </summary>
-        public string TotalTeachingExperience { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the teacher has online teaching experience.
-        /// </summary>
-        public bool HasOnlineTeachingExperience { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the teacher has offline teaching experience.
-        /// </summary>
-        public bool HasOfflineTeachingExperience { get; set; }
-
-        /// <summary>
-        /// Gets or sets the previous institutions.
-        /// </summary>
-        public string PreviousInstitutions { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the teacher is available for demo class.
-        /// </summary>
-        public bool IsAvailableForDemoClass { get; set; }
-
-        /// <summary>
-        /// Gets or sets the preferred teaching time (JSON for time slots).
-        /// </summary>
-        public string PreferredTeachingTime { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the teacher is willing to work weekends.
+        /// Gets or sets a value indicating whether the teacher is willing to work on weekends.
         /// </summary>
         public bool IsWillingToWorkWeekends { get; set; }
 
@@ -213,31 +91,17 @@ namespace Winfocus.LMS.Domain.Entities
         public bool HasInternetAndSystemAvailability { get; set; }
 
         /// <summary>
-        /// Gets or sets the reference name.
+        /// Gets or sets the current approval status of the teacher.
         /// </summary>
-        public string? ReferenceName { get; set; }
+        public TeacherStatus Status { get; set; } = TeacherStatus.Pending;
 
         /// <summary>
-        /// Gets or sets the reference contact.
+        /// Gets or sets administrative remarks provided during approval/rejection.
         /// </summary>
-        public string? ReferenceContact { get; set; }
-
-        // File Uploads
+        public string? AdministrativeRemarks { get; set; }
 
         /// <summary>
-        /// Gets or sets the path to the uploaded photo.
-        /// </summary>
-        public string? PhotoPath { get; set; }
-
-        /// <summary>
-        /// Gets or sets the path to the uploaded ID card.
-        /// </summary>
-        public string? IdCardPath { get; set; }
-
-        // Declaration
-
-        /// <summary>
-        /// Gets or sets a value indicating whether terms and conditions are accepted.
+        /// Gets or sets a value indicating whether the teacher has accepted terms and conditions.
         /// </summary>
         public bool IsTermsAccepted { get; set; }
 
@@ -247,64 +111,27 @@ namespace Winfocus.LMS.Domain.Entities
         public DateTime? DeclarationDate { get; set; }
 
         /// <summary>
-        /// Gets or sets the administrative remarks.
-        /// </summary>
-        public string? AdministrativeRemarks { get; set; }
-
-        /// <summary>
-        /// Gets or sets the approval status.
-        /// </summary>
-        public string ApprovalStatus { get; set; } = "Pending";
-
-        // Navigation Properties
-
-        /// <summary>
         /// Gets or sets the employment type (staff category).
         /// </summary>
         public StaffCategory EmploymentType { get; set; } = null!;
 
         /// <summary>
-        /// Gets or sets the preferred grades.
+        /// Gets or sets the professional details of the teacher.
         /// </summary>
-        public ICollection<TeacherPreferredGrade> PreferredGrades { get; set; } = new List<TeacherPreferredGrade>();
+        public TeacherProfessionalDetail ProfessionalDetail { get; set; } = null!;
 
         /// <summary>
-        /// Gets or sets the preferred subjects.
+        /// Gets or sets the teaching schedule details.
         /// </summary>
-        public ICollection<TeacherPreferredSubject> PreferredSubjects { get; set; } = new List<TeacherPreferredSubject>();
+        public TeacherSchedule Schedule { get; set; } = null!;
 
         /// <summary>
-        /// Gets or sets the boards handled.
+        /// Gets or sets the document details of the teacher.
         /// </summary>
-        public ICollection<TeacherSyllabus> BoardsHandled { get; set; } = new List<TeacherSyllabus>();
+        public TeacherDocumentInfo Documents { get; set; } = null!;
 
         /// <summary>
-        /// Gets or sets the grades taught earlier.
-        /// </summary>
-        public ICollection<TeacherTaughtGrade> GradesTaughtEarlier { get; set; } = new List<TeacherTaughtGrade>();
-
-        /// <summary>
-        /// Gets or sets the subjects taught earlier.
-        /// </summary>
-        public ICollection<TeacherTaughtSubject> SubjectsTaughtEarlier { get; set; } = new List<TeacherTaughtSubject>();
-
-        /// <summary>
-        /// Gets or sets the LMS/tools known.
-        /// </summary>
-        public ICollection<TeacherTool> ToolsKnown { get; set; } = new List<TeacherTool>();
-
-        /// <summary>
-        /// Gets or sets the languages known.
-        /// </summary>
-        public ICollection<TeacherLanguage> LanguagesKnown { get; set; } = new List<TeacherLanguage>();
-
-        /// <summary>
-        /// Gets or sets the academic records.
-        /// </summary>
-        public ICollection<TeacherAcademicRecord> AcademicRecords { get; set; } = new List<TeacherAcademicRecord>();
-
-        /// <summary>
-        /// Gets or sets the work history.
+        /// Gets or sets the work history records of the teacher.
         /// </summary>
         public ICollection<TeacherWorkHistory> WorkHistory { get; set; } = new List<TeacherWorkHistory>();
     }

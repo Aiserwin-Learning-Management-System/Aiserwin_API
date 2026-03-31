@@ -30,7 +30,7 @@ namespace Winfocus.LMS.Application.Interfaces
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>ContentResourceTypeDto.</returns>
-        Task<CommonResponse<ContentResourceTypeDto>> CreateAsync(ContentResourceTypeDto request);
+        Task<CommonResponse<ContentResourceTypeDto>> CreateAsync(ContentResourceTypeRequest request);
 
         /// <summary>
         /// Updates the asynchronous.
@@ -38,7 +38,7 @@ namespace Winfocus.LMS.Application.Interfaces
         /// <param name="id">The identifier.</param>
         /// <param name="request">The request.</param>
         /// <returns>task.</returns>
-        Task<CommonResponse<ContentResourceTypeDto>> UpdateAsync(Guid id, ContentResourceTypeDto request);
+        Task<CommonResponse<ContentResourceTypeDto>> UpdateAsync(Guid id, ContentResourceTypeRequest request);
 
         /// <summary>
         /// Deletes the asynchronous.

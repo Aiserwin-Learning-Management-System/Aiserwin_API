@@ -34,12 +34,6 @@ namespace Winfocus.LMS.Infrastructure.Data.Configurations
                 .IsUnique()
                 .HasDatabaseName("IX_TeacherPreferredGrades_TeacherRegistrationId_ExamGradeId");
 
-            // ── Relationships ───────────────────────────────────
-            builder.HasOne(tpg => tpg.TeacherRegistration)
-                .WithMany(tr => tr.PreferredGrades)
-                .HasForeignKey(tpg => tpg.TeacherRegistrationId)
-                .OnDelete(DeleteBehavior.Cascade);
-
             builder.HasOne(tpg => tpg.ExamGrade)
                 .WithMany()
                 .HasForeignKey(tpg => tpg.ExamGradeId)

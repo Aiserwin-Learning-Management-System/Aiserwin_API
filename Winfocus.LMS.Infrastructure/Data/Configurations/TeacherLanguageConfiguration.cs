@@ -35,12 +35,6 @@ namespace Winfocus.LMS.Infrastructure.Data.Configurations
             builder.HasIndex(tl => new { tl.TeacherRegistrationId, tl.Language })
                 .IsUnique()
                 .HasDatabaseName("IX_TeacherLanguages_TeacherRegistrationId_Language");
-
-            // ── Relationships ───────────────────────────────────
-            builder.HasOne(tl => tl.TeacherRegistration)
-                .WithMany(tr => tr.LanguagesKnown)
-                .HasForeignKey(tl => tl.TeacherRegistrationId)
-                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

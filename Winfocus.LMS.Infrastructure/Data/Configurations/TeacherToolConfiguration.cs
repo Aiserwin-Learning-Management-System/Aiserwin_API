@@ -34,12 +34,6 @@ namespace Winfocus.LMS.Infrastructure.Data.Configurations
                 .IsUnique()
                 .HasDatabaseName("IX_TeacherTools_TeacherRegistrationId_ToolId");
 
-            // ── Relationships ───────────────────────────────────
-            builder.HasOne(tt => tt.TeacherRegistration)
-                .WithMany(tr => tr.ToolsKnown)
-                .HasForeignKey(tt => tt.TeacherRegistrationId)
-                .OnDelete(DeleteBehavior.Cascade);
-
             builder.HasOne(tt => tt.Tool)
                 .WithMany()
                 .HasForeignKey(tt => tt.ToolId)

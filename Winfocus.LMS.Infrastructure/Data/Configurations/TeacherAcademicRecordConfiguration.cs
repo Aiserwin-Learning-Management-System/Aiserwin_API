@@ -41,11 +41,6 @@ namespace Winfocus.LMS.Infrastructure.Data.Configurations
                 .HasMaxLength(500)
                 .HasColumnType("nvarchar(500)");
 
-            // ── Relationships ───────────────────────────────────
-            builder.HasOne(tar => tar.TeacherRegistration)
-                .WithMany(tr => tr.AcademicRecords)
-                .HasForeignKey(tar => tar.TeacherRegistrationId)
-                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

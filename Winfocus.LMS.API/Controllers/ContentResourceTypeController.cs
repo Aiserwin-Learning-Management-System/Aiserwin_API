@@ -44,7 +44,7 @@ namespace Winfocus.LMS.API.Controllers
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPost]
         public async Task<ActionResult<CommonResponse<ContentResourceTypeDto>>> Create(
-            ContentResourceTypeDto request)
+            ContentResourceTypeRequest request)
         {
             var created = await _contentService.CreateAsync(request);
             return Ok(created);
@@ -72,7 +72,7 @@ namespace Winfocus.LMS.API.Controllers
         [HttpPut("{id:guid}")]
         public async Task<ActionResult<CommonResponse<ContentResourceTypeDto>>> Update(
             Guid id,
-            ContentResourceTypeDto request)
+            ContentResourceTypeRequest request)
         {
             var updated = await _contentService.UpdateAsync(id, request);
             return Ok(updated);
