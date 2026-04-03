@@ -52,15 +52,5 @@
         /// Gets or sets the Ceneter Code of the centre.
         /// </summary>
         public string CenterCode { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets the identifier of the academic year.
-        /// </summary>
-        public Guid AcademicYearId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the Academic year.
-        /// </summary>
-        public AcademicYear AcademicYear { get; set; } = null!;
     }
 }

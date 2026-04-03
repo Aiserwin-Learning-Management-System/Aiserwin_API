@@ -107,6 +107,14 @@ namespace Winfocus.LMS.Application.Services
                     CenterId = request.CenterId,
                     AcademicYearId = request.AcademicyearId,
                 };
+                if (syllabus.AcademicYearId == Guid.Empty)
+                {
+                    syllabus.AcademicYearId = null;
+                }
+                if (syllabus.CenterId == Guid.Empty)
+                {
+                    syllabus.CenterId = null;
+                }
 
                 var created = await _repository.AddAsync(syllabus);
                 return CommonResponse<SyllabusDto>.SuccessResponse(
@@ -143,6 +151,15 @@ namespace Winfocus.LMS.Application.Services
                 batch.UpdatedBy = request.UserId;
                 batch.CenterId = request.CenterId;
                 batch.AcademicYearId = request.AcademicyearId;
+
+                if (batch.AcademicYearId == Guid.Empty)
+                {
+                    batch.AcademicYearId = null;
+                }
+                if (batch.CenterId == Guid.Empty)
+                {
+                    batch.CenterId = null;
+                }
 
                 var updated = await _repository.UpdateAsync(batch);
 
