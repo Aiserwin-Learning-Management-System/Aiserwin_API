@@ -174,16 +174,12 @@ builder.Services.AddScoped<INavigationService, NavigationService>();
 
 builder.Services.AddScoped<IDtpAdminRepository, DtpAdminRepository>();
 builder.Services.AddScoped<IDtpAdminService, DtpAdminService>();
-builder.Services.AddScoped<IExamGradeRepository, ExamGradeRepository>();
-builder.Services.AddScoped<IExamGradeService, ExamGradeService>();
 
 builder.Services.AddScoped<IQuestionReviewRepository, QuestionReviewRepository>();
 builder.Services.AddScoped<IQuestionReviewService, QuestionReviewService>();
 builder.Services.AddScoped<IQuestionCorrectionService, QuestionCorrectionService>();
 builder.Services.AddScoped<IExamUnitRepository, ExamUnitRepository>();
 builder.Services.AddScoped<IExamUnitService, ExamUnitService>();
-builder.Services.AddScoped<IExamSubjectRepository, ExamSubjectRepository>();
-builder.Services.AddScoped<IExamSubjectService, ExamSubjectService>();
 
 builder.Services.AddScoped<IQuestionTypeConfigRepository, QuestionTypeConfigRepository>();
 builder.Services.AddScoped<IQuestionTypeConfigService, QuestionTypeConfigService>();
@@ -197,8 +193,6 @@ builder.Services.AddScoped<IOperatorStatsService, OperatorStatsService>();
 builder.Services.AddScoped<IQuestionConfigurationRepository, QuestionConfigurationRepository>();
 builder.Services.AddScoped<IQuestionConfigurationService, QuestionConfigurationService>();
 
-builder.Services.AddScoped<IExamSyllabusRepository, ExamSyllabusRepository>();
-builder.Services.AddScoped<IExamSyllabusService, ExamSyllabusService>();
 builder.Services.AddScoped<IContentResourceTypeRepository, ContentResourceTypeRepository>();
 builder.Services.AddScoped<IContentResourceTypeService, ContentResourceTypeService>();
 builder.Services.AddScoped<IExamRepository, ExamRepository>();

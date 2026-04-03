@@ -303,21 +303,14 @@ namespace Winfocus.LMS.Application.Services
        SubjectId = c.SubjectId,
        UnitNumber = c.UnitNumber,
        IsActive = c.IsActive,
-       Subject = c.Subject == null ? null : new ExamSubjectDto
+       Subject = c.Subject == null ? null : new SubjectDto
        {
            Id = c.SubjectId,
            Name = c.Subject.Name,
-           Code =c.Subject.Code,
-           GradeId = c.Subject.GradeId,
+           SubjectCode = c.Subject.SubjectCode,
        },
 
        SubjectName = c.Subject.Name,
-       GradeId = c.Subject.GradeId,
-       GradeName = c.Subject.Grade.Name,
-       SyllabusId = c.Subject.Grade.SyllabusId,
-       SyllabusName = c.Subject.Grade.Syllabus.Name,
-       AcademicYearId = c.Subject.Grade.Syllabus.AcademicYearId,
-       AcademicYearName = c.Subject.Grade.Syllabus.AcademicYear.Name,
    };
     }
 }

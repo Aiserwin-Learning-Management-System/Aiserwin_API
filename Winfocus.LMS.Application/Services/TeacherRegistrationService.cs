@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Winfocus.LMS.Application.DTOs;
+using Winfocus.LMS.Application.DTOs.Common;
 using Winfocus.LMS.Application.DTOs.Teacher;
+using Microsoft.Extensions.Logging;
 using Winfocus.LMS.Application.Interfaces;
 using Winfocus.LMS.Domain.Entities;
 
@@ -15,14 +17,17 @@ namespace Winfocus.LMS.Application.Services
     public class TeacherRegistrationService : ITeacherRegistrationService
     {
         private readonly ITeacherRegistrationRepository _repository;
+        private readonly Microsoft.Extensions.Logging.ILogger<TeacherRegistrationService> _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TeacherRegistrationService"/> class.
         /// </summary>
         /// <param name="repository">Repository used for persistence operations.</param>
-        public TeacherRegistrationService(ITeacherRegistrationRepository repository)
+        /// <param name="logger">Logger instance for the service.</param>
+        public TeacherRegistrationService(ITeacherRegistrationRepository repository, Microsoft.Extensions.Logging.ILogger<TeacherRegistrationService> logger)
         {
             _repository = repository;
+            _logger = logger;
         }
 
         /// <summary>
@@ -46,29 +51,22 @@ namespace Winfocus.LMS.Application.Services
                 FullName = request.FullName,
                 Gender = (Winfocus.LMS.Domain.Enums.Gender)request.Gender,
                 DateOfBirth = request.DateOfBirth,
-                Nationality = request.Nationality,
+                CountryId = request.CountryId,
+                StateId = request.StateId,
+                Pincode = request.Pincode,
+                DistrictOrLocation = request.DistrictOrLocation,
                 MobileNumber = request.MobileNumber,
+                AlternativeMobileNumber = request.AlternativeMobileNumber,
                 EmailAddress = request.EmailAddress,
-                EmergencyContactNumber = request.EmergencyContactNumber,
-                Address = request.Address,
-                PermanentAddress = request.PermanentAddress,
+                AlternativeEmailAddress = request.AlternativeEmailAddress,
+                RefernceContactNumber = request.ReferenceContactNumber,
+                RefernceContactName = request.EmergencyContactName,
+                ResidentialAddress = request.ResidentialAddress,
                 IsWillingToWorkWeekends = request.IsWillingToWorkWeekends,
                 HasInternetAndSystemAvailability = request.HasInternetAndSystemAvailability,
                 IsTermsAccepted = request.IsTermsAccepted,
-                DeclarationDate = request.DeclarationDate,
-                ProfessionalDetail = request.ProfessionalDetail == null ? null : new TeacherProfessionalDetail
-                {
-                    HighestQualification = request.ProfessionalDetail.HighestQualification,
-                    University = request.ProfessionalDetail.University,
-                    YearOfPassing = request.ProfessionalDetail.YearOfPassing,
-                    HasTeachingCertification = request.ProfessionalDetail.HasTeachingCertification,
-                    AdditionalCourses = request.ProfessionalDetail.AdditionalCourses,
-                    TotalTeachingExperience = request.ProfessionalDetail.TotalTeachingExperience,
-                    HasOnlineTeachingExperience = request.ProfessionalDetail.HasOnlineTeachingExperience,
-                    HasOfflineTeachingExperience = request.ProfessionalDetail.HasOfflineTeachingExperience,
-                    IsAvailableForDemoClass = request.ProfessionalDetail.IsAvailableForDemoClass,
-                    ComputerLiteracy = (Winfocus.LMS.Domain.Enums.ComputerLiteracy)request.ProfessionalDetail.ComputerLiteracy
-                },
+                ContractDuration = request.ContractDuration,
+                // ProfessionalDetail will be mapped below if provided
                 Schedule = request.Schedule == null ? null : new TeacherSchedule
                 {
                     Availabilities = request.Schedule.Availabilities == null ? new System.Collections.Generic.List<TeacherAvailability>() : request.Schedule.Availabilities.Select(a => new TeacherAvailability
@@ -81,7 +79,8 @@ namespace Winfocus.LMS.Application.Services
                 Documents = request.Documents == null ? null : new TeacherDocumentInfo
                 {
                     PhotoPath = request.Documents.PhotoPath,
-                    IdCardPath = request.Documents.IdCardPath
+                    ProofType = request.Documents.ProofType.HasValue ? (Winfocus.LMS.Domain.Enums.IdProofType)request.Documents.ProofType.Value : default,
+                    ProofNumber = request.Documents.ProofNumber
                 },
                 WorkHistory = request.WorkHistory == null ? new System.Collections.Generic.List<TeacherWorkHistory>() : request.WorkHistory.Select(w => new TeacherWorkHistory
                 {
@@ -98,6 +97,112 @@ namespace Winfocus.LMS.Application.Services
                 IsDeleted = false,
             };
 
+            // Map professional detail and its child collections (preferred subjects/grades, tools, syllabuses, languages)
+            if (request.ProfessionalDetail != null)
+            {
+                var pd = new TeacherProfessionalDetail
+                {
+                    HighestQualification = request.ProfessionalDetail.HighestQualification,
+                    TotalTeachingExperience = request.ProfessionalDetail.TotalTeachingExperience,
+                    HasOnlineTeachingExperience = request.ProfessionalDetail.HasOnlineTeachingExperience,
+                    HasOfflineTeachingExperience = request.ProfessionalDetail.HasOfflineTeachingExperience,
+                    IsAvailableForDemoClass = request.ProfessionalDetail.IsAvailableForDemoClass,
+                    ComputerLiteracy = (Winfocus.LMS.Domain.Enums.ComputerLiteracy)request.ProfessionalDetail.ComputerLiteracy
+                };
+
+                // Preferred subjects
+                //if (request.PreferredSubjectIds != null)
+                //{
+                //    foreach (var sid in request.PreferredSubjectIds)
+                //    {
+                //        pd.PreferredSubjects.Add(new TeacherPreferredSubject { ExamSubjectId = sid });
+                //    }
+                //}
+
+                // Preferred grades
+                //if (request.PreferredGradeIds != null)
+                //{
+                //    foreach (var gid in request.PreferredGradeIds)
+                //    {
+                //        pd.PreferredGrades.Add(new TeacherPreferredGrade { ExamGradeId = gid });
+                //    }
+                //}
+
+                // Preferred syllabuses
+                //if (request.PreferredSyllabusIds != null)
+                //{
+                //    foreach (var syl in request.PreferredSyllabusIds)
+                //    {
+                //        pd.PreferredSyllabuses.Add(new TeacherSyllabus { ExamSyllabusId = syl });
+                //    }
+                //}
+
+                // Languages
+                if (request.Languages != null)
+                {
+                    foreach (var lang in request.Languages)
+                    {
+                        pd.TeacherLanguage.Add(new TeacherLanguage { Language = (Winfocus.LMS.Domain.Enums.LanguageProficiency)lang });
+                    }
+                }
+
+                // Tools — create tool entries and link via TeacherTool
+                if (request.Tools != null)
+                {
+                    foreach (var t in request.Tools)
+                    {
+                        var tool = new TeachingTools
+                        {
+                            Name = t.Name,
+                            Description = t.Description
+                        };
+
+                        pd.TeacherTools.Add(new TeacherTool { Tool = tool });
+                    }
+                }
+
+                entity.ProfessionalDetail = pd;
+            }
+
+            // Map schedule availabilities into ProfessionalDetail's availability and Schedule (already mapped earlier)
+            if (request.Schedule != null && request.Schedule.Availabilities != null)
+            {
+                // Ensure Schedule exists
+                if (entity.Schedule == null)
+                {
+                    entity.Schedule = new TeacherSchedule { Availabilities = new System.Collections.Generic.List<TeacherAvailability>() };
+                }
+
+                foreach (var a in request.Schedule.Availabilities)
+                {
+                    var avail = new TeacherAvailability
+                    {
+                        Day = (System.DayOfWeek)a.Day,
+                        StartTime = TimeSpan.Parse(a.StartTime),
+                        EndTime = TimeSpan.Parse(a.EndTime)
+                    };
+
+                    entity.Schedule.Availabilities.Add(avail);
+                }
+            }
+
+            // Taught subjects and grades (if provided) — add to registration-level collections
+            //if (request.TaughtSubjectIds != null)
+            //{
+            //    foreach (var ts in request.TaughtSubjectIds)
+            //    {
+            //        entity.SubjectsTaughtEarlier.Add(new TeacherTaughtSubject { ExamSubjectId = ts });
+            //    }
+            //}
+
+            //if (request.TaughtGradeIds != null)
+            //{
+            //    foreach (var tg in request.TaughtGradeIds)
+            //    {
+            //        entity.GradesTaughtEarlier.Add(new TeacherTaughtGrade { ExamGradeId = tg });
+            //    }
+            //}
+
             // generate a simple employee id - keep deterministic and unique enough for now
             entity.EmployeeId = $"TCH-{DateTime.UtcNow:yyyyMMddHHmmssfff}";
 
@@ -112,16 +217,14 @@ namespace Winfocus.LMS.Application.Services
                 MobileNumber = created.MobileNumber,
                 DateOfBirth = created.DateOfBirth,
                 DateOfJoining = created.DateOfJoining,
-                Nationality = created.Nationality,
-                EmergencyContactNumber = created.EmergencyContactNumber,
-                PermanentAddress = created.PermanentAddress,
                 IsWillingToWorkWeekends = created.IsWillingToWorkWeekends,
                 HasInternetAndSystemAvailability = created.HasInternetAndSystemAvailability,
                 IsTermsAccepted = created.IsTermsAccepted,
-                DeclarationDate = created.DeclarationDate,
                 Status = (int)created.Status,
                 AdministrativeRemarks = created.AdministrativeRemarks,
                 ReportingManagerId = created.ReportingManagerId,
+                CountryId = created.CountryId,
+                EmploymentTypeId = created.EmploymentTypeId,
             };
 
             return CommonResponse<TeacherRegistrationDto>.SuccessResponse("Teacher registered successfully.", dto);
@@ -149,6 +252,8 @@ namespace Winfocus.LMS.Application.Services
                 MobileNumber = entity.MobileNumber,
                 DateOfBirth = entity.DateOfBirth,
                 IsTermsAccepted = entity.IsTermsAccepted,
+                CountryId = entity.CountryId,
+                EmploymentTypeId = entity.EmploymentTypeId,
                 //IsDeclarationAccepted = entity.IsDeclarationAccepted,
             };
 
@@ -171,6 +276,8 @@ namespace Winfocus.LMS.Application.Services
                 MobileNumber = x.MobileNumber,
                 DateOfBirth = x.DateOfBirth,
                 IsTermsAccepted = x.IsTermsAccepted,
+                CountryId = x.CountryId,
+                EmploymentTypeId = x.EmploymentTypeId,
                 //IsDeclarationAccepted = x.IsDeclarationAccepted,
             }).ToList();
 
@@ -199,16 +306,21 @@ namespace Winfocus.LMS.Application.Services
             existing.FullName = request.FullName;
             existing.Gender = (Winfocus.LMS.Domain.Enums.Gender)request.Gender;
             existing.DateOfBirth = request.DateOfBirth;
-            existing.Nationality = request.Nationality;
+            existing.CountryId = request.CountryId;
+            existing.StateId = request.StateId;
+            existing.Pincode = request.Pincode;
+            existing.DistrictOrLocation = request.DistrictOrLocation;
             existing.MobileNumber = request.MobileNumber;
+            existing.AlternativeMobileNumber = request.AlternativeMobileNumber;
             existing.EmailAddress = request.EmailAddress;
-            existing.EmergencyContactNumber = request.EmergencyContactNumber;
-            existing.Address = request.Address;
-            existing.PermanentAddress = request.PermanentAddress;
+            existing.AlternativeEmailAddress = request.AlternativeEmailAddress;
+            existing.RefernceContactNumber = request.ReferenceContactNumber;
+            existing.RefernceContactName = request.EmergencyContactName;
+            existing.ResidentialAddress = request.ResidentialAddress;
             existing.IsWillingToWorkWeekends = request.IsWillingToWorkWeekends;
             existing.HasInternetAndSystemAvailability = request.HasInternetAndSystemAvailability;
             existing.IsTermsAccepted = request.IsTermsAccepted;
-            existing.DeclarationDate = request.DeclarationDate;
+            existing.ContractDuration = request.ContractDuration;
 
             // Map nested objects if provided
             if (request.ProfessionalDetail != null)
@@ -216,10 +328,6 @@ namespace Winfocus.LMS.Application.Services
                 existing.ProfessionalDetail = new TeacherProfessionalDetail
                 {
                     HighestQualification = request.ProfessionalDetail.HighestQualification,
-                    University = request.ProfessionalDetail.University,
-                    YearOfPassing = request.ProfessionalDetail.YearOfPassing,
-                    HasTeachingCertification = request.ProfessionalDetail.HasTeachingCertification,
-                    AdditionalCourses = request.ProfessionalDetail.AdditionalCourses,
                     TotalTeachingExperience = request.ProfessionalDetail.TotalTeachingExperience,
                     HasOnlineTeachingExperience = request.ProfessionalDetail.HasOnlineTeachingExperience,
                     HasOfflineTeachingExperience = request.ProfessionalDetail.HasOfflineTeachingExperience,
@@ -246,7 +354,8 @@ namespace Winfocus.LMS.Application.Services
                 existing.Documents = new TeacherDocumentInfo
                 {
                     PhotoPath = request.Documents.PhotoPath,
-                    IdCardPath = request.Documents.IdCardPath,
+                    ProofType = request.Documents.ProofType.HasValue ? (Winfocus.LMS.Domain.Enums.IdProofType)request.Documents.ProofType.Value : default,
+                    ProofNumber = request.Documents.ProofNumber
                 };
             }
 
@@ -280,6 +389,80 @@ namespace Winfocus.LMS.Application.Services
             };
 
             return CommonResponse<TeacherRegistrationDto>.SuccessResponse("Teacher updated successfully.", dto);
+        }
+
+        /// <summary>
+        /// Gets filtered teacher registrations.
+        /// </summary>
+        /// <summary>
+        /// Gets filtered teacher registrations.
+        /// </summary>
+        /// <param name="request">Filter request.</param>
+        /// <returns>Paged list of teacher DTOs.</returns>
+        public async Task<PagedResult<TeacherRegistrationDto>> GetFilteredAsync(TeacherFilterRequest request)
+        {
+            var paged = await _repository.GetFilteredAsync(request);
+
+            var dtos = paged.items.Select(x => new TeacherRegistrationDto
+            {
+                Id = x.Id,
+                EmployeeId = x.EmployeeId,
+                FullName = x.FullName,
+                EmailAddress = x.EmailAddress,
+                MobileNumber = x.MobileNumber,
+                DateOfBirth = x.DateOfBirth,
+                Status = (int)x.Status
+            }).ToList();
+
+            return new PagedResult<TeacherRegistrationDto>(dtos, paged.totalCount, request.Limit, request.Offset);
+        }
+
+        /// <summary>
+        /// Confirms a teacher registration (changes status to Submitted).
+        /// </summary>
+        /// <param name="id">Teacher identifier.</param>
+        /// <returns>Operation result.</returns>
+        public async Task<CommonResponse<bool>> TeacherConfirm(Guid id)
+        {
+            _logger.LogInformation("Confirm teacher. Id: {Id}", id);
+            return await _repository.TeacherConfirm(id);
+        }
+
+        /// <summary>
+        /// Approves a teacher registration (changes status to Approved).
+        /// </summary>
+        /// <param name="id">Teacher identifier.</param>
+        /// <returns>Operation result.</returns>
+        public async Task<CommonResponse<bool>> TeacherApprove(Guid id)
+        {
+            _logger.LogInformation("Approve teacher. Id: {Id}", id);
+            return await _repository.TeacherApprove(id);
+        }
+
+        /// <inheritdoc/>
+        public async Task LinkUserAsync(Guid teacherId, Guid userId)
+        {
+            _logger.LogInformation("Linking User {UserId} to Teacher {TeacherId}", userId, teacherId);
+            var existing = await _repository.GetByIdAsync(teacherId);
+            if (existing == null)
+            {
+                _logger.LogWarning("Teacher not found for linking: {Id}", teacherId);
+                return;
+            }
+
+            // Teacher entity currently doesn't have a UserId field; if present set it; otherwise log and ignore.
+            var prop = existing.GetType().GetProperty("UserId");
+            if (prop != null && prop.CanWrite)
+            {
+                prop.SetValue(existing, userId);
+                existing.UpdatedAt = DateTime.UtcNow;
+                await _repository.UpdateAsync(existing);
+                _logger.LogInformation("Linked user to teacher: {TeacherId}", teacherId);
+            }
+            else
+            {
+                _logger.LogWarning("Teacher entity does not contain UserId property; skipping link.");
+            }
         }
 
         /// <summary>

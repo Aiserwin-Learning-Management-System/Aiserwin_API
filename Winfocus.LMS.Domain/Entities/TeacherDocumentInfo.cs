@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Winfocus.LMS.Domain.Enums;
 
 namespace Winfocus.LMS.Domain.Entities
 {
@@ -25,8 +26,13 @@ namespace Winfocus.LMS.Domain.Entities
         public string? PhotoPath { get; set; }
 
         /// <summary>
-        /// Gets or sets the ID proof document path.
+        /// Gets or sets the proof type.
         /// </summary>
-        public string? IdCardPath { get; set; }
+        public IdProofType ProofType { get; set; }
+
+        /// <summary>
+        /// Gets or sets the ID proof number.
+        /// </summary>
+        public string? ProofNumber { get; set; }
     }
 }

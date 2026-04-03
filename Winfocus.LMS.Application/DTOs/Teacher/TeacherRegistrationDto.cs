@@ -87,5 +87,15 @@ namespace Winfocus.LMS.Application.DTOs.Teacher
         /// Gets or sets the reporting manager identifier (if set).
         /// </summary>
         public Guid? ReportingManagerId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the country identifier of the teacher.
+        /// </summary>
+        public Guid CountryId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the employment type (staff category) identifier.
+        /// </summary>
+        public Guid EmploymentTypeId { get; set; }
     }
 }

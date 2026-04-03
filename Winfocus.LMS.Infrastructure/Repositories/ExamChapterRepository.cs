@@ -37,6 +37,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
                 .Where(x => x.IsActive && !x.IsDeleted)
                 .Include(x => x.Unit)
                 .ThenInclude(x => x.Subject)
+                .ThenInclude(x => x.Course)
                 .ThenInclude(x => x.Grade)
                 .ThenInclude(x => x.Syllabus)
                  .ThenInclude(x => x.AcademicYear)
@@ -55,6 +56,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             var res = _dbContext.ExamChapters
                 .Include(x => x.Unit)
                  .ThenInclude(x => x.Subject)
+                 .ThenInclude(x => x.Course)
                 .ThenInclude(x => x.Grade)
                 .ThenInclude(x => x.Syllabus)
                  .ThenInclude(x => x.AcademicYear)
@@ -81,6 +83,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             return await _dbContext.ExamChapters
                 .Include(x => x.Unit)
                     .ThenInclude(u => u.Subject)
+                    .ThenInclude(u => u.Course)
                         .ThenInclude(s => s.Grade)
                             .ThenInclude(g => g.Syllabus)
                              .ThenInclude(x => x.AcademicYear)
@@ -133,6 +136,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             return await _dbContext.ExamChapters
                 .Include(x => x.Unit)
                 .ThenInclude(x => x.Subject)
+                .ThenInclude(x => x.Course)
                 .ThenInclude(x => x.Grade)
                 .ThenInclude(x => x.Syllabus)
                  .ThenInclude(x => x.AcademicYear)
@@ -153,6 +157,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
          .AsNoTracking()
          .Include(x => x.Unit)
           .ThenInclude(x => x.Subject)
+          .ThenInclude(x => x.Course)
                 .ThenInclude(x => x.Grade)
                 .ThenInclude(x => x.Syllabus)
                  .ThenInclude(x => x.AcademicYear)
@@ -173,6 +178,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             return _dbContext.ExamChapters.Where(x => !x.IsDeleted)
                 .Include(x => x.Unit)
                  .ThenInclude(x => x.Subject)
+                 .ThenInclude(x => x.Course)
                 .ThenInclude(x => x.Grade)
                 .ThenInclude(x => x.Syllabus)
                  .ThenInclude(x => x.AcademicYear)
@@ -189,6 +195,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             var res = _dbContext.ExamChapters
                 .Include(x => x.Unit)
                 .ThenInclude(x => x.Subject)
+                .ThenInclude(x => x.Course)
                 .ThenInclude(x => x.Grade)
                 .ThenInclude(x => x.Syllabus)
                  .ThenInclude(x => x.AcademicYear)

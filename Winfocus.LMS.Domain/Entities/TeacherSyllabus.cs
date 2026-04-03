@@ -15,7 +15,7 @@ namespace Winfocus.LMS.Domain.Entities
         /// <summary>
         /// Gets or sets the identifier of the exam syllabus.
         /// </summary>
-        public Guid ExamSyllabusId { get; set; }
+        public Guid SyllabusId { get; set; }
 
         /// <summary>
         /// Gets or sets the teacher registration associated with this mapping.
@@ -25,6 +25,6 @@ namespace Winfocus.LMS.Domain.Entities
         /// <summary>
         /// Gets or sets the exam syllabus associated with this mapping.
         /// </summary>
-        public ExamSyllabus ExamSyllabus { get; set; } = null!;
+        public Syllabus Syllabus { get; set; } = null!;
     }
 }

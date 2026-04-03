@@ -17,9 +17,29 @@ namespace Winfocus.LMS.Domain.Entities
         public Guid CountryId { get; set; }
 
         /// <summary>
-        /// Gets or sets the modeOfStudy entity associated with the centre.
+        /// Gets or sets the country.
         /// </summary>
         public Country Country { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the identifier of the modeofstudy.
+        /// </summary>
+        public Guid ModeOfStudyId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the modeOfStudy.
+        /// </summary>
+        public ModeOfStudy ModeOfStudy { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the identifier of the state.
+        /// </summary>
+        public Guid StateId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the state.
+        /// </summary>
+        public State State { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the identifier of the associated Center.
@@ -39,12 +59,7 @@ namespace Winfocus.LMS.Domain.Entities
         /// <summary>
         /// Gets or sets the associated syllabus.
         /// </summary>
-        public ExamSyllabus Syllabus { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets the associated exammode.
-        /// </summary>
-        public ExamMode Mode { get; set; }
+        public Syllabus Syllabus { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the identifier of the associated grade.
@@ -54,7 +69,7 @@ namespace Winfocus.LMS.Domain.Entities
         /// <summary>
         /// Gets or sets the identifier of the associated grade.
         /// </summary>
-        public ExamGrade Grade { get; set; } = null!;
+        public Grade Grade { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the identifier of the associated stream.
@@ -75,6 +90,16 @@ namespace Winfocus.LMS.Domain.Entities
         /// Gets or sets the associated courses.
         /// </summary>
         public Course Course { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the identifier of the associated subject.
+        /// </summary>
+        public Guid SubjectId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the associated subject.
+        /// </summary>
+        public Subject Subject { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the unit identifier.
@@ -101,6 +126,16 @@ namespace Winfocus.LMS.Domain.Entities
         /// Gets or sets the navigation property to the exam chapter.
         /// </summary>
         public ExamChapter Chapter { get; set; } = default!;
+
+        /// <summary>
+        /// Gets or sets the foreign key to the QuestionType.
+        /// </summary>
+        public Guid ResourceTypeId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the navigation property to the QuestionType.
+        /// </summary>
+        public ContentResourceType ResourceType { get; set; } = default!;
 
         /// <summary>
         /// Gets or sets the foreign key to the QuestionType.

@@ -23,5 +23,15 @@
         /// Gets or sets the identifier of the associated Center.
         /// </summary>
         public Center Center { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the identifier of the associated AcademicYear.
+        /// </summary>
+        public Guid AcademicYearId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the identifier of the associated AcademicYear.
+        /// </summary>
+        public AcademicYear AcademicYear { get; set; } = null!;
     }
 }

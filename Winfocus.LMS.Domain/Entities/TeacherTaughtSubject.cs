@@ -15,7 +15,7 @@ namespace Winfocus.LMS.Domain.Entities
         /// <summary>
         /// Gets or sets the identifier of the exam subject.
         /// </summary>
-        public Guid ExamSubjectId { get; set; }
+        public Guid SubjectId { get; set; }
 
         /// <summary>
         /// Gets or sets the teacher registration associated with this mapping.
@@ -25,6 +25,6 @@ namespace Winfocus.LMS.Domain.Entities
         /// <summary>
         /// Gets or sets the exam subject associated with this mapping.
         /// </summary>
-        public ExamSubject ExamSubject { get; set; } = null!;
+        public Subject Subject { get; set; } = null!;
     }
 }

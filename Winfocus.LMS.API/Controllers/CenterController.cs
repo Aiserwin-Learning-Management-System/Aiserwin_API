@@ -20,7 +20,7 @@
     {
         private readonly ICenterService _centerService;
 
-        /// <summary> 
+        /// <summary>
         /// Initializes a new instance of the <see cref="CenterController"/> class.
         /// </summary>
         /// <param name="centerService">The center service.</param>

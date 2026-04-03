@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using Winfocus.LMS.Application.DTOs;
 using Winfocus.LMS.Application.DTOs.Teacher;
 using Winfocus.LMS.Application.Interfaces;
+    using Microsoft.AspNetCore.Authorization;
+    using Winfocus.LMS.Application.DTOs.Common;
 
 namespace Winfocus.LMS.API.Controllers
 {
@@ -20,16 +22,109 @@ namespace Winfocus.LMS.API.Controllers
     {
         private readonly ITeacherRegistrationService _service;
         private readonly ILogger<TeacherRegistrationController> _logger;
+        private readonly Winfocus.LMS.Application.Interfaces.IAuthService _authService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TeacherRegistrationController"/> class.
         /// </summary>
         /// <param name="service">The academic year service.</param>
         /// <param name="logger">The logger.</param>
-        public TeacherRegistrationController(ITeacherRegistrationService service, ILogger<TeacherRegistrationController> logger)
+        public TeacherRegistrationController(ITeacherRegistrationService service, ILogger<TeacherRegistrationController> logger, Winfocus.LMS.Application.Interfaces.IAuthService authService)
         {
             _service = service;
             _logger = logger;
+            _authService = authService;
+        }
+
+        /// <summary>
+        /// Retrieves filtered teacher registrations using the provided filter criteria.
+        /// </summary>
+        /// <param name="request">Filter request parameters.</param>
+        /// <returns>Paged result containing matching teacher registrations.</returns>
+        [Authorize(Roles = "Admin,SuperAdmin,CountryAdmin,CenterAdmin")]
+        [HttpGet("teacher-filter")]
+        public async Task<ActionResult<PagedResult<TeacherRegistrationDto>>> GetFiltered([FromQuery] Winfocus.LMS.Application.DTOs.Teacher.TeacherFilterRequest request)
+        {
+            try
+            {
+                var result = await _service.GetFilteredAsync(request);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error filtering teachers");
+                return StatusCode(500, null);
+            }
+        }
+
+        /// <summary>
+        /// Confirms a teacher registration (marks as submitted/pending).
+        /// </summary>
+        /// <param name="id">Teacher identifier.</param>
+        /// <returns>Operation result indicating success or failure.</returns>
+        [HttpPost("{id:guid}/confirm")]
+        public async Task<ActionResult<CommonResponse<bool>>> Confirm(Guid id)
+        {
+            try
+            {
+                var response = await _service.TeacherConfirm(id);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error confirming teacher {Id}", id);
+                return StatusCode(500, CommonResponse<bool>.FailureResponse("An error occurred while confirming the teacher."));
+            }
+        }
+
+        /// <summary>
+        /// Approves a teacher registration and creates a user account.
+        /// </summary>
+        /// <param name="id">Identifier of the approve teacher.</param>
+        /// <returns>.</returns>
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        [HttpPost("{id:guid}/approve")]
+        public async Task<ActionResult<CommonResponse<bool>>> Approve(Guid id)
+        {
+            try
+            {
+                var response = await _service.TeacherApprove(id);
+
+                // if approved, create user and link
+                if (response != null && response.Success)
+                {
+                    var teacherResp = await _service.GetByIdAsync(id);
+                    if (teacherResp != null && teacherResp.Success && teacherResp.Data != null)
+                    {
+                        var teacher = teacherResp.Data;
+                        var username = teacher.FullName
+                            ?.Trim()
+                            .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                            .FirstOrDefault();
+
+                        var registerReq = new Winfocus.LMS.Application.DTOs.Auth.RegisterRequestDto(
+                            username ?? string.Empty,
+                            teacher.EmailAddress,
+                            new List<string> { "Teacher" },
+                            teacher.CountryId,
+                            Guid.Empty,
+                            teacher.EmploymentTypeId);
+
+                        var authResult = await _authService.RegisterAsync(registerReq);
+                        if (authResult != null && authResult.userId != Guid.Empty)
+                        {
+                            await _service.LinkUserAsync(id, authResult.userId);
+                        }
+                    }
+                }
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error approving teacher {Id}", id);
+                return StatusCode(500, CommonResponse<bool>.FailureResponse("An error occurred while approving the teacher."));
+            }
         }
 
         /// <summary>

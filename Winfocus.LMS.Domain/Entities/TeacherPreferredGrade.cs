@@ -15,7 +15,7 @@ namespace Winfocus.LMS.Domain.Entities
         /// <summary>
         /// Gets or sets the identifier of the exam grade.
         /// </summary>
-        public Guid ExamGradeId { get; set; }
+        public Guid GradeId { get; set; }
 
         /// <summary>
         /// Gets or sets the teacher registration associated with this mapping.
@@ -25,6 +25,6 @@ namespace Winfocus.LMS.Domain.Entities
         /// <summary>
         /// Gets or sets the exam grade associated with this mapping.
         /// </summary>
-        public ExamGrade ExamGrade { get; set; } = null!;
+        public Grade Grade { get; set; } = null!;
     }
 }

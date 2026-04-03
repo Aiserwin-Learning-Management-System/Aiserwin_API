@@ -22,26 +22,6 @@ namespace Winfocus.LMS.Domain.Entities
         public string HighestQualification { get; set; } = null!;
 
         /// <summary>
-        /// Gets or sets the university or institution name.
-        /// </summary>
-        public string University { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets the year of passing.
-        /// </summary>
-        public int YearOfPassing { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether teaching certification is available.
-        /// </summary>
-        public bool HasTeachingCertification { get; set; }
-
-        /// <summary>
-        /// Gets or sets additional courses completed by the teacher.
-        /// </summary>
-        public string? AdditionalCourses { get; set; }
-
-        /// <summary>
         /// Gets or sets total teaching experience in years.
         /// </summary>
         public int TotalTeachingExperience { get; set; }
@@ -72,8 +52,28 @@ namespace Winfocus.LMS.Domain.Entities
         public ICollection<TeacherPreferredSubject> PreferredSubjects { get; set; } = new List<TeacherPreferredSubject>();
 
         /// <summary>
+        /// Gets or sets the lms tools.
+        /// </summary>
+        public ICollection<TeacherTool> TeacherTools { get; set; } = new List<TeacherTool>();
+
+        /// <summary>
+        /// Gets or sets the preferred syllabuses.
+        /// </summary>
+        public ICollection<TeacherSyllabus> PreferredSyllabuses { get; set; } = new List<TeacherSyllabus>();
+
+        /// <summary>
         /// Gets or sets the preferred grades.
         /// </summary>
         public ICollection<TeacherPreferredGrade> PreferredGrades { get; set; } = new List<TeacherPreferredGrade>();
+
+        /// <summary>
+        /// Gets or sets the preferred grades.
+        /// </summary>
+        public ICollection<TeacherLanguage> TeacherLanguage { get; set; } = new List<TeacherLanguage>();
+
+        /// <summary>
+        /// Gets or sets the TeacherAvailability.
+        /// </summary>
+        public ICollection<TeacherAvailability> TeacherAvailability { get; set; } = new List<TeacherAvailability>();
     }
 }

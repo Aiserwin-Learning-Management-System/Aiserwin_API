@@ -323,7 +323,7 @@ namespace Winfocus.LMS.Application.Services
        CountryId = c.CountryId,
        CenterId = c.CenterId,
        SyllabusId = c.SyllabusId,
-       Mode = c.Mode,
+      // Mode = c.Mode,
        GradeId = c.GradeId,
        StreamId = c.StreamId,
        CourseId = c.CourseId,

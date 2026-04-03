@@ -169,7 +169,7 @@ namespace Winfocus.LMS.Application.DTOs
         /// <value>
         /// The syllabus.
         /// </value>
-        public ExamSyllabus Syllabus { get; set; } = default!;
+        public Syllabus Syllabus { get; set; } = default!;
 
         /// <summary>
         /// Gets or sets the grade.
@@ -177,7 +177,7 @@ namespace Winfocus.LMS.Application.DTOs
         /// <value>
         /// The grade.
         /// </value>
-        public ExamGrade Grade { get; set; } = default!;
+        public Grade Grade { get; set; } = default!;
 
         /// <summary>
         /// Gets or sets the subject.
@@ -185,7 +185,7 @@ namespace Winfocus.LMS.Application.DTOs
         /// <value>
         /// The subject.
         /// </value>
-        public ExamSubject Subject { get; set; } = default!;
+        public Subject Subject { get; set; } = default!;
 
         /// <summary>
         /// Gets or sets the unit.

@@ -25,24 +25,37 @@ namespace Winfocus.LMS.Application.Services
         private readonly ITaskAssignmentRepository _repository;
         private readonly ILogger<TaskAssignmentService> _logger;
         private readonly IOperatorDashboardService _operatorDashboardService;
-        private readonly IExamSyllabusRepository _syllabusRepository;
+        private readonly ISyllabusRepository _syllabusRepository;
         private readonly IAcademicYearRepository _academicYearRepository;
-        private readonly IExamGradeRepository _gradeRepository;
-        private readonly IExamSubjectRepository _subjectRepository;
+        private readonly IGradeRepository _gradeRepository;
+        private readonly ISubjectRepository _subjectRepository;
         private readonly IExamUnitRepository _unitRepository;
         private readonly IExamChapterRepository _chapterRepository;
         private readonly IContentResourceTypeRepository _resourceTypeRepository;
         private readonly IQuestionTypeConfigRepository _questionTypeRepository;
 
-        // File: Winfocus.LMS.Application\Services\TaskAssignmentService.cs
+        /// <summary>
+        /// Initializes TaskAssignmentService with required dependencies.
+        /// </summary>
+        /// <param name="repository">Task assignment repository.</param>
+        /// <param name="logger">Logging service.</param>
+        /// <param name="operatorDashboardService">Operator dashboard service.</param>
+        /// <param name="syllabusRepository">Syllabus repository.</param>
+        /// <param name="academicYearRepository">Academic year repository.</param>
+        /// <param name="gradeRepository">Grade repository.</param>
+        /// <param name="subjectRepository">Subject repository.</param>
+        /// <param name="unitRepository">Unit repository.</param>
+        /// <param name="chapterRepository">Chapter repository.</param>
+        /// <param name="resourceTypeRepository">Resource type repository.</param>
+        /// <param name="questionTypeRepository">Question type repository.</param>
         public TaskAssignmentService(
             ITaskAssignmentRepository repository,
             ILogger<TaskAssignmentService> logger,
             IOperatorDashboardService operatorDashboardService,
-            IExamSyllabusRepository syllabusRepository,
+            ISyllabusRepository syllabusRepository,
             IAcademicYearRepository academicYearRepository,
-            IExamGradeRepository gradeRepository,
-            IExamSubjectRepository subjectRepository,
+            IGradeRepository gradeRepository,
+            ISubjectRepository subjectRepository,
             IExamUnitRepository unitRepository,
             IExamChapterRepository chapterRepository,
             IContentResourceTypeRepository resourceTypeRepository,
@@ -494,13 +507,13 @@ namespace Winfocus.LMS.Application.Services
                     return CommonResponse<SuggestedCodeResponseDto>.FailureResponse("Academic Year not found");
                 }
 
-                ExamGrade? grade = await _gradeRepository.GetByIdAsync(dto.GradeId, dto.SyllabusId);
+                Grade? grade = await _gradeRepository.GetByIdAsync(dto.GradeId);
                 if (grade == null)
                 {
                     return CommonResponse<SuggestedCodeResponseDto>.FailureResponse("Grade not found");
                 }
 
-                ExamSubject? subject = await _subjectRepository.GetByIdAsync(dto.SubjectId, dto.GradeId);
+                Subject? subject = await _subjectRepository.GetByIdAsync(dto.SubjectId);
                 if (subject == null)
                 {
                     return CommonResponse<SuggestedCodeResponseDto>.FailureResponse("Subject not found");
@@ -541,7 +554,7 @@ namespace Winfocus.LMS.Application.Services
 
                 string code = BuildQuestionCode(
                     syllabus.Name, academicYear.Name, grade.Name,
-                    subject.Code ?? subject.Name.Substring(0, Math.Min(3, subject.Name.Length)).ToUpper(),
+                    subject.SubjectCode ?? subject.Name.Substring(0, Math.Min(3, subject.Name.Length)).ToUpper(),
                     unit.UnitNumber, chapter.ChapterNumber,
                     resourceType.Name, questionType.Name, dto.OperatorName, nextSequence);
 
