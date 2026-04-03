@@ -14,10 +14,10 @@
     public sealed class QuestionConfigurationService : IQuestionConfigurationService
     {
         private readonly IQuestionConfigurationRepository _repository;
-        private readonly IExamSyllabusRepository _syllabusRepository;
+        private readonly ISyllabusRepository _syllabusRepository;
         private readonly IAcademicYearRepository _academicYearRepository;
-        private readonly IExamGradeRepository _gradeRepository;
-        private readonly IExamSubjectRepository _subjectRepository;
+        private readonly IGradeRepository _gradeRepository;
+        private readonly ISubjectRepository _subjectRepository;
         private readonly IExamUnitRepository _unitRepository;
         private readonly IExamChapterRepository _chapterRepository;
         private readonly IContentResourceTypeRepository _resourceTypeRepository;
@@ -39,10 +39,10 @@
         /// <param name="logger">The logger instance.</param>
         public QuestionConfigurationService(
             IQuestionConfigurationRepository repository,
-            IExamSyllabusRepository syllabusRepository,
+            ISyllabusRepository syllabusRepository,
             IAcademicYearRepository academicYearRepository,
-            IExamGradeRepository gradeRepository,
-            IExamSubjectRepository subjectRepository,
+            IGradeRepository gradeRepository,
+            ISubjectRepository subjectRepository,
             IExamUnitRepository unitRepository,
             IExamChapterRepository chapterRepository,
             IContentResourceTypeRepository resourceTypeRepository,
@@ -69,7 +69,7 @@
             {
                 _logger.LogInformation("Generating suggested Question Code");
 
-                ExamSyllabus? syllabus = await _syllabusRepository.GetByIdAsync(dto.SyllabusId, dto.AcademicYearId);
+                Syllabus? syllabus = await _syllabusRepository.GetByIdAsync(dto.SyllabusId, dto.AcademicYearId);
                 if (syllabus == null)
                 {
                     return CommonResponse<SuggestedCodeResponseDto>.FailureResponse("Syllabus not found");
@@ -81,13 +81,13 @@
                     return CommonResponse<SuggestedCodeResponseDto>.FailureResponse("Academic Year not found");
                 }
 
-                ExamGrade? grade = await _gradeRepository.GetByIdAsync(dto.GradeId, dto.SyllabusId);
+                Grade? grade = await _gradeRepository.GetByIdAsync(dto.GradeId);
                 if (grade == null)
                 {
                     return CommonResponse<SuggestedCodeResponseDto>.FailureResponse("Grade not found");
                 }
 
-                ExamSubject? subject = await _subjectRepository.GetByIdAsync(dto.SubjectId, dto.GradeId);
+                Subject? subject = await _subjectRepository.GetByIdAsync(dto.SubjectId);
                 if (subject == null)
                 {
                     return CommonResponse<SuggestedCodeResponseDto>.FailureResponse("Subject not found");
@@ -117,7 +117,7 @@
 
                 string code = BuildQuestionCode(
                     syllabus.Name, academicYear.Name, grade.Name,
-                    subject.Code ?? subject.Name.Substring(0, Math.Min(3, subject.Name.Length)).ToUpper(),
+                    subject.SubjectCode ?? subject.Name.Substring(0, Math.Min(3, subject.Name.Length)).ToUpper(),
                     unit.UnitNumber, chapter.ChapterNumber,
                     questionType.Name, nextSequence);
 
@@ -467,7 +467,7 @@
                 AcademicYear = entity.AcademicYear.Name,
                 GradeName = entity.Grade.Name,
                 SubjectName = entity.Subject.Name,
-                SubjectCode = entity.Subject.Code,
+                SubjectCode = entity.Subject.SubjectCode,
                 UnitName = entity.Unit.Name,
                 UnitNumber = entity.Unit.UnitNumber,
                 ChapterName = entity.Chapter.Name,

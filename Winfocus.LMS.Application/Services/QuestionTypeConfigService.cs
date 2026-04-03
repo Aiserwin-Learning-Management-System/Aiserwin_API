@@ -441,7 +441,7 @@
                 SyllabusName = entity.Syllabus?.Name ?? string.Empty,
                 GradeName = entity.Grade?.Name ?? string.Empty,
                 SubjectName = entity.Subject?.Name ?? string.Empty,
-                SubjectCode = entity.Subject?.Code,
+                SubjectCode = entity.Subject?.SubjectCode,
                 UnitName = entity.Unit?.Name ?? string.Empty,
                 ChapterName = entity.Chapter?.Name ?? string.Empty,
                 ResourceTypeName = entity.ResourceType?.Name ?? string.Empty,

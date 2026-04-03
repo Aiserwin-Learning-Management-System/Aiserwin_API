@@ -16,5 +16,11 @@ namespace Winfocus.LMS.Domain.Enums
 
         /// <summary>Voter ID card.</summary>
         VoterID = 4,
+
+        /// <summary>Qualification certificate.</summary>
+        QualificationCertificate = 5,
+
+        /// <summary>Experience certificate.</summary>
+        ExperienceCertificate = 6,
     }
 }

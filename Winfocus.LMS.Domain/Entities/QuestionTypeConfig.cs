@@ -54,17 +54,17 @@
         /// <summary>
         /// Gets or sets the navigation property to the exam syllabus.
         /// </summary>
-        public ExamSyllabus Syllabus { get; set; } = default!;
+        public Syllabus Syllabus { get; set; } = default!;
 
         /// <summary>
         /// Gets or sets the navigation property to the exam grade.
         /// </summary>
-        public ExamGrade Grade { get; set; } = default!;
+        public Grade Grade { get; set; } = default!;
 
         /// <summary>
         /// Gets or sets the navigation property to the exam subject.
         /// </summary>
-        public ExamSubject Subject { get; set; } = default!;
+        public Subject Subject { get; set; } = default!;
 
         /// <summary>
         /// Gets or sets the navigation property to the exam unit.

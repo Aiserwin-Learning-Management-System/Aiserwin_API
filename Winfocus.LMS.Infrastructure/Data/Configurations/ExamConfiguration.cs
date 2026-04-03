@@ -4,8 +4,15 @@ namespace Winfocus.LMS.Infrastructure.Data.Configurations
     using Microsoft.EntityFrameworkCore.Metadata.Builders;
     using Winfocus.LMS.Domain.Entities;
 
+    /// <summary>
+    /// Configures the Exam entity schema and relationships.
+    /// </summary>
     public class ExamConfiguration : IEntityTypeConfiguration<Exam>
     {
+        /// <summary>
+        /// Configures the entity using the specified builder.
+        /// </summary>
+        /// <param name="builder">Entity type builder for Exam.</param>
         public void Configure(EntityTypeBuilder<Exam> builder)
         {
             builder.ToTable("Exams");
@@ -13,7 +20,6 @@ namespace Winfocus.LMS.Infrastructure.Data.Configurations
             builder.Property(e => e.CountryId).IsRequired().HasColumnType("uniqueidentifier");
             builder.Property(e => e.CenterId).IsRequired().HasColumnType("uniqueidentifier");
             builder.Property(e => e.SyllabusId).IsRequired().HasColumnType("uniqueidentifier");
-            builder.Property(e => e.Mode).IsRequired().HasColumnType("int");
             builder.Property(e => e.GradeId).IsRequired().HasColumnType("uniqueidentifier");
             builder.Property(e => e.StreamId).IsRequired().HasColumnType("uniqueidentifier");
             builder.Property(e => e.CourseId).IsRequired().HasColumnType("uniqueidentifier");

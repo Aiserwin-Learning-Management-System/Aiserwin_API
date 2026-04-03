@@ -33,7 +33,7 @@ namespace Winfocus.LMS.Application.DTOs.Masters
         /// <summary>
         ///  Gets or sets the Subject.
         /// </summary>
-        public ExamSubjectDto? Subject { get; set; }
+        public SubjectDto? Subject { get; set; }
 
         /// <summary>
         /// Gets or sets the grade name.

@@ -13,26 +13,6 @@ namespace Winfocus.LMS.Application.DTOs.Teacher
         public string HighestQualification { get; set; } = string.Empty;
 
         /// <summary>
-        /// Gets or sets the university or institution.
-        /// </summary>
-        public string University { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Gets or sets the year of passing.
-        /// </summary>
-        public int YearOfPassing { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the teacher has a teaching certification.
-        /// </summary>
-        public bool HasTeachingCertification { get; set; }
-
-        /// <summary>
-        /// Gets or sets additional courses completed by the teacher.
-        /// </summary>
-        public string? AdditionalCourses { get; set; }
-
-        /// <summary>
         /// Gets or sets total teaching experience in years.
         /// </summary>
         public int TotalTeachingExperience { get; set; }

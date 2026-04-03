@@ -369,30 +369,6 @@
         public DbSet<PageHeading> PageHeadings { get; set; } = null!;
 
         /// <summary>
-        /// Gets or sets the exam syllabuses.
-        /// </summary>
-        /// <value>
-        /// The exam syllabuses.
-        /// </value>
-        public DbSet<ExamSyllabus> ExamSyllabuses { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets the exam grades.
-        /// </summary>
-        /// <value>
-        /// The exam grades.
-        /// </value>
-        public DbSet<ExamGrade> ExamGrades { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets the exam subjects.
-        /// </summary>
-        /// <value>
-        /// The exam subjects.
-        /// </value>
-        public DbSet<ExamSubject> ExamSubjects { get; set; } = null!;
-
-        /// <summary>
         /// Gets or sets the exam units.
         /// </summary>
         /// <value>
@@ -516,9 +492,6 @@
             modelBuilder.ApplyConfiguration(new TeacherAcademicRecordConfiguration());
             modelBuilder.ApplyConfiguration(new TeacherWorkHistoryConfiguration());
 
-            modelBuilder.ApplyConfiguration(new ExamSyllabusConfiguration());
-            modelBuilder.ApplyConfiguration(new ExamGradeConfiguration());
-            modelBuilder.ApplyConfiguration(new ExamSubjectConfiguration());
             modelBuilder.ApplyConfiguration(new ExamUnitConfiguration());
             modelBuilder.ApplyConfiguration(new ExamChapterConfiguration());
             modelBuilder.ApplyConfiguration(new ContentResourceTypeConfiguration());

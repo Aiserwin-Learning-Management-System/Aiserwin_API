@@ -41,7 +41,7 @@ namespace Winfocus.LMS.Application.DTOs.Exam
         /// <summary>
         /// Gets or sets the associated syllabus.
         /// </summary>
-        public ExamSyllabusDto Syllabus { get; set; } = null!;
+        public SyllabusDto Syllabus { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the associated exammode.
@@ -56,7 +56,7 @@ namespace Winfocus.LMS.Application.DTOs.Exam
         /// <summary>
         /// Gets or sets the identifier of the associated grade.
         /// </summary>
-        public ExamGradeDto Grade { get; set; } = null!;
+        public GradeDto Grade { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the identifier of the associated stream.

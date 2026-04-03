@@ -43,5 +43,29 @@ namespace Winfocus.LMS.Application.Interfaces
         /// <param name="id">The identifier of the teacher registration to soft delete.</param>
         /// <returns><c>true</c> if the entity was marked as deleted; otherwise <c>false</c>.</returns>
         Task<bool> SoftDeleteAsync(Guid id);
+
+        /// <summary>
+        /// Returns a paged list of teacher registrations matching filter.
+        /// </summary>
+        /// <summary>
+        /// Returns a paged list of teacher registrations matching filter.
+        /// </summary>
+        /// <param name="request">Filter request.</param>
+        /// <returns>Paged result of <see cref="TeacherRegistration"/> entities.</returns>
+        Task<Winfocus.LMS.Application.DTOs.Common.PagedResult<TeacherRegistration>> GetFilteredAsync(Winfocus.LMS.Application.DTOs.Teacher.TeacherFilterRequest request);
+
+        /// <summary>
+        /// Marks teacher registration as confirmed/submitted.
+        /// </summary>
+        /// <param name="id">Teacher identifier.</param>
+        /// <returns>Operation result.</returns>
+        Task<Winfocus.LMS.Application.DTOs.CommonResponse<bool>> TeacherConfirm(Guid id);
+
+        /// <summary>
+        /// Marks teacher registration as approved.
+        /// </summary>
+        /// <param name="id">Teacher identifier.</param>
+        /// <returns>Operation result.</returns>
+        Task<Winfocus.LMS.Application.DTOs.CommonResponse<bool>> TeacherApprove(Guid id);
     }
 }

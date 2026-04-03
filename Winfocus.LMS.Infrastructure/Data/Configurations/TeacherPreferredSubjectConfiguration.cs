@@ -25,18 +25,18 @@ namespace Winfocus.LMS.Infrastructure.Data.Configurations
                 .HasColumnType("uniqueidentifier");
 
             // ── ExamSubjectId ───────────────────────────────────
-            builder.Property(tps => tps.ExamSubjectId)
+            builder.Property(tps => tps.SubjectId)
                 .IsRequired()
                 .HasColumnType("uniqueidentifier");
 
             // ── Indexes ─────────────────────────────────────────
-            builder.HasIndex(tps => new { tps.TeacherRegistrationId, tps.ExamSubjectId })
+            builder.HasIndex(tps => new { tps.TeacherRegistrationId, tps.SubjectId })
                 .IsUnique()
                 .HasDatabaseName("IX_TeacherPreferredSubjects_TeacherRegistrationId_ExamSubjectId");
 
-            builder.HasOne(tps => tps.ExamSubject)
+            builder.HasOne(tps => tps.Subject)
                 .WithMany()
-                .HasForeignKey(tps => tps.ExamSubjectId)
+                .HasForeignKey(tps => tps.SubjectId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

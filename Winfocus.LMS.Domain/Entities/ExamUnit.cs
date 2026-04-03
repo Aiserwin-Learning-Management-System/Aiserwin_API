@@ -46,6 +46,6 @@
         /// <value>
         /// The subject.
         /// </value>
-        public ExamSubject Subject { get; set; } = default!;
+        public Subject Subject { get; set; } = default!;
     }
 }

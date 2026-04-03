@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Winfocus.LMS.Application.DTOs;
+using Winfocus.LMS.Application.DTOs.Common;
 using Winfocus.LMS.Application.DTOs.Teacher;
+using Winfocus.LMS.Application.DTOs.Common;
 
 namespace Winfocus.LMS.Application.Interfaces
 {
@@ -32,6 +34,13 @@ namespace Winfocus.LMS.Application.Interfaces
         Task<CommonResponse<List<TeacherRegistrationDto>>> GetAllAsync();
 
         /// <summary>
+        /// Gets filtered teacher registrations.
+        /// </summary>
+        /// <param name="request">Filter request.</param>
+        /// <returns>Paged list of teacher DTOs.</returns>
+        Task<PagedResult<TeacherRegistrationDto>> GetFilteredAsync(DTOs.Teacher.TeacherFilterRequest request);
+
+        /// <summary>
         /// Updates an existing teacher registration.
         /// </summary>
         /// <param name="id">Identifier of the teacher to update.</param>
@@ -45,5 +54,27 @@ namespace Winfocus.LMS.Application.Interfaces
         /// <param name="id">Identifier of the teacher to soft delete.</param>
         /// <returns>A <see cref="CommonResponse{T}"/> indicating success (<c>true</c>) or failure (<c>false</c>).</returns>
         Task<CommonResponse<bool>> SoftDeleteAsync(Guid id);
+
+        /// <summary>
+        /// Confirms a teacher registration (changes status to Submitted).
+        /// </summary>
+        /// <param name="id">Identifier of the teacher to soft delete.</param>
+        /// <returns>.</returns>
+        Task<CommonResponse<bool>> TeacherConfirm(Guid id);
+
+        /// <summary>
+        /// Approves a teacher registration (changes status to Approved).
+        /// </summary>
+        /// <param name="id">Identifier of the teacher to soft delete.</param>
+        /// <returns>.</returns>
+        Task<CommonResponse<bool>> TeacherApprove(Guid id);
+
+        /// <summary>
+        /// Link a created user to a teacher registration (if supported).
+        /// </summary>
+        /// <param name="teacherId">teacherId.</param>
+        /// <param name="userId">userId.</param>
+        /// <returns>.</returns>
+        Task LinkUserAsync(Guid teacherId, Guid userId);
     }
 }

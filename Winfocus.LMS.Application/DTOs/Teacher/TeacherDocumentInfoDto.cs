@@ -14,5 +14,15 @@ namespace Winfocus.LMS.Application.DTOs.Teacher
         /// Gets or sets the ID card document path.
         /// </summary>
         public string? IdCardPath { get; set; }
+
+        /// <summary>
+        /// Gets or sets the identification proof type (enum as int).
+        /// </summary>
+        public int? ProofType { get; set; }
+
+        /// <summary>
+        /// Gets or sets the identification proof number.
+        /// </summary>
+        public string? ProofNumber { get; set; }
     }
 }

@@ -1,6 +1,7 @@
 namespace Winfocus.LMS.Application.DTOs.Teacher
 {
     using System;
+    using Winfocus.LMS.Domain.Enums;
 
     /// <summary>
     /// Request DTO to create or update a teacher registration.
@@ -45,7 +46,22 @@ namespace Winfocus.LMS.Application.DTOs.Teacher
         /// <summary>
         /// Gets or sets the nationality.
         /// </summary>
-        public string Nationality { get; set; } = string.Empty;
+        public Guid CountryId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the state.
+        /// </summary>
+        public Guid StateId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the pincode.
+        /// </summary>
+        public string Pincode { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the current DistrictOrLocation.
+        /// </summary>
+        public string DistrictOrLocation { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the primary mobile number.
@@ -53,24 +69,34 @@ namespace Winfocus.LMS.Application.DTOs.Teacher
         public string MobileNumber { get; set; } = string.Empty;
 
         /// <summary>
+        /// Gets or sets the alternative mobile number.
+        /// </summary>
+        public string AlternativeMobileNumber { get; set; } = string.Empty;
+
+        /// <summary>
         /// Gets or sets the primary email address.
         /// </summary>
         public string EmailAddress { get; set; } = string.Empty;
 
         /// <summary>
+        /// Gets or sets the alternative email address.
+        /// </summary>
+        public string AlternativeEmailAddress { get; set; } = string.Empty;
+
+        /// <summary>
         /// Gets or sets the emergency contact number (optional).
         /// </summary>
-        public string? EmergencyContactNumber { get; set; }
+        public string ReferenceContactNumber { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the emergency contact number (optional).
+        /// </summary>
+        public string EmergencyContactName { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the current residential address.
         /// </summary>
-        public string Address { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Gets or sets the permanent address.
-        /// </summary>
-        public string PermanentAddress { get; set; } = string.Empty;
+        public string ResidentialAddress { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets a value indicating whether the teacher is willing to work on weekends.
@@ -88,9 +114,9 @@ namespace Winfocus.LMS.Application.DTOs.Teacher
         public bool IsTermsAccepted { get; set; }
 
         /// <summary>
-        /// Gets or sets the declaration date (optional).
+        /// Gets or sets the contract duration.
         /// </summary>
-        public DateTime? DeclarationDate { get; set; }
+        public decimal ContractDuration { get; set; }
 
         /// <summary>
         /// Gets or sets the professional details for the teacher.
@@ -111,5 +137,47 @@ namespace Winfocus.LMS.Application.DTOs.Teacher
         /// Gets or sets the work history entries for the teacher.
         /// </summary>
         public List<TeacherWorkHistoryDto>? WorkHistory { get; set; }
+
+        /// <summary>
+        /// <summary>
+        /// Gets or sets the preferred subjects (list of exam subject ids).
+        /// </summary>
+        public List<Guid>? PreferredSubjectIds { get; set; }
+
+        /// <summary>
+        /// <summary>
+        /// Gets or sets the preferred grades (list of exam grade ids).
+        /// </summary>
+        public List<Guid>? PreferredGradeIds { get; set; }
+
+        /// <summary>
+        /// <summary>
+        /// Gets or sets the preferred syllabuses (list of syllabus ids).
+        /// </summary>
+        public List<Guid>? PreferredSyllabusIds { get; set; }
+
+        /// <summary>
+        /// <summary>
+        /// Gets or sets the languages known by the teacher (enum values as ints).
+        /// </summary>
+        public List<int>? Languages { get; set; }
+
+        /// <summary>
+        /// <summary>
+        /// Gets or sets the teaching tools known — if a tool does not exist it will be created.
+        /// </summary>
+        public List<TeachingToolsDto>? Tools { get; set; }
+
+        /// <summary>
+        /// <summary>
+        /// Gets or sets the subjects taught earlier (exam subject ids).
+        /// </summary>
+        public List<Guid>? TaughtSubjectIds { get; set; }
+
+        /// <summary>
+        /// <summary>
+        /// Gets or sets the grades taught earlier (exam grade ids).
+        /// </summary>
+        public List<Guid>? TaughtGradeIds { get; set; }
     }
 }
