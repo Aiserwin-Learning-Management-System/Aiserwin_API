@@ -53,6 +53,6 @@
         /// <summary>
         /// Gets or sets the identifier of the center.
         /// </summary>
-        public Guid CenterId { get; set; }
+        public Guid? CenterId { get; set; }
     }
 }

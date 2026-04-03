@@ -105,6 +105,7 @@ namespace Winfocus.LMS.Application.Services
                     CreatedAt = DateTime.UtcNow,
                     CreatedBy = request.UserId,
                     CenterId = request.CenterId,
+                    AcademicYearId = request.AcademicyearId,
                 };
 
                 var created = await _repository.AddAsync(syllabus);
@@ -141,6 +142,7 @@ namespace Winfocus.LMS.Application.Services
                 batch.UpdatedAt = DateTime.UtcNow;
                 batch.UpdatedBy = request.UserId;
                 batch.CenterId = request.CenterId;
+                batch.AcademicYearId = request.AcademicyearId;
 
                 var updated = await _repository.UpdateAsync(batch);
 
@@ -316,7 +318,7 @@ namespace Winfocus.LMS.Application.Services
                Id = c.Id,
                Name = c.Name,
                IsActive = c.IsActive,
-               CeneterId = c.CenterId,
+               CenterId = c.CenterId,
                CountryId = c.Center?.CountryId ?? Guid.Empty,
                ModeOfStudyId = c.Center?.ModeOfStudyId ?? Guid.Empty,
                State_Id = c.Center?.StateId ?? Guid.Empty,
@@ -350,6 +352,14 @@ namespace Winfocus.LMS.Application.Services
                    Name = c.Center.State.Name,
                    ModeOfStudyId = c.Center.ModeOfStudyId,
                    CountryId = c.Center.CountryId,
+               },
+
+               AcademicYear = c.AcademicYear == null ? null : new AcademicYearDto
+               {
+                   Id = c.AcademicYear.Id,
+                   Name = c.AcademicYear.Name,
+                   StartDate = c.AcademicYear.StartDate,
+                   EndDate = c.AcademicYear.EndDate,
                },
            };
     }

@@ -13,12 +13,12 @@
         /// <summary>
         /// Gets or sets the identifier of the center.
         /// </summary>
-        public Guid CeneterId { get; set; }
+        public Guid? CenterId { get; set; }
 
         /// <summary>
         /// Gets or sets the center entity.
         /// </summary>
-        public CenterDto Center { get; set; } = null!;
+        public CenterDto? Center { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the identifier of the associated country.
@@ -49,5 +49,15 @@
         /// Gets or sets the state associated with the centre.
         /// </summary>
         public StateDto State { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the identifier of the academicyear.
+        /// </summary>
+        public Guid AcademicYearId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the AcademicYear.
+        /// </summary>
+        public AcademicYearDto AcademicYear { get; set; } = null!;
     }
 }
