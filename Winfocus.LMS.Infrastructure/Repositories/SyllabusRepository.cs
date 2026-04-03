@@ -33,6 +33,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         {
             return await _db.Syllabuses.Where(x => !x.IsDeleted)
                  .Include(x => x.Center)
+                 .Include(x => x.AcademicYear)
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -47,6 +48,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         {
             var query = _db.Syllabuses
                   .Include(x => x.Center)
+                  .Include(x => x.AcademicYear)
                   .Where(x => x.Id == id && !x.IsDeleted);
 
             if (centerId != Guid.Empty)
@@ -68,6 +70,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             await _db.SaveChangesAsync();
 
             return await _db.Syllabuses
+                 .Include(x => x.AcademicYear)
                 .Include(x => x.Center)
                     .ThenInclude(c => c.Country)
                 .Include(x => x.Center)
@@ -138,6 +141,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         {
             return _db.Syllabuses.Where(x => !x.IsDeleted && x.CenterId == centerId)
                  .Include(x => x.Center)
+                  .Include(x => x.AcademicYear)
                  .Include(x => x.Center.Country)
                 .Include(x => x.Center.modeOfStudy)
                 .Include(x => x.Center.State)
@@ -153,6 +157,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         {
             var query = _db.Syllabuses
         .Include(x => x.Center)
+         .Include(x => x.AcademicYear)
         .Where(x => !x.IsDeleted);
 
             if (centerId != Guid.Empty)

@@ -76,7 +76,7 @@ namespace Winfocus.LMS.API.Controllers
             }
 
             var isSuperAdmin = User.IsInRole("SuperAdmin");
-            if (!isSuperAdmin && CenterId != syllabus.Data.CeneterId)
+            if (!isSuperAdmin && CenterId != syllabus.Data.CenterId)
             {
                 return StatusCode(403, "You are not allowed to create data for this center.");
             }
@@ -136,7 +136,7 @@ namespace Winfocus.LMS.API.Controllers
             }
 
             var isSuperAdmin = User.IsInRole("SuperAdmin");
-            if (!isSuperAdmin && CenterId != syllabus.Data.CeneterId)
+            if (!isSuperAdmin && CenterId != syllabus.Data.CenterId)
             {
                 return StatusCode(403, "You are not allowed to create data for this center.");
             }

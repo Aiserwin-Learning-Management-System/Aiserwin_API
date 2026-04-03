@@ -17,21 +17,21 @@
         /// <summary>
         /// Gets or sets the identifier of the associated Center.
         /// </summary>
-        public Guid CenterId { get; set; }
+        public Guid? CenterId { get; set; }
 
         /// <summary>
         /// Gets or sets the identifier of the associated Center.
         /// </summary>
-        public Center Center { get; set; } = null!;
+        public Center? Center { get; set; }
 
         /// <summary>
         /// Gets or sets the identifier of the associated AcademicYear.
         /// </summary>
-        public Guid AcademicYearId { get; set; }
+        public Guid? AcademicYearId { get; set; }
 
         /// <summary>
         /// Gets or sets the identifier of the associated AcademicYear.
         /// </summary>
-        public AcademicYear AcademicYear { get; set; } = null!;
+        public AcademicYear? AcademicYear { get; set; }
     }
 }

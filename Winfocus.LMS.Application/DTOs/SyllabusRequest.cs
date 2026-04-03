@@ -29,5 +29,13 @@
         /// The Ceneter identifier.
         /// </value>
         public Guid CenterId { get; init; }
+
+        /// <summary>
+        /// Gets the academicyear identifier.
+        /// </summary>
+        /// <value>
+        /// The academicyear identifier.
+        /// </value>
+        public Guid AcademicyearId { get; init; }
     }
 }
