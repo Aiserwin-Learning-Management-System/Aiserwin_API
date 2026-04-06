@@ -60,7 +60,7 @@ namespace Winfocus.LMS.Application.Interfaces
         /// </summary>
         /// <param name="examId">The paged examId.</param>
         /// <returns>ExamQuestion.</returns>
-        Task<CommonResponse<List<ExamQuestion>>> GetQuestionsForExamAsync(Guid examId);
+        Task<CommonResponse<List<ExamQuestionDto>>> GetQuestionsForExamAsync(Guid examId);
 
         /// <summary>
         /// Creates an exam-question mapping.
