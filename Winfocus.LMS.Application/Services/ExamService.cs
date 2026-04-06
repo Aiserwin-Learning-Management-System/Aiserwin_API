@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Org.BouncyCastle.Utilities.IO;
 using System;
 using System.Collections.Generic;
@@ -8,11 +9,11 @@ using Winfocus.LMS.Application.DTOs;
 using Winfocus.LMS.Application.DTOs.Common;
 using Winfocus.LMS.Application.DTOs.Exam;
 using Winfocus.LMS.Application.DTOs.Masters;
+using Winfocus.LMS.Application.DTOs.Question;
 using Winfocus.LMS.Application.Interfaces;
 using Winfocus.LMS.Domain.Entities;
 using Winfocus.LMS.Domain.Enums;
 using static Org.BouncyCastle.Crypto.Engines.SM2Engine;
-using Microsoft.EntityFrameworkCore;
 
 namespace Winfocus.LMS.Application.Services
 {
@@ -384,7 +385,41 @@ namespace Winfocus.LMS.Application.Services
             }
         }
 
+        private static ExamQuestionDto MapExamQuestion(ExamQuestion eq)
+        {
+            if (eq == null) return null!;
+            return new ExamQuestionDto
+            {
+                Id = eq.Id,
+                ExamId = eq.ExamId,
+                QuestionId = eq.QuestionId,
+                CreatedAt = eq.CreatedAt,
+                CreatedBy = eq.CreatedBy,
+                UpdatedAt = eq.UpdatedAt,
+                UpdatedBy = eq.UpdatedBy,
+                IsActive = eq.IsActive,
+                Question = eq.Question == null ? null : MapQuestion(eq.Question)
+            };
+        }
 
+        private static QuestionResponseDto MapQuestion(Question q)
+        {
+            if (q == null) return null!;
+            return new QuestionResponseDto
+            {
+                Id = q.Id,
+                TaskId = q.TaskId,
+                TaskCode = string.Empty,
+                QuestionNumber = 0,
+                QuestionType = q.QuestionType.ToString(),
+                QuestionText = q.QuestionText,
+                Marks = q.Marks,
+                CorrectAnswer = q.CorrectAnswer,
+                Reference = q.Reference,
+                Status = q.Status.ToString(),
+                CreatedAt = q.CreatedAt,
+            };
+        }
 
         private static ExamDto Map(Exam c) =>
    new ExamDto
