@@ -2,7 +2,7 @@
 {
     using System;
     using Winfocus.LMS.Domain.Common;
-{
+
     /// <summary>
     /// Represents an academic year in the learning management system.
     /// Example: 2025–2026 academic session.

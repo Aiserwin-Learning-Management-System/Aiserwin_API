@@ -23,11 +23,11 @@ namespace Winfocus.LMS.Domain.Entities
         /// <summary>
         /// Gets or sets navigation property for the role.
         /// </summary>
-        public required Role Role { get; set; }
+        public Role Role { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets navigation property for the permission.
         /// </summary>
-        public required Permission Permission { get; set; }
+        public Permission Permission { get; set; } = null!;
     }
 }

@@ -593,7 +593,7 @@
                 }
 
                 installment.RecordPayment(
-                    request.PaidAmount, request.PaidDate, request.Remarks);
+                    request.AmountPaid, request.PaymentDate, request.Remarks);
 
                 // Update parent selection status
                 var selection = await _repo.GetSelectionWithDetailsAsync(
@@ -605,8 +605,8 @@
 
                 _logger.LogInformation(
                     "Payment recorded: InstallmentId={Id}, Amount={Amount}",
-                    installmentId, 
-                    request.PaidAmount);
+                    installmentId,
+                    request.AmountPaid);
 
                 return CommonResponse<InstallmentScheduleDto>.SuccessResponse(
                     "Payment recorded successfully.",

@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using Winfocus.LMS.Domain.Common;
     using Winfocus.LMS.Domain.Enums;
-{
+
     /// <summary>
     /// Represents a Exam in the system.
     /// </summary>

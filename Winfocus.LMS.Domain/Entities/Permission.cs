@@ -24,6 +24,6 @@ namespace Winfocus.LMS.Domain.Entities
         /// <summary>
         /// Navigation property linking the permission to roles that are allowed to use it.
         /// </summary>
-        public ICollection<RolePermission> RolePermissions { get; set; }
+        public ICollection<RolePermission> RolePermissions { get; set; } = new List<RolePermission>();
     }
 }
