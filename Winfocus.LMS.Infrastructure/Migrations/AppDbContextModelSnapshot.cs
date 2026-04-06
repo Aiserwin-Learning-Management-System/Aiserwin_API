@@ -1526,7 +1526,12 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.Property<Guid?>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("AcademicYearId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("AcademicYearId");
 
                     b.HasIndex("ChapterId");
 
@@ -1544,7 +1549,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
 
                     b.HasIndex("UnitId");
 
-                    b.HasIndex("SyllabusId", "GradeId", "SubjectId", "UnitId", "ChapterId", "QuestionTypeId");
+                    b.HasIndex("SyllabusId", "AcademicYearId", "GradeId", "SubjectId", "UnitId", "ChapterId", "QuestionTypeId");
 
                     b.ToTable("QuestionConfigurations", (string)null);
                 });
@@ -2284,7 +2289,12 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.Property<Guid?>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("AcademicYearId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("AcademicYearId");
 
                     b.HasIndex("CenterId");
 
@@ -4501,6 +4511,12 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("Winfocus.LMS.Domain.Entities.AcademicYear", "AcademicYear")
+                        .WithMany()
+                        .HasForeignKey("AcademicYearId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("AcademicYear");
 
                     b.Navigation("Chapter");
@@ -4829,6 +4845,12 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.HasOne("Winfocus.LMS.Domain.Entities.Syllabus", "Syllabus")
                         .WithMany()
                         .HasForeignKey("SyllabusId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Winfocus.LMS.Domain.Entities.AcademicYear", "AcademicYear")
+                        .WithMany()
+                        .HasForeignKey("AcademicYearId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
