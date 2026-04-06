@@ -943,8 +943,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("DiscountPercent")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<decimal>("DiscountPercent");
 
                     b.Property<Guid>("FeePlanId")
                         .HasColumnType("uniqueidentifier");
@@ -1480,9 +1479,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("AcademicYearId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid>("ChapterId")
                         .HasColumnType("uniqueidentifier");
 
@@ -1532,8 +1528,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AcademicYearId");
-
                     b.HasIndex("ChapterId");
 
                     b.HasIndex("GradeId");
@@ -1550,7 +1544,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
 
                     b.HasIndex("UnitId");
 
-                    b.HasIndex("SyllabusId", "AcademicYearId", "GradeId", "SubjectId", "UnitId", "ChapterId", "QuestionTypeId");
+                    b.HasIndex("SyllabusId", "GradeId", "SubjectId", "UnitId", "ChapterId", "QuestionTypeId");
 
                     b.ToTable("QuestionConfigurations", (string)null);
                 });
@@ -2225,9 +2219,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("AcademicYearId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid>("BatchId")
                         .HasColumnType("uniqueidentifier");
 
@@ -2294,8 +2285,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AcademicYearId");
 
                     b.HasIndex("CenterId");
 
@@ -2381,8 +2370,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<decimal>("DiscountPercent")
-                        .HasColumnType("decimal(5,2)");
+                    b.Property<decimal>("DiscountPercent");
 
                     b.Property<Guid?>("FeePlanDiscountId")
                         .HasColumnType("uniqueidentifier");
@@ -2480,8 +2468,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<decimal>("DiscountPercent")
-                        .HasColumnType("decimal(5,2)");
+                    b.Property<decimal>("DiscountPercent");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -2848,9 +2835,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("AcademicYearId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid?>("CenterId")
                         .HasColumnType("uniqueidentifier");
 
@@ -2877,8 +2861,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AcademicYearId");
 
                     b.HasIndex("CenterId");
 
@@ -4323,9 +4305,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                 {
                     b.HasOne("Winfocus.LMS.Domain.Entities.ExamUnit", "Unit")
                         .WithMany()
-                        .HasForeignKey("UnitId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("UnitId");
 
                     b.Navigation("Unit");
                 });
@@ -4341,8 +4321,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.HasOne("Winfocus.LMS.Domain.Entities.Question", "Question")
                         .WithMany()
                         .HasForeignKey("QuestionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Exam");
 
@@ -4404,8 +4383,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.HasOne("Winfocus.LMS.Domain.Entities.FormField", "FormField")
                         .WithMany("FieldOptions")
                         .HasForeignKey("FieldId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("FormField");
                 });
@@ -4481,12 +4459,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
 
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.QuestionConfiguration", b =>
                 {
-                    b.HasOne("Winfocus.LMS.Domain.Entities.AcademicYear", "AcademicYear")
-                        .WithMany()
-                        .HasForeignKey("AcademicYearId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("Winfocus.LMS.Domain.Entities.ExamChapter", "Chapter")
                         .WithMany()
                         .HasForeignKey("ChapterId")
@@ -4551,8 +4523,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.HasOne("Winfocus.LMS.Domain.Entities.Question", "Question")
                         .WithMany("Options")
                         .HasForeignKey("QuestionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Question");
                 });
@@ -4562,8 +4533,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.HasOne("Winfocus.LMS.Domain.Entities.Question", "Question")
                         .WithMany("Reviews")
                         .HasForeignKey("QuestionId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Question");
                 });
@@ -4635,8 +4605,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.HasOne("Winfocus.LMS.Domain.Entities.FormField", "FormField")
                         .WithMany()
                         .HasForeignKey("FieldId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("Winfocus.LMS.Domain.Entities.RegistrationFormGroup", "RegistrationFormGroup")
                         .WithMany("FormFields")
@@ -4661,8 +4630,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.HasOne("Winfocus.LMS.Domain.Entities.FieldGroup", "FieldGroup")
                         .WithMany()
                         .HasForeignKey("FieldGroupId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("Winfocus.LMS.Domain.Entities.RegistrationForm", "RegistrationForm")
                         .WithMany("FormGroups")
@@ -4718,8 +4686,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.HasOne("Winfocus.LMS.Domain.Entities.FormField", "FormField")
                         .WithMany()
                         .HasForeignKey("FieldId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("Winfocus.LMS.Domain.Entities.StaffRegistration", "StaffRegistration")
                         .WithMany("Values")
@@ -4817,12 +4784,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
 
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.StudentAcademicDetails", b =>
                 {
-                    b.HasOne("Winfocus.LMS.Domain.Entities.AcademicYear", null)
-                        .WithMany()
-                        .HasForeignKey("AcademicYearId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
                     b.HasOne("Winfocus.LMS.Domain.Entities.Center", "Center")
                         .WithMany()
                         .HasForeignKey("CenterId")
@@ -5102,15 +5063,9 @@ namespace Winfocus.LMS.Infrastructure.Migrations
 
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.Syllabus", b =>
                 {
-                    b.HasOne("Winfocus.LMS.Domain.Entities.AcademicYear", "AcademicYear")
-                        .WithMany()
-                        .HasForeignKey("AcademicYearId");
-
                     b.HasOne("Winfocus.LMS.Domain.Entities.Center", "Center")
                         .WithMany()
                         .HasForeignKey("CenterId");
-
-                    b.Navigation("AcademicYear");
 
                     b.Navigation("Center");
                 });
@@ -5441,164 +5396,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.Country", b =>
-                {
-                    b.Navigation("Centers");
-                });
 
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.Course", b =>
-                {
-                    b.Navigation("FeePlans");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.FeePlan", b =>
-                {
-                    b.Navigation("Discounts");
-
-                    b.Navigation("Installments");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.FieldGroup", b =>
-                {
-                    b.Navigation("FormFields");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.FormField", b =>
-                {
-                    b.Navigation("FieldOptions");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.Grade", b =>
-                {
-                    b.Navigation("Streams");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.Permission", b =>
-                {
-                    b.Navigation("RolePermissions");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.Question", b =>
-                {
-                    b.Navigation("Options");
-
-                    b.Navigation("Reviews");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.RegistrationForm", b =>
-                {
-                    b.Navigation("FormFields");
-
-                    b.Navigation("FormGroups");
-
-                    b.Navigation("Registrations");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.RegistrationFormGroup", b =>
-                {
-                    b.Navigation("FormFields");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.Role", b =>
-                {
-                    b.Navigation("RolePermissions");
-
-                    b.Navigation("UserRoles");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.StaffRegistration", b =>
-                {
-                    b.Navigation("Values");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.State", b =>
-                {
-                    b.Navigation("Centers");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.Streams", b =>
-                {
-                    b.Navigation("Courses");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.Student", b =>
-                {
-                    b.Navigation("StudentAcademicCouses");
-
-                    b.Navigation("StudentBatchTimingMTFs");
-
-                    b.Navigation("StudentBatchTimingSaturdays");
-
-                    b.Navigation("StudentBatchTimingSundays");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.StudentFeeSelection", b =>
-                {
-                    b.Navigation("AppliedDiscounts");
-
-                    b.Navigation("Installments");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.Subject", b =>
-                {
-                    b.Navigation("Courses");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.SubjectBatchTimingMTF", b =>
-                {
-                    b.Navigation("SubjectBatchTimingMTFs");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.SubjectBatchTimingSaturday", b =>
-                {
-                    b.Navigation("SubjectBatchTimingSaturdays");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.SubjectBatchTimingSunday", b =>
-                {
-                    b.Navigation("SubjectBatchTimingSundays");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.TaskAssignment", b =>
-                {
-                    b.Navigation("DailyActivityReports");
-
-                    b.Navigation("Questions");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.TeacherProfessionalDetail", b =>
-                {
-                    b.Navigation("PreferredGrades");
-
-                    b.Navigation("PreferredSubjects");
-
-                    b.Navigation("PreferredSyllabuses");
-
-                    b.Navigation("TeacherAvailability");
-
-                    b.Navigation("TeacherLanguage");
-
-                    b.Navigation("TeacherTools");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.TeacherRegistration", b =>
-                {
-                    b.Navigation("GradesTaughtEarlier");
-
-                    b.Navigation("SubjectsTaughtEarlier");
-
-                    b.Navigation("WorkHistory");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.TeacherSchedule", b =>
-                {
-                    b.Navigation("Availabilities");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.User", b =>
-                {
-                    b.Navigation("UserRoles");
-                });
 #pragma warning restore 612, 618
         }
     }
