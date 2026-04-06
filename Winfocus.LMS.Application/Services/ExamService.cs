@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Org.BouncyCastle.Utilities.IO;
 using System;
 using System.Collections.Generic;
@@ -8,11 +9,11 @@ using Winfocus.LMS.Application.DTOs;
 using Winfocus.LMS.Application.DTOs.Common;
 using Winfocus.LMS.Application.DTOs.Exam;
 using Winfocus.LMS.Application.DTOs.Masters;
+using Winfocus.LMS.Application.DTOs.Question;
 using Winfocus.LMS.Application.Interfaces;
 using Winfocus.LMS.Domain.Entities;
 using Winfocus.LMS.Domain.Enums;
 using static Org.BouncyCastle.Crypto.Engines.SM2Engine;
-using Microsoft.EntityFrameworkCore;
 
 namespace Winfocus.LMS.Application.Services
 {
@@ -255,16 +256,6 @@ namespace Winfocus.LMS.Application.Services
         /// <summary>
         /// Updates the asynchronous.
         /// </summary>
-        /// <param name="examId">The identifier.</param>
-        /// <returns>task.</returns>
-        public Task<CommonResponse<List<ExamQuestion>>> GetQuestionsForExamAsync(Guid examId)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Updates the asynchronous.
-        /// </summary>
         /// <param name="id">The identifier.</param>
         /// <param name="request">The request.</param>
         /// <exception cref="KeyNotFoundException">Batch not found.</exception>
@@ -314,6 +305,120 @@ namespace Winfocus.LMS.Application.Services
                 return CommonResponse<ExamDto>.FailureResponse(
                     $"An error occurred: {ex.Message}");
             }
+        }
+
+        /// <summary>
+        /// Updates the asynchronous.
+        /// </summary>
+        /// <param name="examId">The identifier.</param>
+        /// <returns>task.</returns>
+        public async Task<CommonResponse<List<ExamQuestionDto>>> GetQuestionsForExamAsync(Guid examId)
+        {
+            try
+            {
+                var questions = await _examRepository.GetQuestionsForExamAsync(examId);
+                var dtoList = questions.Select(MapExamQuestion).ToList();
+
+                return CommonResponse<List<ExamQuestionDto>>.SuccessResponse("questions fetched", dtoList);
+            }
+            catch (Exception ex)
+            {
+                return CommonResponse<List<ExamQuestionDto>>.FailureResponse(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Creates a new exam-question mapping.
+        /// </summary>
+        /// <param name="request">Mapping request containing ExamId, QuestionId and UserId.</param>
+        /// <returns>Created mapping wrapped in CommonResponse.</returns>
+        public async Task<CommonResponse<ExamQuestionDto>> CreateExamQuestionAsync(ExamQuestionRequest request)
+        {
+            try
+            {
+                var mapping = new ExamQuestion
+                {
+                    ExamId = request.ExamId,
+                    QuestionId = request.QuestionId,
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = request.UserId,
+                };
+
+                var created = await _examRepository.AddExamQuestionAsync(mapping);
+                return CommonResponse<ExamQuestionDto>.SuccessResponse("exam question mapping created", MapExamQuestion(created));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating exam question mapping");
+                return CommonResponse<ExamQuestionDto>.FailureResponse($"An error occurred: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Updates an existing exam-question mapping.
+        /// </summary>
+        /// <param name="id">Mapping identifier.</param>
+        /// <param name="request">Mapping request containing new ExamId, QuestionId and UserId.</param>
+        /// <returns>Updated mapping wrapped in CommonResponse.</returns>
+        public async Task<CommonResponse<ExamQuestionDto>> UpdateExamQuestionAsync(Guid id, ExamQuestionRequest request)
+        {
+            try
+            {
+                var existing = await _examRepository.GetExamQuestionByIdAsync(id);
+                if (existing == null)
+                {
+                    return CommonResponse<ExamQuestionDto>.FailureResponse("exam question mapping not found");
+                }
+
+                existing.ExamId = request.ExamId;
+                existing.QuestionId = request.QuestionId;
+                existing.UpdatedAt = DateTime.UtcNow;
+                existing.UpdatedBy = request.UserId;
+
+                var updated = await _examRepository.UpdateExamQuestionAsync(existing);
+                return CommonResponse<ExamQuestionDto>.SuccessResponse("exam question mapping updated", MapExamQuestion(updated));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating exam question mapping {Id}", id);
+                return CommonResponse<ExamQuestionDto>.FailureResponse($"An error occurred: {ex.Message}");
+            }
+        }
+
+        private static ExamQuestionDto MapExamQuestion(ExamQuestion eq)
+        {
+            if (eq == null) return null!;
+            return new ExamQuestionDto
+            {
+                Id = eq.Id,
+                ExamId = eq.ExamId,
+                QuestionId = eq.QuestionId,
+                CreatedAt = eq.CreatedAt,
+                CreatedBy = eq.CreatedBy,
+                UpdatedAt = eq.UpdatedAt,
+                UpdatedBy = eq.UpdatedBy,
+                IsActive = eq.IsActive,
+                Question = eq.Question == null ? null : MapQuestion(eq.Question)
+            };
+        }
+
+        private static QuestionResponseDto MapQuestion(Question q)
+        {
+            if (q == null) return null!;
+            return new QuestionResponseDto
+            {
+                Id = q.Id,
+                TaskId = q.TaskId,
+                TaskCode = string.Empty,
+                QuestionNumber = 0,
+                QuestionType = q.QuestionType.ToString(),
+                QuestionText = q.QuestionText,
+                Marks = q.Marks,
+                CorrectAnswer = q.CorrectAnswer,
+                Reference = q.Reference,
+                Status = q.Status.ToString(),
+                CreatedAt = q.CreatedAt,
+            };
         }
 
         private static ExamDto Map(Exam c) =>
