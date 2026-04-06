@@ -129,5 +129,41 @@ namespace Winfocus.LMS.Infrastructure.Repositories
                 .AsNoTracking();
             return res;
         }
+
+        /// <summary>
+        /// Adds a new ExamQuestion mapping.
+        /// </summary>
+        /// <param name="examQuestion">The mapping entity.</param>
+        /// <returns>The created mapping.</returns>
+        public async Task<ExamQuestion> AddExamQuestionAsync(ExamQuestion examQuestion)
+        {
+            await _context.ExamQuestions.AddAsync(examQuestion);
+            await _context.SaveChangesAsync();
+            return examQuestion;
+        }
+
+        /// <summary>
+        /// Gets an ExamQuestion mapping by id.
+        /// </summary>
+        /// <param name="id">The mapping id.</param>
+        /// <returns>The mapping or null.</returns>
+        public async Task<ExamQuestion?> GetExamQuestionByIdAsync(Guid id)
+        {
+            return await _context.ExamQuestions
+                .Include(eq => eq.Question)
+                .FirstOrDefaultAsync(eq => eq.Id == id);
+        }
+
+        /// <summary>
+        /// Updates an existing ExamQuestion mapping.
+        /// </summary>
+        /// <param name="examQuestion">The mapping to update.</param>
+        /// <returns>The updated mapping.</returns>
+        public async Task<ExamQuestion> UpdateExamQuestionAsync(ExamQuestion examQuestion)
+        {
+            _context.ExamQuestions.Update(examQuestion);
+            await _context.SaveChangesAsync();
+            return examQuestion;
+        }
     }
 }

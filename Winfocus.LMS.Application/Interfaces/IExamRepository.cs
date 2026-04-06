@@ -67,5 +67,28 @@ namespace Winfocus.LMS.Application.Interfaces
         /// </summary>
         /// <returns>exams.</returns>
         IQueryable<Exam> Query();
+
+        /// <summary>
+        /// Adds a new ExamQuestion mapping.
+        /// </summary>
+        /// <param name="examQuestion">The mapping entity.</param>
+        /// <returns>The created mapping.</returns>
+        Task<ExamQuestion> AddExamQuestionAsync(ExamQuestion examQuestion);
+
+        /// <summary>
+        /// Gets an ExamQuestion mapping by id.
+        /// </summary>
+        /// <param name="id">The mapping id.</param>
+        /// <returns>The mapping or null.</returns>
+        Task<ExamQuestion?> GetExamQuestionByIdAsync(Guid id);
+
+        /// <summary>
+        /// Updates an existing ExamQuestion mapping.
+        /// </summary>
+        /// <param name="examQuestion">The mapping to update.</param>
+        /// <returns>The updated mapping.</returns>
+        Task<ExamQuestion> UpdateExamQuestionAsync(ExamQuestion examQuestion);
+
+
     }
 }

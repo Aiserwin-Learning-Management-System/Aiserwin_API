@@ -255,16 +255,6 @@ namespace Winfocus.LMS.Application.Services
         /// <summary>
         /// Updates the asynchronous.
         /// </summary>
-        /// <param name="examId">The identifier.</param>
-        /// <returns>task.</returns>
-        public Task<CommonResponse<List<ExamQuestion>>> GetQuestionsForExamAsync(Guid examId)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Updates the asynchronous.
-        /// </summary>
         /// <param name="id">The identifier.</param>
         /// <param name="request">The request.</param>
         /// <exception cref="KeyNotFoundException">Batch not found.</exception>
@@ -315,6 +305,86 @@ namespace Winfocus.LMS.Application.Services
                     $"An error occurred: {ex.Message}");
             }
         }
+
+        /// <summary>
+        /// Updates the asynchronous.
+        /// </summary>
+        /// <param name="examId">The identifier.</param>
+        /// <returns>task.</returns>
+        public async Task<CommonResponse<List<ExamQuestionDto>>> GetQuestionsForExamAsync(Guid examId)
+        {
+            try
+            {
+                var questions = await _examRepository.GetQuestionsForExamAsync(examId);
+                var dtoList = questions.Select(MapExamQuestion).ToList();
+
+                return CommonResponse<List<ExamQuestionDto>>.SuccessResponse("questions fetched", dtoList);
+            }
+            catch (Exception ex)
+            {
+                return CommonResponse<List<ExamQuestionDto>>.FailureResponse(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Creates a new exam-question mapping.
+        /// </summary>
+        /// <param name="request">Mapping request containing ExamId, QuestionId and UserId.</param>
+        /// <returns>Created mapping wrapped in CommonResponse.</returns>
+        public async Task<CommonResponse<ExamQuestionDto>> CreateExamQuestionAsync(ExamQuestionRequest request)
+        {
+            try
+            {
+                var mapping = new ExamQuestion
+                {
+                    ExamId = request.ExamId,
+                    QuestionId = request.QuestionId,
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = request.UserId,
+                };
+
+                var created = await _examRepository.AddExamQuestionAsync(mapping);
+                return CommonResponse<ExamQuestionDto>.SuccessResponse("exam question mapping created", MapExamQuestion(created));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating exam question mapping");
+                return CommonResponse<ExamQuestionDto>.FailureResponse($"An error occurred: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Updates an existing exam-question mapping.
+        /// </summary>
+        /// <param name="id">Mapping identifier.</param>
+        /// <param name="request">Mapping request containing new ExamId, QuestionId and UserId.</param>
+        /// <returns>Updated mapping wrapped in CommonResponse.</returns>
+        public async Task<CommonResponse<ExamQuestionDto>> UpdateExamQuestionAsync(Guid id, ExamQuestionRequest request)
+        {
+            try
+            {
+                var existing = await _examRepository.GetExamQuestionByIdAsync(id);
+                if (existing == null)
+                {
+                    return CommonResponse<ExamQuestionDto>.FailureResponse("exam question mapping not found");
+                }
+
+                existing.ExamId = request.ExamId;
+                existing.QuestionId = request.QuestionId;
+                existing.UpdatedAt = DateTime.UtcNow;
+                existing.UpdatedBy = request.UserId;
+
+                var updated = await _examRepository.UpdateExamQuestionAsync(existing);
+                return CommonResponse<ExamQuestionDto>.SuccessResponse("exam question mapping updated", MapExamQuestion(updated));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating exam question mapping {Id}", id);
+                return CommonResponse<ExamQuestionDto>.FailureResponse($"An error occurred: {ex.Message}");
+            }
+        }
+
+
 
         private static ExamDto Map(Exam c) =>
    new ExamDto
