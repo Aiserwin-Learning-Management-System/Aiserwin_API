@@ -2,6 +2,7 @@
 {
     using System.Reflection;
     using Winfocus.LMS.Domain.Entities;
+    using Winfocus.LMS.Domain.Enums;
 
     /// <summary>
     /// Reflection-based factory for creating domain entities with private setters.
@@ -203,55 +204,67 @@
 
 
         /// <summary>
-        /// Creates a StudentFeeSelection with all three discounts active.
-        /// Scholarship=10%, Seasonal=5%, Manual=3%.
+        /// Creates a StudentFeeSelection with discounts applied.
+        /// YearlyFee=60000, TotalDiscount=18% (Scholarship+Seasonal+Manual),
+        /// FinalAmount=49200 (60000 * (1 - 0.18)).
         /// </summary>
         /// <param name="selectionId">Optional SelectionId override.</param>
-        /// <returns>A configured StudentFeeSelection with recalculated final amount.</returns>
+        /// <returns>A configured StudentFeeSelection.</returns>
         public static StudentFeeSelection BuildSelection(
             Guid? selectionId = null)
         {
+            var yearlyFee = 60000m;
+            var totalDiscountPercent = 18m; // Scholarship 10% + Seasonal 5% + Manual 3%
+            var totalDiscountAmount = yearlyFee * (totalDiscountPercent / 100m); // 10800
+            var totalBeforeDiscount = yearlyFee;
+            var finalAmount = yearlyFee - totalDiscountAmount; // 49200
+
             var selection = new StudentFeeSelection(
                 studentId: StudentId,
                 courseId: CourseId,
                 feePlanId: FeePlanId,
-                scholarshipPercent: 10m,
-                isScholarshipActive: true,
-                seasonalPercent: 5m,
-                isSeasonalActive: true,
-                manualDiscountPercent: 3m,
-                isManualDiscountActive: true,
-                baseFee: 60000m,
-                finalAmount: 0m);
+                yearlyFee: yearlyFee,
+                selectedDurationYears: 1,
+                totalBeforeDiscount: totalBeforeDiscount,
+                totalDiscountPercent: totalDiscountPercent,
+                totalDiscountAmount: totalDiscountAmount,
+                finalAmount: finalAmount,
+                paymentType: PaymentType.Yearly,
+                totalInstallments: 1,
+                startDate: DateTime.UtcNow,
+                endDate: DateTime.UtcNow.AddYears(1));
 
             selection.Id = selectionId ?? SelectionId;
             selection.IsActive = true;
             selection.CreatedAt = DateTime.UtcNow;
-            selection.RecalculateFinalAmount();
 
             return selection;
         }
 
         /// <summary>
-        /// Creates a StudentFeeSelection with all discounts off.
+        /// Creates a StudentFeeSelection with no discounts applied.
         /// </summary>
         /// <param name="selectionId">Optional SelectionId override.</param>
-        /// <returns>A selection with BaseFee=FinalAmount=60000.</returns>
+        /// <returns>A selection with YearlyFee=FinalAmount=60000.</returns>
         public static StudentFeeSelection BuildSelectionNoDiscounts(
             Guid? selectionId = null)
         {
+            var yearlyFee = 60000m;
+
             var selection = new StudentFeeSelection(
                 studentId: StudentId,
                 courseId: CourseId,
                 feePlanId: FeePlanId,
-                scholarshipPercent: 0m,
-                isScholarshipActive: false,
-                seasonalPercent: 0m,
-                isSeasonalActive: false,
-                manualDiscountPercent: 0m,
-                isManualDiscountActive: false,
-                baseFee: 60000m,
-                finalAmount: 60000m);
+                yearlyFee: yearlyFee,
+                selectedDurationYears: 1,
+                totalBeforeDiscount: yearlyFee,
+                totalDiscountPercent: 0m,
+                totalDiscountAmount: 0m,
+                finalAmount: yearlyFee,
+                paymentType: PaymentType.Yearly,
+                totalInstallments: 1,
+                startDate: DateTime.UtcNow,
+                endDate: DateTime.UtcNow.AddYears(1));
 
             selection.Id = selectionId ?? SelectionId;
             selection.IsActive = true;

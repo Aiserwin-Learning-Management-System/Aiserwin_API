@@ -29,8 +29,8 @@ namespace Winfocus.LMS.Infrastructure.DataSeeders
                 new Permission { Id = Guid.NewGuid(), Name = "CanViewStudent" },
             };
 
-                db.Permissions.AddRangeAsync(permissions);
-                db.SaveChangesAsync();
+                db.Permissions.AddRange(permissions);
+                db.SaveChanges();
             }
 
             SeedRolePermissions(db);

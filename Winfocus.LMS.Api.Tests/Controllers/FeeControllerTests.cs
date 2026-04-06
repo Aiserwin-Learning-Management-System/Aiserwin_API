@@ -1,4 +1,4 @@
-﻿namespace Winfocus.LMS.Api.Tests.Controllers
+namespace Winfocus.LMS.Api.Tests.Controllers
 {
     using System.Net;
     using System.Net.Http.Json;
@@ -6,6 +6,7 @@
     using Moq;
     using Winfocus.LMS.Api.Tests.Common;
     using Winfocus.LMS.Application.Common.Exceptions;
+    using Winfocus.LMS.Application.DTOs;
     using Winfocus.LMS.Application.DTOs.Fees;
     using Winfocus.LMS.Application.Interfaces;
     using Winfocus.LMS.Domain.Enums;
@@ -13,7 +14,7 @@
 
     /// <summary>
     /// Integration tests for <see cref="API.Controllers.FeeController"/>.
-    /// Uses <see cref="FeeTestWebApplicationFactory"/> with a mocked IFeeService
+    /// Uses <see cref="TestWebApplicationFactory"/> with a mocked IFeeService
     /// to verify HTTP status codes, routing, serialization, and delegation.
     /// </summary>
     public sealed class FeeControllerTests
@@ -25,11 +26,20 @@
         private static readonly Guid TestStudentId =
             Guid.Parse("11111111-1111-1111-1111-111111111111");
 
-        private static readonly Guid TestSelectionId =
-            Guid.Parse("66666666-6666-6666-6666-666666666666");
+        private static readonly Guid TestCourseId =
+            Guid.Parse("33333333-3333-3333-3333-333333333333");
 
         private static readonly Guid TestFeePlanId =
             Guid.Parse("44444444-4444-4444-4444-444444444444");
+
+        private static readonly Guid TestSelectionId =
+            Guid.Parse("66666666-6666-6666-6666-666666666666");
+
+        private static readonly Guid TestInstallmentId =
+            Guid.Parse("77777777-7777-7777-7777-777777777777");
+
+        private static readonly Guid TestDiscountId =
+            Guid.Parse("88888888-8888-8888-8888-888888888888");
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FeeControllerTests"/> class.
@@ -43,691 +53,476 @@
         }
 
         /// <summary>
-        /// Gets the fee page valid student returns200 with pricing table.
+        /// Verifies GET student fee page returns 200 OK with fee listings.
         /// </summary>
-        /// Verifies GET fee page returns 200 OK with correct pricing table data.
-        /// The service mock is set up to return a predefined FeePageResponseDto,
-        /// and the test asserts that the response contains the expected fee amounts
-        /// Registration fee is excluded from calculations, so only course fees are tested here.
-        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns></summary>
         [Fact]
-        public async Task GetFeePage_ValidStudent_Returns200WithPricingTable()
+        public async Task GetStudentFeePage_ValidStudent_Returns200WithFeeListings()
         {
             // Arrange
-            var expected = new FeePageResponseDto
+            var expected = new StudentFeePageDto
             {
-                PricingTable = new List<FeeRowDto>
+                StudentId = TestStudentId,
+                StudentName = "John Doe",
+                RegistrationNumber = "REG-001",
+                GradeId = Guid.NewGuid(),
+                GradeName = "Grade 10",
+                SyllabusId = Guid.NewGuid(),
+                SyllabusName = "CBSE",
+                ScholarshipPercent = 10m,
+                SelectedFeePlanId = TestFeePlanId,
+                FeeListings = new List<FeeListingRowDto>
                 {
                     new ()
                     {
                         FeePlanId = TestFeePlanId,
-                        CourseId = Guid.NewGuid(),
+                        CourseId = TestCourseId,
                         CourseName = "Physics",
-                        BaseFee = 60000m,
-                        PaymentType = "Yearly",
-                        ScholarshipPercent = 10m,
-                        IsScholarshipActive = true,
-                        SeasonalPercent = 5m,
-                        IsSeasonalActive = true,
-                        ManualDiscountPercent = 0m,
-                        IsManualDiscountActive = false,
-                        FeeAfterDiscount = 51300m,
-                        IsSelected = false,
+                        YearlyFee = 60000m,
+                        PaymentType = PaymentType.Yearly,
+                        DurationInYears = 1,
+                        TotalDiscountPercent = 10m,
+                        TotalBeforeDiscount = 60000m,
+                        FeeAfterDiscount = 54000m,
+                        InstallmentCount = 1,
+                        PerInstallment = 54000m,
+                        IsSelected = true,
                     },
                 },
             };
 
             _serviceMock
-                .Setup(s => s.GetFeePageAsync(TestStudentId))
-                .ReturnsAsync(expected);
+                .Setup(s => s.GetStudentFeePageAsync(TestStudentId))
+                .ReturnsAsync(CommonResponse<StudentFeePageDto>.SuccessResponse("Success", expected));
 
             // Act
             var response = await _client.GetAsync(
-                $"/api/v1/Fee/{TestStudentId}");
+                $"/api/v1/Fee/student-page/{TestStudentId}");
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            var body = await response.Content
-                .ReadFromJsonAsync<FeePageResponseDto>();
+            var result = await response.Content
+                .ReadFromJsonAsync<CommonResponse<StudentFeePageDto>>();
 
-            body.Should().NotBeNull();
-            body!.PricingTable.Should().HaveCount(1);
-            body.PricingTable[0].BaseFee.Should().Be(60000m);
-            body.PricingTable[0].FeeAfterDiscount.Should().Be(51300m);
+            result.Should().NotBeNull();
+            result!.Success.Should().BeTrue();
+            result.Data.FeeListings.Should().HaveCount(1);
+            result.Data.FeeListings[0].YearlyFee.Should().Be(60000m);
+            result.Data.FeeListings[0].FeeAfterDiscount.Should().Be(54000m);
         }
 
         /// <summary>
-        /// Verifies GET fee page delegates to the service with correct studentId.
+        /// Verifies GET student fee page delegates to service with correct studentId.
         /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Fact]
-        public async Task GetFeePage_DelegatesToService_WithCorrectStudentId()
+        public async Task GetStudentFeePage_DelegatesToService_WithCorrectStudentId()
         {
             // Arrange
             _serviceMock
-                .Setup(s => s.GetFeePageAsync(TestStudentId))
-                .ReturnsAsync(new FeePageResponseDto { PricingTable = new () });
+                .Setup(s => s.GetStudentFeePageAsync(TestStudentId))
+                .ReturnsAsync(CommonResponse<StudentFeePageDto>.SuccessResponse(
+                    "Success", new StudentFeePageDto()));
 
             // Act
-            await _client.GetAsync($"/api/v1/Fee/{TestStudentId}");
+            await _client.GetAsync($"/api/v1/Fee/student-page/{TestStudentId}");
 
             // Assert
             _serviceMock.Verify(
-                s => s.GetFeePageAsync(TestStudentId), Times.Once);
+                s => s.GetStudentFeePageAsync(TestStudentId), Times.Once);
         }
 
         /// <summary>
-        /// Verifies GET fee page returns error when student not found.
-        /// The GlobalExceptionMiddleware catches AppException and returns the
-        /// appropriate status code.
+        /// Verifies GET student fee page returns error when student not found.
         /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Fact]
-        public async Task GetFeePage_StudentNotFound_ReturnsErrorResponse()
+        public async Task GetStudentFeePage_StudentNotFound_ReturnsErrorResponse()
         {
             // Arrange
             var unknownId = Guid.NewGuid();
 
             _serviceMock
-                .Setup(s => s.GetFeePageAsync(unknownId))
+                .Setup(s => s.GetStudentFeePageAsync(unknownId))
                 .ThrowsAsync(new AppException(
                     "Student not found.", 404, "STUDENT_NOT_FOUND"));
 
             // Act
-            var response = await _client.GetAsync($"/api/v1/Fee/{unknownId}");
+            var response = await _client.GetAsync($"/api/v1/Fee/student-page/{unknownId}");
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }
 
         /// <summary>
-        /// Verifies POST select fee returns 200 OK with fee summary.
+        /// Verifies POST confirm fee selection returns 200 OK with response.
         /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Fact]
-        public async Task SelectFee_ValidRequest_Returns200WithSummary()
+        public async Task ConfirmFeeSelection_ValidRequest_Returns200WithResponse()
         {
             // Arrange
-            var request = new SelectFeeRequestDto
+            var request = new ConfirmFeeRequestDto
             {
                 StudentId = TestStudentId,
                 FeePlanId = TestFeePlanId,
-                ScholarshipPercent = 10m,
-                IsScholarshipActive = true,
-                IsSeasonalActive = true,
-                ManualDiscountPercent = 3m,
-                IsManualDiscountActive = true,
+                StartDate = DateTime.UtcNow,
+                EndDate = DateTime.UtcNow.AddYears(1),
+                DeclarationAccepted = true,
             };
 
-            var expected = new FeeSummaryDto
+            var expected = new ConfirmFeeResponseDto
             {
-                BaseFee = 60000m,
-                ScholarshipDiscount = 6000m,
-                SeasonalDiscount = 2700m,
-                ManualDiscount = 1539m,
-                TotalPayable = 49761m,
+                SelectionId = TestSelectionId,
+                CourseName = "Physics",
+                PlanName = "Yearly",
+                YearlyFee = 60000m,
+                DurationYears = 1,
+                TotalBeforeDiscount = 60000m,
+                TotalDiscountPercent = 10m,
+                TotalDiscountAmount = 6000m,
+                FinalAmount = 54000m,
+                PaymentType = PaymentType.Yearly,
+                TotalInstallments = 1,
+                Status = FeeSelectionStatus.Confirmed,
             };
 
             _serviceMock
-                .Setup(s => s.SelectFeeAsync(It.Is<SelectFeeRequestDto>(r =>
+                .Setup(s => s.ConfirmFeeSelectionAsync(It.Is<ConfirmFeeRequestDto>(r =>
                     r.StudentId == TestStudentId &&
                     r.FeePlanId == TestFeePlanId)))
-                .ReturnsAsync(expected);
+                .ReturnsAsync(CommonResponse<ConfirmFeeResponseDto>.SuccessResponse("Success", expected));
 
             // Act
             var response = await _client.PostAsJsonAsync(
-                "/api/v1/Fee/select", request);
+                "/api/v1/Fee/confirm", request);
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            var body = await response.Content
-                .ReadFromJsonAsync<FeeSummaryDto>();
+            var result = await response.Content
+                .ReadFromJsonAsync<CommonResponse<ConfirmFeeResponseDto>>();
 
-            body.Should().NotBeNull();
-            body!.BaseFee.Should().Be(60000m);
-            body.TotalPayable.Should().Be(49761m);
-            body.ScholarshipDiscount.Should().Be(6000m);
-            body.SeasonalDiscount.Should().Be(2700m);
-            body.ManualDiscount.Should().Be(1539m);
+            result.Should().NotBeNull();
+            result!.Data.FinalAmount.Should().Be(54000m);
+            result.Data.TotalDiscountAmount.Should().Be(6000m);
         }
 
         /// <summary>
-        /// Verifies POST select fee returns error when student not found.
+        /// Verifies POST confirm fee returns error when plan not found.
         /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Fact]
-        public async Task SelectFee_StudentNotFound_ReturnsErrorResponse()
+        public async Task ConfirmFeeSelection_FeePlanNotFound_ReturnsErrorResponse()
         {
             // Arrange
-            var request = new SelectFeeRequestDto
-            {
-                StudentId = Guid.NewGuid(),
-                FeePlanId = TestFeePlanId,
-            };
-
-            _serviceMock
-                .Setup(s => s.SelectFeeAsync(It.IsAny<SelectFeeRequestDto>()))
-                .ThrowsAsync(new AppException(
-                    "Student not found.", 404,  "STUDENT_NOT_FOUND"));
-
-            // Act
-            var response = await _client.PostAsJsonAsync(
-                "/api/v1/Fee/select", request);
-
-            // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-        }
-
-        /// <summary>
-        /// Verifies POST select fee returns error when plan not found.
-        /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
-        [Fact]
-        public async Task SelectFee_FeePlanNotFound_ReturnsErrorResponse()
-        {
-            // Arrange
-            var request = new SelectFeeRequestDto
+            var request = new ConfirmFeeRequestDto
             {
                 StudentId = TestStudentId,
                 FeePlanId = Guid.NewGuid(),
+                StartDate = DateTime.UtcNow,
+                EndDate = DateTime.UtcNow.AddYears(1),
+                DeclarationAccepted = true,
             };
 
             _serviceMock
-                .Setup(s => s.SelectFeeAsync(It.IsAny<SelectFeeRequestDto>()))
+                .Setup(s => s.ConfirmFeeSelectionAsync(It.IsAny<ConfirmFeeRequestDto>()))
                 .ThrowsAsync(new AppException(
                     "Fee plan not found.", 404, "FEE_PLAN_NOT_FOUND"));
 
             // Act
             var response = await _client.PostAsJsonAsync(
-                "/api/v1/Fee/select", request);
+                "/api/v1/Fee/confirm", request);
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }
 
         /// <summary>
-        /// Verifies GET discounts by student returns 200 with list.
+        /// Verifies GET admin student fee page returns 200 OK.
         /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Fact]
-        public async Task GetDiscountsByStudent_ValidId_Returns200WithList()
+        public async Task GetAdminStudentFeePage_ValidStudent_Returns200()
         {
             // Arrange
-            var discounts = new List<DiscountDetailDto>
+            var expected = new AdminStudentFeePageDto
             {
-                new ()
+                StudentId = TestStudentId,
+                StudentName = "John Doe",
+                RegistrationNumber = "REG-001",
+                GradeName = "Grade 10",
+                SyllabusName = "CBSE",
+                TotalPayable = 54000m,
+                CourseDiscounts = new List<CourseDiscountBlockDto>
                 {
-                    StudentFeeSelectionId = TestSelectionId,
-                    StudentId = TestStudentId,
-                    DiscountType = DiscountType.Scholarship,
-                    Percent = 10m,
-                    IsActive = true,
-                    BaseFee = 60000m,
-                    FinalAmount = 51300m,
-                },
-                new ()
-                {
-                    StudentFeeSelectionId = TestSelectionId,
-                    StudentId = TestStudentId,
-                    DiscountType = DiscountType.Seasonal,
-                    Percent = 5m,
-                    IsActive = true,
-                    BaseFee = 60000m,
-                    FinalAmount = 51300m,
-                },
-                new ()
-                {
-                    StudentFeeSelectionId = TestSelectionId,
-                    StudentId = TestStudentId,
-                    DiscountType = DiscountType.Manual,
-                    Percent = 0m,
-                    IsActive = false,
-                    BaseFee = 60000m,
-                    FinalAmount = 51300m,
+                    new ()
+                    {
+                        CourseId = TestCourseId,
+                        CourseName = "Physics",
+                        BaseYearlyFee = 60000m,
+                        CalculatedFeeAfterDiscount = 54000m,
+                        AvailableDiscounts = new List<AvailableDiscountDto>(),
+                    },
                 },
             };
 
             _serviceMock
-                .Setup(s => s.GetDiscountsByStudentAsync(TestStudentId))
-                .ReturnsAsync(discounts.AsReadOnly());
+                .Setup(s => s.GetAdminStudentFeePageAsync(TestStudentId))
+                .ReturnsAsync(CommonResponse<AdminStudentFeePageDto>.SuccessResponse("Success", expected));
 
             // Act
             var response = await _client.GetAsync(
-                $"/api/v1/Fee/discounts/student/{TestStudentId}");
+                $"/api/v1/Fee/student-admin/{TestStudentId}");
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            var body = await response.Content
-                .ReadFromJsonAsync<List<DiscountDetailDto>>();
+            var result = await response.Content
+                .ReadFromJsonAsync<CommonResponse<AdminStudentFeePageDto>>();
 
-            body.Should().HaveCount(3);
+            result.Should().NotBeNull();
+            result!.Data.StudentName.Should().Be("John Doe");
+            result.Data.CourseDiscounts.Should().HaveCount(1);
         }
 
         /// <summary>
-        /// Verifies GET discounts by student returns error when not found.
+        /// Verifies POST assign discounts returns 200 OK.
         /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Fact]
-        public async Task GetDiscountsByStudent_NotFound_ReturnsErrorResponse()
+        public async Task AssignDiscounts_ValidRequest_Returns200()
+        {
+            // Arrange
+            var request = new AssignDiscountsRequestDto
+            {
+                StudentId = TestStudentId,
+                CourseId = TestCourseId,
+                SelectedDiscountId = TestDiscountId,
+                UserId = Guid.NewGuid(),
+            };
+
+            _serviceMock
+                .Setup(s => s.AssignDiscountsAsync(It.IsAny<AssignDiscountsRequestDto>()))
+                .ReturnsAsync(CommonResponse<bool>.SuccessResponse("Discounts assigned.", true));
+
+            // Act
+            var response = await _client.PostAsJsonAsync(
+                "/api/v1/Fee/assign-discounts", request);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+        }
+
+        /// <summary>
+        /// Verifies PUT assign discounts (update) returns 200 OK.
+        /// </summary>
+        [Fact]
+        public async Task UpdateDiscountAssignments_ValidRequest_Returns200()
+        {
+            // Arrange
+            var request = new AssignDiscountsRequestDto
+            {
+                StudentId = TestStudentId,
+                CourseId = TestCourseId,
+                ManualDiscount = new ManualDiscountRequestDto
+                {
+                    DiscountName = "Merit",
+                    DiscountPercent = 5m,
+                },
+                UserId = Guid.NewGuid(),
+            };
+
+            _serviceMock
+                .Setup(s => s.AssignDiscountsAsync(It.IsAny<AssignDiscountsRequestDto>()))
+                .ReturnsAsync(CommonResponse<bool>.SuccessResponse("Discounts updated.", true));
+
+            // Act
+            var response = await _client.PutAsJsonAsync(
+                "/api/v1/Fee/assign-discounts", request);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+        }
+
+        /// <summary>
+        /// Verifies DELETE assign discounts returns 200 OK.
+        /// </summary>
+        [Fact]
+        public async Task RemoveDiscounts_ValidIds_Returns200()
+        {
+            // Arrange
+            _serviceMock
+                .Setup(s => s.RemoveDiscountsAsync(TestStudentId, TestCourseId))
+                .ReturnsAsync(CommonResponse<bool>.SuccessResponse("Discounts removed.", true));
+
+            // Act
+            var response = await _client.DeleteAsync(
+                $"/api/v1/Fee/assign-discounts/{TestStudentId}/{TestCourseId}");
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+        }
+
+        /// <summary>
+        /// Verifies GET installments returns 200 with list.
+        /// </summary>
+        [Fact]
+        public async Task GetInstallments_ValidSelection_Returns200WithList()
+        {
+            // Arrange
+            var installments = new List<InstallmentScheduleDto>
+            {
+                new ()
+                {
+                    InstallmentId = TestInstallmentId,
+                    No = 1,
+                    DueDate = DateTime.UtcNow.AddMonths(1),
+                    DueAmount = 27000m,
+                    PaidAmount = 0m,
+                    BalanceAmount = 27000m,
+                    Status = InstallmentStatus.Pending,
+                },
+                new ()
+                {
+                    InstallmentId = Guid.NewGuid(),
+                    No = 2,
+                    DueDate = DateTime.UtcNow.AddMonths(6),
+                    DueAmount = 27000m,
+                    PaidAmount = 0m,
+                    BalanceAmount = 27000m,
+                    Status = InstallmentStatus.Pending,
+                },
+            };
+
+            _serviceMock
+                .Setup(s => s.GetInstallmentsAsync(TestSelectionId))
+                .ReturnsAsync(CommonResponse<List<InstallmentScheduleDto>>.SuccessResponse("Success", installments));
+
+            // Act
+            var response = await _client.GetAsync(
+                $"/api/v1/Fee/installments/{TestSelectionId}");
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            var result = await response.Content
+                .ReadFromJsonAsync<CommonResponse<List<InstallmentScheduleDto>>>();
+
+            result.Should().NotBeNull();
+            result!.Data.Should().HaveCount(2);
+            result.Data[0].DueAmount.Should().Be(27000m);
+        }
+
+        /// <summary>
+        /// Verifies PUT record payment returns 200 OK with updated installment.
+        /// </summary>
+        [Fact]
+        public async Task RecordPayment_ValidRequest_Returns200WithUpdatedInstallment()
+        {
+            // Arrange
+            var request = new RecordPaymentRequestDto
+            {
+                AmountPaid = 27000m,
+                PaymentDate = DateTime.UtcNow,
+                PaymentMethod = "Online",
+                Remarks = "First installment",
+            };
+
+            var expected = new InstallmentScheduleDto
+            {
+                InstallmentId = TestInstallmentId,
+                No = 1,
+                DueDate = DateTime.UtcNow.AddMonths(1),
+                DueAmount = 27000m,
+                PaidAmount = 27000m,
+                BalanceAmount = 0m,
+                Status = InstallmentStatus.Paid,
+                PaidDate = DateTime.UtcNow,
+            };
+
+            _serviceMock
+                .Setup(s => s.RecordPaymentAsync(TestInstallmentId, It.IsAny<RecordPaymentRequestDto>()))
+                .ReturnsAsync(CommonResponse<InstallmentScheduleDto>.SuccessResponse("Payment recorded.", expected));
+
+            // Act
+            var response = await _client.PutAsJsonAsync(
+                $"/api/v1/Fee/installments/{TestInstallmentId}/pay", request);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            var result = await response.Content
+                .ReadFromJsonAsync<CommonResponse<InstallmentScheduleDto>>();
+
+            result.Should().NotBeNull();
+            result!.Data.Status.Should().Be(InstallmentStatus.Paid);
+            result.Data.PaidAmount.Should().Be(27000m);
+        }
+
+        /// <summary>
+        /// Verifies GET payment summary returns 200 with summary.
+        /// </summary>
+        [Fact]
+        public async Task GetPaymentSummary_ValidStudent_Returns200WithSummary()
+        {
+            // Arrange
+            var expected = new PaymentSummaryDto
+            {
+                StudentId = TestStudentId,
+                StudentName = "John Doe",
+                GrandTotal = 54000m,
+                GrandPaid = 27000m,
+                GrandRemaining = 27000m,
+                Selections = new List<SelectionPaymentDto>
+                {
+                    new ()
+                    {
+                        SelectionId = TestSelectionId,
+                        CourseName = "Physics",
+                        PlanName = "Yearly",
+                        PaymentType = PaymentType.Yearly,
+                        TotalFee = 54000m,
+                        TotalPaid = 27000m,
+                        TotalRemaining = 27000m,
+                        Status = FeeSelectionStatus.PartiallyPaid,
+                    },
+                },
+            };
+
+            _serviceMock
+                .Setup(s => s.GetPaymentSummaryAsync(TestStudentId))
+                .ReturnsAsync(CommonResponse<PaymentSummaryDto>.SuccessResponse("Success", expected));
+
+            // Act
+            var response = await _client.GetAsync(
+                $"/api/v1/Fee/payment-summary/{TestStudentId}");
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            var result = await response.Content
+                .ReadFromJsonAsync<CommonResponse<PaymentSummaryDto>>();
+
+            result.Should().NotBeNull();
+            result!.Data.GrandTotal.Should().Be(54000m);
+            result.Data.GrandPaid.Should().Be(27000m);
+            result.Data.Selections.Should().HaveCount(1);
+        }
+
+        /// <summary>
+        /// Verifies GET student fee page returns error when service throws.
+        /// </summary>
+        [Fact]
+        public async Task GetStudentFeePage_ServiceThrows_ReturnsErrorResponse()
         {
             // Arrange
             var unknownId = Guid.NewGuid();
 
             _serviceMock
-                .Setup(s => s.GetDiscountsByStudentAsync(unknownId))
+                .Setup(s => s.GetStudentFeePageAsync(unknownId))
                 .ThrowsAsync(new AppException(
                     "Student not found.", 404, "STUDENT_NOT_FOUND"));
 
             // Act
-            var response = await _client.GetAsync(
-                $"/api/v1/Fee/discounts/student/{unknownId}");
+            var response = await _client.GetAsync($"/api/v1/Fee/student-page/{unknownId}");
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-        }
-
-        /// <summary>
-        /// Verifies GET discounts by selection returns 200 with 3 entries.
-        /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
-        [Fact]
-        public async Task GetDiscountsBySelection_ValidId_Returns200With3Entries()
-        {
-            // Arrange
-            var discounts = new List<DiscountDetailDto>
-            {
-                new () { DiscountType = DiscountType.Scholarship },
-                new () { DiscountType = DiscountType.Seasonal },
-                new () { DiscountType = DiscountType.Manual },
-            };
-
-            _serviceMock
-                .Setup(s => s.GetDiscountsBySelectionAsync(TestSelectionId))
-                .ReturnsAsync(discounts.AsReadOnly());
-
-            // Act
-            var response = await _client.GetAsync(
-                $"/api/v1/Fee/discounts/selection/{TestSelectionId}");
-
-            // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-            var body = await response.Content
-                .ReadFromJsonAsync<List<DiscountDetailDto>>();
-
-            body.Should().HaveCount(3);
-        }
-
-        /// <summary>
-        /// Verifies GET discounts by selection returns error when not found.
-        /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
-        [Fact]
-        public async Task GetDiscountsBySelection_NotFound_ReturnsErrorResponse()
-        {
-            // Arrange
-            var unknownId = Guid.NewGuid();
-
-            _serviceMock
-                .Setup(s => s.GetDiscountsBySelectionAsync(unknownId))
-                .ThrowsAsync(new AppException(
-                    "Selection not found.", 404, "SELECTION_NOT_FOUND"));
-
-            // Act
-            var response = await _client.GetAsync(
-                $"/api/v1/Fee/discounts/selection/{unknownId}");
-
-            // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-        }
-
-        /// <summary>
-        /// Verifies PUT update discount returns 200 with recalculated summary.
-        /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
-        [Fact]
-        public async Task UpdateDiscount_ValidRequest_Returns200WithSummary()
-        {
-            // Arrange
-            var request = new UpdateDiscountRequestDto
-            {
-                StudentFeeSelectionId = TestSelectionId,
-                DiscountType = DiscountType.Manual,
-                Percent = 5m,
-                IsActive = true,
-            };
-
-            var expected = new FeeSummaryDto
-            {
-                BaseFee = 60000m,
-                ManualDiscount = 3000m,
-                TotalPayable = 57000m,
-            };
-
-            _serviceMock
-                .Setup(s => s.UpdateDiscountAsync(It.Is<UpdateDiscountRequestDto>(r =>
-                    r.StudentFeeSelectionId == TestSelectionId &&
-                    r.DiscountType == DiscountType.Manual)))
-                .ReturnsAsync(expected);
-
-            // Act
-            var response = await _client.PutAsJsonAsync(
-                "/api/v1/Fee/discounts", request);
-
-            // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-            var body = await response.Content
-                .ReadFromJsonAsync<FeeSummaryDto>();
-
-            body!.ManualDiscount.Should().Be(3000m);
-            body.TotalPayable.Should().Be(57000m);
-        }
-
-        /// <summary>
-        /// Verifies PUT update discount returns error for invalid discount type.
-        /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
-        [Fact]
-        public async Task UpdateDiscount_InvalidDiscountType_ReturnsErrorResponse()
-        {
-            // Arrange
-            var request = new UpdateDiscountRequestDto
-            {
-                StudentFeeSelectionId = TestSelectionId,
-                DiscountType = DiscountType.None,
-                Percent = 10m,
-                IsActive = true,
-            };
-
-            _serviceMock
-                .Setup(s => s.UpdateDiscountAsync(It.IsAny<UpdateDiscountRequestDto>()))
-                .ThrowsAsync(new AppException(
-                    "Invalid discount type.", 400, "INVALID_DISCOUNT_TYPE"));
-
-            // Act
-            var response = await _client.PutAsJsonAsync(
-                "/api/v1/Fee/discounts", request);
-
-            // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        }
-
-        /// <summary>
-        /// Verifies PUT update scholarship delegates correctly.
-        /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
-        [Fact]
-        public async Task UpdateDiscount_Scholarship_DelegatesToService()
-        {
-            // Arrange
-            var request = new UpdateDiscountRequestDto
-            {
-                StudentFeeSelectionId = TestSelectionId,
-                DiscountType = DiscountType.Scholarship,
-                Percent = 15m,
-                IsActive = true,
-            };
-
-            _serviceMock
-                .Setup(s => s.UpdateDiscountAsync(It.IsAny<UpdateDiscountRequestDto>()))
-                .ReturnsAsync(new FeeSummaryDto());
-
-            // Act
-            await _client.PutAsJsonAsync("/api/v1/Fee/discounts", request);
-
-            // Assert
-            _serviceMock.Verify(
-                s => s.UpdateDiscountAsync(It.Is<UpdateDiscountRequestDto>(r =>
-                    r.DiscountType == DiscountType.Scholarship &&
-                    r.Percent == 15m)),
-                Times.Once);
-        }
-
-        /// <summary>
-        /// Verifies DELETE scholarship discount returns 200 with summary.
-        /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
-        [Fact]
-        public async Task RemoveDiscount_Scholarship_Returns200WithSummary()
-        {
-            // Arrange
-            var expected = new FeeSummaryDto
-            {
-                BaseFee = 60000m,
-                ScholarshipDiscount = 0m,
-                SeasonalDiscount = 3000m,
-                TotalPayable = 57000m,
-            };
-
-            _serviceMock
-                .Setup(s => s.RemoveDiscountAsync(
-                    TestSelectionId, DiscountType.Scholarship))
-                .ReturnsAsync(expected);
-
-            // Act
-            var response = await _client.DeleteAsync(
-                $"/api/v1/Fee/discounts/{TestSelectionId}/{DiscountType.Scholarship}");
-
-            // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-            var body = await response.Content
-                .ReadFromJsonAsync<FeeSummaryDto>();
-
-            body!.ScholarshipDiscount.Should().Be(0m);
-        }
-
-        /// <summary>
-        /// Verifies DELETE manual discount delegates correctly.
-        /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
-        [Fact]
-        public async Task RemoveDiscount_Manual_DelegatesToService()
-        {
-            // Arrange
-            _serviceMock
-                .Setup(s => s.RemoveDiscountAsync(
-                    TestSelectionId, DiscountType.Manual))
-                .ReturnsAsync(new FeeSummaryDto());
-
-            // Act
-            await _client.DeleteAsync(
-                $"/api/v1/Fee/discounts/{TestSelectionId}/{DiscountType.Manual}");
-
-            // Assert
-            _serviceMock.Verify(
-                s => s.RemoveDiscountAsync(
-                    TestSelectionId, DiscountType.Manual),
-                Times.Once);
-        }
-
-        /// <summary>
-        /// Verifies DELETE seasonal discount delegates correctly.
-        /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
-        [Fact]
-        public async Task RemoveDiscount_Seasonal_DelegatesToService()
-        {
-            // Arrange
-            _serviceMock
-                .Setup(s => s.RemoveDiscountAsync(
-                    TestSelectionId, DiscountType.Seasonal))
-                .ReturnsAsync(new FeeSummaryDto());
-
-            // Act
-            await _client.DeleteAsync(
-                $"/api/v1/Fee/discounts/{TestSelectionId}/{DiscountType.Seasonal}");
-
-            // Assert
-            _serviceMock.Verify(
-                s => s.RemoveDiscountAsync(
-                    TestSelectionId, DiscountType.Seasonal),
-                Times.Once);
-        }
-
-        /// <summary>
-        /// Verifies GET seasonal on plan returns 200 with detail.
-        /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
-        [Fact]
-        public async Task GetSeasonalDiscountOnPlan_ValidId_Returns200()
-        {
-            // Arrange
-            var expected = new DiscountDetailDto
-            {
-                FeePlanId = TestFeePlanId,
-                DiscountType = DiscountType.Seasonal,
-                Percent = 5m,
-                IsActive = true,
-                BaseFee = 60000m,
-            };
-
-            _serviceMock
-                .Setup(s => s.GetSeasonalDiscountOnPlanAsync(TestFeePlanId))
-                .ReturnsAsync(expected);
-
-            // Act
-            var response = await _client.GetAsync(
-                $"/api/v1/Fee/discounts/plan/seasonal/{TestFeePlanId}");
-
-            // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-            var body = await response.Content
-                .ReadFromJsonAsync<DiscountDetailDto>();
-
-            body!.Percent.Should().Be(5m);
-            body.IsActive.Should().BeTrue();
-        }
-
-        /// <summary>
-        /// Verifies GET seasonal on plan returns error when not found.
-        /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
-        [Fact]
-        public async Task GetSeasonalDiscountOnPlan_NotFound_ReturnsErrorResponse()
-        {
-            // Arrange
-            var unknownId = Guid.NewGuid();
-
-            _serviceMock
-                .Setup(s => s.GetSeasonalDiscountOnPlanAsync(unknownId))
-                .ThrowsAsync(new AppException(
-                    "Fee plan not found.", 404, "FEE_PLAN_NOT_FOUND"));
-
-            // Act
-            var response = await _client.GetAsync(
-                $"/api/v1/Fee/discounts/plan/seasonal/{unknownId}");
-
-            // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-        }
-
-        /// <summary>
-        /// Verifies PUT seasonal on plan returns 204 No Content.
-        /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
-        [Fact]
-        public async Task UpdateSeasonalDiscountOnPlan_ValidRequest_Returns204()
-        {
-            // Arrange
-            var request = new UpdateSeasonalDiscountRequestDto
-            {
-                FeePlanId = TestFeePlanId,
-                Percent = 8m,
-                IsActive = true,
-            };
-
-            _serviceMock
-                .Setup(s => s.UpdateSeasonalDiscountOnPlanAsync(
-                    It.IsAny<UpdateSeasonalDiscountRequestDto>()))
-                .Returns(Task.CompletedTask);
-
-            // Act
-            var response = await _client.PutAsJsonAsync(
-                "/api/v1/Fee/discounts/plan/seasonal", request);
-
-            // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.NoContent);
-        }
-
-        /// <summary>
-        /// Verifies PUT seasonal on plan delegates to service.
-        /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
-        [Fact]
-        public async Task UpdateSeasonalDiscountOnPlan_DelegatesToService()
-        {
-            // Arrange
-            var request = new UpdateSeasonalDiscountRequestDto
-            {
-                FeePlanId = TestFeePlanId,
-                Percent = 12m,
-                IsActive = true,
-            };
-
-            _serviceMock
-                .Setup(s => s.UpdateSeasonalDiscountOnPlanAsync(
-                    It.IsAny<UpdateSeasonalDiscountRequestDto>()))
-                .Returns(Task.CompletedTask);
-
-            // Act
-            await _client.PutAsJsonAsync(
-                "/api/v1/Fee/discounts/plan/seasonal", request);
-
-            // Assert
-            _serviceMock.Verify(
-                s => s.UpdateSeasonalDiscountOnPlanAsync(
-                    It.Is<UpdateSeasonalDiscountRequestDto>(r =>
-                        r.FeePlanId == TestFeePlanId &&
-                        r.Percent == 12m)),
-                Times.Once);
-        }
-
-        /// <summary>
-        /// Verifies DELETE seasonal on plan returns 204 No Content.
-        /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
-        [Fact]
-        public async Task RemoveSeasonalDiscountOnPlan_ValidId_Returns204()
-        {
-            // Arrange
-            _serviceMock
-                .Setup(s => s.RemoveSeasonalDiscountOnPlanAsync(TestFeePlanId))
-                .Returns(Task.CompletedTask);
-
-            // Act
-            var response = await _client.DeleteAsync(
-                $"/api/v1/Fee/discounts/plan/seasonal/{TestFeePlanId}");
-
-            // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.NoContent);
-        }
-
-        /// <summary>
-        /// Verifies DELETE seasonal on plan delegates to service.
-        /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
-        [Fact]
-        public async Task RemoveSeasonalDiscountOnPlan_DelegatesToService()
-        {
-            // Arrange
-            _serviceMock
-                .Setup(s => s.RemoveSeasonalDiscountOnPlanAsync(TestFeePlanId))
-                .Returns(Task.CompletedTask);
-
-            // Act
-            await _client.DeleteAsync(
-                $"/api/v1/Fee/discounts/plan/seasonal/{TestFeePlanId}");
-
-            // Assert
-            _serviceMock.Verify(
-                s => s.RemoveSeasonalDiscountOnPlanAsync(TestFeePlanId),
-                Times.Once);
         }
     }
 }

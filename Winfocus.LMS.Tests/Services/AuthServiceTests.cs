@@ -27,6 +27,9 @@
         private readonly Mock<IUserLoginLogService> _userLoginLogService;
         private readonly Mock<IUserSessionService> _userSessionService;
         private readonly Mock<IConfiguration> _userConfig;
+        private readonly Mock<IStudentRepository> _studentRepositoryMock;
+        private readonly Mock<IStudentAcademicdetailsRepository> _studacademicRepositoryMock;
+        private readonly Mock<IFileStorageService> _fileStorageServiceMock;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthServiceTests"/> class.
@@ -43,6 +46,9 @@
             _userLoginLogService = new Mock<IUserLoginLogService>();
             _userSessionService = new Mock<IUserSessionService>();
             _userConfig = new Mock<IConfiguration>();
+            _studentRepositoryMock = new Mock<IStudentRepository>();
+            _studacademicRepositoryMock = new Mock<IStudentAcademicdetailsRepository>();
+            _fileStorageServiceMock = new Mock<IFileStorageService>();
 
             _authService = new AuthService(
                 _userRepositoryMock.Object,
@@ -55,7 +61,10 @@
                 _usernameGeneratorService.Object,
                 _userLoginLogService.Object,
                 _userSessionService.Object,
-                _userConfig.Object);
+                _userConfig.Object,
+                _studentRepositoryMock.Object,
+                _studacademicRepositoryMock.Object,
+                _fileStorageServiceMock.Object);
         }
 
         /// <summary>
