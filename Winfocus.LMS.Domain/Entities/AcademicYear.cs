@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Winfocus.LMS.Domain.Common;
-
-namespace Winfocus.LMS.Domain.Entities
+﻿namespace Winfocus.LMS.Domain.Entities
+{
+    using System;
+    using Winfocus.LMS.Domain.Common;
 {
     /// <summary>
     /// Represents an academic year in the learning management system.

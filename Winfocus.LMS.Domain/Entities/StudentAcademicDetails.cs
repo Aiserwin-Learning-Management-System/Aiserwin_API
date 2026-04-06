@@ -96,7 +96,7 @@
         /// <summary>
         /// Gets or sets the identifier of the preferred batch time selection.
         /// </summary>
-        public string PreferredTime { get; set; }
+        public string PreferredTime { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the past year performance details (textual).

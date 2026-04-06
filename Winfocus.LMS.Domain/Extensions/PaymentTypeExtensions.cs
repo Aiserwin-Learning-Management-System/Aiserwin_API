@@ -16,6 +16,7 @@
             paymentType switch
             {
                 PaymentType.Full => 1,
+                PaymentType.Yearly => 1,
                 PaymentType.Bimonthly => 6,
                 PaymentType.Quarterly => 4,
                 _ => 1
@@ -30,6 +31,7 @@
             paymentType switch
             {
                 PaymentType.Full => 0,
+                PaymentType.Yearly => 0,
                 PaymentType.Bimonthly => 2,
                 PaymentType.Quarterly => 3,
                 _ => 0

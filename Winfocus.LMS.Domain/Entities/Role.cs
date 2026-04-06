@@ -21,6 +21,6 @@
         /// <summary>
         /// Gets or sets navigation property representing permissions assigned to this role.
         /// </summary>
-        public ICollection<RolePermission> RolePermissions { get; set; }
+        public ICollection<RolePermission> RolePermissions { get; set; } = new List<RolePermission>();
     }
 }

@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Winfocus.LMS.Domain.Common;
-using Winfocus.LMS.Domain.Enums;
-
-namespace Winfocus.LMS.Domain.Entities
+﻿namespace Winfocus.LMS.Domain.Entities
+{
+    using System;
+    using System.Collections.Generic;
+    using Winfocus.LMS.Domain.Common;
+    using Winfocus.LMS.Domain.Enums;
 {
     /// <summary>
     /// Represents a Exam in the system.

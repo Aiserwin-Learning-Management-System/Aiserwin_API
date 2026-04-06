@@ -10,12 +10,17 @@
         /// Gets or sets the amount paid by the student.
         /// Must be greater than zero.
         /// </summary>
-        public decimal PaidAmount { get; set; }
+        public decimal AmountPaid { get; set; }
 
         /// <summary>
         /// Gets or sets the date when the payment was made.
         /// </summary>
-        public DateTime PaidDate { get; set; }
+        public DateTime PaymentDate { get; set; }
+
+        /// <summary>
+        /// Gets or sets the payment method used (e.g., Online, Cash, Card).
+        /// </summary>
+        public string? PaymentMethod { get; set; }
 
         /// <summary>
         /// Gets or sets optional remarks or notes associated with the payment.

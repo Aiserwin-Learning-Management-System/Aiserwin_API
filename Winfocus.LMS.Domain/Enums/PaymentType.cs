@@ -13,5 +13,8 @@
 
         /// <summary>Installments every 3 months (4 per year).</summary>
         Quarterly = 3,
+
+        /// <summary>Annual/Yearly payment — single payment covering the full year.</summary>
+        Yearly = 4,
     }
 }
