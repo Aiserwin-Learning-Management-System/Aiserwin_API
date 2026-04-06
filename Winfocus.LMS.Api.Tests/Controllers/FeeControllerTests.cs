@@ -417,9 +417,8 @@ namespace Winfocus.LMS.Api.Tests.Controllers
             // Arrange
             var request = new RecordPaymentRequestDto
             {
-                AmountPaid = 27000m,
-                PaymentDate = DateTime.UtcNow,
-                PaymentMethod = "Online",
+                PaidAmount = 27000m,
+                PaidDate = DateTime.UtcNow,
                 Remarks = "First installment",
             };
 

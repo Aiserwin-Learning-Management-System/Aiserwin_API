@@ -18,6 +18,7 @@
                 PaymentType.Full => 1,
                 PaymentType.Bimonthly => 6,
                 PaymentType.Quarterly => 4,
+                PaymentType.Yearly => 1,
                 _ => 1
             };
 
@@ -32,6 +33,7 @@
                 PaymentType.Full => 0,
                 PaymentType.Bimonthly => 2,
                 PaymentType.Quarterly => 3,
+                PaymentType.Yearly => 12,
                 _ => 0
             };
 
