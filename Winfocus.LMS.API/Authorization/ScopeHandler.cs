@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 
 namespace Winfocus.LMS.API.Authorization
-{
+{ 
     public class ScopeHandler : AuthorizationHandler<ScopeRequirement>
     {
       protected override Task HandleRequirementAsync(
