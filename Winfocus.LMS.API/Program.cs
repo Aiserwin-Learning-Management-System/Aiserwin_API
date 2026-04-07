@@ -511,6 +511,7 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
                 $"/swagger/{description.GroupName}/swagger.json",
                 $"Winfocus LMS API {description.GroupName.ToUpper()}");
         }
+           options.RoutePrefix = "swagger"; 
     });
 }
 
