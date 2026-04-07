@@ -21,6 +21,8 @@
         private static readonly string[] ExemptPaths = new[]
         {
             "/usersessions/logout",
+            "/swagger",
+            "/api/auth",
         };
 
         /// <summary>

@@ -519,6 +519,7 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 
 #region Pipeline
 
+app.UseRateLimiter();
 app.UseCors("AllowAngularApp");
 
 app.UseStaticFiles();
@@ -558,7 +559,6 @@ else
 app.UseAuthentication();
 app.UseMiddleware<SessionValidationMiddleware>();
 app.UseAuthorization();
-app.UseRateLimiter();
 app.MapControllers();
 
 #endregion
