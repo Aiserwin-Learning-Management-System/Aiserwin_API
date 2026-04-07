@@ -24,6 +24,12 @@ namespace Winfocus.LMS.Application.Interfaces
         Task<IReadOnlyList<StudentDto>> GetAllAsync(Guid? countryid, Guid? stateid, Guid? centerid);
 
         /// <summary>
+        /// Gets all asynchronous.
+        /// </summary>
+        /// <returns>StudentDto.</returns>
+        Task<IReadOnlyList<StudentDto>> DiscountRequestStudents();
+
+        /// <summary>
         /// Gets the by identifier asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
@@ -71,6 +77,13 @@ namespace Winfocus.LMS.Application.Interfaces
         /// <param name="id">The identifier.</param>
         /// <returns>id.</returns>
         Task<CommonResponse<bool>> DeleteAsync(Guid id);
+
+        /// <summary>
+        /// request for discountaccess.
+        /// </summary>
+        /// <param name="studentid">The identifier.</param>
+        /// <returns>id.</returns>
+        Task<CommonResponse<bool>> Requestfordiscount(Guid studentid);
 
         /// <summary>
         /// Gets the filtered asynchronous.

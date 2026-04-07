@@ -57,6 +57,16 @@
         }
 
         /// <summary>
+        /// Gets all.
+        /// </summary>
+        /// <returns>StudentDto list.</returns>
+        [HttpGet("discountrequestlist")]
+        public async Task<ActionResult<IReadOnlyList<StudentDto>>> DiscountRequestStudents()
+        {
+            return Ok(await _studentService.DiscountRequestStudents());
+        }
+
+        /// <summary>
         /// Creates the specified request.
         /// </summary>
         /// <param name="request">The request.</param>
@@ -292,6 +302,17 @@
             }
 
             return response;
+        }
+
+        /// <summary>
+        /// request for manual discount access.
+        /// </summary>
+        /// <param name="studentid">The identifier.</param>
+        /// <returns>result.</returns>
+        [HttpPut("requestfordiscount/{studentid:guid}")]
+        public async Task<CommonResponse<bool>> Requestfordiscount(Guid studentid)
+        {
+            return await _studentService.Requestfordiscount(studentid);
         }
     }
 }

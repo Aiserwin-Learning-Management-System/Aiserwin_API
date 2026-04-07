@@ -2139,6 +2139,9 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsManualdiscountRequest")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("Isscholershipstudent")
                         .HasColumnType("bit");
 
