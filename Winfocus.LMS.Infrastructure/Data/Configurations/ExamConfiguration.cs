@@ -94,6 +94,21 @@ namespace Winfocus.LMS.Infrastructure.Data.Configurations
                 .WithMany()
                 .HasForeignKey(e => e.SyllabusId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(e => e.ModeOfStudy)
+                .WithMany()
+                .HasForeignKey(e => e.ModeOfStudyId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder.HasOne(e => e.State)
+                .WithMany()
+                .HasForeignKey(e => e.StateId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder.HasOne(e => e.Subject)
+                .WithMany()
+                .HasForeignKey(e => e.SubjectId)
+                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }

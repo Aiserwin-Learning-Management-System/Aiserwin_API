@@ -34,6 +34,11 @@
                 .IsUnique()
                 .HasFilter("[IsDeleted] = 0")
                 .HasDatabaseName("IX_ContentResourceTypes_Name_WhereNotDeleted");
+
+            builder.HasOne(e => e.Chapter)
+                .WithMany()
+                .HasForeignKey(e => e.ChapterId)
+                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }

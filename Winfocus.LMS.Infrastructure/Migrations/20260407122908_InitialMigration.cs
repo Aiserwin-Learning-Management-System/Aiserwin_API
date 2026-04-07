@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Winfocus.LMS.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class aiserwin : Migration
+    public partial class InitialMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -2202,8 +2202,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         name: "FK_Exams_ModeOfStudies_ModeOfStudyId",
                         column: x => x.ModeOfStudyId,
                         principalTable: "ModeOfStudies",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Exams_QuestionTypeConfigs_QuestionTypeId",
                         column: x => x.QuestionTypeId,
@@ -2214,8 +2213,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         name: "FK_Exams_States_StateId",
                         column: x => x.StateId,
                         principalTable: "States",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Exams_Streams_StreamId",
                         column: x => x.StreamId,
@@ -2226,8 +2224,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         name: "FK_Exams_Subjects_SubjectId",
                         column: x => x.SubjectId,
                         principalTable: "Subjects",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Exams_Syllabuses_SyllabusId",
                         column: x => x.SyllabusId,
@@ -3502,8 +3499,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                 table: "ContentResourceTypes",
                 column: "ChapterId",
                 principalTable: "ExamChapters",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+                principalColumn: "Id");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Courses_Subjects_SubjectId",

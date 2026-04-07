@@ -12,8 +12,8 @@ using Winfocus.LMS.Infrastructure.Data;
 namespace Winfocus.LMS.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260407092021_aiserwin")]
-    partial class aiserwin
+    [Migration("20260407122908_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -4160,7 +4160,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.HasOne("Winfocus.LMS.Domain.Entities.ExamChapter", "Chapter")
                         .WithMany()
                         .HasForeignKey("ChapterId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Chapter");
@@ -4253,7 +4253,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.HasOne("Winfocus.LMS.Domain.Entities.ModeOfStudy", "ModeOfStudy")
                         .WithMany()
                         .HasForeignKey("ModeOfStudyId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("Winfocus.LMS.Domain.Entities.QuestionTypeConfig", "QuestionType")
@@ -4271,7 +4271,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.HasOne("Winfocus.LMS.Domain.Entities.State", "State")
                         .WithMany()
                         .HasForeignKey("StateId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("Winfocus.LMS.Domain.Entities.Streams", "Stream")
@@ -4283,7 +4283,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.HasOne("Winfocus.LMS.Domain.Entities.Subject", "Subject")
                         .WithMany()
                         .HasForeignKey("SubjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("Winfocus.LMS.Domain.Entities.Syllabus", "Syllabus")

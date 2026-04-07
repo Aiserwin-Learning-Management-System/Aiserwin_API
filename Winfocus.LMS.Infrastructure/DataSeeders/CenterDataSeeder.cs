@@ -1,4 +1,4 @@
-﻿namespace Winfocus.LMS.Infrastructure.DataSeeders
+namespace Winfocus.LMS.Infrastructure.DataSeeders
 {
     using Winfocus.LMS.Domain.Entities;
     using Winfocus.LMS.Domain.Enums;
@@ -24,18 +24,18 @@
                 return;
             }
 
-            var india = db.Countries
-                .FirstOrDefault(c => c.Name.ToLower() == "india");
+            var uae = db.Countries
+                .FirstOrDefault(c => c.Name.ToLower() == "united arab emirates");
 
-            if (india == null)
+            if (uae == null)
             {
                 return;
             }
 
             var onlineMode = db.ModeOfStudies
                 .FirstOrDefault(m =>
-                    m.Name.ToLower() == "online" &&
-                    m.CountryId == india.Id);
+                    (m.Name.ToLower() == "online" || m.Name.ToLower() == uae.Name.ToLower() + " online") &&
+                    m.CountryId == uae.Id);
 
             if (onlineMode == null)
             {
@@ -48,15 +48,18 @@
                 }
             }
 
+            var rakState = db.States
+                .FirstOrDefault(s => s.Name.ToLower() == "ras al khaimah" && s.CountryId == uae.Id);
+
             var center = new Center
             {
                 Id = Guid.NewGuid(),
-                Name = "Kottayam Online Center",
+                Name = "Ras Al Khaimah Online Center",
                 CenterType = CentreType.Online,
-                CenterCode = "IN-KTM-001",
+                CenterCode = "UAE-RAK-002",
                 ModeOfStudyId = onlineMode.Id,
-                CountryId = india.Id,
-                StateId = null,
+                CountryId = uae.Id,
+                StateId = rakState?.Id,
                 CreatedAt = DateTime.UtcNow,
                 CreatedBy = Guid.Empty,
                 IsActive = true,

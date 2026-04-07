@@ -1,11 +1,11 @@
-﻿namespace Winfocus.LMS.Infrastructure.DataSeeders
+namespace Winfocus.LMS.Infrastructure.DataSeeders
 {
     using Microsoft.AspNetCore.Identity;
     using Winfocus.LMS.Domain.Entities;
     using Winfocus.LMS.Infrastructure.Data;
 
     /// <summary>
-    /// Seeds default SuperAdmin and Admin users linked to India
+    /// Seeds default SuperAdmin and Admin users linked to UAE
     /// so the system is usable immediately after the first migration.
     /// Must run <b>after</b> <see cref="RoleDataSeeder"/>,
     /// <see cref="CountryDataSeeder"/>, and <see cref="CenterDataSeeder"/>.
@@ -19,7 +19,7 @@
         private const string _adminPassword = "Admin@123";
 
         /// <summary>
-        /// Seeds one SuperAdmin and one Admin user linked to India
+        /// Seeds one SuperAdmin and one Admin user linked to UAE
         /// if they do not already exist (matched by email).
         /// </summary>
         /// <param name="db">The application database context.</param>
@@ -27,16 +27,21 @@
         {
             var passwordHasher = new PasswordHasher<User>();
 
-            var india = db.Countries
-                .FirstOrDefault(c => c.Name.ToLower() == "india");
+            var uae = db.Countries
+                .FirstOrDefault(c => c.Name.ToLower() == "united arab emirates");
 
-            if (india == null)
+            if (uae == null)
             {
                 return;
             }
 
-            var indiaCenter = db.Centres
-                .FirstOrDefault(c => c.CountryId == india.Id);
+            var uaeCenter = db.Centres
+                .FirstOrDefault(c => c.CountryId == uae.Id && c.Name.ToLower().Contains("ras al khaimah"));
+
+            if (uaeCenter == null)
+            {
+                uaeCenter = db.Centres.FirstOrDefault(c => c.CountryId == uae.Id);
+            }
 
             SeedUser(
                 db,
@@ -45,8 +50,8 @@
                 username: "superadmin",
                 email: _superAdminEmail,
                 password: _superAdminPassword,
-                country: india,
-                center: indiaCenter);
+                country: uae,
+                center: uaeCenter);
 
             SeedUser(
                 db,
@@ -55,8 +60,8 @@
                 username: "admin",
                 email: _adminEmail,
                 password: _adminPassword,
-                country: india,
-                center: indiaCenter);
+                country: uae,
+                center: uaeCenter);
         }
 
         /// <summary>

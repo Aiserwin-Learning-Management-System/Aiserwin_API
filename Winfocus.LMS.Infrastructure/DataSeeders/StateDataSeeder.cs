@@ -38,21 +38,24 @@
                                 continue;
                             }
 
-                            if (!db.ModeOfStudies.Any())
+                            var onlineMode = db.ModeOfStudies
+                                .FirstOrDefault(m => (m.Name == "Online" || m.Name == country.Name + " Online") && m.CountryId == country.Id);
+
+                            if (onlineMode == null)
                             {
-                                var onlineMode = new ModeOfStudy
+                                onlineMode = new ModeOfStudy
                                 {
                                     Id = Guid.NewGuid(),
-                                    Name = "Online",
+                                    Name = country.Name + " Online",
                                     CountryId = country.Id,
                                     IsActive = true,
                                     CreatedAt = DateTime.Now,
                                     CreatedBy = Guid.Empty,
                                 };
-                                onlineOnlyId = onlineMode.Id;
                                 db.ModeOfStudies.Add(onlineMode);
                                 db.SaveChanges();
                             }
+                            onlineOnlyId = onlineMode.Id;
 
                             var state = new State
                             {
