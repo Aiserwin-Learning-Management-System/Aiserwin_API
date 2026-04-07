@@ -418,15 +418,32 @@ if (!app.Environment.IsEnvironment("Testing"))
 
     try
     {
+        var pendingMigrations = db.Database.GetPendingMigrations().ToList();
+ 
         db.Database.Migrate();
-        CountryDataSeeder.Seed(db);
-        StateDataSeeder.Seed(db);
-        RoleDataSeeder.Seed(db);
-        StaffTypeDataSeeder.Seed(db);
-        PermissionSeeder.Seed(db);
-        CenterDataSeeder.Seed(db);
-        AdminUserSeeder.Seed(db);
-        PageHeadingSeeder.Seed(db);
+ 
+        if (pendingMigrations.Any())
+        {
+            logger.LogInformation(
+                "Applied {Count} migration(s). Running seeders...",
+                pendingMigrations.Count);
+ 
+            CountryDataSeeder.Seed(db);
+            StateDataSeeder.Seed(db);
+            RoleDataSeeder.Seed(db);
+            StaffTypeDataSeeder.Seed(db);
+            PermissionSeeder.Seed(db);
+            CenterDataSeeder.Seed(db);
+            AdminUserSeeder.Seed(db);
+            PageHeadingSeeder.Seed(db);
+ 
+            logger.LogInformation("Seeding completed successfully.");
+        }
+        else
+        {
+            logger.LogInformation(
+                "No pending migrations. Skipping seeders for fast startup.");
+        }
     }
     catch (Exception ex)
     {
