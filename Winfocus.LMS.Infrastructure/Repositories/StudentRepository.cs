@@ -74,6 +74,18 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         }
 
         /// <summary>
+        /// Gets all asynchronous.
+        /// </summary>
+        /// <returns>Student list.</returns>
+        public async Task<IReadOnlyList<Student>> DiscountRequestStudents()
+        {
+            return await BuildFullQuery()
+                            .Where(x => !x.IsDeleted && x.IsManualdiscountRequest)
+                            .AsNoTracking()
+                            .ToListAsync();
+        }
+
+        /// <summary>
         /// Gets the by identifier asynchronous.
         /// </summary>
         /// <param name="id">The identifier.</param>
@@ -182,6 +194,29 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             await _dbContext.SaveChangesAsync();
             return CommonResponse<bool>
        .SuccessResponse("Student successfully deleted", true);
+        }
+
+        /// <summary>
+        /// access for student discount.
+        /// </summary>
+        /// <param name="studentid">The identifier.</param>
+        /// <returns>task.</returns>
+        public async Task<CommonResponse<bool>> Requestfordiscount(Guid studentid)
+        {
+            var entity = await _dbContext.Students.FindAsync(studentid);
+            if (entity == null)
+            {
+                return CommonResponse<bool>
+                   .FailureResponse("Student not found");
+            }
+
+            entity.UpdatedAt = DateTime.UtcNow;
+            entity.IsManualdiscountRequest = true;
+
+            _dbContext.Students.Update(entity);
+            await _dbContext.SaveChangesAsync();
+            return CommonResponse<bool>
+       .SuccessResponse("Student successfully updated", true);
         }
 
         /// <summary>

@@ -106,5 +106,10 @@
         /// The user.
         /// </value>
         public User? User { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether gets or sets the discount request.
+        /// </summary>
+        public bool IsManualdiscountRequest { get; set; }
     }
 }
