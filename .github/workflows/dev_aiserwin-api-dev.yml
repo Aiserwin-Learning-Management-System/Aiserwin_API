@@ -3,11 +3,11 @@ name: Backend - Deploy to Dev Environment
 on:
   push:
     branches:
-      - develop
+      - dev
   pull_request:
     types: [opened, synchronize, reopened, closed]
     branches:
-      - develop
+      - dev
 
 jobs:
   build:
