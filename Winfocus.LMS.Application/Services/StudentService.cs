@@ -82,6 +82,25 @@ namespace Winfocus.LMS.Application.Services
         }
 
         /// <summary>
+        /// Gets all asynchronous.
+        /// </summary>
+        /// <returns>StateDto.</returns>
+        public async Task<IReadOnlyList<StudentDto>> DiscountRequestStudents()
+        {
+            _logger.LogInformation("Fetching all discount requested students.");
+
+            var students = await _repository.DiscountRequestStudents();
+
+            var result = students.Select(s => Map(s, null)).ToList();
+
+            _logger.LogInformation(
+                "Fetched {Count} students successfully.",
+                result.Count);
+
+            return result;
+        }
+
+        /// <summary>
         /// Gets a student by the Student entity's primary key.
         /// </summary>
         /// <param name="id">The student entity identifier.</param>
@@ -222,6 +241,16 @@ namespace Winfocus.LMS.Application.Services
         public async Task<CommonResponse<bool>> DeleteAsync(Guid id)
         {
             return await _repository.DeleteAsync(id);
+        }
+
+        /// <summary>
+        /// request for access.
+        /// </summary>
+        /// <param name="studentid">The identifier.</param>
+        /// <returns>task.</returns>
+        public async Task<CommonResponse<bool>> Requestfordiscount(Guid studentid)
+        {
+            return await _repository.Requestfordiscount(studentid);
         }
 
         /// <summary>
