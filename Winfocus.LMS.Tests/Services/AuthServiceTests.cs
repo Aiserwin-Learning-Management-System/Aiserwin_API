@@ -101,6 +101,7 @@
         {
             // Arrange
             var password = "Password@123";
+            var studentId = Guid.NewGuid();
 
             var user = new User
             {
@@ -127,6 +128,10 @@
                 .Setup(r => r.GetByUsernameAsync("testuser"))
                 .ReturnsAsync(user);
 
+            _studentRepositoryMock
+                .Setup(r => r.GetByUserIdAsync(user.Id))
+                .ReturnsAsync(new Student { Id = studentId, UserId = user.Id });
+
             _tokenServiceMock
                 .Setup(t => t.GenerateToken(
                     It.IsAny<User>(),
@@ -143,6 +148,7 @@
             Assert.Equal("testuser", result.username);
             Assert.Equal("mock-jwt-token", result.accessToken);
             Assert.Contains("Student", result.roles);
+            Assert.Equal(studentId, result.studentId);
         }
 
         /// <summary>
