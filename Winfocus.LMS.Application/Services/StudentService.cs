@@ -647,7 +647,7 @@ namespace Winfocus.LMS.Application.Services
             .Select(x => new BatchTimingMTFDto
             {
                 Id = x.BatchTimingMTFId,
-                BatchTime = x.BatchTimingMTF.BatchTime.ToString("dd/MM/yyyy hh:mm tt"),
+                BatchTime = DateTime.SpecifyKind(x.BatchTimingMTF.BatchTime, DateTimeKind.Utc),
                 Subject = new SubjectDto
                 {
                     Id = x.BatchTimingMTF.Subject.Id,
@@ -658,13 +658,13 @@ namespace Winfocus.LMS.Application.Services
             .Select(x => new BatchTimingSaturdayDto
             {
                 Id = x.BatchTimingSaturdayId,
-                BatchTime = x.BatchTimingSaturday.BatchTime.ToString("dd/MM/yyyy hh:mm tt"),
+                BatchTime = DateTime.SpecifyKind(x.BatchTimingSaturday.BatchTime, DateTimeKind.Utc),
             }).ToList() ?? new List<BatchTimingSaturdayDto>(),
          BatchTimingSundays = c.StudentBatchTimingSundays?
             .Select(x => new BatchTimingSundayDto
             {
                 Id = x.BatchTimingSundayId,
-                BatchTime = x.BatchTimingSunday.BatchTime.ToString("dd/MM/yyyy hh:mm tt"),
+                BatchTime = DateTime.SpecifyKind(x.BatchTimingSunday.BatchTime, DateTimeKind.Utc),
             }).ToList() ?? new List<BatchTimingSundayDto>(),
          DoubtClearingDtos = doubtClear?
     .Select(d => new DoubtClearingDto

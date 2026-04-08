@@ -132,7 +132,7 @@ namespace Winfocus.LMS.Application.Services
             {
                 var batchtiming = new BatchTimingSunday
                 {
-                    BatchTime = request.batchTime,
+                    BatchTime = DateTime.SpecifyKind(request.batchTime, DateTimeKind.Utc),
                     SubjectId = request.subjectId,
                     CreatedBy = request.userId,
                     CreatedAt = DateTime.UtcNow,
@@ -172,7 +172,7 @@ namespace Winfocus.LMS.Application.Services
                     return CommonResponse<BatchTimingSundayDto>.FailureResponse("batch time not found");
                 }
 
-                batch.BatchTime = request.batchTime;
+                batch.BatchTime = DateTime.SpecifyKind(request.batchTime, DateTimeKind.Utc);
                 batch.SubjectId = request.subjectId;
                 batch.UpdatedAt = DateTime.UtcNow;
                 batch.UpdatedBy = request.userId;
@@ -393,7 +393,7 @@ namespace Winfocus.LMS.Application.Services
    new BatchTimingSundayDto
    {
        Id = c.Id,
-       BatchTime = c.BatchTime.ToString("dd/MM/yyyy hh:mm tt"),
+       BatchTime = DateTime.SpecifyKind(c.BatchTime, DateTimeKind.Utc),
        SubjectId = c.SubjectId,
        IsActive = c.IsActive,
        Subject = c.Subject == null ? null : new SubjectDto
