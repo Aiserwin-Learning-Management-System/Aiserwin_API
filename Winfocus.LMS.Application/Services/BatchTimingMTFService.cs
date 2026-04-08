@@ -103,7 +103,7 @@
         {
             var batchtiming = new BatchTimingMTF
             {
-                BatchTime = DateTime.SpecifyKind(request.batchTime, DateTimeKind.Utc),
+                BatchTime = request.batchTime,
                 SubjectId = request.subjectId,
                 CreatedBy = request.userId,
                 CreatedAt = DateTime.UtcNow,
@@ -129,7 +129,7 @@
             var batchtiming = await _repository.GetByIdAsync(id)
                 ?? throw new KeyNotFoundException("BatchTiming not found");
 
-            batchtiming.BatchTime = DateTime.SpecifyKind(request.batchTime, DateTimeKind.Utc);
+            batchtiming.BatchTime = request.batchTime;
             batchtiming.SubjectId = request.subjectId;
             batchtiming.UpdatedBy = request.userId;
             batchtiming.UpdatedAt = DateTime.UtcNow;
@@ -317,7 +317,7 @@
     new BatchTimingMTFDto
     {
         Id = c.Id,
-        BatchTime = DateTime.SpecifyKind(c.BatchTime, DateTimeKind.Utc),
+        BatchTime = c.BatchTime.ToString("dd/MM/yyyy hh:mm tt"),
         SubjectId = c.SubjectId,
         IsActive = c.IsActive,
         Subject = c.Subject == null ? null : new SubjectDto

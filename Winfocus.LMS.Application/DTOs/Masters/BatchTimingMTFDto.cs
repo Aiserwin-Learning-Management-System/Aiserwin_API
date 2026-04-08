@@ -6,9 +6,9 @@
     public class BatchTimingMTFDto : BaseClassDTO
     {
         /// <summary>
-        /// Gets or sets the batch time.
+        /// Gets or sets the textual representation of the batch time (for example, "09:00-10:00").
         /// </summary>
-        public DateTime BatchTime { get; set; }
+        public string BatchTime { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the identifier of the associated Subject.
