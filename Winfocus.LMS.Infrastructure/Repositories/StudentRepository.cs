@@ -362,6 +362,12 @@ namespace Winfocus.LMS.Infrastructure.Repositories
                     .FailureResponse("Student is inactive");
             }
 
+            if (entity.RegistrationStatus == RegistrationStatus.Approved && entity.UserId != null)
+            {
+                return CommonResponse<bool>
+                    .FailureResponse("Student is already approved");
+            }
+
             entity.UpdatedAt = DateTime.UtcNow;
             entity.RegistrationStatus = RegistrationStatus.Approved;
 

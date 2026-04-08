@@ -209,8 +209,18 @@
 
                 await _activationRepository.AddAsync(activationToken);
 
-                await _emailService.SendActivationEmailAsync(
-                    user.Email, generatedUsername, token);
+                try
+                {
+                    await _emailService.SendActivationEmailAsync(
+                        user.Email, generatedUsername, token);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(
+                        ex,
+                        "Failed to send activation email for {UserId}. User account created successfully.",
+                        user.Id);
+                }
 
                 _logger.LogInformation(
                     "Activation token generated for {UserId}", user.Id);
