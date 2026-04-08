@@ -155,6 +155,12 @@
         public async Task<ActionResult<CommonResponse<PagedResult<SyllabusDto>>>> GetFiltered(
             [FromQuery] PagedRequest request)
         {
+            var isSuperAdmin = User.IsInRole("SuperAdmin");
+            if (isSuperAdmin)
+            {
+                return Ok(await _syllabusService.GetFilteredAsync(request, Guid.Empty));
+            }
+
             var result = await _syllabusService.GetFilteredAsync(request, CenterId);
             return Ok(result);
         }

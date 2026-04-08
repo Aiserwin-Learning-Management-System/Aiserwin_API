@@ -13,6 +13,7 @@
     using Winfocus.LMS.Application.Services;
     using Winfocus.LMS.Domain.Entities;
     using Winfocus.LMS.Domain.Enums;
+    using Winfocus.LMS.Infrastructure.Data;
 
     /// <summary>
     /// Handles student CRUD operations.
@@ -26,6 +27,7 @@
         private readonly IStudentAcademicdetailsService _studentAcademicdetailsService;
         private readonly IStudentPersonaldetailsService _studentPersonaldetailsService;
         private readonly IAuthService _authService;
+        private readonly AppDbContext _dbContext;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StudentController"/> class.
@@ -34,12 +36,14 @@
         /// <param name="studentAcademicdetailsService">The studentacademic details service.</param>
         /// <param name="studentPersonaldetailsService">The studentpersonal details service.</param>
         /// <param name="authService">The student auth service.</param>
-        public StudentController(IStudentService studentService, IStudentAcademicdetailsService studentAcademicdetailsService, IStudentPersonaldetailsService studentPersonaldetailsService, IAuthService authService)
+        /// <param name="dbContext">The application database context.</param>
+        public StudentController(IStudentService studentService, IStudentAcademicdetailsService studentAcademicdetailsService, IStudentPersonaldetailsService studentPersonaldetailsService, IAuthService authService, AppDbContext dbContext)
         {
             _studentService = studentService;
             _studentAcademicdetailsService = studentAcademicdetailsService;
             _studentPersonaldetailsService = studentPersonaldetailsService;
             _authService = authService;
+            _dbContext = dbContext;
         }
 
         /// <summary>
@@ -74,23 +78,26 @@
         [HttpPost]
         public async Task<CommonResponse<StudentDto>> Create([FromForm] StudentRequest request)
         {
+            using var transaction = await _dbContext.Database.BeginTransactionAsync();
             try
             {
                 var personalDetails = await _studentPersonaldetailsService.CreateAsync(request.personaldetails);
                 if (!personalDetails.Success || personalDetails.Data == null)
                 {
+                    await transaction.RollbackAsync();
                     return CommonResponse<StudentDto>.FailureResponse(personalDetails.Message);
                 }
                 var academicDetails = await _studentAcademicdetailsService.CreateAsync(request.academicdetails);
                 if (!academicDetails.Success || academicDetails.Data == null)
                 {
-                    await _studentPersonaldetailsService.DeleteAsync(personalDetails.Data.Id);
+                    await transaction.RollbackAsync();
                     return CommonResponse<StudentDto>.FailureResponse(academicDetails.Message);
                 }
 
                 var uploaddocDetails = await _studentAcademicdetailsService.AddUploadedDocuments(request.docdetails);
                 if (uploaddocDetails == null)
                 {
+                    await transaction.RollbackAsync();
                     return CommonResponse<StudentDto>.FailureResponse("cannot upload documents!");
                 }
 
@@ -110,6 +117,7 @@
                 var created = await _studentService.CreateAsync(studentDto);
                 if (created == null)
                 {
+                    await transaction.RollbackAsync();
                     return CommonResponse<StudentDto>.FailureResponse("Failed to create student.");
                 }
 
@@ -118,11 +126,13 @@
                 await _studentAcademicdetailsService.AddBatchTimingSaturdaysAsync(created.Id, request.academicdetails.batchTimingstaurdayIds);
                 await _studentAcademicdetailsService.AddBatchTimingSundaysAsync(created.Id, request.academicdetails.batchTimingSundayIds);
 
+                await transaction.CommitAsync();
                 return CommonResponse<StudentDto>.SuccessResponse("Student details", created);
             }
             catch (Exception ex)
             {
-                return CommonResponse<StudentDto>.FailureResponse($"An unexpected error occurred during student registration: {ex.Message}");
+                await transaction.RollbackAsync();
+                return CommonResponse<StudentDto>.FailureResponse($"An error occurred: {ex.Message}");
             }
         }
 
@@ -242,9 +252,9 @@
         {
             var student = await _studentService.GetByIdAsync(id);
             if (student == null)
-                {
+            {
                 return CommonResponse<StudentDto>.FailureResponse("Student not found");
-             }
+            }
 
             var personalDetails = await _studentPersonaldetailsService.UpdateAsync(student.StudentPersonalId, request.personaldetails);
             if (!personalDetails.Success || personalDetails.Data == null)

@@ -139,13 +139,19 @@ namespace Winfocus.LMS.Infrastructure.Repositories
         /// </returns>
         public IQueryable<Syllabus> Query(Guid centerId)
         {
-            return _db.Syllabuses.Where(x => !x.IsDeleted && x.CenterId == centerId)
+          var res = _db.Syllabuses.Where(x => !x.IsDeleted)
                  .Include(x => x.Center)
                   .Include(x => x.AcademicYear)
                  .Include(x => x.Center.Country)
                 .Include(x => x.Center.modeOfStudy)
                 .Include(x => x.Center.State)
                 .AsNoTracking();
+
+          if (centerId != Guid.Empty)
+            {
+                res.Where(x => x.CenterId == centerId);
+            }
+          return res;
         }
 
         /// <summary>
