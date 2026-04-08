@@ -6,9 +6,14 @@
     public class BatchTimingMTFDto : BaseClassDTO
     {
         /// <summary>
-        /// Gets or sets the textual representation of the batch time (for example, "09:00-10:00").
+        /// Gets or sets the batch time in ISO 8601 UTC format.
         /// </summary>
         public string BatchTime { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the batch time formatted for display (e.g., "02:30 AM").
+        /// </summary>
+        public string BatchTimeDisplay { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the identifier of the associated Subject.

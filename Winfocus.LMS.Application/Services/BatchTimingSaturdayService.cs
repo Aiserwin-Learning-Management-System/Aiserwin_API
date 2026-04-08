@@ -393,6 +393,7 @@ namespace Winfocus.LMS.Application.Services
     {
         Id = c.Id,
         BatchTime = DateTime.SpecifyKind(c.BatchTime, DateTimeKind.Utc).ToString("yyyy-MM-ddTHH:mm:ss.fff'Z'"),
+        BatchTimeDisplay = DateTime.SpecifyKind(c.BatchTime, DateTimeKind.Utc).ToString("hh:mm tt"),
         SubjectId = c.SubjectId,
         IsActive = c.IsActive,
         Subject = c.Subject == null ? null : new SubjectDto
