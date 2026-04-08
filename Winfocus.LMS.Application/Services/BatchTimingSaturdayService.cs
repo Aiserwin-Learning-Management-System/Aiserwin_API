@@ -392,7 +392,7 @@ namespace Winfocus.LMS.Application.Services
     new BatchTimingSaturdayDto
     {
         Id = c.Id,
-        BatchTime = c.BatchTime.ToString("dd/MM/yyyy hh:mm tt"),
+        BatchTime = DateTime.SpecifyKind(c.BatchTime, DateTimeKind.Utc).ToString("yyyy-MM-ddTHH:mm:ss.fff'Z'"),
         SubjectId = c.SubjectId,
         IsActive = c.IsActive,
         Subject = c.Subject == null ? null : new SubjectDto
