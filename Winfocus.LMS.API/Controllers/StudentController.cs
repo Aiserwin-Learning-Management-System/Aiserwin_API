@@ -74,49 +74,56 @@
         [HttpPost]
         public async Task<CommonResponse<StudentDto>> Create([FromForm] StudentRequest request)
         {
-            var personalDetails = await _studentPersonaldetailsService.CreateAsync(request.personaldetails);
-            if (!personalDetails.Success || personalDetails.Data == null)
+            try
             {
-                return CommonResponse<StudentDto>.FailureResponse(personalDetails.Message);
+                var personalDetails = await _studentPersonaldetailsService.CreateAsync(request.personaldetails);
+                if (!personalDetails.Success || personalDetails.Data == null)
+                {
+                    return CommonResponse<StudentDto>.FailureResponse(personalDetails.Message);
+                }
+                var academicDetails = await _studentAcademicdetailsService.CreateAsync(request.academicdetails);
+                if (!academicDetails.Success || academicDetails.Data == null)
+                {
+                    await _studentPersonaldetailsService.DeleteAsync(personalDetails.Data.Id);
+                    return CommonResponse<StudentDto>.FailureResponse(academicDetails.Message);
+                }
+
+                var uploaddocDetails = await _studentAcademicdetailsService.AddUploadedDocuments(request.docdetails);
+                if (uploaddocDetails == null)
+                {
+                    return CommonResponse<StudentDto>.FailureResponse("cannot upload documents!");
+                }
+
+                StudentDto studentDto = new StudentDto
+                {
+                    StudentAcademicId = academicDetails.Data.Id,
+                    AcademicDetails = academicDetails.Data,
+                    StudentPersonalId = personalDetails.Data.Id,
+                    PersonalDetails = personalDetails.Data,
+                    StudentDocumentsId = uploaddocDetails.Id,
+                    StudentDocuments = uploaddocDetails,
+                    IsScholershipStudent = request.isscholershipstudent,
+                    //Userid = UserId,
+                    RegistrationStatus = RegistrationStatus.Draft,
+                };
+
+                var created = await _studentService.CreateAsync(studentDto);
+                if (created == null)
+                {
+                    return CommonResponse<StudentDto>.FailureResponse("Failed to create student.");
+                }
+
+                await _studentAcademicdetailsService.AddCoursesAsync(created.Id, request.academicdetails.courseId);
+                await _studentAcademicdetailsService.AddBatchTimingMTFsAsync(created.Id, request.academicdetails.batchTimingMTFIds);
+                await _studentAcademicdetailsService.AddBatchTimingSaturdaysAsync(created.Id, request.academicdetails.batchTimingstaurdayIds);
+                await _studentAcademicdetailsService.AddBatchTimingSundaysAsync(created.Id, request.academicdetails.batchTimingSundayIds);
+
+                return CommonResponse<StudentDto>.SuccessResponse("Student details", created);
             }
-            var academicDetails = await _studentAcademicdetailsService.CreateAsync(request.academicdetails);
-            if (!academicDetails.Success || academicDetails.Data == null)
+            catch (Exception ex)
             {
-                await _studentPersonaldetailsService.DeleteAsync(personalDetails.Data.Id);
-                return CommonResponse<StudentDto>.FailureResponse(academicDetails.Message);
+                return CommonResponse<StudentDto>.FailureResponse($"An unexpected error occurred during student registration: {ex.Message}");
             }
-
-            var uploaddocDetails = await _studentAcademicdetailsService.AddUploadedDocuments(request.docdetails);
-            if (uploaddocDetails == null)
-            {
-                return CommonResponse<StudentDto>.FailureResponse("cannot upload documents!");
-            }
-
-            StudentDto studentDto = new StudentDto
-            {
-                StudentAcademicId = academicDetails.Data.Id,
-                AcademicDetails = academicDetails.Data,
-                StudentPersonalId = personalDetails.Data.Id,
-                PersonalDetails = personalDetails.Data,
-                StudentDocumentsId = uploaddocDetails.Id,
-                StudentDocuments = uploaddocDetails,
-                IsScholershipStudent = request.isscholershipstudent,
-                //Userid = UserId,
-                RegistrationStatus = RegistrationStatus.Draft,
-            };
-
-            var created = await _studentService.CreateAsync(studentDto);
-            if (created == null)
-            {
-                return CommonResponse<StudentDto>.FailureResponse("Failed to create student.");
-            }
-
-            await _studentAcademicdetailsService.AddCoursesAsync(created.Id, request.academicdetails.courseId);
-            await _studentAcademicdetailsService.AddBatchTimingMTFsAsync(created.Id, request.academicdetails.batchTimingMTFIds);
-            await _studentAcademicdetailsService.AddBatchTimingSaturdaysAsync(created.Id, request.academicdetails.batchTimingstaurdayIds);
-            await _studentAcademicdetailsService.AddBatchTimingSundaysAsync(created.Id, request.academicdetails.batchTimingSundayIds);
-
-            return CommonResponse<StudentDto>.SuccessResponse("Student details", created);
         }
 
         /// <summary>

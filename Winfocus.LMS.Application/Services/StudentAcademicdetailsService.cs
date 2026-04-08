@@ -205,6 +205,9 @@
             else
             {
                 _logger.LogWarning("No AcademicYear found for Date: {Date}", today);
+
+                return CommonResponse<StudentAcademicdetailsDto>
+                    .FailureResponse("No active academic year found for today's date. Please configure academic years in the system.");
             }
 
             var created = await _repository.AddAsync(academicDetails);
