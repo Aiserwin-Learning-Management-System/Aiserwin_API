@@ -13,6 +13,7 @@
     using Winfocus.LMS.Application.Services;
     using Winfocus.LMS.Domain.Entities;
     using Winfocus.LMS.Domain.Enums;
+    using Winfocus.LMS.Infrastructure.Data;
 
     /// <summary>
     /// Handles student CRUD operations.
