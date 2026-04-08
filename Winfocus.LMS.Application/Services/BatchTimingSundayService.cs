@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -132,7 +132,7 @@ namespace Winfocus.LMS.Application.Services
             {
                 var batchtiming = new BatchTimingSunday
                 {
-                    BatchTime = request.batchTime,
+                    BatchTime = request.batchTime.DateTime,
                     SubjectId = request.subjectId,
                     CreatedBy = request.userId,
                     CreatedAt = DateTime.UtcNow,
@@ -172,7 +172,7 @@ namespace Winfocus.LMS.Application.Services
                     return CommonResponse<BatchTimingSundayDto>.FailureResponse("batch time not found");
                 }
 
-                batch.BatchTime = request.batchTime;
+                batch.BatchTime = request.batchTime.DateTime;
                 batch.SubjectId = request.subjectId;
                 batch.UpdatedAt = DateTime.UtcNow;
                 batch.UpdatedBy = request.userId;
