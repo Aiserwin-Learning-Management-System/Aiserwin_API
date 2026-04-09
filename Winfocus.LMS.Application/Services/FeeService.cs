@@ -18,16 +18,26 @@
     {
         private readonly IFeeRepository _repo;
         private readonly ILogger<FeeService> _logger;
+        private readonly INotificationService _notificationService;
+        private readonly IUserRepository _userRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FeeService"/> class.
         /// </summary>
         /// <param name="repo">The repo.</param>
         /// <param name="logger">The logger.</param>
-        public FeeService(IFeeRepository repo, ILogger<FeeService> logger)
+        /// <param name="notificationService">Notification service.</param>
+        /// <param name="userRepository">User repository for role lookups.</param>
+        public FeeService(
+            IFeeRepository repo,
+            ILogger<FeeService> logger,
+            INotificationService notificationService,
+            IUserRepository userRepository)
         {
             _repo = repo;
             _logger = logger;
+            _notificationService = notificationService;
+            _userRepository = userRepository;
         }
 
         /// <inheritdoc/>
@@ -207,6 +217,21 @@
                     newDiscount.DiscountName, newDiscount.DiscountPercent,
                     newDiscount.IsManual);
 
+                // Notify the student about the approved discount
+                if (student.UserId.HasValue)
+                {
+                    var message = newDiscount.IsManual
+                        ? $"Your manual discount request has been approved: {newDiscount.DiscountName} ({newDiscount.DiscountPercent}%)."
+                        : $"Your discount request has been approved: {newDiscount.DiscountName} ({newDiscount.DiscountPercent}%).";
+
+                    await _notificationService.CreateAsync(
+                        student.UserId.Value,
+                        NotificationType.Discount,
+                        message,
+                        NotificationPriority.High,
+                        actionUrl: "/student/fee");
+                }
+
                 return CommonResponse<bool>.SuccessResponse(
                     "Discount assigned successfully.", true);
             }
@@ -224,8 +249,26 @@
         {
             try
             {
+                var student = await _repo.GetStudentWithCoursesAsync(studentId);
+                if (student == null)
+                {
+                    return CommonResponse<bool>.FailureResponse("Student not found.");
+                }
+
                 await _repo.RemoveStudentCourseDiscountsAsync(studentId, courseId);
                 await _repo.SaveChangesAsync();
+
+                // Notify the student about the removed discount
+                if (student.UserId.HasValue)
+                {
+                    await _notificationService.CreateAsync(
+                        student.UserId.Value,
+                        NotificationType.Discount,
+                        "Your assigned discount has been removed. Please contact admin for further assistance.",
+                        NotificationPriority.Normal,
+                        actionUrl: "/student/fee");
+                }
+
                 return CommonResponse<bool>.SuccessResponse(
                     "Discounts removed.", true);
             }

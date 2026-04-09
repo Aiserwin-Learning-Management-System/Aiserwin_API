@@ -193,5 +193,15 @@
          .Select(rp => rp.Permission.Name)
          .ToListAsync();
         }
+
+        /// <inheritdoc/>
+        public async Task<List<Guid>> GetUserIdsByRoleAsync(string roleName)
+        {
+            return await _dbContext.UserRoles
+                .AsNoTracking()
+                .Where(ur => ur.Role != null && ur.Role.Name == roleName)
+                .Select(ur => ur.UserId)
+                .ToListAsync();
+        }
     }
 }
