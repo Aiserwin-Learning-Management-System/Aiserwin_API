@@ -815,7 +815,7 @@
                     StudentName = s.StudentPersonalDetails?.FullName ?? "Unknown",
                     RegistrationNumber = s.RegistrationNumber ?? "",
                     GradeName = s.AcademicDetails?.Grade?.Name ?? "N/A",
-                    RequestedAt = s.UpdatedAt,
+                    RequestedAt = s.UpdatedAt ?? s.CreatedAt,
                 }).ToList();
 
                 return CommonResponse<List<DiscountRequestDto>>.SuccessResponse(
