@@ -114,7 +114,8 @@
                         GradeName = student.AcademicDetails?.Grade?.Name ?? "N/A",
                         SyllabusName = student.AcademicDetails?.Grade?.Syllabus?.Name ?? "N/A",
                         CourseDiscounts = courseBlocks,
-                        TotalPayable = courseBlocks.Sum(c => c.CalculatedFeeAfterDiscount)
+                        TotalPayable = courseBlocks.Sum(c => c.CalculatedFeeAfterDiscount),
+                        HasManualDiscountRequest = student.IsManualdiscountRequest
                     });
             }
             catch (Exception ex)
@@ -192,6 +193,11 @@
                 }
 
                 await _repo.AddStudentCourseDiscountsAsync(new[] { newDiscount });
+
+                // Clear the discount request flag since admin has responded
+                student.IsManualdiscountRequest = false;
+                student.UpdatedAt = DateTime.UtcNow;
+
                 await _repo.SaveChangesAsync();
 
                 _logger.LogInformation(
@@ -793,6 +799,34 @@
                 _logger.LogError(ex, "Error fetching filtered selections.");
                 return CommonResponse<PagedResult<StudentFeeSelectionListDto>>
                     .FailureResponse($"An error occurred: {ex.Message}");
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<CommonResponse<List<DiscountRequestDto>>> GetDiscountRequestsAsync()
+        {
+            try
+            {
+                var students = await _repo.GetStudentsWithDiscountRequestsAsync();
+
+                var result = students.Select(s => new DiscountRequestDto
+                {
+                    StudentId = s.Id,
+                    StudentName = s.StudentPersonalDetails?.FullName ?? "Unknown",
+                    RegistrationNumber = s.RegistrationNumber ?? "",
+                    GradeName = s.AcademicDetails?.Grade?.Name ?? "N/A",
+                    RequestedAt = s.UpdatedAt,
+                }).ToList();
+
+                return CommonResponse<List<DiscountRequestDto>>.SuccessResponse(
+                    "Discount requests loaded.",
+                    result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading discount requests.");
+                return CommonResponse<List<DiscountRequestDto>>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
             }
         }
 

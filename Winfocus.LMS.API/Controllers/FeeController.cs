@@ -105,6 +105,23 @@
             => Ok(await _service.GetFilteredAsync(request));
 
         // ═══════════════════════════════════════════════════════
+        //  DISCOUNT REQUESTS
+        // ═══════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Retrieves all students who have submitted a manual discount request.
+        /// </summary>
+        /// <returns>List of discount request entries.</returns>
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        [HttpGet("discount-requests")]
+        public async Task<ActionResult<CommonResponse<List<DiscountRequestDto>>>>
+            GetDiscountRequests()
+        {
+            var result = await _service.GetDiscountRequestsAsync();
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        // ═══════════════════════════════════════════════════════
         //  ADMIN STUDENT FEE MANAGEMENT
         // ═══════════════════════════════════════════════════════
 

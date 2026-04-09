@@ -240,6 +240,17 @@
                 .OrderBy(x => x.InstallmentNo)
                 .ToListAsync();
 
+        // ── Discount Request ──
+
+        /// <inheritdoc/>
+        public async Task<List<Student>> GetStudentsWithDiscountRequestsAsync()
+            => await _context.Students
+                .Include(x => x.StudentPersonalDetails)
+                .Include(x => x.AcademicDetails).ThenInclude(a => a.Grade)
+                .Where(x => !x.IsDeleted && x.IsManualdiscountRequest)
+                .AsNoTracking()
+                .ToListAsync();
+
         // ── Common ──
 
         /// <inheritdoc/>

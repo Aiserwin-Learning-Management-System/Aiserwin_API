@@ -29,6 +29,12 @@
 
         /// <summary>Gets or sets the total payable amount after discounts.</summary>
         public decimal TotalPayable { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the student has requested
+        /// a manual discount from the admin.
+        /// </summary>
+        public bool HasManualDiscountRequest { get; set; }
     }
 
     /// <summary>
