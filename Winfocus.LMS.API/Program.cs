@@ -70,6 +70,8 @@ builder.Services.AddCors(options =>
             allowedOrigins.Add("http://localhost:4200");
             allowedOrigins.Add("https://icy-plant-0ad05eb00.4.azurestaticapps.net");
             allowedOrigins.Add("https://lively-mushroom-0dbfae000.6.azurestaticapps.net");
+            allowedOrigins.Add("https://www.aiserwin.com");
+            allowedOrigins.Add("https://aiserwin.com");
         }
 
         // Log the environment and origins for debugging
