@@ -22,19 +22,19 @@
         public AppDbContext CreateDbContext(string[] args)
         {
             var basePath = Directory.GetCurrentDirectory();
-            var apiProjectPath = Path.GetFullPath(Path.Combine(basePath, "..", "Winfocus.LMS.API"));
 
             var configuration = new ConfigurationBuilder()
-                .SetBasePath(apiProjectPath)
+                .SetBasePath(basePath)
                 .AddJsonFile("appsettings.json", optional: true)
                 .AddJsonFile("appsettings.Development.json", optional: true)
                 .AddJsonFile("appsettings.Production.json", optional: true)
                 .Build();
 
-            // Allow connection string override via command-line argument: --connection "..."
-            var connectionString = args.FirstOrDefault(a => a.StartsWith("--connection="))
-                ?.Substring("--connection=".Length)
-                ?? configuration.GetConnectionString("DefaultConnection");
+            // Allow connection string override via environment variable or command-line argument
+            var envConnection = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING");
+            var argConnection = args.FirstOrDefault(a => a.StartsWith("--connection="))
+                ?.Substring("--connection=".Length);
+            var connectionString = argConnection ?? envConnection ?? configuration.GetConnectionString("DefaultConnection");
 
             if (string.IsNullOrEmpty(connectionString))
             {

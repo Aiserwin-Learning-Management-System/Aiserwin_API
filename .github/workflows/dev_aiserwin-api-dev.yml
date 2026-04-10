@@ -58,6 +58,15 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+      - name: Run EF Core migrations
+        run: |
+          dotnet tool install --global dotnet-ef --version 10.0.2 || true
+          export PATH="$PATH:$HOME/.dotnet/tools"
+          dotnet ef database update --project Winfocus.LMS.Infrastructure
+        env:
+          DB_CONNECTION_STRING: ${{ secrets.AZURE_SQL_CONNECTION_STRING }}
+          DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+
       - name: Deploy to Azure Web App (Dev)
         uses: azure/webapps-deploy@v3
         with:
