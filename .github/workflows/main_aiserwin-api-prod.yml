@@ -32,7 +32,10 @@ jobs:
         run: |
           dotnet tool install --global dotnet-ef --version 10.0.2 || true
           export PATH="$PATH:$HOME/.dotnet/tools"
-          dotnet ef database update --project Winfocus.LMS.Infrastructure --configuration Release
+          dotnet ef database update \
+            --project Winfocus.LMS.Infrastructure \
+            "$DB_CONNECTION_STRING" \
+            --configuration Release
         env:
           DB_CONNECTION_STRING: ${{ secrets.AZURE_SQL_CONNECTION_STRING }}
           DOTNET_CLI_TELEMETRY_OPTOUT: "1"

@@ -32,8 +32,10 @@
 
             // Allow connection string override via environment variable or command-line argument
             var envConnection = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING");
-            var argConnection = args.FirstOrDefault(a => a.StartsWith("--connection="))
-                ?.Substring("--connection=".Length);
+            // dotnet ef passes connection as a raw positional arg (no prefix)
+            var argConnection = args
+                .Where(a => !string.IsNullOrWhiteSpace(a) && !a.StartsWith("--"))
+                .FirstOrDefault();
             var connectionString = argConnection ?? envConnection ?? configuration.GetConnectionString("DefaultConnection");
 
             if (string.IsNullOrEmpty(connectionString))
