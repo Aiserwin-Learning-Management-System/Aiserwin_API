@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Winfocus.LMS.API.Authorization
 { 
@@ -8,6 +8,12 @@ namespace Winfocus.LMS.API.Authorization
        AuthorizationHandlerContext context,
        ScopeRequirement requirement)
         {
+            if (context.User.IsInRole("SuperAdmin"))
+            {
+                context.Succeed(requirement);
+                return Task.CompletedTask;
+            }
+
             var userCountryId = context.User.FindFirst("countryId")?.Value;
             var userCenterId = context.User.FindFirst("centerId")?.Value;
 

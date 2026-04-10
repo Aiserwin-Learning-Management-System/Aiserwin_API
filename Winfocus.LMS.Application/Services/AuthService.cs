@@ -1,4 +1,4 @@
-﻿namespace Winfocus.LMS.Application.Services
+namespace Winfocus.LMS.Application.Services
 {
     using System.Data;
     using Microsoft.AspNetCore.Http;
@@ -230,7 +230,9 @@
                     user.Id,
                     generatedUsername,
                     user.Email,
-                    roles.Select(r => r.Name).ToList(),"");
+                    roles.Select(r => r.Name).ToList(),
+                    null,
+                    string.Empty);
             }
             catch (Exception ex)
             {
@@ -363,9 +365,10 @@
                 .Select(ur => ur.Role!.Name)
                 .ToList();
             string profileimage = string.Empty;
+            Student? studentdata = null;
             if (roles.Any(r => r.Equals("Student", StringComparison.OrdinalIgnoreCase)))
             {
-                Student? studentdata = await _studentRepository.GetByUserIdAsync(user.Id);
+                studentdata = await _studentRepository.GetByUserIdAsync(user.Id);
                 if (studentdata != null
                     && !string.IsNullOrEmpty(
                         studentdata.StudentDocuments?.StudentPhotoPath))
@@ -405,7 +408,9 @@
                 user.Id,
                 user.Username,
                 user.Email,
-                roles, profileimage);
+                roles,
+                studentdata?.Id,
+                profileimage);
         }
 
         /// <summary>

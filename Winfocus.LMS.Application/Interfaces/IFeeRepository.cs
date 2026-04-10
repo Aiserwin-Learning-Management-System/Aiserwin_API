@@ -193,6 +193,14 @@
         /// <returns>A task whose result contains a list of <see cref="StudentInstallment"/> entities.</returns>
         Task<List<StudentInstallment>> GetInstallmentsBySelectionAsync(Guid selectionId);
 
+        // ── Discount Request ──
+
+        /// <summary>
+        /// Retrieves all students who have requested a manual discount asynchronously.
+        /// </summary>
+        /// <returns>A task whose result contains a list of <see cref="Student"/> entities.</returns>
+        Task<List<Student>> GetStudentsWithDiscountRequestsAsync();
+
         // ── Common ──
 
         /// <summary>

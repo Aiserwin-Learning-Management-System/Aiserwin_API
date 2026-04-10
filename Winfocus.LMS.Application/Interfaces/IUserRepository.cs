@@ -79,5 +79,12 @@
         /// <param name="roleid">The roleid.</param>
         /// <returns>user.</returns>
         Task<List<string>> GetByRoleAsync(Guid roleid);
+
+        /// <summary>
+        /// Gets all user IDs that have a specific role name.
+        /// </summary>
+        /// <param name="roleName">Name of the role (e.g. "SuperAdmin", "Admin").</param>
+        /// <returns>List of user IDs.</returns>
+        Task<List<Guid>> GetUserIdsByRoleAsync(string roleName);
     }
 }

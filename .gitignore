@@ -28,6 +28,8 @@ _ReSharper*/
 
 # Secrets and config
 appsettings.*.json
+appsettings.json
+**/appsettings.json
 secrets.json
 **/secrets.json
 

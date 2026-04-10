@@ -1,4 +1,4 @@
-﻿namespace Winfocus.LMS.API.Controllers
+namespace Winfocus.LMS.API.Controllers
 {
     using Asp.Versioning;
     using Azure.Core;
@@ -54,6 +54,12 @@
         [HttpGet]
         public async Task<ActionResult<IReadOnlyList<StudentDto>>> GetAll()
         {
+            var isSuperAdmin = User.IsInRole("SuperAdmin");
+            if (isSuperAdmin)
+            {
+                return Ok(await _studentService.GetAllAsync(Guid.Empty, Guid.Empty, Guid.Empty));
+            }
+
             var stateId = StateId;
             var countryId = CountryId;
             var centerId = CenterId;

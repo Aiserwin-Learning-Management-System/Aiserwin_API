@@ -1,6 +1,7 @@
 ﻿namespace Winfocus.LMS.Infrastructure.Data
 {
     using System.IO;
+    using System.Linq;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Design;
     using Microsoft.Extensions.Configuration;
@@ -28,7 +29,15 @@
                 .AddJsonFile($"appsettings.{env}.json", optional: true)
                 .Build();
 
-            var connectionString = configuration.GetConnectionString("DefaultConnection");
+                connectionString = configuration.GetConnectionString("DefaultConnection");
+            }
+
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                throw new InvalidOperationException(
+                    "Connection string not found. Provide it via --connection argument, "
+                    + "DB_CONNECTION_STRING env var, or appsettings.json.");
+            }
 
             var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
             optionsBuilder.UseSqlServer(connectionString);

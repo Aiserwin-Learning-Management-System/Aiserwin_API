@@ -69,13 +69,13 @@ namespace Winfocus.LMS.API.Controllers
         public async Task<ActionResult<CommonResponse<GradeDto>>> Create(
             GradeRequest request)
         {
-            var syllabus = await _syllabusService.GetByIdAsync(request.syllabusid, CenterId);
+            var isSuperAdmin = User.IsInRole("SuperAdmin");
+            var syllabus = await _syllabusService.GetByIdAsync(request.syllabusid, isSuperAdmin ? Guid.Empty : CenterId);
             if (syllabus?.Data == null)
             {
                 return NotFound("syllabus not found.");
             }
 
-            var isSuperAdmin = User.IsInRole("SuperAdmin");
             if (!isSuperAdmin && CenterId != syllabus.Data.CenterId)
             {
                 return StatusCode(403, "You are not allowed to create data for this center.");
@@ -129,13 +129,13 @@ namespace Winfocus.LMS.API.Controllers
             Guid id,
             GradeRequest request)
         {
-            var syllabus = await _syllabusService.GetByIdAsync(request.syllabusid, CenterId);
+            var isSuperAdmin = User.IsInRole("SuperAdmin");
+            var syllabus = await _syllabusService.GetByIdAsync(request.syllabusid, isSuperAdmin ? Guid.Empty : CenterId);
             if (syllabus?.Data == null)
             {
                 return NotFound("syllabus not found.");
             }
 
-            var isSuperAdmin = User.IsInRole("SuperAdmin");
             if (!isSuperAdmin && CenterId != syllabus.Data.CenterId)
             {
                 return StatusCode(403, "You are not allowed to create data for this center.");

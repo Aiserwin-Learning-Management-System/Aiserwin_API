@@ -9,5 +9,6 @@
         string username,
         string email,
         IReadOnlyList<string> roles,
+        Guid? studentId,
         string profilepicture);
 }
