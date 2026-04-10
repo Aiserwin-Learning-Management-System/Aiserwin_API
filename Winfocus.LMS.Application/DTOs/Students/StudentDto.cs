@@ -1,4 +1,4 @@
-﻿namespace Winfocus.LMS.Application.DTOs.Students
+namespace Winfocus.LMS.Application.DTOs.Students
 {
 
     using Winfocus.LMS.Application.DTOs.Masters;
@@ -88,6 +88,11 @@
         /// The batchtimings.
         /// </value>
         public List<BatchTimingSundayDto> BatchTimingSundays { get; set; } = new ();
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the student has requested a manual discount.
+        /// </summary>
+        public bool IsManualdiscountRequest { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether gets or sets the IsScholershipStudent.
