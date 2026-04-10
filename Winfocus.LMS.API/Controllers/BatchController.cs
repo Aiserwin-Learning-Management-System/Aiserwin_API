@@ -1,4 +1,4 @@
-﻿using Asp.Versioning;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Winfocus.LMS.Application.DTOs;
@@ -99,14 +99,14 @@ namespace Winfocus.LMS.API.Controllers
         {
             if (User?.Identity?.IsAuthenticated == true)
             {
-                if (UserId != Guid.Empty)
-                {
-                    return Ok(await _batchService.GetByIdCenterIdAsync(id, CenterId));
-                }
-
                 if (User.IsInRole("SuperAdmin"))
                 {
                     return Ok(await _batchService.GetByIdAsync(id));
+                }
+
+                if (UserId != Guid.Empty)
+                {
+                    return Ok(await _batchService.GetByIdCenterIdAsync(id, CenterId));
                 }
             }
 

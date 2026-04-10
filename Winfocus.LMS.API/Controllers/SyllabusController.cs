@@ -141,6 +141,12 @@
         [HttpDelete("{id:guid}")]
         public async Task<ActionResult<CommonResponse<bool>>> Delete(Guid id)
         {
+            var isSuperAdmin = User.IsInRole("SuperAdmin");
+            if (isSuperAdmin)
+            {
+                return Ok(await _syllabusService.DeleteAsync(id, Guid.Empty));
+            }
+
             var response = await _syllabusService.DeleteAsync(id, CenterId);
             return Ok(response);
         }
