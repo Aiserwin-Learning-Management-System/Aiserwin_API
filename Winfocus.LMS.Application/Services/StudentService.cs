@@ -279,7 +279,7 @@ namespace Winfocus.LMS.Application.Services
                     NotificationType.Discount,
                     $"Student \"{student.StudentPersonalDetails?.FullName}\" ({student.RegistrationNumber}) has requested a manual discount.",
                     NotificationPriority.High,
-                    actionUrl: "/admin/fee/discount-requests");
+                    actionUrl: $"/dashboard/admin/student-dashboard/{studentid}");
             }
 
             return result;

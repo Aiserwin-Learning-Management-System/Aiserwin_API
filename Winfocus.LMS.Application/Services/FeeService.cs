@@ -1,4 +1,4 @@
-﻿namespace Winfocus.LMS.Application.Services
+namespace Winfocus.LMS.Application.Services
 {
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
@@ -229,7 +229,7 @@
                         NotificationType.Discount,
                         message,
                         NotificationPriority.High,
-                        actionUrl: "/student/fee");
+                        actionUrl: $"/dashboard/student/pricing/{student.Id}");
                 }
 
                 return CommonResponse<bool>.SuccessResponse(
@@ -266,7 +266,7 @@
                         NotificationType.Discount,
                         "Your assigned discount has been removed. Please contact admin for further assistance.",
                         NotificationPriority.Normal,
-                        actionUrl: "/student/fee");
+                        actionUrl: $"/dashboard/student/pricing/{studentId}");
                 }
 
                 return CommonResponse<bool>.SuccessResponse(
