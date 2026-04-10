@@ -62,9 +62,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
-                    b.Property<Guid?>("ModifiedBy")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("Payload")
                         .HasMaxLength(4000)
                         .HasColumnType("nvarchar(4000)");
