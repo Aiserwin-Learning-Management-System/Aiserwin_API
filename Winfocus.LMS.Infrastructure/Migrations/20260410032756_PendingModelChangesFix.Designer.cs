@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Winfocus.LMS.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using Winfocus.LMS.Infrastructure.Data;
 namespace Winfocus.LMS.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260410032756_PendingModelChangesFix")]
+    partial class PendingModelChangesFix
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -4224,7 +4227,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.HasOne("Winfocus.LMS.Domain.Entities.ExamChapter", "Chapter")
                         .WithMany()
                         .HasForeignKey("ChapterId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Chapter");
@@ -4317,7 +4320,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.HasOne("Winfocus.LMS.Domain.Entities.ModeOfStudy", "ModeOfStudy")
                         .WithMany()
                         .HasForeignKey("ModeOfStudyId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Winfocus.LMS.Domain.Entities.QuestionTypeConfig", "QuestionType")
@@ -4335,7 +4338,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.HasOne("Winfocus.LMS.Domain.Entities.State", "State")
                         .WithMany()
                         .HasForeignKey("StateId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Winfocus.LMS.Domain.Entities.Streams", "Stream")
@@ -4347,7 +4350,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.HasOne("Winfocus.LMS.Domain.Entities.Subject", "Subject")
                         .WithMany()
                         .HasForeignKey("SubjectId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Winfocus.LMS.Domain.Entities.Syllabus", "Syllabus")
