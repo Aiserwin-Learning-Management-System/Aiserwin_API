@@ -18,16 +18,26 @@
     {
         private readonly IFeeRepository _repo;
         private readonly ILogger<FeeService> _logger;
+        private readonly INotificationService _notificationService;
+        private readonly IUserRepository _userRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FeeService"/> class.
         /// </summary>
         /// <param name="repo">The repo.</param>
         /// <param name="logger">The logger.</param>
-        public FeeService(IFeeRepository repo, ILogger<FeeService> logger)
+        /// <param name="notificationService">Notification service.</param>
+        /// <param name="userRepository">User repository for role lookups.</param>
+        public FeeService(
+            IFeeRepository repo,
+            ILogger<FeeService> logger,
+            INotificationService notificationService,
+            IUserRepository userRepository)
         {
             _repo = repo;
             _logger = logger;
+            _notificationService = notificationService;
+            _userRepository = userRepository;
         }
 
         /// <inheritdoc/>
@@ -114,7 +124,8 @@
                         GradeName = student.AcademicDetails?.Grade?.Name ?? "N/A",
                         SyllabusName = student.AcademicDetails?.Grade?.Syllabus?.Name ?? "N/A",
                         CourseDiscounts = courseBlocks,
-                        TotalPayable = courseBlocks.Sum(c => c.CalculatedFeeAfterDiscount)
+                        TotalPayable = courseBlocks.Sum(c => c.CalculatedFeeAfterDiscount),
+                        HasManualDiscountRequest = student.IsManualdiscountRequest
                     });
             }
             catch (Exception ex)
@@ -192,6 +203,11 @@
                 }
 
                 await _repo.AddStudentCourseDiscountsAsync(new[] { newDiscount });
+
+                // Clear the discount request flag since admin has responded
+                student.IsManualdiscountRequest = false;
+                student.UpdatedAt = DateTime.UtcNow;
+
                 await _repo.SaveChangesAsync();
 
                 _logger.LogInformation(
@@ -200,6 +216,21 @@
                     request.StudentId, request.CourseId,
                     newDiscount.DiscountName, newDiscount.DiscountPercent,
                     newDiscount.IsManual);
+
+                // Notify the student about the approved discount
+                if (student.UserId.HasValue)
+                {
+                    var message = newDiscount.IsManual
+                        ? $"Your manual discount request has been approved: {newDiscount.DiscountName} ({newDiscount.DiscountPercent}%)."
+                        : $"Your discount request has been approved: {newDiscount.DiscountName} ({newDiscount.DiscountPercent}%).";
+
+                    await _notificationService.CreateAsync(
+                        student.UserId.Value,
+                        NotificationType.Discount,
+                        message,
+                        NotificationPriority.High,
+                        actionUrl: "/student/fee");
+                }
 
                 return CommonResponse<bool>.SuccessResponse(
                     "Discount assigned successfully.", true);
@@ -218,8 +249,26 @@
         {
             try
             {
+                var student = await _repo.GetStudentWithCoursesAsync(studentId);
+                if (student == null)
+                {
+                    return CommonResponse<bool>.FailureResponse("Student not found.");
+                }
+
                 await _repo.RemoveStudentCourseDiscountsAsync(studentId, courseId);
                 await _repo.SaveChangesAsync();
+
+                // Notify the student about the removed discount
+                if (student.UserId.HasValue)
+                {
+                    await _notificationService.CreateAsync(
+                        student.UserId.Value,
+                        NotificationType.Discount,
+                        "Your assigned discount has been removed. Please contact admin for further assistance.",
+                        NotificationPriority.Normal,
+                        actionUrl: "/student/fee");
+                }
+
                 return CommonResponse<bool>.SuccessResponse(
                     "Discounts removed.", true);
             }
@@ -793,6 +842,34 @@
                 _logger.LogError(ex, "Error fetching filtered selections.");
                 return CommonResponse<PagedResult<StudentFeeSelectionListDto>>
                     .FailureResponse($"An error occurred: {ex.Message}");
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<CommonResponse<List<DiscountRequestDto>>> GetDiscountRequestsAsync()
+        {
+            try
+            {
+                var students = await _repo.GetStudentsWithDiscountRequestsAsync();
+
+                var result = students.Select(s => new DiscountRequestDto
+                {
+                    StudentId = s.Id,
+                    StudentName = s.StudentPersonalDetails?.FullName ?? "Unknown",
+                    RegistrationNumber = s.RegistrationNumber ?? "",
+                    GradeName = s.AcademicDetails?.Grade?.Name ?? "N/A",
+                    RequestedAt = s.UpdatedAt ?? s.CreatedAt,
+                }).ToList();
+
+                return CommonResponse<List<DiscountRequestDto>>.SuccessResponse(
+                    "Discount requests loaded.",
+                    result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading discount requests.");
+                return CommonResponse<List<DiscountRequestDto>>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
             }
         }
 

@@ -11,6 +11,7 @@ using Microsoft.OpenApi;
 using Serilog;
 using System.Text;
 using Winfocus.LMS.API.Authorization;
+using Winfocus.LMS.API.Hubs;
 using Winfocus.LMS.API.Middleware;
 using Winfocus.LMS.Application.Configuration;
 using Winfocus.LMS.Application.Interfaces;
@@ -57,17 +58,31 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularApp", policy =>
     {
-        var allowedOrigins = builder.Environment.IsDevelopment()
-            ? new[] { "http://localhost:4200" }
-            : new[] {
-                "https://icy-plant-0ad05eb00.4.azurestaticapps.net",
-                "https://lively-mushroom-0dbfae000.6.azurestaticapps.net",
-                "http://localhost:4200"
-            };
+        var allowedOrigins = new List<string>();
 
-        policy.WithOrigins(allowedOrigins)
+        if (builder.Environment.IsDevelopment())
+        {
+            allowedOrigins.Add("http://localhost:4200");
+        }
+        else
+        {
+            // Production / Azure - always include localhost for debugging plus deployed origins
+            allowedOrigins.Add("http://localhost:4200");
+            allowedOrigins.Add("https://icy-plant-0ad05eb00.4.azurestaticapps.net");
+            allowedOrigins.Add("https://lively-mushroom-0dbfae000.6.azurestaticapps.net");
+        }
+
+        // Log the environment and origins for debugging
+        Log.Information(
+            "CORS Policy: Environment={Env}, AllowedOrigins={Origins}",
+            builder.Environment.EnvironmentName,
+            string.Join(", ", allowedOrigins));
+
+        policy.WithOrigins(allowedOrigins.ToArray())
               .AllowAnyHeader()
-              .AllowAnyMethod();
+              .AllowAnyMethod()
+              .AllowCredentials()
+              .SetPreflightMaxAge(TimeSpan.FromMinutes(10));
     });
 });
 
@@ -263,7 +278,41 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = signingKey,
         ClockSkew = TimeSpan.Zero,
     };
+
+    // Allow JWT token to be passed via query string for SignalR WebSocket handshake.
+    // SignalR cannot set the Authorization header during the WebSocket handshake,
+    // so the client sends ?access_token=<jwt> and we extract it here.
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+            if (!string.IsNullOrEmpty(accessToken) &&
+                path.StartsWithSegments("/hubs/notifications"))
+            {
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
+        },
+    };
 });
+
+#endregion
+
+#region SignalR
+
+builder.Services.AddSignalR();
+builder.Services.AddScoped<INotificationHubContext, NotificationHubContext>();
+
+#endregion
+
+#region Notification Service
+
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+
+#endregion
 
 builder.Services.AddAuthorization(options =>
 {
@@ -308,8 +357,6 @@ builder.Services.AddAuthorization(options =>
     });
 
 });
-
-#endregion
 
 #region Controllers
 
@@ -559,6 +606,7 @@ app.UseAuthentication();
 app.UseMiddleware<SessionValidationMiddleware>();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHub<NotificationHub>("/hubs/notifications");
 
 #endregion
 

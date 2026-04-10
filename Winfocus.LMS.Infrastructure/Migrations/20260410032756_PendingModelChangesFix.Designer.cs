@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Winfocus.LMS.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using Winfocus.LMS.Infrastructure.Data;
 namespace Winfocus.LMS.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260410032756_PendingModelChangesFix")]
+    partial class PendingModelChangesFix
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -660,90 +663,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .HasDatabaseName("IX_Exams_UnitId");
 
                     b.ToTable("Exams", (string)null);
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.ExamAccount", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("ActivationEndDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("ActivationStartDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("BatchId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ChapterId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("ExamDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("ExamId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid>("QuestionTypeConfigId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("QuestionTypeId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ResourceId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ResourceTypeId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("StudentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("SubjectId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("UnitId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BatchId");
-
-                    b.HasIndex("ChapterId");
-
-                    b.HasIndex("ExamId");
-
-                    b.HasIndex("QuestionTypeConfigId");
-
-                    b.HasIndex("ResourceTypeId");
-
-                    b.HasIndex("StudentId");
-
-                    b.HasIndex("SubjectId");
-
-                    b.HasIndex("UnitId");
-
-                    b.ToTable("ExamAccounts");
                 });
 
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.ExamChapter", b =>
@@ -4469,69 +4388,6 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.Navigation("Subject");
 
                     b.Navigation("Syllabus");
-
-                    b.Navigation("Unit");
-                });
-
-            modelBuilder.Entity("Winfocus.LMS.Domain.Entities.ExamAccount", b =>
-                {
-                    b.HasOne("Winfocus.LMS.Domain.Entities.Batch", "Batch")
-                        .WithMany()
-                        .HasForeignKey("BatchId");
-
-                    b.HasOne("Winfocus.LMS.Domain.Entities.ExamChapter", "Chapter")
-                        .WithMany()
-                        .HasForeignKey("ChapterId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Winfocus.LMS.Domain.Entities.Exam", "Exam")
-                        .WithMany()
-                        .HasForeignKey("ExamId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Winfocus.LMS.Domain.Entities.QuestionTypeConfig", "QuestionTypeConfig")
-                        .WithMany()
-                        .HasForeignKey("QuestionTypeConfigId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Winfocus.LMS.Domain.Entities.ContentResourceType", "ResourceType")
-                        .WithMany()
-                        .HasForeignKey("ResourceTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Winfocus.LMS.Domain.Entities.Student", "Student")
-                        .WithMany()
-                        .HasForeignKey("StudentId");
-
-                    b.HasOne("Winfocus.LMS.Domain.Entities.Subject", "Subject")
-                        .WithMany()
-                        .HasForeignKey("SubjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Winfocus.LMS.Domain.Entities.ExamUnit", "Unit")
-                        .WithMany()
-                        .HasForeignKey("UnitId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Batch");
-
-                    b.Navigation("Chapter");
-
-                    b.Navigation("Exam");
-
-                    b.Navigation("QuestionTypeConfig");
-
-                    b.Navigation("ResourceType");
-
-                    b.Navigation("Student");
-
-                    b.Navigation("Subject");
 
                     b.Navigation("Unit");
                 });

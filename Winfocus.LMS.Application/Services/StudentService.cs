@@ -19,6 +19,8 @@ namespace Winfocus.LMS.Application.Services
         private readonly IDoubtClearingRepository _doubtClearingRepository;
         private readonly IStateRepository _stateRepository;
         private readonly IFileStorageService _fileStorageService;
+        private readonly INotificationService _notificationService;
+        private readonly IUserRepository _userRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StudentService" /> class.
@@ -28,18 +30,24 @@ namespace Winfocus.LMS.Application.Services
         /// <param name="doubtClearingRepository">doubtClearingRepository.</param>
         /// <param name="stateRepository">Repository for state/emirate lookups.</param>
         /// <param name="fileStorageService">The file storage service.</param>
+        /// <param name="notificationService">Notification service.</param>
+        /// <param name="userRepository">User repository for role lookups.</param>
         public StudentService(
             IStudentRepository repository,
             ILogger<StateService> logger,
             IDoubtClearingRepository doubtClearingRepository,
             IStateRepository stateRepository,
-            IFileStorageService fileStorageService)
+            IFileStorageService fileStorageService,
+            INotificationService notificationService,
+            IUserRepository userRepository)
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _doubtClearingRepository = doubtClearingRepository ?? throw new ArgumentNullException(nameof(doubtClearingRepository));
             _stateRepository = stateRepository ?? throw new ArgumentNullException(nameof(stateRepository));
             _fileStorageService = fileStorageService ?? throw new ArgumentNullException(nameof(fileStorageService));
+            _notificationService = notificationService ?? throw new ArgumentNullException(nameof(notificationService));
+            _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         }
 
         /// <summary>
@@ -250,7 +258,31 @@ namespace Winfocus.LMS.Application.Services
         /// <returns>task.</returns>
         public async Task<CommonResponse<bool>> Requestfordiscount(Guid studentid)
         {
-            return await _repository.Requestfordiscount(studentid);
+            var student = await _repository.GetByIdAsync(studentid);
+            if (student == null)
+            {
+                return CommonResponse<bool>.FailureResponse("Student not found.");
+            }
+
+            var result = await _repository.Requestfordiscount(studentid);
+            if (!result.Success)
+            {
+                return result;
+            }
+
+            // Notify all SuperAdmins about the new discount request
+            var superAdminIds = await _userRepository.GetUserIdsByRoleAsync("SuperAdmin");
+            foreach (var adminId in superAdminIds)
+            {
+                await _notificationService.CreateAsync(
+                    adminId,
+                    NotificationType.Discount,
+                    $"Student \"{student.StudentPersonalDetails?.FullName}\" ({student.RegistrationNumber}) has requested a manual discount.",
+                    NotificationPriority.High,
+                    actionUrl: "/admin/fee/discount-requests");
+            }
+
+            return result;
         }
 
         /// <summary>

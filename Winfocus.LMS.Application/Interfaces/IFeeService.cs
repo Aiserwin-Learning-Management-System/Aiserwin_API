@@ -120,6 +120,14 @@
         /// <returns>A task whose result contains the <see cref="PaymentSummaryDto"/>.</returns>
         Task<CommonResponse<PaymentSummaryDto>> GetPaymentSummaryAsync(Guid studentId);
 
+        // ── Discount requests ──
+
+        /// <summary>
+        /// Retrieves all students who have requested a manual discount asynchronously.
+        /// </summary>
+        /// <returns>A task whose result contains a list of <see cref="DiscountRequestDto"/> entities.</returns>
+        Task<CommonResponse<List<DiscountRequestDto>>> GetDiscountRequestsAsync();
+
         // ── Selections filter ──
 
         /// <summary>

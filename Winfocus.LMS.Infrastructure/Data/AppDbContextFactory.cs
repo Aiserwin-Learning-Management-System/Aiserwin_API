@@ -1,6 +1,7 @@
 ﻿namespace Winfocus.LMS.Infrastructure.Data
 {
     using System.IO;
+    using System.Linq;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Design;
     using Microsoft.Extensions.Configuration;
@@ -20,13 +21,26 @@
         /// </returns>
         public AppDbContext CreateDbContext(string[] args)
         {
+            var basePath = Directory.GetCurrentDirectory();
+
             var configuration = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json")
+                .SetBasePath(basePath)
+                .AddJsonFile("appsettings.json", optional: true)
                 .AddJsonFile("appsettings.Development.json", optional: true)
+                .AddJsonFile("appsettings.Production.json", optional: true)
                 .Build();
 
-            var connectionString = configuration.GetConnectionString("DefaultConnection");
+            // Allow connection string override via environment variable or command-line argument
+            var envConnection = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING");
+            var argConnection = args.FirstOrDefault(a => a.StartsWith("--connection="))
+                ?.Substring("--connection=".Length);
+            var connectionString = argConnection ?? envConnection ?? configuration.GetConnectionString("DefaultConnection");
+
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                throw new InvalidOperationException(
+                    "Connection string not found. Provide it via --connection argument or via appsettings.json.");
+            }
 
             var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
             optionsBuilder.UseSqlServer(connectionString);

@@ -467,6 +467,14 @@
         public DbSet<ExamQuestion> ExamQuestions { get; set; } = null!;
 
         /// <summary>
+        /// Gets or sets the notifications.
+        /// </summary>
+        /// <value>
+        /// The user notifications.
+        /// </value>
+        public DbSet<Notification> Notifications { get; set; } = null!;
+
+        /// <summary>
         /// Configures the model for the context.
         /// </summary>
         /// <param name="modelBuilder">The builder being used to construct the model for this context.</param>
@@ -765,6 +773,37 @@
                       .WithMany(p => p.RolePermissions)
                       .HasForeignKey(rp => rp.PermissionId)
                       .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Notification entity configuration
+            modelBuilder.Entity<Notification>(entity =>
+            {
+                entity.ToTable("Notifications");
+                entity.HasKey(n => n.Id);
+
+                entity.Property(n => n.Message)
+                    .IsRequired()
+                    .HasMaxLength(1000);
+
+                entity.Property(n => n.Type)
+                    .HasConversion<string>()
+                    .HasMaxLength(50)
+                    .IsRequired();
+
+                entity.Property(n => n.Priority)
+                    .HasConversion<string>()
+                    .HasMaxLength(20)
+                    .IsRequired();
+
+                entity.Property(n => n.Payload)
+                    .HasMaxLength(4000);
+
+                entity.Property(n => n.ActionUrl)
+                    .HasMaxLength(500);
+
+                entity.HasIndex(n => n.UserId);
+                entity.HasIndex(n => new { n.UserId, n.IsRead });
+                entity.HasIndex(n => n.CreatedAt);
             });
 
             base.OnModelCreating(modelBuilder);
