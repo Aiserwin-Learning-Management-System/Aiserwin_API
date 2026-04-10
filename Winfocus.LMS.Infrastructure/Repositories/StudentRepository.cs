@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -213,10 +213,15 @@ namespace Winfocus.LMS.Infrastructure.Repositories
             entity.UpdatedAt = DateTime.UtcNow;
             entity.IsManualdiscountRequest = true;
 
-            _dbContext.Students.Update(entity);
+            // Ensure the entity is tracked and marked as modified
+            _dbContext.Entry(entity).State = EntityState.Modified;
+            
             await _dbContext.SaveChangesAsync();
+            
+            _logger.LogInformation("Discount request flag set to true for student {StudentId}", studentid);
+            
             return CommonResponse<bool>
-       .SuccessResponse("Student successfully updated", true);
+                .SuccessResponse("Student discount request successfully updated", true);
         }
 
         /// <summary>
