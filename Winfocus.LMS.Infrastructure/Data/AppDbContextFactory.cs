@@ -21,7 +21,17 @@
         /// </returns>
         public AppDbContext CreateDbContext(string[] args)
         {
-            var basePath = Directory.GetCurrentDirectory();
+            // Walk up from the assembly location to find the Infrastructure project root,
+            // then fall back to current directory if not found.
+            var assemblyDir = Path.GetDirectoryName(typeof(AppDbContextFactory).Assembly.Location)
+                              ?? Directory.GetCurrentDirectory();
+            var basePath = assemblyDir;
+            while (!string.IsNullOrEmpty(basePath) && !File.Exists(Path.Combine(basePath, "appsettings.json")))
+            {
+                basePath = Directory.GetParent(basePath)?.FullName;
+            }
+            if (string.IsNullOrEmpty(basePath))
+                basePath = Directory.GetCurrentDirectory();
 
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(basePath)
