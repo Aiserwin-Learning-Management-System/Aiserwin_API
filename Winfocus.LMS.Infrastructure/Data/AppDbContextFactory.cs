@@ -21,17 +21,24 @@
         /// </returns>
         public AppDbContext CreateDbContext(string[] args)
         {
-            // Walk up from the assembly location to find the Infrastructure project root,
-            // then fall back to current directory if not found.
+            // 1. Check the bin directory where appsettings.json is now copied.
+            // 2. Walk up from the assembly location to find the project root.
+            // 3. Fall back to current directory.
             var assemblyDir = Path.GetDirectoryName(typeof(AppDbContextFactory).Assembly.Location)
                               ?? Directory.GetCurrentDirectory();
-            var basePath = assemblyDir;
-            while (!string.IsNullOrEmpty(basePath) && !File.Exists(Path.Combine(basePath, "appsettings.json")))
+            var basePath = File.Exists(Path.Combine(assemblyDir, "appsettings.json"))
+                ? assemblyDir
+                : Directory.GetCurrentDirectory();
+            if (!File.Exists(Path.Combine(basePath, "appsettings.json")))
             {
-                basePath = Directory.GetParent(basePath)?.FullName;
+                var current = assemblyDir;
+                while (!string.IsNullOrEmpty(current) && !File.Exists(Path.Combine(current, "appsettings.json")))
+                {
+                    current = Directory.GetParent(current)?.FullName;
+                }
+                if (!string.IsNullOrEmpty(current))
+                    basePath = current;
             }
-            if (string.IsNullOrEmpty(basePath))
-                basePath = Directory.GetCurrentDirectory();
 
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(basePath)
