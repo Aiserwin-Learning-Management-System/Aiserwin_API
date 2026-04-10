@@ -34,7 +34,6 @@ jobs:
           export PATH="$PATH:$HOME/.dotnet/tools"
           dotnet ef database update \
             --project Winfocus.LMS.Infrastructure \
-            "$DB_CONNECTION_STRING" \
             --configuration Release
         env:
           DB_CONNECTION_STRING: ${{ secrets.AZURE_SQL_CONNECTION_STRING }}

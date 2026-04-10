@@ -28,20 +28,22 @@
                 .AddJsonFile("appsettings.json", optional: true)
                 .AddJsonFile("appsettings.Development.json", optional: true)
                 .AddJsonFile("appsettings.Production.json", optional: true)
+                .AddEnvironmentVariables()
                 .Build();
 
-            // Allow connection string override via environment variable or command-line argument
-            var envConnection = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING");
-            // dotnet ef passes connection as a raw positional arg (no prefix)
+            // Priority: command-line arg > env var > appsettings JSON
             var argConnection = args
                 .Where(a => !string.IsNullOrWhiteSpace(a) && !a.StartsWith("--"))
                 .FirstOrDefault();
-            var connectionString = argConnection ?? envConnection ?? configuration.GetConnectionString("DefaultConnection");
+            var connectionString = argConnection
+                ?? configuration["DB_CONNECTION_STRING"]
+                ?? configuration.GetConnectionString("DefaultConnection");
 
             if (string.IsNullOrEmpty(connectionString))
             {
                 throw new InvalidOperationException(
-                    "Connection string not found. Provide it via --connection argument or via appsettings.json.");
+                    "Connection string not found. Provide it via --connection argument, "
+                    + "DB_CONNECTION_STRING env var, or appsettings.json.");
             }
 
             var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
