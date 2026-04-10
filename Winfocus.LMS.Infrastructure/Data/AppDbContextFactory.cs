@@ -21,33 +21,37 @@
         /// </returns>
         public AppDbContext CreateDbContext(string[] args)
         {
-            // Walk up from the assembly location to find the project root where
-            // appsettings.json lives. Falls back to current directory if not found.
-            var assemblyDir = Path.GetDirectoryName(typeof(AppDbContextFactory).Assembly.Location)
-                              ?? Directory.GetCurrentDirectory();
-            var basePath = assemblyDir;
-            while (!string.IsNullOrEmpty(basePath) && !File.Exists(Path.Combine(basePath, "appsettings.json")))
-            {
-                basePath = Directory.GetParent(basePath)?.FullName;
-            }
-            if (string.IsNullOrEmpty(basePath))
-                basePath = Directory.GetCurrentDirectory();
-
-            var configuration = new ConfigurationBuilder()
-                .SetBasePath(basePath)
-                .AddJsonFile("appsettings.json", optional: true)
-                .AddJsonFile("appsettings.Development.json", optional: true)
-                .AddJsonFile("appsettings.Production.json", optional: true)
-                .AddEnvironmentVariables()
-                .Build();
-
-            // Priority: command-line arg > env var > appsettings JSON
+            // Priority: 1. --connection argument, 2. DB_CONNECTION_STRING env var, 3. appsettings.json
             var argConnection = args
                 .Where(a => !string.IsNullOrWhiteSpace(a) && !a.StartsWith("--"))
                 .FirstOrDefault();
+
             var connectionString = argConnection
-                ?? configuration["DB_CONNECTION_STRING"]
-                ?? configuration.GetConnectionString("DefaultConnection");
+                ?? Environment.GetEnvironmentVariable("DB_CONNECTION_STRING");
+
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                // Fall back to appsettings.json (useful for local development).
+                // Walk up from the assembly location to find the project root.
+                var assemblyDir = Path.GetDirectoryName(typeof(AppDbContextFactory).Assembly.Location)
+                                  ?? Directory.GetCurrentDirectory();
+                var basePath = assemblyDir;
+                while (!string.IsNullOrEmpty(basePath) && !File.Exists(Path.Combine(basePath, "appsettings.json")))
+                {
+                    basePath = Directory.GetParent(basePath)?.FullName;
+                }
+                if (string.IsNullOrEmpty(basePath))
+                    basePath = Directory.GetCurrentDirectory();
+
+                var configuration = new ConfigurationBuilder()
+                    .SetBasePath(basePath)
+                    .AddJsonFile("appsettings.json", optional: true)
+                    .AddJsonFile("appsettings.Development.json", optional: true)
+                    .AddJsonFile("appsettings.Production.json", optional: true)
+                    .Build();
+
+                connectionString = configuration.GetConnectionString("DefaultConnection");
+            }
 
             if (string.IsNullOrEmpty(connectionString))
             {
