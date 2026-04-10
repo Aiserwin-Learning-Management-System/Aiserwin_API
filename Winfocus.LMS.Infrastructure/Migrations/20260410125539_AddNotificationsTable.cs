@@ -1,3 +1,4 @@
+﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -23,11 +24,12 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     Priority = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     ActionUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     ExpiresAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
