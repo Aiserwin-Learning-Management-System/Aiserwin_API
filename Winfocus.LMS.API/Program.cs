@@ -217,6 +217,9 @@ builder.Services.AddScoped<IExamRepository, ExamRepository>();
 builder.Services.AddScoped<IExamService, ExamService>();
 builder.Services.AddScoped<ITeachingToolsRepository, TeachingToolsRepository>();
 builder.Services.AddScoped<ITeachingToolsService, TeachingToolsService>();
+// Register ExamAccount repository and service
+builder.Services.AddScoped<IExamAccountRepository, ExamAccountRepository>();
+builder.Services.AddScoped<IExamAccountService, ExamAccountService>();
 
 // Teacher registration
 builder.Services.AddScoped<Winfocus.LMS.Application.Interfaces.ITeacherRegistrationRepository, Winfocus.LMS.Infrastructure.Repositories.TeacherRegistrationRepository>();
