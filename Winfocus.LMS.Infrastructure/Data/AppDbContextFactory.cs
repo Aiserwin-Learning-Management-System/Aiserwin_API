@@ -29,8 +29,7 @@
                 .AddJsonFile($"appsettings.{env}.json", optional: true)
                 .Build();
 
-                connectionString = configuration.GetConnectionString("DefaultConnection");
-            }
+            var connectionString = configuration.GetConnectionString("DefaultConnection");
 
             if (string.IsNullOrEmpty(connectionString))
             {
