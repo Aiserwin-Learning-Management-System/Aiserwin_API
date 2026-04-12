@@ -147,10 +147,11 @@ namespace Winfocus.LMS.API.Controllers
         /// </summary>
         /// <param name="studentId">The identifier.</param>
         /// <returns>StudentDto by id.</returns>
+        [AllowAnonymous]
         [HttpGet("{studentId:guid}")]
         public async Task<CommonResponse<StudentDto>> Get(Guid studentId)
         {
-            var student = await _studentService.GetByIdsAsync(studentId, CountryId, StateId, CenterId);
+            var student = await _studentService.GetByIdsAsync(studentId, Guid.Empty, Guid.Empty, Guid.Empty);
             if (student == null)
             {
                 return CommonResponse<StudentDto>.FailureResponse("Student not found");
