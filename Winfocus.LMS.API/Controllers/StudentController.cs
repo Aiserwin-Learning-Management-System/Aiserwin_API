@@ -82,7 +82,7 @@ namespace Winfocus.LMS.API.Controllers
         /// <param name="request">The request.</param>
         /// <returns>StudentDto.</returns>
         [HttpPost]
-        public async Task<CommonResponse<StudentDto>> Create([FromForm] StudentRequest request)
+        public async Task<IActionResult> Create([FromForm] StudentRequest request)
         {
             using var transaction = await _dbContext.Database.BeginTransactionAsync();
             try
@@ -91,20 +91,25 @@ namespace Winfocus.LMS.API.Controllers
                 if (!personalDetails.Success || personalDetails.Data == null)
                 {
                     await transaction.RollbackAsync();
-                    return CommonResponse<StudentDto>.FailureResponse(personalDetails.Message);
+                    // Return 409 Conflict for duplicate email, 400 for other validation errors
+                    if (personalDetails.Message?.Contains("already exist", StringComparison.OrdinalIgnoreCase) == true)
+                    {
+                        return Conflict(CommonResponse<StudentDto>.FailureResponse(personalDetails.Message));
+                    }
+                    return BadRequest(CommonResponse<StudentDto>.FailureResponse(personalDetails.Message));
                 }
                 var academicDetails = await _studentAcademicdetailsService.CreateAsync(request.academicdetails);
                 if (!academicDetails.Success || academicDetails.Data == null)
                 {
                     await transaction.RollbackAsync();
-                    return CommonResponse<StudentDto>.FailureResponse(academicDetails.Message);
+                    return BadRequest(CommonResponse<StudentDto>.FailureResponse(academicDetails.Message));
                 }
 
                 var uploaddocDetails = await _studentAcademicdetailsService.AddUploadedDocuments(request.docdetails);
                 if (uploaddocDetails == null)
                 {
                     await transaction.RollbackAsync();
-                    return CommonResponse<StudentDto>.FailureResponse("cannot upload documents!");
+                    return BadRequest(CommonResponse<StudentDto>.FailureResponse("cannot upload documents!"));
                 }
 
                 StudentDto studentDto = new StudentDto
@@ -124,7 +129,7 @@ namespace Winfocus.LMS.API.Controllers
                 if (created == null)
                 {
                     await transaction.RollbackAsync();
-                    return CommonResponse<StudentDto>.FailureResponse("Failed to create student.");
+                    return BadRequest(CommonResponse<StudentDto>.FailureResponse("Failed to create student."));
                 }
 
                 await _studentAcademicdetailsService.AddCoursesAsync(created.Id, request.academicdetails.courseId);
@@ -133,12 +138,12 @@ namespace Winfocus.LMS.API.Controllers
                 await _studentAcademicdetailsService.AddBatchTimingSundaysAsync(created.Id, request.academicdetails.batchTimingSundayIds);
 
                 await transaction.CommitAsync();
-                return CommonResponse<StudentDto>.SuccessResponse("Student details", created);
+                return Ok(CommonResponse<StudentDto>.SuccessResponse("Student details", created));
             }
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                return CommonResponse<StudentDto>.FailureResponse($"An error occurred: {ex.Message}");
+                return StatusCode(500, CommonResponse<StudentDto>.FailureResponse($"An error occurred: {ex.Message}"));
             }
         }
 
