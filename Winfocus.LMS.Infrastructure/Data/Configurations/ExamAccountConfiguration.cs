@@ -32,12 +32,10 @@ namespace Winfocus.LMS.Infrastructure.Data.Configurations
                 .HasColumnType("datetime2");
 
             builder.Property(e => e.ResourceId)
-                .IsRequired()
-                .HasColumnType("uniqueidentifier");
+                .IsRequired();
 
             builder.Property(e => e.QuestionTypeId)
-                .IsRequired()
-                .HasColumnType("uniqueidentifier");
+                .IsRequired();
 
             // Indexes on frequently queried FK columns
             builder.HasIndex(e => e.ExamId).HasDatabaseName("IX_ExamAccounts_ExamId");
@@ -67,11 +65,13 @@ namespace Winfocus.LMS.Infrastructure.Data.Configurations
                 .OnDelete(DeleteBehavior.NoAction)
                 .IsRequired();
 
-            // ExamAccount → ExamUnit: Cascade (deleting a unit should clean up related accounts)
+            // ExamAccount → ExamUnit: NoAction (required to avoid SQL Server cascade cycle).
+            // Chain: Subject → ExamUnit (Cascade) + ExamUnit → ExamAccount (Cascade) +
+            // ExamAccount → Subject (Cascade) creates Subject → ExamUnit → ExamAccount → Subject cycle.
             builder.HasOne(e => e.Unit)
                 .WithMany()
                 .HasForeignKey(e => e.UnitId)
-                .OnDelete(DeleteBehavior.Cascade)
+                .OnDelete(DeleteBehavior.NoAction)
                 .IsRequired();
 
             // ExamAccount → Subject: Cascade

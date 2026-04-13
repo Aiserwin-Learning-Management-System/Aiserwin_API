@@ -666,7 +666,8 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("NEWSEQUENTIALID()");
 
                     b.Property<DateTime>("ActivationEndDate")
                         .HasColumnType("datetime2");
@@ -681,7 +682,9 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
@@ -693,10 +696,14 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<Guid>("QuestionTypeConfigId")
                         .HasColumnType("uniqueidentifier");
@@ -727,23 +734,31 @@ namespace Winfocus.LMS.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BatchId");
+                    b.HasIndex("BatchId")
+                        .HasDatabaseName("IX_ExamAccounts_BatchId");
 
-                    b.HasIndex("ChapterId");
+                    b.HasIndex("ChapterId")
+                        .HasDatabaseName("IX_ExamAccounts_ChapterId");
 
-                    b.HasIndex("ExamId");
+                    b.HasIndex("ExamId")
+                        .HasDatabaseName("IX_ExamAccounts_ExamId");
 
-                    b.HasIndex("QuestionTypeConfigId");
+                    b.HasIndex("QuestionTypeConfigId")
+                        .HasDatabaseName("IX_ExamAccounts_QuestionTypeConfigId");
 
-                    b.HasIndex("ResourceTypeId");
+                    b.HasIndex("ResourceTypeId")
+                        .HasDatabaseName("IX_ExamAccounts_ResourceTypeId");
 
-                    b.HasIndex("StudentId");
+                    b.HasIndex("StudentId")
+                        .HasDatabaseName("IX_ExamAccounts_StudentId");
 
-                    b.HasIndex("SubjectId");
+                    b.HasIndex("SubjectId")
+                        .HasDatabaseName("IX_ExamAccounts_SubjectId");
 
-                    b.HasIndex("UnitId");
+                    b.HasIndex("UnitId")
+                        .HasDatabaseName("IX_ExamAccounts_UnitId");
 
-                    b.ToTable("ExamAccounts");
+                    b.ToTable("ExamAccounts", (string)null);
                 });
 
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.ExamChapter", b =>
@@ -917,13 +932,16 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("NEWSEQUENTIALID()");
 
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
@@ -938,10 +956,14 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -953,7 +975,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
 
                     b.HasIndex("FeePlanId");
 
-                    b.ToTable("FeeInstallments");
+                    b.ToTable("FeeInstallments", (string)null);
                 });
 
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.FeePlan", b =>
@@ -1015,29 +1037,37 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("NEWSEQUENTIALID()");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("DiscountName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<decimal>("DiscountPercent")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(5,2)");
 
                     b.Property<Guid>("FeePlanId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -1049,7 +1079,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
 
                     b.HasIndex("FeePlanId");
 
-                    b.ToTable("FeePlanDiscount");
+                    b.ToTable("FeePlanDiscount", (string)null);
                 });
 
             modelBuilder.Entity("Winfocus.LMS.Domain.Entities.FieldGroup", b =>
@@ -4477,7 +4507,8 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                 {
                     b.HasOne("Winfocus.LMS.Domain.Entities.Batch", "Batch")
                         .WithMany()
-                        .HasForeignKey("BatchId");
+                        .HasForeignKey("BatchId")
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("Winfocus.LMS.Domain.Entities.ExamChapter", "Chapter")
                         .WithMany()
@@ -4505,7 +4536,8 @@ namespace Winfocus.LMS.Infrastructure.Migrations
 
                     b.HasOne("Winfocus.LMS.Domain.Entities.Student", "Student")
                         .WithMany()
-                        .HasForeignKey("StudentId");
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("Winfocus.LMS.Domain.Entities.Subject", "Subject")
                         .WithMany()
@@ -4516,7 +4548,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.HasOne("Winfocus.LMS.Domain.Entities.ExamUnit", "Unit")
                         .WithMany()
                         .HasForeignKey("UnitId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Batch");

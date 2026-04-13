@@ -531,6 +531,9 @@
             modelBuilder.ApplyConfiguration(new StudentFeeSelectionConfiguration());
             modelBuilder.ApplyConfiguration(new StudentInstallmentConfiguration());
 
+            modelBuilder.ApplyConfiguration(new FeeInstallmentConfiguration());
+            modelBuilder.ApplyConfiguration(new FeePlanDiscountConfiguration());
+
             // User configuration
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Username)
