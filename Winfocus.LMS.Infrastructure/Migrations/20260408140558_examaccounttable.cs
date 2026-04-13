@@ -55,7 +55,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         column: x => x.ChapterId,
                         principalTable: "ExamChapters",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.NoAction);
                     table.ForeignKey(
                         name: "FK_ExamAccounts_ExamUnits_UnitId",
                         column: x => x.UnitId,
