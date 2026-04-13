@@ -183,5 +183,15 @@
             return Ok(result);
         }
 
+        /// <summary>
+        /// Gets all syllabuses for listing (no auth required, used by dropdowns).
+        /// </summary>
+        /// <returns>List of all SyllabusDto.</returns>
+        [HttpGet("all")]
+        public async Task<ActionResult<CommonResponse<List<SyllabusDto>>>> GetAllForDropdown()
+        {
+            return Ok(await _syllabusService.GetAllAsync());
+        }
+
     }
 }
