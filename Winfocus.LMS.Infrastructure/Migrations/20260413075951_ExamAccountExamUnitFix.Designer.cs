@@ -12,7 +12,7 @@ using Winfocus.LMS.Infrastructure.Data;
 namespace Winfocus.LMS.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260413074041_ExamAccountExamUnitFix")]
+    [Migration("20260413075951_ExamAccountExamUnitFix")]
     partial class ExamAccountExamUnitFix
     {
         /// <inheritdoc />
@@ -4551,7 +4551,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                     b.HasOne("Winfocus.LMS.Domain.Entities.ExamUnit", "Unit")
                         .WithMany()
                         .HasForeignKey("UnitId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Batch");
