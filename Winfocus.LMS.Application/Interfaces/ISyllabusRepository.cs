@@ -63,5 +63,12 @@
         /// <param name="centerId">The identifier.</param>
         /// <returns>Grade.</returns>
         Task<List<Syllabus>> GetByCenterIdAsync(Guid centerId);
+
+        /// <summary>
+        /// Gets the by year identifier asynchronous.
+        /// </summary>
+        /// <param name="yearId">The identifier.</param>
+        /// <returns>Grade.</returns>
+        Task<List<Syllabus>> GetByYearIdAsync(Guid yearId);
     }
 }

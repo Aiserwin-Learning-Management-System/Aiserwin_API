@@ -60,5 +60,12 @@
         /// <param name="centerId">The center identifier.</param>
         /// <returns>List of SyllabusDto.</returns>
         Task<CommonResponse<List<SyllabusDto>>> GetByCenterIdAsync(Guid centerId);
+
+        /// <summary>
+        /// Gets the by year identifier asynchronous.
+        /// </summary>
+        /// <param name="yearId">The year identifier.</param>
+        /// <returns>List of SyllabusDto.</returns>
+        Task<CommonResponse<List<SyllabusDto>>> GetByYearIdAsync(Guid yearId);
     }
 }

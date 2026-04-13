@@ -322,6 +322,34 @@ namespace Winfocus.LMS.Application.Services
         }
 
         /// <summary>
+        /// Gets the by year identifier asynchronous.
+        /// </summary>
+        /// <param name="yearId">The identifier.</param>
+        /// <returns>GradeDto.</returns>
+        public async Task<CommonResponse<List<SyllabusDto>>> GetByYearIdAsync(Guid yearId)
+        {
+            try
+            {
+                var syllabus = await _repository.GetByYearIdAsync(yearId);
+                var mapped = Map(syllabus);
+                if (mapped != null)
+                {
+                    return CommonResponse<List<SyllabusDto>>.SuccessResponse("Fetching the syllabus by year", mapped);
+                }
+                else
+                {
+                    return CommonResponse<List<SyllabusDto>>.FailureResponse("Syllabus not found");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching Syllabus");
+                return CommonResponse<List<SyllabusDto>>.FailureResponse(
+                    $"An error occurred: {ex.Message}");
+            }
+        }
+
+        /// <summary>
         /// Maps grade entity list to DTO list.
         /// </summary>
         private static List<SyllabusDto> Map(IEnumerable<Syllabus> syllabus)

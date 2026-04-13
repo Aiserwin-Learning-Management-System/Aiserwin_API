@@ -173,5 +173,20 @@ namespace Winfocus.LMS.Infrastructure.Repositories
 
             return await query.ToListAsync();
         }
+
+        /// <summary>
+        /// Gets the by year identifier asynchronous.
+        /// </summary>
+        /// <param name="yearId">The identifier.</param>
+        /// <returns>Syllabus.</returns>
+        public async Task<List<Syllabus>> GetByYearIdAsync(Guid yearId)
+        {
+            var query = _db.Syllabuses
+        .Include(x => x.Center)
+         .Include(x => x.AcademicYear)
+        .Where(x => !x.IsDeleted && x.AcademicYearId == yearId);
+
+            return await query.ToListAsync();
+        }
     }
 }

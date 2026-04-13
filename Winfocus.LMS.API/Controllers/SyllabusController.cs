@@ -183,5 +183,16 @@
             return Ok(result);
         }
 
+        /// <summary>
+        /// Gets the specified identifier.
+        /// </summary>
+        /// <param name="yearId">The identifier.</param>
+        /// <returns>GradeDto by id.</returns>
+        [HttpGet("by-year/{yearid:guid}")]
+        public async Task<ActionResult<CommonResponse<List<SyllabusDto>>>> GetByYearId(Guid yearId)
+        {
+            var result = await _syllabusService.GetByYearIdAsync(yearId);
+            return Ok(result);
+        }
     }
 }
