@@ -106,5 +106,15 @@ namespace Winfocus.LMS.Domain.Entities
         /// Gets or sets the navigation property to the batch.
         /// </summary>
         public Batch Batch { get; set; } = default!;
+
+        /// <summary>
+        /// Gets or sets the foreign key to QuestionTypeConfig.
+        /// </summary>
+        public Guid QuestionTypeConfigId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the foreign key to ContentResourceType.
+        /// </summary>
+        public Guid ResourceTypeId { get; set; }
     }
 }
