@@ -510,6 +510,7 @@
 
             modelBuilder.ApplyConfiguration(new ExamUnitConfiguration());
             modelBuilder.ApplyConfiguration(new ExamChapterConfiguration());
+            modelBuilder.ApplyConfiguration(new ExamAccountConfiguration());
             modelBuilder.ApplyConfiguration(new ContentResourceTypeConfiguration());
 
             modelBuilder.ApplyConfiguration(new TaskAssignmentConfiguration());
