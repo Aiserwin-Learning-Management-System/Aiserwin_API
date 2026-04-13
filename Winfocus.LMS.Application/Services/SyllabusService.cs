@@ -246,9 +246,9 @@ namespace Winfocus.LMS.Application.Services
             {
                 _logger.LogInformation(
                     "Fetching filtered syllabuses. Filters => Active:{Active}, Search:{SearchText}, " +
-                    "SortBy:{SortBy}, SortOrder:{SortOrder}, Limit:{Limit}, Offset:{Offset}",
+                    "SortBy:{SortBy}, SortOrder:{SortOrder}, Limit:{Limit}, Offset:{Offset}, AcademicYear:{AcademicYear}",
                     request.Active, request.SearchText, request.SortBy,
-                    request.SortOrder, request.Limit, request.Offset);
+                    request.SortOrder, request.Limit, request.Offset, request.AcademicYear);
 
                 var query = _repository.Query(centerId);
 
@@ -266,6 +266,21 @@ namespace Winfocus.LMS.Application.Services
                 {
                     var searchTerm = request.SearchText.Trim().ToLower();
                     query = query.Where(x => x.Name.ToLower().Contains(searchTerm));
+                }
+
+                // ── Academic Year Filter ──
+                if (request.AcademicYear.HasValue)
+                {
+                    if (request.AcademicYear.Value)
+                    {
+                        // Only syllabi WITH an academic year assigned
+                        query = query.Where(x => x.AcademicYearId != null && x.AcademicYearId != Guid.Empty);
+                    }
+                    else
+                    {
+                        // Only syllabi WITHOUT an academic year assigned
+                        query = query.Where(x => x.AcademicYearId == null || x.AcademicYearId == Guid.Empty);
+                    }
                 }
 
                 // ── Total Count ──
