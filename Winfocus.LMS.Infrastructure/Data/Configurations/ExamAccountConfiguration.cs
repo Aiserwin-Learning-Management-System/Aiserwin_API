@@ -65,11 +65,13 @@ namespace Winfocus.LMS.Infrastructure.Data.Configurations
                 .OnDelete(DeleteBehavior.NoAction)
                 .IsRequired();
 
-            // ExamAccount → ExamUnit: Cascade (deleting a unit should clean up related accounts)
+            // ExamAccount → ExamUnit: NoAction (required to avoid SQL Server cascade cycle).
+            // Chain: Subject → ExamUnit (Cascade) + ExamUnit → ExamAccount (Cascade) +
+            // ExamAccount → Subject (Cascade) creates Subject → ExamUnit → ExamAccount → Subject cycle.
             builder.HasOne(e => e.Unit)
                 .WithMany()
                 .HasForeignKey(e => e.UnitId)
-                .OnDelete(DeleteBehavior.Cascade)
+                .OnDelete(DeleteBehavior.NoAction)
                 .IsRequired();
 
             // ExamAccount → Subject: Cascade
