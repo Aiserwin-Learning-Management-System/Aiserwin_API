@@ -264,6 +264,11 @@ namespace Winfocus.LMS.Application.Services
                 return CommonResponse<bool>.FailureResponse("Student not found.");
             }
 
+            if (student.IsManualdiscountRequest)
+            {
+                return CommonResponse<bool>.FailureResponse("You have already submitted a discount request.");
+            }
+
             var result = await _repository.Requestfordiscount(studentid);
             if (!result.Success)
             {
@@ -279,7 +284,7 @@ namespace Winfocus.LMS.Application.Services
                     NotificationType.Discount,
                     $"Student \"{student.StudentPersonalDetails?.FullName}\" ({student.RegistrationNumber}) has requested a manual discount.",
                     NotificationPriority.High,
-                    actionUrl: "/admin/fee/discount-requests");
+                    actionUrl: $"/dashboard/admin/student-dashboard/{studentid}");
             }
 
             return result;
@@ -554,6 +559,7 @@ namespace Winfocus.LMS.Application.Services
                         Id = c.CourseId,
                         Name = c.Course.Name,
                     }).ToList() ?? new List<CourseDto>(),
+                IsManualdiscountRequest = entity.IsManualdiscountRequest,
             };
         }
 
@@ -675,6 +681,7 @@ namespace Winfocus.LMS.Application.Services
                 Id = x.CourseId,
                 Name = x.Course.Name,
             }).ToList() ?? new List<CourseDto>(),
+         IsManualdiscountRequest = c.IsManualdiscountRequest,
          BatchTimingMTFs = c.StudentBatchTimingMTFs?
             .Select(x => new BatchTimingMTFDto
             {

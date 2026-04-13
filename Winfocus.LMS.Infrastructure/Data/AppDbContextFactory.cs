@@ -21,25 +21,43 @@
         /// </returns>
         public AppDbContext CreateDbContext(string[] args)
         {
-            var basePath = Directory.GetCurrentDirectory();
+            // Priority: 1. --connection argument, 2. DB_CONNECTION_STRING env var, 3. appsettings.json
+            var argConnection = args
+                .Where(a => !string.IsNullOrWhiteSpace(a) && !a.StartsWith("--"))
+                .FirstOrDefault();
 
-            var configuration = new ConfigurationBuilder()
-                .SetBasePath(basePath)
-                .AddJsonFile("appsettings.json", optional: true)
-                .AddJsonFile("appsettings.Development.json", optional: true)
-                .AddJsonFile("appsettings.Production.json", optional: true)
-                .Build();
+            var connectionString = argConnection
+                ?? Environment.GetEnvironmentVariable("DB_CONNECTION_STRING");
 
-            // Allow connection string override via environment variable or command-line argument
-            var envConnection = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING");
-            var argConnection = args.FirstOrDefault(a => a.StartsWith("--connection="))
-                ?.Substring("--connection=".Length);
-            var connectionString = argConnection ?? envConnection ?? configuration.GetConnectionString("DefaultConnection");
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                // Fall back to appsettings.json (useful for local development).
+                // Walk up from the assembly location to find the project root.
+                var assemblyDir = Path.GetDirectoryName(typeof(AppDbContextFactory).Assembly.Location)
+                                  ?? Directory.GetCurrentDirectory();
+                var basePath = assemblyDir;
+                while (!string.IsNullOrEmpty(basePath) && !File.Exists(Path.Combine(basePath, "appsettings.json")))
+                {
+                    basePath = Directory.GetParent(basePath)?.FullName;
+                }
+                if (string.IsNullOrEmpty(basePath))
+                    basePath = Directory.GetCurrentDirectory();
+
+                var configuration = new ConfigurationBuilder()
+                    .SetBasePath(basePath)
+                    .AddJsonFile("appsettings.json", optional: true)
+                    .AddJsonFile("appsettings.Development.json", optional: true)
+                    .AddJsonFile("appsettings.Production.json", optional: true)
+                    .Build();
+
+                connectionString = configuration.GetConnectionString("DefaultConnection");
+            }
 
             if (string.IsNullOrEmpty(connectionString))
             {
                 throw new InvalidOperationException(
-                    "Connection string not found. Provide it via --connection argument or via appsettings.json.");
+                    "Connection string not found. Provide it via --connection argument, "
+                    + "DB_CONNECTION_STRING env var, or appsettings.json.");
             }
 
             var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
