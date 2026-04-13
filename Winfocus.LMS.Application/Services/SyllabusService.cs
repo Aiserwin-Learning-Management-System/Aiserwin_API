@@ -246,9 +246,9 @@ namespace Winfocus.LMS.Application.Services
             {
                 _logger.LogInformation(
                     "Fetching filtered syllabuses. Filters => Active:{Active}, Search:{SearchText}, " +
-                    "SortBy:{SortBy}, SortOrder:{SortOrder}, Limit:{Limit}, Offset:{Offset}",
+                    "SortBy:{SortBy}, SortOrder:{SortOrder}, Limit:{Limit}, Offset:{Offset}, AcademicYear:{AcademicYear}",
                     request.Active, request.SearchText, request.SortBy,
-                    request.SortOrder, request.Limit, request.Offset);
+                    request.SortOrder, request.Limit, request.Offset, request.AcademicYear);
 
                 var query = _repository.Query(centerId);
 
@@ -266,6 +266,11 @@ namespace Winfocus.LMS.Application.Services
                 {
                     var searchTerm = request.SearchText.Trim().ToLower();
                     query = query.Where(x => x.Name.ToLower().Contains(searchTerm));
+                }
+
+                if (request.AcademicYear == true)
+                {
+                    query = query.Where(x => x.AcademicYear != null);
                 }
 
                 // ── Total Count ──

@@ -184,6 +184,16 @@
         }
 
         /// <summary>
+        /// Gets all syllabuses for listing (no auth required, used by dropdowns).
+        /// </summary>
+        /// <returns>List of all SyllabusDto.</returns>
+        [HttpGet("all")]
+        public async Task<ActionResult<CommonResponse<List<SyllabusDto>>>> GetAllForDropdown()
+        {
+            return Ok(await _syllabusService.GetAllAsync());
+        }
+
+        /// <summary>
         /// Gets the specified identifier.
         /// </summary>
         /// <param name="yearId">The identifier.</param>

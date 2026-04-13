@@ -44,6 +44,12 @@
         /// Gets or sets the end date filter.
         /// </summary>
         public DateTime? EndDate { get; set; }
+
+        /// <summary>
+        /// Gets or sets the academic year filter.
+        /// null = show all, true = only with academic year, false = only without academic year.
+        /// </summary>
+        public bool? AcademicYear { get; set; }
     }
 
     /// <summary>
