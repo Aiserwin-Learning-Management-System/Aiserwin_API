@@ -269,18 +269,10 @@ namespace Winfocus.LMS.Application.Services
                 }
 
                 // ── Academic Year Filter ──
-                if (request.AcademicYear.HasValue)
+    
+                if (request.AcademicYear == true)
                 {
-                    if (request.AcademicYear.Value)
-                    {
-                        // Only syllabi WITH an academic year assigned
-                        query = query.Where(x => x.AcademicYearId != null && x.AcademicYearId != Guid.Empty);
-                    }
-                    else
-                    {
-                        // Only syllabi WITHOUT an academic year assigned
-                        query = query.Where(x => x.AcademicYearId == null || x.AcademicYearId == Guid.Empty);
-                    }
+                    query = query.Where(x => x.AcademicYearId != null && x.AcademicYearId != Guid.Empty);
                 }
 
                 // ── Total Count ──
