@@ -268,11 +268,9 @@ namespace Winfocus.LMS.Application.Services
                     query = query.Where(x => x.Name.ToLower().Contains(searchTerm));
                 }
 
-                // ── Academic Year Filter ──
-    
                 if (request.AcademicYear == true)
                 {
-                    query = query.Where(x => x.AcademicYearId != null && x.AcademicYearId != Guid.Empty);
+                    query = query.Where(x => x.AcademicYear != null);
                 }
 
                 // ── Total Count ──

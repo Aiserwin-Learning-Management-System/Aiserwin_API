@@ -149,7 +149,7 @@ namespace Winfocus.LMS.Infrastructure.Repositories
 
           if (centerId != Guid.Empty)
             {
-                res.Where(x => x.CenterId == centerId);
+                res = res.Where(x => x.CenterId == centerId);
             }
           return res;
         }
