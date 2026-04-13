@@ -385,6 +385,14 @@
         public DbSet<ExamChapter> ExamChapters { get; set; } = null!;
 
         /// <summary>
+        /// Gets or sets the exam accounts.
+        /// </summary>
+        /// <value>
+        /// The exam accounts.
+        /// </value>
+        public DbSet<ExamAccount> ExamAccounts { get; set; } = null!;
+
+        /// <summary>
         /// Gets or sets the content resource types.
         /// </summary>
         /// <value>
