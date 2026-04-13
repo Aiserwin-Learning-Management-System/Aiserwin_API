@@ -2203,7 +2203,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         column: x => x.ModeOfStudyId,
                         principalTable: "ModeOfStudies",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Exams_QuestionTypeConfigs_QuestionTypeId",
                         column: x => x.QuestionTypeId,
@@ -2215,7 +2215,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         column: x => x.StateId,
                         principalTable: "States",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Exams_Streams_StreamId",
                         column: x => x.StreamId,
@@ -2227,7 +2227,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                         column: x => x.SubjectId,
                         principalTable: "Subjects",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Exams_Syllabuses_SyllabusId",
                         column: x => x.SyllabusId,
@@ -3503,7 +3503,7 @@ namespace Winfocus.LMS.Infrastructure.Migrations
                 column: "ChapterId",
                 principalTable: "ExamChapters",
                 principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.Restrict);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Courses_Subjects_SubjectId",
