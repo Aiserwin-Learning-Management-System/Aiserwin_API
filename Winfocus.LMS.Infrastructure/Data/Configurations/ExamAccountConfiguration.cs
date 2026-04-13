@@ -32,12 +32,10 @@ namespace Winfocus.LMS.Infrastructure.Data.Configurations
                 .HasColumnType("datetime2");
 
             builder.Property(e => e.ResourceId)
-                .IsRequired()
-                .HasColumnType("uniqueidentifier");
+                .IsRequired();
 
             builder.Property(e => e.QuestionTypeId)
-                .IsRequired()
-                .HasColumnType("uniqueidentifier");
+                .IsRequired();
 
             // Indexes on frequently queried FK columns
             builder.HasIndex(e => e.ExamId).HasDatabaseName("IX_ExamAccounts_ExamId");
