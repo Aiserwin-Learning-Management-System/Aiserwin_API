@@ -51,5 +51,19 @@ namespace Winfocus.LMS.Application.Interfaces
         /// <param name="request">Paging and filter request.</param>
         /// <returns>CommonResponse containing paged result of <see cref="ExamAccountDto"/>.</returns>
         Task<CommonResponse<PagedResult<ExamAccountDto>>> GetFilteredAsync(PagedRequest request);
+
+        /// <summary>
+        /// Retrieves exam timetable entries for a specific student.
+        /// </summary>
+        /// <param name="studentId">Student identifier.</param>
+        /// <returns>List of <see cref="ExamAccountDto"/> for the student.</returns>
+        Task<CommonResponse<List<ExamAccountDto>>> GetByStudentAsync(Guid studentId);
+
+        /// <summary>
+        /// Retrieves exam timetable entries for a specific batch.
+        /// </summary>
+        /// <param name="batchId">Batch identifier.</param>
+        /// <returns>List of <see cref="ExamAccountDto"/> for the batch.</returns>
+        Task<CommonResponse<List<ExamAccountDto>>> GetByBatchAsync(Guid batchId);
     }
 }

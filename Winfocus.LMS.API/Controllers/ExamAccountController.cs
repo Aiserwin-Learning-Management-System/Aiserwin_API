@@ -51,6 +51,44 @@ namespace Winfocus.LMS.API.Controllers
         }
 
         /// <summary>
+        /// Gets exam timetable for a specific student.
+        /// </summary>
+        /// <param name="studentId">Student identifier.</param>
+        [HttpGet("student/{studentId:guid}/timetable")]
+        public async Task<ActionResult<CommonResponse<List<ExamAccountDto>>>> GetStudentTimetable(Guid studentId)
+        {
+            try
+            {
+                var res = await _service.GetByStudentAsync(studentId);
+                return Ok(res);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in GetStudentTimetable for {StudentId}", studentId);
+                return StatusCode(500, CommonResponse<List<ExamAccountDto>>.FailureResponse($"An error occurred: {ex.Message}"));
+            }
+        }
+
+        /// <summary>
+        /// Gets exam timetable for a specific batch.
+        /// </summary>
+        /// <param name="batchId">Batch identifier.</param>
+        [HttpGet("batch/{batchId:guid}/timetable")]
+        public async Task<ActionResult<CommonResponse<List<ExamAccountDto>>>> GetBatchTimetable(Guid batchId)
+        {
+            try
+            {
+                var res = await _service.GetByBatchAsync(batchId);
+                return Ok(res);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in GetBatchTimetable for {BatchId}", batchId);
+                return StatusCode(500, CommonResponse<List<ExamAccountDto>>.FailureResponse($"An error occurred: {ex.Message}"));
+            }
+        }
+
+        /// <summary>
         /// Creates a new exam account.
         /// </summary>
         /// <param name="request">The exam account create request.</param>

@@ -255,6 +255,56 @@ namespace Winfocus.LMS.Application.Services
             }
         }
 
+        /// <summary>
+        /// Retrieves exam accounts for a specific student, ordered by exam date.
+        /// </summary>
+        /// <param name="studentId">Student identifier.</param>
+        /// <returns>CommonResponse with list of ExamAccountDto.</returns>
+        public async Task<CommonResponse<List<ExamAccountDto>>> GetByStudentAsync(Guid studentId)
+        {
+            try
+            {
+                _logger.LogInformation("Fetching exam accounts for student {StudentId}", studentId);
+                var items = await _repository.Query()
+                    .Where(x => x.StudentId == studentId && x.IsActive)
+                    .OrderBy(x => x.ExamDate)
+                    .ToListAsync();
+
+                var dto = items.Select(Map).ToList();
+                return CommonResponse<List<ExamAccountDto>>.SuccessResponse("fetched", dto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching exam accounts for student {StudentId}", studentId);
+                return CommonResponse<List<ExamAccountDto>>.FailureResponse($"An error occurred: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Retrieves exam accounts for a specific batch, ordered by exam date.
+        /// </summary>
+        /// <param name="batchId">Batch identifier.</param>
+        /// <returns>CommonResponse with list of ExamAccountDto.</returns>
+        public async Task<CommonResponse<List<ExamAccountDto>>> GetByBatchAsync(Guid batchId)
+        {
+            try
+            {
+                _logger.LogInformation("Fetching exam accounts for batch {BatchId}", batchId);
+                var items = await _repository.Query()
+                    .Where(x => x.BatchId == batchId && x.IsActive)
+                    .OrderBy(x => x.ExamDate)
+                    .ToListAsync();
+
+                var dto = items.Select(Map).ToList();
+                return CommonResponse<List<ExamAccountDto>>.SuccessResponse("fetched", dto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching exam accounts for batch {BatchId}", batchId);
+                return CommonResponse<List<ExamAccountDto>>.FailureResponse($"An error occurred: {ex.Message}");
+            }
+        }
+
         private static ExamAccountDto Map(ExamAccount c)
         {
             return new ExamAccountDto
